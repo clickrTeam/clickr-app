@@ -12,7 +12,7 @@ let client: net.Socket | null = null
 
 function getSocketPath(): string {
   if (process.platform === 'win32') {
-    return '\\\\.\\pipe\\myapp-socket'
+    return '\\\\\\.\\\\pipe\\myapp-socket';
   } else {
     return path.join(os.tmpdir(), 'daemon.sock') // or /var/run/daemon.sock if your daemon creates it there
   }
