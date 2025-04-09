@@ -33,7 +33,7 @@ const KeyboardKey: React.FC<KeyboardKeyProps> = ({
     <motion.div
       className={cn(
         "absolute w-12 h-12 flex items-center justify-center rounded-md border-2 bg-white/20 backdrop-blur-sm shadow-md select-none",
-        "left-1/2 top-0 mt-40ç",
+        "left-1/2 top-0 mt-40",
         keyColors[color as keyof typeof keyColors],
         className
       )}
