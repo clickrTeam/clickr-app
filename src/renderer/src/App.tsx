@@ -18,6 +18,11 @@ function App(): JSX.Element {
     window.electron.ipcRenderer.send('start-daemon')
   }
 
+  const loadProfile = (): void => {
+    // Eventually this will point to a specific .json file or path
+    window.electron.ipcRenderer.send('load')
+  }
+
   const createNewProfile = (): void => {
     // Change view to create a new profile
     setCurrentView(View.NEW_PROFILE)
@@ -45,6 +50,7 @@ function App(): JSX.Element {
           <h1>Clickr</h1>
           <button onClick={handleStartDaemon}>Start Daemon</button>
           <button onClick={createNewProfile}>Create New Profile</button>
+          <button onClick={loadProfile}>Load e1.json</button>
         </div>
       )}
 

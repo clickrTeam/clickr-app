@@ -4,8 +4,11 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import * as net from 'net'
 import * as os from 'os'
-import * as fs from 'fs'
+import * as fs from 'fs/promises'
 import * as path from 'path'
+
+// Store the socket globally
+let client: net.Socket | null = null
 
 function getSocketPath(): string {
   if (process.platform === 'win32') {
@@ -16,7 +19,7 @@ function getSocketPath(): string {
 }
 
 function sendStartSignalToDaemon(): void {
-  const client = net.createConnection(getSocketPath(), (): void => {
+  client = net.createConnection(getSocketPath(), (): void => {
     console.log('Connected to daemon')
     client.write('start\n')
   })
@@ -29,6 +32,34 @@ function sendStartSignalToDaemon(): void {
   client.on('error', (err) => {
     console.error('Failed to connect to daemon:', err.message)
   })
+}
+
+async function sendProfileJson(client: net.Socket): Promise<void> {
+  const jsonPath = path.join(__dirname, '..', '..', 'resources', 'e1.json') // TODO: Just an example, eventually this will not be hardcoded.
+
+  try {
+    // Check if the socket is still writable
+    if (!client.writable || client.destroyed) {
+      console.error('Socket is not connected or already closed.')
+      return
+    }
+
+    const data = await fs.readFile(jsonPath, 'utf8')
+
+    // Optional: Validate JSON
+    JSON.parse(data)
+
+    // Send it with newline for framing
+    client.write(data + '\n')
+    console.log('Sent profile JSON to daemon')
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('Error sending JSON file:', err.message)
+    } else {
+      // Handle other types of errors if needed (e.g., a string or object)
+      console.error('Unknown error:', err)
+    }
+  }
 }
 
 function createWindow(): void {
@@ -80,6 +111,14 @@ app.whenReady().then(() => {
   /// Listen for the 'start-daemon' IPC message from the renderer
   ipcMain.on('start-daemon', () => {
     sendStartSignalToDaemon() // Call the function when the message is received
+  })
+
+  ipcMain.on('load', () => {
+    if (client) {
+      sendProfileJson(client)
+    } else {
+      console.error('Not connected to socket.')
+    }
   })
 
   createWindow()
