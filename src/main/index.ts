@@ -2,6 +2,34 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import * as net from 'net'
+import * as os from 'os'
+import * as fs from 'fs'
+import * as path from 'path'
+
+function getSocketPath(): string {
+  if (process.platform === 'win32') {
+    return '\\\\.\\pipe\\myapp-socket'
+  } else {
+    return path.join(os.tmpdir(), 'daemon.sock') // or /var/run/daemon.sock if your daemon creates it there
+  }
+}
+
+function sendStartSignalToDaemon(): void {
+  const client = net.createConnection(getSocketPath(), (): void => {
+    console.log('Connected to daemon')
+    client.write('start\n')
+  })
+
+  client.on('data', (data) => {
+    console.log('Daemon responded:', data.toString())
+    client.end()
+  })
+
+  client.on('error', (err) => {
+    console.error('Failed to connect to daemon:', err.message)
+  })
+}
 
 function createWindow(): void {
   // Create the browser window.
@@ -49,8 +77,10 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  /// Listen for the 'start-daemon' IPC message from the renderer
+  ipcMain.on('start-daemon', () => {
+    sendStartSignalToDaemon() // Call the function when the message is received
+  })
 
   createWindow()
 
