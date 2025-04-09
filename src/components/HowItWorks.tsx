@@ -1,8 +1,7 @@
-
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { ArrowRightCircle, Cloud, Globe, Laptop } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { ArrowRightCircle, Cloud, Globe, Laptop } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -11,13 +10,21 @@ interface FeatureCardProps {
   className?: string;
 }
 
-const FeatureCard = ({ icon, title, description, className }: FeatureCardProps) => {
+const FeatureCard = ({
+  icon,
+  title,
+  description,
+  className,
+}: FeatureCardProps) => {
   return (
-    <Card className={cn("border-none shadow-lg hover:shadow-xl transition-shadow", className)}>
+    <Card
+      className={cn(
+        "border-none shadow-lg hover:shadow-xl transition-shadow",
+        className
+      )}
+    >
       <CardHeader className="pb-0">
-        <div className="p-3 rounded-full bg-primary/10 w-fit">
-          {icon}
-        </div>
+        <div className="p-3 rounded-full bg-primary/10 w-fit">{icon}</div>
       </CardHeader>
       <CardContent className="pt-4">
         <CardTitle className="mb-2 text-xl">{title}</CardTitle>
@@ -32,18 +39,21 @@ const HowItWorks = () => {
     {
       icon: <Globe className="h-6 w-6 text-clickr-blue" />,
       title: "Web-App Pair",
-      description: "Configure your mappings in the browser and sync them instantly with the desktop app."
+      description:
+        "Configure your mappings in the desktop app and sync them instantly with the website.",
     },
     {
       icon: <Cloud className="h-6 w-6 text-clickr-blue" />,
       title: "Multiplatform and Cloud",
-      description: "Your mappings are stored in the cloud and accessible across Windows, macOS, and Linux."
+      description:
+        "Your mappings are stored in the cloud and accessible across Windows, macOS, and Linux.",
     },
     {
       icon: <Laptop className="h-6 w-6 text-clickr-blue" />,
       title: "Electron and C++",
-      description: "Powered by a high-performance C++ core for efficient keyboard remapping with zero latency."
-    }
+      description:
+        "Powered by a high-performance C++ core for efficient keyboard remapping with zero latency.",
+    },
   ];
 
   const containerVariants = {
@@ -51,9 +61,9 @@ const HowItWorks = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2
-      }
-    }
+        staggerChildren: 0.2,
+      },
+    },
   };
 
   const itemVariants = {
@@ -62,9 +72,9 @@ const HowItWorks = () => {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.5
-      }
-    }
+        duration: 0.5,
+      },
+    },
   };
 
   return (
@@ -79,11 +89,12 @@ const HowItWorks = () => {
         >
           <h2 className="text-4xl font-bold mb-4">How it Works</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Clickr seamlessly connects your web preferences with desktop functionality
+            Clickr seamlessly connects your web preferences with desktop
+            functionality
           </p>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
           variants={containerVariants}
           initial="hidden"

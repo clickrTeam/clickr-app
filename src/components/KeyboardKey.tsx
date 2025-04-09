@@ -33,13 +33,14 @@ const KeyboardKey: React.FC<KeyboardKeyProps> = ({
     <motion.div
       className={cn(
         "absolute w-12 h-12 flex items-center justify-center rounded-md border-2 bg-white/20 backdrop-blur-sm shadow-md select-none",
+        "left-1/2 top-0 mt-40ç",
         keyColors[color as keyof typeof keyColors],
         className
       )}
       initial={{ opacity: 0 }}
       animate={{
         opacity: [0.4, 0.8, 0.4],
-        x: [300, x / 2, x, x / 2, x / 2],
+        x: [800, x / 2, x, x / 2, x / 2],
         y: [300, y / 2, y, y / 2, y / 2],
         rotate: [0, 15, -15, 10, 0],
         scale: [1, 1.1, 1, 0.9, 1],

@@ -1,8 +1,14 @@
-
-import { motion } from 'framer-motion';
-import { Button } from './ui/button';
-import { Apple, ArrowRight, Download, Monitor, Github } from 'lucide-react';
-import { Windows, Linux } from './Icons';
+import { motion } from "framer-motion";
+import { Button } from "./ui/button";
+import {
+  Apple,
+  ArrowRight,
+  Download,
+  Monitor,
+  Github,
+  Gitlab,
+} from "lucide-react";
+import { Windows, Linux } from "./Icons";
 
 const DownloadSection = () => {
   return (
@@ -34,7 +40,9 @@ const DownloadSection = () => {
               <Windows className="h-16 w-16 text-primary" />
             </div>
             <h3 className="text-xl font-bold mb-2">Windows</h3>
-            <p className="mb-6 text-muted-foreground">For Windows 10 and above</p>
+            <p className="mb-6 text-muted-foreground">
+              For Windows 10 and above
+            </p>
             <Button className="w-full" asChild>
               <a href="#download-windows">
                 <Download className="mr-2 h-4 w-4" />
@@ -55,7 +63,9 @@ const DownloadSection = () => {
               <Apple className="h-16 w-16 text-primary" />
             </div>
             <h3 className="text-xl font-bold mb-2">macOS</h3>
-            <p className="mb-6 text-muted-foreground">For macOS 11.0 and above</p>
+            <p className="mb-6 text-muted-foreground">
+              For macOS 11.0 and above
+            </p>
             <Button className="w-full" asChild>
               <a href="#download-mac">
                 <Download className="mr-2 h-4 w-4" />
@@ -76,7 +86,9 @@ const DownloadSection = () => {
               <Linux className="h-16 w-16 text-primary" />
             </div>
             <h3 className="text-xl font-bold mb-2">Linux</h3>
-            <p className="mb-6 text-muted-foreground">For most major distributions</p>
+            <p className="mb-6 text-muted-foreground">
+              For most major distributions
+            </p>
             <Button className="w-full" asChild>
               <a href="#download-linux">
                 <Download className="mr-2 h-4 w-4" />
@@ -88,9 +100,13 @@ const DownloadSection = () => {
 
         <div className="mt-12 text-center">
           <Button variant="outline" className="gap-2" asChild>
-            <a href="https://github.com/clickr/app" target="_blank" rel="noopener noreferrer">
-              <Github size={16} />
-              View Source on GitHub
+            <a
+              href="https://capstone.cs.utah.edu/clickr"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Gitlab size={16} />
+              View Source on Gitlab
             </a>
           </Button>
         </div>
