@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { Apple, Download, Gitlab, Server } from "lucide-react";
-import { Windows } from "./Icons";
+import { FiDownload } from "react-icons/fi";
+import { FaApple, FaWindows, FaLinux, FaGitlab } from "react-icons/fa6";
 
 const DownloadSection = () => {
   return (
@@ -30,7 +30,7 @@ const DownloadSection = () => {
             viewport={{ once: true }}
           >
             <div className="flex justify-center mb-4">
-              <Windows className="h-16 w-16 text-primary" />
+              <FaWindows className="h-16 w-16 text-primary" />
             </div>
             <h3 className="text-xl font-bold mb-2">Windows</h3>
             <p className="mb-6 text-muted-foreground">
@@ -38,7 +38,7 @@ const DownloadSection = () => {
             </p>
             <Button className="w-full" asChild>
               <a href="#download-windows">
-                <Download className="mr-2 h-4 w-4" />
+                <FiDownload className="mr-2 h-4 w-4" />
                 Download
               </a>
             </Button>
@@ -53,7 +53,7 @@ const DownloadSection = () => {
             viewport={{ once: true }}
           >
             <div className="flex justify-center mb-4">
-              <Apple className="h-16 w-16 text-primary" />
+              <FaApple className="h-16 w-16 text-primary" />
             </div>
             <h3 className="text-xl font-bold mb-2">macOS</h3>
             <p className="mb-6 text-muted-foreground">
@@ -61,7 +61,7 @@ const DownloadSection = () => {
             </p>
             <Button className="w-full" asChild>
               <a href="#download-mac">
-                <Download className="mr-2 h-4 w-4" />
+                <FiDownload className="mr-2 h-4 w-4" />
                 Download
               </a>
             </Button>
@@ -76,7 +76,7 @@ const DownloadSection = () => {
             viewport={{ once: true }}
           >
             <div className="flex justify-center mb-4">
-              <Server className="h-16 w-16 text-primary" />
+              <FaLinux className="h-16 w-16 text-primary" />
             </div>
             <h3 className="text-xl font-bold mb-2">Linux</h3>
             <p className="mb-6 text-muted-foreground">
@@ -84,7 +84,7 @@ const DownloadSection = () => {
             </p>
             <Button className="w-full" asChild>
               <a href="#download-linux">
-                <Download className="mr-2 h-4 w-4" />
+                <FiDownload className="mr-2 h-4 w-4" />
                 Download
               </a>
             </Button>
@@ -98,7 +98,7 @@ const DownloadSection = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Gitlab size={16} />
+              <FaGitlab size={16} />
               View Source on Gitlab
             </a>
           </Button>
