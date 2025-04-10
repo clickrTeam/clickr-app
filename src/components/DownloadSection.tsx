@@ -1,14 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
-import {
-  Apple,
-  ArrowRight,
-  Download,
-  Monitor,
-  Github,
-  Gitlab,
-} from "lucide-react";
-import { Windows, Linux } from "./Icons";
+import { Apple, Download, Gitlab, Server } from "lucide-react";
+import { Windows } from "./Icons";
 
 const DownloadSection = () => {
   return (
@@ -83,7 +76,7 @@ const DownloadSection = () => {
             viewport={{ once: true }}
           >
             <div className="flex justify-center mb-4">
-              <Linux className="h-16 w-16 text-primary" />
+              <Server className="h-16 w-16 text-primary" />
             </div>
             <h3 className="text-xl font-bold mb-2">Linux</h3>
             <p className="mb-6 text-muted-foreground">
