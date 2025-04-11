@@ -1,15 +1,23 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { Profile } from '../models/Profile'
 import icon from '../../resources/icon.png?asset'
 import * as net from 'net'
 import * as os from 'os'
 import * as fs from 'fs/promises'
 import * as path from 'path'
+import { profile } from 'console'
 
 // Store the socket globally
 let client: net.Socket | null = null
 
+let active_profile: Profile | null = null
+
+/**
+ * Gets the path to the socket which will be communicated on based on OS
+ * @returns Socket path as string
+ */
 function getSocketPath(): string {
   if (process.platform === 'win32') {
     return '\\\\.\\pipe\\myapp-socket'
@@ -18,6 +26,35 @@ function getSocketPath(): string {
   }
 }
 
+/**
+ * Creates a new profile object with the default values and sets it to active_profile
+ * @param profile_name The name of the Profile
+ */
+function createNewProfile(profile_name: string): void {
+  active_profile = new Profile(profile_name)
+}
+
+/**
+ * Loads a profile.json from a file path and sets it to the active profile
+ * @param profile_path Path to the JSON file which will be loaded
+ */
+function loadProfile(profile_path: string): void {
+  // temp = parseProfileJson()
+  // active_profile = temp
+}
+
+/**
+ * Parses the JSON to ensure it is not malformed, then returns a Profile object
+ * @param profile_path Path to the JSON file which will be parsed
+ * @returns A formed Profile object
+ */
+function parseProfileJson(profile_path: string): Profile {
+  // do stuff
+}
+
+/**
+ * Attempts to connect to the Daemon on the client socket. Then tells the daemon to start running.
+ */
 function sendStartSignalToDaemon(): void {
   client = net.createConnection(getSocketPath(), (): void => {
     console.log('Connected to daemon')
@@ -34,6 +71,11 @@ function sendStartSignalToDaemon(): void {
   })
 }
 
+/**
+ * Sends the Profile object as a JSON over the socket.
+ * @param client The socket which will have the data sent to it.
+ * @returns Returns early if the socket can't be connected to.
+ */
 async function sendProfileJson(client: net.Socket): Promise<void> {
   const jsonPath = path.join(__dirname, '..', '..', 'resources', 'e1.json') // TODO: Just an example, eventually this will not be hardcoded.
 

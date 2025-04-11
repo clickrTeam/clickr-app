@@ -4,10 +4,9 @@ import { Layer } from './Layer'
  * Represents an entire profile that can contain many layers.
  */
 export class Profile {
-
-    /**
-     * The name of the profile, most likely the user's name. "YourName"
-     */
+  /**
+   * The name of the profile, most likely the user's name. "YourName"
+   */
   profile_name: string
 
   /**
@@ -69,19 +68,19 @@ export class Profile {
   }
 
   /**
-   * Swaps the layer's positions in the layer array. 
+   * Swaps the layer's positions in the layer array.
    * @param num1 The layer_number of the first layer to be swapped
    * @param num2 The layer_number of the second layer to be swapped
    * @returns True if the layers were able to be swapped, false otherwise
    */
-  swapLayers(num1: number, num2: number): boolean { 
+  swapLayers(num1: number, num2: number): boolean {
     if (num1 === num2) return false // nothing to swap
 
-    const index1 = this.layers.findIndex(layer => layer.layer_number === num1)
-    const index2 = this.layers.findIndex(layer => layer.layer_number === num2)
+    const index1 = this.layers.findIndex((layer) => layer.layer_number === num1)
+    const index2 = this.layers.findIndex((layer) => layer.layer_number === num2)
 
     if (index1 === -1 || index2 === -1) {
-        return false // one or both layers not found
+      return false // one or both layers not found
     }
 
     // Swap the positions in the array
