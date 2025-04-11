@@ -12,7 +12,9 @@ let client: net.Socket | null = null
 
 function getSocketPath(): string {
   if (process.platform === 'win32') {
-    return '\\\\\\.\\\\pipe\\myapp-socket';
+    const PIPE_NAME = "mypipe";
+    const PIPE_PATH = `\\\\.\\pipe\\${PIPE_NAME}`;
+    return PIPE_PATH;
   } else {
     return path.join(os.tmpdir(), 'daemon.sock') // or /var/run/daemon.sock if your daemon creates it there
   }
@@ -30,9 +32,76 @@ function sendStartSignalToDaemon(): void {
   })
 
   client.on('error', (err) => {
+    // TODO: Deamon likely offline, we should start the deamon.
     console.error('Failed to connect to daemon:', err.message)
   })
 }
+
+
+// const L = console.log;
+
+// const server = net.createServer((stream) => {
+//   L('Server: on connection');
+
+//   stream.on('data', (c) => {
+//     L('Server: on data:', c.toString());
+//   });
+
+//   stream.on('end', () => {
+//     L('Server: on end');
+//     server.close();
+//   });
+
+//   stream.write('Take it easy!');
+// });
+
+// server.on('close', () => {
+//   L('Server: on close');
+// });
+
+// server.listen(PIPE_PATH, () => {
+//   L('Server: on listening');
+// });
+
+// == Client part == //
+// const client2 = net.connect(PIPE_PATH, () => {
+//   L('Client: on connection');
+// });
+
+// client2.on('data', (data) => {
+//   L('Client: on data:', data.toString());
+//   client2.end('Thanks!');
+// });
+
+// client2.on('end', () => {
+//   L('Client: on end');
+// });
+
+
+// function connectToServer(): void {
+//   if (client == null) {
+//     client = net.createConnection(getSocketPath(), (): void => {
+//       console.log('Connected to server');
+//     });
+
+//     client.on('data', (data) => {
+//       console.log('Server responded:', data.toString());
+//     });
+
+//     client.on('error', (err) => {
+//       console.error('Failed to connect to server:', err.message);
+//       console.error('Error code:', err.code);
+//       console.error('Error stack:', err.stack);
+//     });
+
+//     client.on('end', () => {
+//       console.log('Connection to server closed');
+//     });
+//   }
+// }
+
+// // Call the function to connect to the server
+// connectToServer();
 
 async function sendProfileJson(client: net.Socket): Promise<void> {
   const jsonPath = path.join(__dirname, '..', '..', 'resources', 'e1.json') // TODO: Just an example, eventually this will not be hardcoded.
