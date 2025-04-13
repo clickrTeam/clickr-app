@@ -1,18 +1,32 @@
-
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Search, Plus, MoreHorizontal, Edit, Share, Trash2, ArrowUpRight, Keyboard } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Search,
+  Plus,
+  MoreHorizontal,
+  Edit,
+  Share,
+  Trash2,
+  ArrowUpRight,
+  Keyboard,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -21,11 +35,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { get_user_mappings } from "@/api/endpoints";
 
 type Mapping = {
   id: string;
+  user: string;
   name: string;
   description: string;
   lastEdited: string;
@@ -35,34 +51,38 @@ type Mapping = {
 
 const dummyMappings: Mapping[] = [
   {
-    id: '1',
-    name: 'Work Setup',
-    description: 'Key mappings for productivity software',
-    lastEdited: '2 hours ago',
+    id: "1",
+    name: "Work Setup",
+    user: "bode",
+    description: "Key mappings for productivity software",
+    lastEdited: "2 hours ago",
     keyCount: 12,
     isActive: true,
   },
   {
-    id: '2',
-    name: 'Gaming Profile',
-    description: 'Optimized for FPS games',
-    lastEdited: '2 days ago',
+    id: "2",
+    name: "Gaming Profile",
+    user: "bode",
+    description: "Optimized for FPS games",
+    lastEdited: "2 days ago",
     keyCount: 8,
     isActive: false,
   },
   {
-    id: '3',
-    name: 'Video Editing',
-    description: 'Shortcuts for Premiere Pro',
-    lastEdited: '1 week ago',
+    id: "3",
+    name: "Video Editing",
+    user: "bode",
+    description: "Shortcuts for Premiere Pro",
+    lastEdited: "1 week ago",
     keyCount: 15,
     isActive: false,
   },
   {
-    id: '4',
-    name: 'Coding Setup',
-    description: 'VSCode and terminal shortcuts',
-    lastEdited: '3 days ago',
+    id: "4",
+    name: "Coding Setup",
+    user: "bode",
+    description: "VSCode and terminal shortcuts",
+    lastEdited: "3 days ago",
     keyCount: 10,
     isActive: false,
   },
@@ -70,41 +90,65 @@ const dummyMappings: Mapping[] = [
 
 const MyMappings = () => {
   const [mappings, setMappings] = useState<Mapping[]>(dummyMappings);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-  const [newMappingName, setNewMappingName] = useState('');
-  const [newMappingDesc, setNewMappingDesc] = useState('');
 
+  const [newMappingName, setNewMappingName] = useState("");
+  const [newMappingDesc, setNewMappingDesc] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  // Replace with your actual username or get from auth context
+  const username = "bode"; // TODO: Replace with actual authenticated user
+
+  useEffect(() => {
+    fetchMappings();
+  }, []);
+
+  const fetchMappings = async () => {
+    try {
+      setIsLoading(true);
+      const data = await get_user_mappings(username);
+      console.log(data);
+      setMappings(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch mappings");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleCreateMapping = () => {
     if (!newMappingName.trim()) return;
-    
+
     const newMapping: Mapping = {
       id: `mapping-${Date.now()}`,
       name: newMappingName,
+      user: "bode",
       description: newMappingDesc,
-      lastEdited: 'Just now',
+      lastEdited: "Just now",
       keyCount: 0,
       isActive: false,
     };
-    
+
     setMappings([newMapping, ...mappings]);
-    setNewMappingName('');
-    setNewMappingDesc('');
+    setNewMappingName("");
+    setNewMappingDesc("");
     setIsCreating(false);
   };
 
   const handleDeleteMapping = (id: string) => {
-    setMappings(mappings.filter(mapping => mapping.id !== id));
+    setMappings(mappings.filter((mapping) => mapping.id !== id));
   };
 
   const handleToggleActive = (id: string) => {
-    setMappings(mappings.map(mapping => ({
-      ...mapping,
-      isActive: mapping.id === id
-    })));
+    setMappings(
+      mappings.map((mapping) => ({
+        ...mapping,
+        isActive: mapping.id === id,
+      }))
+    );
   };
 
-  const filteredMappings = mappings.filter(mapping => {
+  const filteredMappings = mappings.filter((mapping) => {
     if (!searchQuery) return true;
     return (
       mapping.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -115,7 +159,7 @@ const MyMappings = () => {
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
-        <motion.div 
+        <motion.div
           className="max-w-4xl mx-auto mb-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -139,10 +183,11 @@ const MyMappings = () => {
                 <DialogHeader>
                   <DialogTitle>Create New Mapping</DialogTitle>
                   <DialogDescription>
-                    Give your mapping a name and description to help you identify it later.
+                    Give your mapping a name and description to help you
+                    identify it later.
                   </DialogDescription>
                 </DialogHeader>
-                
+
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="name" className="text-right">
@@ -169,9 +214,14 @@ const MyMappings = () => {
                     />
                   </div>
                 </div>
-                
+
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsCreating(false)}>Cancel</Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsCreating(false)}
+                  >
+                    Cancel
+                  </Button>
                   <Button onClick={handleCreateMapping}>Create</Button>
                 </DialogFooter>
               </DialogContent>
@@ -203,7 +253,11 @@ const MyMappings = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
-                  <Card className={`hover:shadow-md transition-shadow ${mapping.isActive ? 'ring-2 ring-primary' : ''}`}>
+                  <Card
+                    className={`hover:shadow-md transition-shadow ${
+                      mapping.isActive ? "ring-2 ring-primary" : ""
+                    }`}
+                  >
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
                         <div>
@@ -215,7 +269,9 @@ const MyMappings = () => {
                               </span>
                             )}
                           </CardTitle>
-                          <p className="text-sm text-muted-foreground mt-1">{mapping.description}</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {mapping.description}
+                          </p>
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -226,7 +282,9 @@ const MyMappings = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             {!mapping.isActive && (
-                              <DropdownMenuItem onClick={() => handleToggleActive(mapping.id)}>
+                              <DropdownMenuItem
+                                onClick={() => handleToggleActive(mapping.id)}
+                              >
                                 <Keyboard className="mr-2 h-4 w-4" />
                                 Set Active
                               </DropdownMenuItem>
@@ -242,7 +300,7 @@ const MyMappings = () => {
                               Share
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="text-destructive focus:text-destructive"
                               onClick={() => handleDeleteMapping(mapping.id)}
                             >
@@ -261,7 +319,10 @@ const MyMappings = () => {
                     </CardContent>
                     <CardFooter>
                       <Button variant="outline" className="w-full" asChild>
-                        <Link to={`/mapping/${mapping.id}`} className="flex items-center justify-center gap-2">
+                        <Link
+                          to={`/mapping/${mapping.id}`}
+                          className="flex items-center justify-center gap-2"
+                        >
                           View Details
                           <ArrowUpRight size={14} />
                         </Link>
@@ -282,8 +343,8 @@ const MyMappings = () => {
                 </div>
                 <h3 className="text-xl font-medium mb-2">No mappings found</h3>
                 <p className="text-muted-foreground mb-6">
-                  {searchQuery 
-                    ? "No mappings match your search criteria" 
+                  {searchQuery
+                    ? "No mappings match your search criteria"
                     : "You haven't created any keyboard mappings yet"}
                 </p>
                 <Button onClick={() => setIsCreating(true)}>
