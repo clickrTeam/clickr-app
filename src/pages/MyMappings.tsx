@@ -37,13 +37,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { get_user_mappings } from "@/api/endpoints";
+import {
+  get_user_mappings,
+  create_new_mapping,
+  delete_mapping,
+} from "@/api/endpoints";
 
 type Mapping = {
   id: string;
   user: string;
   name: string;
   description: string;
+  mappings: {};
+  updated_at: string;
   lastEdited: string;
   keyCount: number;
   isActive: boolean;
@@ -97,55 +103,93 @@ const MyMappings = () => {
   const [newMappingDesc, setNewMappingDesc] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Replace with your actual username or get from auth context
   const username = "bode"; // TODO: Replace with actual authenticated user
 
   useEffect(() => {
     fetchMappings();
   }, []);
+  const updateMappingCounts = () => {
+    setMappings((currentMappings) =>
+      currentMappings.map((mapping) => ({
+        ...mapping,
+        keyCount: Object.keys(mapping.mappings || {}).length,
+      }))
+    );
+  };
 
+  const updateLastEdited = () => {
+    setMappings((currentMappings) =>
+      currentMappings.map((mapping) => {
+        const updatedDate = new Date(mapping.updated_at);
+        const now = new Date();
+        const diffHours = Math.floor(
+          (now.getTime() - updatedDate.getTime()) / (1000 * 60 * 60)
+        );
+        const diffDays = Math.floor(diffHours / 24);
+
+        let lastEdited;
+        if (diffHours < 1) {
+          lastEdited = "Just now";
+        } else if (diffHours < 24) {
+          lastEdited = `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
+        } else {
+          lastEdited = `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
+        }
+
+        return {
+          ...mapping,
+          lastEdited,
+        };
+      })
+    );
+  };
   const fetchMappings = async () => {
     try {
       setIsLoading(true);
       const data = await get_user_mappings(username);
       console.log(data);
       setMappings(data);
+      updateMappingCounts();
+      updateLastEdited();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch mappings");
     } finally {
       setIsLoading(false);
     }
   };
-  const handleCreateMapping = () => {
+
+  const handleCreateMapping = async () => {
     if (!newMappingName.trim()) return;
 
-    const newMapping: Mapping = {
-      id: `mapping-${Date.now()}`,
-      name: newMappingName,
-      user: "bode",
-      description: newMappingDesc,
-      lastEdited: "Just now",
-      keyCount: 0,
-      isActive: false,
-    };
+    try {
+      const mappingData = {
+        name: newMappingName,
+        description: newMappingDesc,
+        mappings: {},
+        isActive: false,
+      };
 
-    setMappings([newMapping, ...mappings]);
-    setNewMappingName("");
-    setNewMappingDesc("");
-    setIsCreating(false);
+      const response = await create_new_mapping(username, mappingData);
+      await fetchMappings(); // Refresh the mappings list
+
+      setNewMappingName("");
+      setNewMappingDesc("");
+      setIsCreating(false);
+    } catch (error) {
+      console.error("Failed to create mapping:", error);
+      //TODO: might want to add error handling UI here
+    }
   };
 
-  const handleDeleteMapping = (id: string) => {
-    setMappings(mappings.filter((mapping) => mapping.id !== id));
-  };
-
-  const handleToggleActive = (id: string) => {
-    setMappings(
-      mappings.map((mapping) => ({
-        ...mapping,
-        isActive: mapping.id === id,
-      }))
-    );
+  const handleDeleteMapping = async (id: string) => {
+    try {
+      await delete_mapping(username, id);
+      // After successful deletion, remove from local state
+      setMappings(mappings.filter((mapping) => mapping.id !== id));
+    } catch (error) {
+      console.error("Failed to delete mapping:", error);
+      //TODO: might want to add error handling UI here
+    }
   };
 
   const filteredMappings = mappings.filter((mapping) => {
@@ -281,14 +325,6 @@ const MyMappings = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            {!mapping.isActive && (
-                              <DropdownMenuItem
-                                onClick={() => handleToggleActive(mapping.id)}
-                              >
-                                <Keyboard className="mr-2 h-4 w-4" />
-                                Set Active
-                              </DropdownMenuItem>
-                            )}
                             <DropdownMenuItem asChild>
                               <Link to={`/mapping/${mapping.id}/edit`}>
                                 <Edit className="mr-2 h-4 w-4" />
