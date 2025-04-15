@@ -1,5 +1,4 @@
-import { Trigger } from './Trigger'
-import { Bind } from './Trigger'
+import * as TB from './Trigger_and_Bind'
 import { defaultQwertyLayout } from './DefaultLayout'
 
 /**
@@ -17,9 +16,9 @@ export class Layer {
   layer_number: number
 
   /**
-   * Contains all the associated keys and binds for a layer.
+   * Contains all the associated Triggers and Binds for a layer.
    */
-  remappings: Record<string, Bind> //TODO: Figure out trigger as key
+  remappings: Map<TB.Trigger, TB.Bind>
 
   /**
    * Creates an instance of the Layer class.
@@ -29,35 +28,34 @@ export class Layer {
   constructor(layer_name: string, layer_number: number) {
     this.layer_name = layer_name
     this.layer_number = layer_number
-    this.remappings = {}
+    this.remappings = new Map<TB.Trigger, TB.Bind>()
 
     // Sets qwerty as the default values for a layer.
     for (const row of defaultQwertyLayout) {
       for (const key of row) {
-        this.remappings[key.physical_key] = {
-          values: [key.physical_key],
-          bind_type: 'tap',
-          time_delay: 0
-        }
+        //TODO: I think at some point it would be a good idea to use the user's layer0 as a default, instead of QWERTY.
+        const trig = new TB.Link_Trigger(key.value)
+        const bnd = new TB.Link_Bind(key.value)
+        this.remappings.set(trig, bnd)
       }
     }
   }
 
   /**
    * Remaps a physical keypress to a Bind
-   * @param key The physical key on the keyboard. "spacebar"
-   * @param value The bind associated the user desires. "enter, double tap"
+   * @param trig The associated trigger object
+   * @param bnd The bind associated the user desires. "enter, double tap"
    */
-  setRemapping(key: string, value: Bind): void {
-    this.remappings[key] = value
+  setRemapping(trig: TB.Trigger, bnd: TB.Bind): void {
+    this.remappings.set(trig, bnd)
   }
 
   /**
    * Retrieves the mapping from the remapping dictionary
-   * @param key The physical key to query
+   * @param key The trigger to query
    * @returns The bind associated with that key
    */
-  getRemapping(key: string): Bind | undefined {
-    return this.remappings[key]
+  getRemapping(trig: TB.Trigger): TB.Bind | undefined {
+    return this.remappings.get(trig)
   }
 }
