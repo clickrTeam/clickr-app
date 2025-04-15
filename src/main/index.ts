@@ -150,7 +150,9 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  /// Listen for the 'start-daemon' IPC message from the renderer
+  /**
+   * In this section, listen for 'commands' from the app to execute the underlying logic
+   */
   ipcMain.on('start-daemon', () => {
     sendStartSignalToDaemon() // Call the function when the message is received
   })
@@ -161,6 +163,10 @@ app.whenReady().then(() => {
     } else {
       console.error('Not connected to socket.')
     }
+  })
+
+  ipcMain.on('create-new-profile', () => {
+    createNewProfile('default')
   })
 
   createWindow()

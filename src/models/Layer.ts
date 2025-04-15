@@ -58,4 +58,5 @@ export class Layer {
   getRemapping(trig: TB.Trigger): TB.Bind | undefined {
     return this.remappings.get(trig)
   }
+
 }

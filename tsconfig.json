@@ -10,6 +10,7 @@
 // }
 {
   "compilerOptions": {
+    "jsx": "react",
     "target": "ES6",                      // Target ECMAScript 6 (use ES6 features in the app)
     "module": "CommonJS",                  // Use CommonJS module system (required for Node.js)
     "lib": ["ES6", "DOM", "ES2020"],      // Include DOM and ES6 APIs, since Electron has both Node.js and browser code

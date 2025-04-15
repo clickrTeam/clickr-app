@@ -27,6 +27,7 @@ function App(): JSX.Element {
   const createNewProfile = (): void => {
     // Change view to create a new profile
     setCurrentView(View.NEW_PROFILE)
+    window.electron.ipcRenderer.send('create-new-profile')
   }
 
   // Handle going back to the previous screen
