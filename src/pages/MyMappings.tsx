@@ -69,7 +69,7 @@ const MyMappings = () => {
 
   useEffect(() => {
     fetchMappings();
-  }, []);
+  });
   const updateMappingCounts = () => {
     setMappings((currentMappings) =>
       currentMappings.map((mapping) => ({

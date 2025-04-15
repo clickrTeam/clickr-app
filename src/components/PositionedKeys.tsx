@@ -80,7 +80,7 @@ const PositionedKey: React.FC<PositionedKeyProps> = ({
         y: {
           type: "spring",
           stiffness: 70,
-          damping: 4,
+          damping: 8,
           delay: delay,
           duration: 1.5,
         },
