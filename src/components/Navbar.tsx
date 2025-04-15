@@ -1,10 +1,9 @@
-
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Download, Menu, X } from 'lucide-react';
-import { Button } from './ui/button';
-import { cn } from '@/lib/utils';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Download, Menu, X, LogIn, UserPlus } from "lucide-react";
+import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -19,10 +18,10 @@ const Navbar = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [scrolled]);
 
@@ -31,9 +30,9 @@ const Navbar = () => {
   }, [location.pathname]);
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Community', path: '/community' },
-    { name: 'My Mappings', path: '/my-mappings' },
+    { name: "Home", path: "/" },
+    { name: "Community", path: "/community" },
+    { name: "My Mappings", path: "/my-mappings" },
   ];
 
   const isActive = (path: string) => {
@@ -43,8 +42,10 @@ const Navbar = () => {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-        scrolled ? 'bg-clickr-light-blue/90 backdrop-blur-md py-2 shadow-md' : 'bg-transparent py-4'
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        scrolled
+          ? "bg-clickr-light-blue/90 backdrop-blur-md py-2 shadow-md"
+          : "bg-transparent py-4"
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
@@ -61,7 +62,7 @@ const Navbar = () => {
                 to={link.path}
                 className={cn(
                   "font-medium transition-colors hover:text-clickr-blue",
-                  isActive(link.path) 
+                  isActive(link.path)
                     ? "text-clickr-blue"
                     : "text-foreground/80"
                 )}
@@ -70,13 +71,33 @@ const Navbar = () => {
               </Link>
             ))}
           </div>
-          
-          <Button className="flex items-center gap-2" asChild>
-            <Link to="/download">
-              <Download size={18} />
-              <span>Download</span>
-            </Link>
-          </Button>
+
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" className="flex items-center gap-2" asChild>
+              <Link to="/login">
+                <LogIn size={18} />
+                <span>Login</span>
+              </Link>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              asChild
+            >
+              <Link to="/register">
+                <UserPlus size={18} />
+                <span>Register</span>
+              </Link>
+            </Button>
+
+            <Button className="flex items-center gap-2" asChild>
+              <Link to="/download">
+                <Download size={18} />
+                <span>Download</span>
+              </Link>
+            </Button>
+          </div>
         </nav>
 
         {/* Mobile Menu Toggle */}
@@ -93,7 +114,7 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-background/95 backdrop-blur-lg border-t"
           >
@@ -104,7 +125,7 @@ const Navbar = () => {
                   to={link.path}
                   className={cn(
                     "py-2 font-medium transition-colors hover:text-clickr-blue",
-                    isActive(link.path) 
+                    isActive(link.path)
                       ? "text-clickr-blue"
                       : "text-foreground/80"
                   )}
@@ -112,8 +133,26 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              
-              <Button className="flex items-center justify-center gap-2 w-full" asChild>
+
+              <Link
+                to="/login"
+                className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue"
+              >
+                <LogIn size={18} />
+                <span>Login</span>
+              </Link>
+
+              <Link
+                to="/register"
+                className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue"
+              >
+                <UserPlus size={18} />
+                <span>Register</span>
+              </Link>
+              <Button
+                className="flex items-center justify-center gap-2 w-full"
+                asChild
+              >
                 <Link to="/download">
                   <Download size={18} />
                   <span>Download</span>

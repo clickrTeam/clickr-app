@@ -37,11 +37,11 @@ const KeyboardKey: React.FC<KeyboardKeyProps> = ({
         keyColors[color as keyof typeof keyColors],
         className
       )}
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 0, y: -100 }}
       animate={{
         opacity: [0.4, 0.8, 0.4],
-        x: [800, x / 2, x, x / 2, x / 2],
-        y: [300, y / 2, y, y / 2, y / 2],
+        x: [-100, x / 2, x, x / 2, x / 2], //Modify first item to change where thye keys come in from
+        y: [-300, y / 2, y, y / 2, y / 2],
         rotate: [0, 15, -15, 10, 0],
         scale: [1, 1.1, 1, 0.9, 1],
       }}
