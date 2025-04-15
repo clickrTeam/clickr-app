@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { string, z } from "zod";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import RegisterKeys from "@/components/RegisterKeys";
+import PositionedKeys from "@/components/PositionedKeys";
 
 const formSchema = z
   .object({
@@ -63,11 +63,23 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen pt-16 pb-12">
+    <div className="min-h-screen pt-16 pb-12 ">
       <div className="container relative mx-auto px-4 flex flex-col items-center">
         {/* Floating Keys Background */}
-        <div className="h-48 relative w-full">
-          <RegisterKeys />
+        <div className="h-32 mt-20 relative w-full mr-11">
+          <PositionedKeys
+            text="REGISTER"
+            colors={[
+              "blue",
+              "green",
+              "yellow",
+              "red",
+              "purple",
+              "orange",
+              "blue",
+              "green",
+            ]}
+          />
         </div>
 
         <motion.div

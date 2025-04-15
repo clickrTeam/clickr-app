@@ -72,17 +72,20 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" className="flex items-center gap-2" asChild>
-              <Link to="/login">
-                <LogIn size={18} />
-                <span>Login</span>
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              asChild
+            >
+              <Link to="/download">
+                <Download size={18} />
+                <span>Download</span>
               </Link>
             </Button>
 
             <Button
-              variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-gradient-to-r from-indigo-700 to-clickr-blue text-white"
               asChild
             >
               <Link to="/register">
@@ -92,9 +95,9 @@ const Navbar = () => {
             </Button>
 
             <Button className="flex items-center gap-2" asChild>
-              <Link to="/download">
-                <Download size={18} />
-                <span>Download</span>
+              <Link to="/login">
+                <LogIn size={18} />
+                <span>Login</span>
               </Link>
             </Button>
           </div>
@@ -135,11 +138,11 @@ const Navbar = () => {
               ))}
 
               <Link
-                to="/login"
+                to="/download"
                 className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue"
               >
-                <LogIn size={18} />
-                <span>Login</span>
+                <Download size={18} />
+                <span>Download</span>
               </Link>
 
               <Link
@@ -153,9 +156,9 @@ const Navbar = () => {
                 className="flex items-center justify-center gap-2 w-full"
                 asChild
               >
-                <Link to="/download">
-                  <Download size={18} />
-                  <span>Download</span>
+                <Link to="/register">
+                  <LogIn size={18} />
+                  <span>Login</span>
                 </Link>
               </Button>
             </div>

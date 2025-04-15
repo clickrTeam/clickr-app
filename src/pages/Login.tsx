@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import LoginKeys from "@/components/LoginKeys";
+import PositionedKeys from "@/components/PositionedKeys";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -56,7 +56,21 @@ const Login = () => {
       <div className="container relative mx-auto px-4 flex flex-col items-center">
         {/* Floating Keys Background */}
         <div className="h-48 relative w-full">
-          <LoginKeys />
+          <div className="h-32 mt-20 relative w-full -ml-9">
+            <PositionedKeys
+              text="LOGIN"
+              colors={[
+                "blue",
+                "green",
+                "yellow",
+                "red",
+                "purple",
+                "orange",
+                "blue",
+                "green",
+              ]}
+            />
+          </div>
         </div>
 
         <motion.div
