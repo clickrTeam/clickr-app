@@ -1,5 +1,5 @@
-import { Key } from './Key'
-import { Bind } from './Key'
+import { Trigger } from './Trigger'
+import { Bind } from './Trigger'
 import { defaultQwertyLayout } from './DefaultLayout'
 
 /**
@@ -19,7 +19,7 @@ export class Layer {
   /**
    * Contains all the associated keys and binds for a layer.
    */
-  remappings: Record<string, Bind>
+  remappings: Record<string, Bind> //TODO: Figure out trigger as key
 
   /**
    * Creates an instance of the Layer class.

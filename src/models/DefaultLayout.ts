@@ -1,6 +1,6 @@
-import { Key } from './Key'
+import { Trigger } from './Trigger'
 
-export const defaultQwertyLayout: Key[][] = [
+export const defaultQwertyLayout: Trigger[][] = [
   // Row 1
   [
     { label: 'Esc', physical_key: 'Escape' },
