@@ -4,6 +4,7 @@ import { Download, Menu, X, LogIn, UserPlus } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
+import { get_user_mappings } from "@/api/endpoints";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -29,10 +30,38 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  const handleDownloadJSON = async () => {
+    try {
+      const username = "bode";
+      const mappingsData = await get_user_mappings(username);
+
+      // Create a Blob with the JSON data
+      const blob = new Blob([JSON.stringify(mappingsData, null, 2)], {
+        type: "application/json",
+      });
+
+      // Create a download link and trigger the download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${username}-mappings.json`;
+      document.body.appendChild(a);
+      a.click();
+
+      // Clean up
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading mappings:", error);
+      alert("Failed to download mappings");
+    }
+  };
+
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Community", path: "/community" },
     { name: "My Mappings", path: "/my-mappings" },
+    { name: "Get JSON", onClick: handleDownloadJSON },
   ];
 
   const isActive = (path: string) => {
@@ -56,20 +85,32 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
           <div className="flex space-x-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={cn(
-                  "font-medium transition-colors hover:text-clickr-blue",
-                  isActive(link.path)
-                    ? "text-clickr-blue"
-                    : "text-foreground/80"
-                )}
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) =>
+              link.onClick ? (
+                <button
+                  key={link.name}
+                  onClick={link.onClick}
+                  className={cn(
+                    "font-medium transition-colors hover:text-clickr-blue text-foreground/80"
+                  )}
+                >
+                  {link.name}
+                </button>
+              ) : (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={cn(
+                    "font-medium transition-colors hover:text-clickr-blue",
+                    isActive(link.path)
+                      ? "text-clickr-blue"
+                      : "text-foreground/80"
+                  )}
+                >
+                  {link.name}
+                </Link>
+              )
+            )}
           </div>
 
           <div className="flex items-center space-x-3">

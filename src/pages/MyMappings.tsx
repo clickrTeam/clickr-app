@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -48,54 +48,15 @@ type Mapping = {
   user: string;
   name: string;
   description: string;
-  mappings: {};
+  mappings: Record<string, string>; // Object to store key-value pairs of mappings
   updated_at: string;
   lastEdited: string;
   keyCount: number;
   isActive: boolean;
 };
 
-const dummyMappings: Mapping[] = [
-  {
-    id: "1",
-    name: "Work Setup",
-    user: "bode",
-    description: "Key mappings for productivity software",
-    lastEdited: "2 hours ago",
-    keyCount: 12,
-    isActive: true,
-  },
-  {
-    id: "2",
-    name: "Gaming Profile",
-    user: "bode",
-    description: "Optimized for FPS games",
-    lastEdited: "2 days ago",
-    keyCount: 8,
-    isActive: false,
-  },
-  {
-    id: "3",
-    name: "Video Editing",
-    user: "bode",
-    description: "Shortcuts for Premiere Pro",
-    lastEdited: "1 week ago",
-    keyCount: 15,
-    isActive: false,
-  },
-  {
-    id: "4",
-    name: "Coding Setup",
-    user: "bode",
-    description: "VSCode and terminal shortcuts",
-    lastEdited: "3 days ago",
-    keyCount: 10,
-    isActive: false,
-  },
-];
-
 const MyMappings = () => {
-  const [mappings, setMappings] = useState<Mapping[]>(dummyMappings);
+  const [mappings, setMappings] = useState<Mapping[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
@@ -103,6 +64,7 @@ const MyMappings = () => {
   const [newMappingDesc, setNewMappingDesc] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
   const username = "bode"; // TODO: Replace with actual authenticated user
 
   useEffect(() => {

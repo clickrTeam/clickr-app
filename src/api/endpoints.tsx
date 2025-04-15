@@ -7,13 +7,13 @@ const api = axios.create({
   withCredentials: true,
 });
 
-export const get_user_mappings = async (username: String) => {
+export const get_user_mappings = async (username: string) => {
   const response = await api.get(`users/${username}/mappings`);
   return response.data;
 };
 
 export const create_new_mapping = async (
-  username: String,
+  username: string,
   mappingData: {
     name: string;
     description: string;
