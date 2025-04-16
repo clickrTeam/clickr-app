@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,38 +17,53 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import PositionedKeys from "@/components/PositionedKeys";
+import { login } from "@/api/endpoints";
+import { useAuth } from "@/contexts/AuthContext";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters",
+  username: z.string().min(1, { message: "Invalid username" }),
+  password: z.string().min(3, {
+    message: "Password must be at least 3 characters",
   }),
 });
 
 const Login = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { login: authLogin } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
-    // This would normally connect to your authentication service
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const data = await login(values.username, values.password);
+
+      if (data.success) {
+        authLogin(data.user);
+        toast({
+          title: "Success",
+          description: "Login successful!",
+        });
+        navigate("/my-mappings");
+      }
+    } catch (error) {
       toast({
-        title: "Login Attempted",
-        description: "This is a demo. Authentication is not implemented yet.",
+        title: "Error",
+        description: "Invalid username or password",
+        variant: "destructive",
       });
-      console.log(values);
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -89,12 +104,12 @@ const Login = () => {
               >
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="you@example.com" {...field} />
+                        <Input placeholder="" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

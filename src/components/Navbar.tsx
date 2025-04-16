@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Download, Menu, X, LogIn, UserPlus } from "lucide-react";
+import { Download, Menu, X, LogIn, UserPlus, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { get_user_mappings } from "@/api/endpoints";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -112,36 +114,60 @@ const Navbar = () => {
               )
             )}
           </div>
+          {/* If user is authenticated, remove the register button and make download more prominate */}
+          {!isAuthenticated ? (
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                asChild
+              >
+                <Link to="/download">
+                  <Download size={18} />
+                  <span>Download</span>
+                </Link>
+              </Button>
 
-          <div className="flex items-center space-x-3">
-            <Button
-              variant="outline"
-              className="flex items-center gap-2"
-              asChild
-            >
-              <Link to="/download">
-                <Download size={18} />
-                <span>Download</span>
-              </Link>
-            </Button>
+              <Button className="flex items-center gap-2" asChild>
+                <Link to="/register">
+                  <UserPlus size={18} />
+                  <span>Register</span>
+                </Link>
+              </Button>
 
-            <Button
-              className="flex items-center gap-2 bg-gradient-to-r from-indigo-700 to-clickr-blue text-white"
-              asChild
-            >
-              <Link to="/register">
-                <UserPlus size={18} />
-                <span>Register</span>
-              </Link>
-            </Button>
+              <Button className="flex items-center gap-2" asChild>
+                <Link to="/login">
+                  <LogIn size={18} />
+                  <span>Login</span>
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-medium ml-2">
+                Welcome {user?.username}
+              </span>
+              <Button
+                size="sm"
+                className="flex items-center gap-2 bg-gradient-to-r from-indigo-700 to-clickr-blue text-white"
+                asChild
+              >
+                <Link to="/download">
+                  <Download size={18} />
+                  <span>Download App</span>
+                </Link>
+              </Button>
 
-            <Button className="flex items-center gap-2" asChild>
-              <Link to="/login">
-                <LogIn size={18} />
-                <span>Login</span>
-              </Link>
-            </Button>
-          </div>
+              <Button
+                variant="outline"
+                onClick={logout}
+                className="flex items-center gap-2"
+              >
+                <LogOut size={18} />
+                <span>Logout</span>
+              </Button>
+            </div>
+          )}
         </nav>
 
         {/* Mobile Menu Toggle */}
@@ -197,7 +223,7 @@ const Navbar = () => {
                 className="flex items-center justify-center gap-2 w-full"
                 asChild
               >
-                <Link to="/register">
+                <Link to="/login">
                   <LogIn size={18} />
                   <span>Login</span>
                 </Link>

@@ -42,6 +42,7 @@ import {
   create_new_mapping,
   delete_mapping,
 } from "@/api/endpoints";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Mapping = {
   id: string;
@@ -59,17 +60,19 @@ const MyMappings = () => {
   const [mappings, setMappings] = useState<Mapping[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const { user } = useAuth();
 
   const [newMappingName, setNewMappingName] = useState("");
   const [newMappingDesc, setNewMappingDesc] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const username = "bode"; // TODO: Replace with actual authenticated user
+  const username = user?.username || "bode"; // Fallback to 'bode' if user is null FOR TESTING ONLY
+  //TODO: Remove this fallback
 
   useEffect(() => {
     fetchMappings();
-  });
+  }, []);
   const updateMappingCounts = () => {
     setMappings((currentMappings) =>
       currentMappings.map((mapping) => ({
@@ -161,7 +164,6 @@ const MyMappings = () => {
       mapping.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
-
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">

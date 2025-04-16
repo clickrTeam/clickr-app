@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { string, z } from "zod";
+import { z } from "zod";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,11 +17,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import PositionedKeys from "@/components/PositionedKeys";
-
+import { register } from "@/api/endpoints";
 const formSchema = z
   .object({
-    name: z.string().min(2, {
-      message: "Name must be at least 2 characters",
+    username: z.string().min(1, {
+      message: "Username must be at least 1 characters",
     }),
     email: z.string().email({ message: "Invalid email address" }),
     password: z.string().min(6, {
@@ -37,11 +37,12 @@ const formSchema = z
 const Register = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      username: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -51,15 +52,27 @@ const Register = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
-    // This would normally connect to your authentication service
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Registration Attempted",
-        description: "This is a demo. Registration is not implemented yet.",
+    register(values.username, values.email, values.password)
+      .then(() => {
+        toast({
+          title: "Registration Successful",
+          description: "Your account has been created. You can now login.",
+        });
+        navigate("/login"); // Redirect to login after successful registration
+      })
+      .catch((error) => {
+        console.error("Registration error:", error);
+        toast({
+          title: "Registration Failed",
+          description:
+            error.response?.data?.message ||
+            "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-      console.log(values);
-    }, 1000);
   }
 
   return (
@@ -98,12 +111,12 @@ const Register = () => {
               >
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder="Your Username" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
