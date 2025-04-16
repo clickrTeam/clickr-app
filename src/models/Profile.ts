@@ -120,7 +120,8 @@ export class Profile {
     const old_f4 = new TB.Link_Trigger('F4')
     const new_f4 = new TB.Link_Trigger('F4')
     const cancel_trg = new TB.Link_Trigger('Escape')
-    const new_f4_bind = new TB.Repeat_Bind('F4', 11, 22, cancel_trg)
+    const rpt_bnd = new TB.Link_Bind('Enter')
+    const new_f4_bind = new TB.Repeat_Bind(rpt_bnd, 11, 22, cancel_trg)
     this.layers[1].setRemapping(old_f4, new_f4, new_f4_bind)
 
     const old_f5 = new TB.Link_Trigger('F5')
