@@ -17,6 +17,8 @@ interface ProfileJSON {
   layers: object[]
 }
 
+let active_profile: Profile | null = null
+
 function App(): JSX.Element {
   // State to manage which view to show
   const [currentView, setCurrentView] = React.useState<View>(View.HOME)
@@ -33,9 +35,9 @@ function App(): JSX.Element {
     window.api.getProfile()
       .then((profileJSON: ProfileJSON) => {
         console.log('Got profile:', profileJSON)
-        const prof = Profile.fromJSON(profileJSON)
-        setProfile(prof)
-        setProfileName(prof.profile_name)
+        const parsed_profile = Profile.fromJSON(profileJSON)
+        setProfile(parsed_profile)
+        setProfileName(parsed_profile.profile_name)
       })
       .catch((err) => {
         console.error('Failed to fetch profile:', err)
@@ -89,6 +91,7 @@ function App(): JSX.Element {
       {currentView === View.NEW_PROFILE && (
         <div>
           <h1>New Profile</h1>
+          <h1>Current Profile: {profileName}</h1>
           <h2>Allow a user to create a new profile</h2>
           {/*<KeyboardRemapper /> TODO: Rework this*/}
           <button onClick={goHome}>Home</button>
