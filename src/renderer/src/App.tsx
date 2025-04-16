@@ -1,5 +1,6 @@
 import Versions from './components/Versions'
 import electronLogo from './assets/electron.svg'
+import { Profile } from '../../models/Profile'
 import React from 'react'
 
 // Enum to represent different views/screens
@@ -9,10 +10,28 @@ enum View {
   ANOTHER_VIEW = 'ANOTHER_VIEW' // Example of additional views
 }
 
+// Define type for the Profile JSON that matches Profile.toJSON()
+interface ProfileJSON {
+  profile_name: string
+  layer_count: number
+  layers: object[]
+}
 
 function App(): JSX.Element {
   // State to manage which view to show
   const [currentView, setCurrentView] = React.useState<View>(View.HOME)
+  const [profile, setProfile] = React.useState<Profile | null>(null)
+  const [profileName, setProfileName] = React.useState<string>('')
+
+  // Get the profile from the main process when the component mounts.
+  React.useEffect(() => {
+    window.electronAPI.getProfile().then((profileJSON: ProfileJSON) => {
+      // Convert JSON back to a Profile instance using your fromJSON() helper.
+      const prof = Profile.fromJSON(profileJSON)
+      setProfile(prof)
+      setProfileName(prof.profile_name)
+    })
+  }, [])
 
   const handleStartDaemon = (): void => {
     // Send an IPC message to the main process to run the daemon start signal
