@@ -24,19 +24,25 @@ export class Layer {
    * Creates an instance of the Layer class.
    * @param layer_name: The name of the layer
    * @param layer_number: A number associated with the layer
+   * @param remappings - (Optional) A Map of trigger to bind mappings.
    */
-  constructor(layer_name: string, layer_number: number) {
+  constructor(layer_name: string, layer_number: number, remappings?: Map<TB.Trigger, TB.Bind>) {
     this.layer_name = layer_name
     this.layer_number = layer_number
-    this.remappings = new Map<TB.Trigger, TB.Bind>()
 
-    // Sets qwerty as the default values for a layer.
-    for (const row of defaultQwertyLayout) {
-      for (const key of row) {
-        //TODO: I think at some point it would be a good idea to use the user's layer0 as a default, instead of QWERTY.
-        const trig = new TB.Link_Trigger(key.value)
-        const bnd = new TB.Link_Bind(key.value)
-        this.remappings.set(trig, bnd)
+    if (remappings) {
+      this.remappings = remappings
+    } else {
+      this.remappings = new Map<TB.Trigger, TB.Bind>()
+
+      // Sets qwerty as the default values for a layer.
+      for (const row of defaultQwertyLayout) {
+        for (const key of row) {
+          //TODO: I think at some point it would be a good idea to use the user's layer0 as a default, instead of QWERTY.
+          const trig = new TB.Link_Trigger(key.value)
+          const bnd = new TB.Link_Bind(key.value)
+          this.remappings.set(trig, bnd)
+        }
       }
     }
   }
@@ -59,4 +65,51 @@ export class Layer {
     return this.remappings.get(trig)
   }
 
+  toJSON(): object {
+    return {
+      layer_name: this.layer_name,
+      layer_number: this.layer_number,
+      remappings: remappingsToJSON(this.remappings)
+    }
+  }
+
+  static fromJSON(obj: {
+    layer_name: string
+    layer_number: number
+    remappings: { trigger: object; bind: object }[]
+  }): Layer {
+    const remappings = remappingsFromJSON(obj.remappings)
+    return new Layer(obj.layer_name, obj.layer_number, remappings)
+  }
+}
+
+/**
+ * Turns the map of remapping into an object that can be JSON.Stringify()
+ * @param map The remapping map
+ * @returns An array of triggers and binds
+ */
+function remappingsToJSON(map: Map<TB.Trigger, TB.Bind>): { trigger: object; bind: object }[] {
+  const arr: { trigger: object; bind: object }[] = []
+  for (const [trigger, bind] of map.entries()) {
+    arr.push({
+      trigger: trigger.toJSON(),
+      bind: bind.toJSON()
+    })
+  }
+  return arr
+}
+
+/**
+ * Converts JSON into a map<Trigger,Bind> for use in the layer object
+ * @param arr Array of triggers and binds
+ * @returns Map object
+ */
+function remappingsFromJSON(arr: { trigger: object; bind: object }[]): Map<TB.Trigger, TB.Bind> {
+  const map = new Map<TB.Trigger, TB.Bind>()
+  for (const entry of arr) {
+    const trigger = TB.deserializeTrigger(entry.trigger)
+    const bind = TB.deserializeBind(entry.bind)
+    map.set(trigger, bind)
+  }
+  return map
 }

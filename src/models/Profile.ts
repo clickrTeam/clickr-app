@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Layer } from './Layer'
 
 /**
@@ -93,5 +94,44 @@ export class Profile {
     this.layers[index2].layer_number = num2
 
     return true
+  }
+
+  /**
+   * Serializes the Profile instance to a JSON-compatible object.
+   */
+  toJSON(): object {
+    return {
+      profile_name: this.profile_name,
+      layer_count: this.layer_count,
+      layers: this.layers.map((layer: Layer) => layer.toJSON())
+    }
+  }
+
+  /**
+   * Deserializes a JSON-compatible object into a Profile instance.
+   * @param obj - The JSON object to deserialize.
+   * @returns A Profile instance.
+   * @throws Error if the JSON is malformed.
+   */
+  static fromJSON(obj: any): Profile {
+    // Validate the essential properties
+    if (typeof obj !== 'object' || obj === null) {
+      throw new Error('Profile JSON is not an object')
+    }
+    if (typeof obj.profile_name !== 'string') {
+      throw new Error("Profile JSON missing or invalid 'profile_name'")
+    }
+    if (!Array.isArray(obj.layers)) {
+      throw new Error("Profile JSON missing or invalid 'layers'")
+    }
+
+    // Create the Profile instance using the profile name
+    const profile = new Profile(obj.profile_name)
+
+    // Deserialize the layers and override defaults if needed.
+    profile.layers = obj.layers.map((layerObj: any) => Layer.fromJSON(layerObj))
+    profile.layer_count = profile.layers.length
+
+    return profile
   }
 }

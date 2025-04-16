@@ -14,17 +14,17 @@ export enum TriggerType {
   Hold = 'hold',
   AppFocused = 'app_focused'
 }
-//TODO: Remove label & physical key from Trigger. Add constructor. Add map/dictionary that will produce a label from a trigger value.
-
 /**
  * Represents a physical key on the keyboard
  */
-export class Trigger {
+export abstract class Trigger {
   trigger_type: TriggerType
-  
+
   constructor(trig_type: TriggerType) {
     this.trigger_type = trig_type
   }
+
+  abstract toJSON(): object
 }
 
 /**
@@ -36,6 +36,17 @@ export class Link_Trigger extends Trigger {
   constructor(value: string) {
     super(TriggerType.Link)
     this.value = value
+  }
+
+  toJSON(): object {
+    return {
+      type: TriggerType.Link,
+      value: this.value
+    }
+  }
+
+  static fromJSON(obj: { value: string }): Link_Trigger {
+    return new Link_Trigger(obj.value)
   }
 }
 
@@ -77,6 +88,23 @@ export class Timed_Trigger extends Trigger {
     this.capture = capture
     this.release = release
   }
+
+  toJSON(): object {
+    return {
+      type: TriggerType.Timed,
+      key_time_pairs: this.key_time_pairs,
+      capture: this.capture,
+      release: this.release
+    }
+  }
+
+  static fromJSON(obj: {
+    key_time_pairs: [string, number][]
+    capture: boolean
+    release: boolean
+  }): Timed_Trigger {
+    return new Timed_Trigger(obj.key_time_pairs, obj.capture, obj.release)
+  }
 }
 
 /**
@@ -91,6 +119,18 @@ export class Hold_Trigger extends Trigger {
     this.value = value
     this.wait = wait
   }
+
+  toJSON(): object {
+    return {
+      type: TriggerType.Hold,
+      value: this.value,
+      wait: this.wait
+    }
+  }
+
+  static fromJSON(obj: { value: string; wait: number }): Hold_Trigger {
+    return new Hold_Trigger(obj.value, obj.wait)
+  }
 }
 
 /**
@@ -103,12 +143,23 @@ export class App_Focus_Trigger extends Trigger {
     super(TriggerType.AppFocused)
     this.app_name = app_name
   }
+
+  toJSON(): object {
+    return {
+      type: TriggerType.AppFocused,
+      app_name: this.app_name
+    }
+  }
+
+  static fromJSON(obj: { app_name: string }): App_Focus_Trigger {
+    return new App_Focus_Trigger(obj.app_name)
+  }
 }
 
 /**
  * Represents the desired bind to be associated with a key
  */
-export class Bind {
+export abstract class Bind {
   /**
    * Type of the bind. Tap, macro, double tap, etc.
    */
@@ -117,6 +168,8 @@ export class Bind {
   constructor(bind_type: BindType) {
     this.bind_type = bind_type
   }
+
+  abstract toJSON(): object
 }
 
 /**
@@ -128,6 +181,17 @@ export class Link_Bind extends Bind {
   constructor(value: string) {
     super(BindType.Link)
     this.value = value
+  }
+
+  toJSON(): object {
+    return {
+      type: BindType.Link,
+      value: this.value
+    }
+  }
+
+  static fromJSON(obj: { value: string }): Link_Bind {
+    return new Link_Bind(obj.value)
   }
 }
 
@@ -149,6 +213,17 @@ export class Combo_Bind extends Bind {
     super(BindType.Combo)
     this.values = values
   }
+
+  toJSON(): object {
+    return {
+      type: BindType.Combo,
+      values: this.values
+    }
+  }
+
+  static fromJSON(obj: { values: string[] }): Combo_Bind {
+    return new Combo_Bind(obj.values)
+  }
 }
 
 /**
@@ -160,6 +235,17 @@ export class Macro_Bind extends Bind {
   constructor(binds: Bind[]) {
     super(BindType.Macro)
     this.binds = binds
+  }
+
+  toJSON(): { type: BindType; binds: object[] } {
+    return {
+      type: BindType.Macro,
+      binds: this.binds.map((bind) => bind.toJSON())
+    }
+  }
+
+  static fromJSON(obj: { binds: object[] }): Macro_Bind {
+    return new Macro_Bind(obj.binds.map(deserializeBind))
   }
 }
 
@@ -174,6 +260,18 @@ export class TimedMacro_Bind extends Bind {
     super(BindType.TimedMacro)
     this.binds = binds
     this.times = times
+  }
+
+  toJSON(): object {
+    return {
+      type: BindType.TimedMacro,
+      binds: this.binds.map((bind) => bind.toJSON()),
+      times: this.times
+    }
+  }
+
+  static fromJSON(obj: { binds: object[]; times: number[] }): TimedMacro_Bind {
+    return new TimedMacro_Bind(obj.binds.map(deserializeBind), obj.times)
   }
 }
 
@@ -205,6 +303,16 @@ export class Repeat_Bind extends Bind {
     this.times_to_execute = times_to_execute
     this.cancel_trigger = cancel_trigger
   }
+
+  toJSON(): object {
+    return {
+      type: BindType.Repeat,
+      value: this.value.toJSON(),
+      time_delay: this.time_delay,
+      times_to_execute: this.times_to_execute,
+      cancel_trigger: this.cancel_trigger.toJSON()
+    }
+  }
 }
 
 /**
@@ -217,6 +325,17 @@ export class SwapLayer_Bind extends Bind {
     super(BindType.SwapLayer)
     this.layer_num = layer_num
   }
+
+  toJSON(): object {
+    return {
+      type: BindType.SwapLayer,
+      layer_num: this.layer_num
+    }
+  }
+
+  static fromJSON(obj: { layer_num: number }): SwapLayer_Bind {
+    return new SwapLayer_Bind(obj.layer_num)
+  }
 }
 
 /**
@@ -228,5 +347,59 @@ export class AppOpen_Bind extends Bind {
   constructor(app_name: string) {
     super(BindType.AppOpen)
     this.app_name = app_name
+  }
+
+  toJSON(): object {
+    return {
+      type: BindType.AppOpen,
+      app_name: this.app_name
+    }
+  }
+
+  static fromJSON(obj: { app_name: string }): AppOpen_Bind {
+    return new AppOpen_Bind(obj.app_name)
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function deserializeTrigger(obj: any): Trigger {
+  switch (obj.type) {
+    case 'Link_Trigger':
+      return Link_Trigger.fromJSON(obj)
+    case 'Timed_Trigger':
+      return Timed_Trigger.fromJSON(obj)
+    case 'Hold_Trigger':
+      return new Hold_Trigger(obj.value, obj.wait)
+    case 'App_Focus_Trigger':
+      return new App_Focus_Trigger(obj.app_name)
+    default:
+      throw new Error(`Unknown Trigger type: ${obj.type}`)
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function deserializeBind(obj: any): Bind {
+  switch (obj.type) {
+    case 'Link_Bind':
+      return new Link_Bind(obj.value)
+    case 'Combo_Bind':
+      return new Combo_Bind(obj.values)
+    case 'Macro_Bind':
+      return new Macro_Bind(obj.binds.map(deserializeBind))
+    case 'TimedMacro_Bind':
+      return new TimedMacro_Bind(obj.binds.map(deserializeBind), obj.times)
+    case 'Repeat_Bind':
+      return new Repeat_Bind(
+        deserializeBind(obj.value),
+        obj.time_delay,
+        obj.times_to_execute,
+        deserializeTrigger(obj.cancel_trigger)
+      )
+    case 'SwapLayer_Bind':
+      return new SwapLayer_Bind(obj.layer_num)
+    case 'AppOpen_Bind':
+      return new AppOpen_Bind(obj.app_name)
+    default:
+      throw new Error(`Unknown Bind type: ${obj.type}`)
   }
 }

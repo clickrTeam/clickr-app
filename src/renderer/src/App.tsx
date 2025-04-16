@@ -61,7 +61,7 @@ function App(): JSX.Element {
         <div>
           <h1>New Profile</h1>
           <h2>Allow a user to create a new profile</h2>
-          <KeyboardRemapper />
+          {/*<KeyboardRemapper /> TODO: Rework this*/}
           <button onClick={goHome}>Home</button>
           <button onClick={goHome}>Save</button>
         </div>

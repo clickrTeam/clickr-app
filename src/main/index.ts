@@ -169,6 +169,10 @@ app.whenReady().then(() => {
     createNewProfile('default')
   })
 
+  ipcMain.handle('get-profile', () => {
+      // do stuff
+  })
+
   createWindow()
 
   app.on('activate', function () {
