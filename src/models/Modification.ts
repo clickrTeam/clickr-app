@@ -6,14 +6,12 @@ export class Modification {
 
   readonly id: number;
   readonly name: string;
-  readonly description: string;
   readonly trigger: Trigger;
   readonly bind: Bind;
 
-  constructor(name: string, description: string, trigger: Trigger, bind: Bind) {
+  constructor(name: string, trigger: Trigger, bind: Bind) {
     this.id = Modification.next_id++;
     this.name = name;
-    this.description = description;
     this.trigger = trigger;
     this.bind = bind;
   }
@@ -21,17 +19,15 @@ export class Modification {
   static fromJSON(modData: any): Modification {
     return new Modification(
       modData.name,
-      modData.description,
       modData.trigger,
-      modData.bind
+      modData.bind,
     );
   }
-  toJSON(): string {
-    return JSON.stringify({
+  toJSON(): object {
+    return {
       name: this.name,
-      description: this.description,
       trigger: this.trigger,
       bind: this.bind,
-    });
+    };
   }
 }

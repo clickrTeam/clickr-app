@@ -26,4 +26,4 @@ export type LinkKey = {
   key: string;
 };
 
-export type Bind = PressKey | RelaseKey | SwitchLayer | Macro;
+export type Bind = PressKey | RelaseKey | SwitchLayer | LinkKey | Macro;

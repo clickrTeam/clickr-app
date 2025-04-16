@@ -18,7 +18,7 @@ export class Profile {
   /**
    * Id of default layer. May not be set immediately
    */
-  private default_layer: number | undefined;
+  private default_layer?: number;
 
 
   /**
@@ -65,8 +65,36 @@ export class Profile {
     if (this.default_layer == undefined) {
       return false;
     }
-    // TODO: look for Colliding key binds
+    // TODO: look for incompatible key binds in each layer
     return true;
+  }
+
+  /**
+   * Serializes the Profile instance into a JSON string.
+   */
+  toJSON(): any {
+    return {
+      name: this.name,
+      default_layer: this.default_layer,
+      layers: this.getLayers(),
+    };
+  }
+
+  /**
+   * Creates an instance of Profile from a JSON string.
+   * @param profileDat A JSON string representing a Profile.
+   * @returns A new Profile instance.
+   */
+  static fromJSON(profileData: any): Profile {
+    const profile = new Profile(profileData.name);
+    profile.default_layer = profileData.default_layer;
+
+    // Recreate layers from their respective JSON objects using Layer.fromJSON
+    profileData.layers.forEach((layerData: any) => {
+      profile.addLayer(Layer.fromJSON(layerData));
+    });
+
+    return profile;
   }
 
 }

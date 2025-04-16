@@ -16,7 +16,7 @@ export type Hold = {
 };
 
 export type TapSequence = {
-  type: "tap_sequence";
+  type: "tap sequence";
   keys: string[];
   tap_timeout: number;
   sequence_timeout: number;

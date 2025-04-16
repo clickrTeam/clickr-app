@@ -68,20 +68,12 @@ export class Layer {
   }
 
   // Method to serialize the Layer instance into JSON
-  toJSON(): string {
-    // Convert the mods map to a list
-    const modsArray = Array.from(this.mods.values()).map(mod => ({
-      id: mod.id,
-      name: mod.name,
-      description: mod.description,
-      trigger: mod.trigger,
-      bind: mod.bind,
-    }));
+  toJSON(): any {
+    const modsArray = Array.from(this.mods.values());
 
-    return JSON.stringify({
-      id: this.id,
+    return {
       name: this.name,
       mods: modsArray, // Include mods as a list of objects
-    });
+    };
   }
 }
