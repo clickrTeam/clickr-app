@@ -29,6 +29,7 @@ function getSocketPath(): string {
  */
 function createNewProfile(profile_name: string): void {
   active_profile = new Profile(profile_name)
+  active_profile.ADD_TEST_LAYER('TEST_LAYER')
 }
 /**
  * Loads a profile.json from a file path and sets it to the active profile
@@ -160,7 +161,6 @@ app.whenReady().then(() => {
     fs.writeFileSync(filePath, JSON.stringify(active_profile?.toJSON(), null, 2), 'utf-8')
 
     console.log('JSON has been written to test.json')
-    //console.log(JSON.stringify(active_profile?.toJSON()), null, 2) //DEBUG
     return active_profile?.toJSON()
   })
   createWindow()

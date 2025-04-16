@@ -25,6 +25,7 @@ export abstract class Trigger {
   }
 
   abstract toJSON(): object
+  abstract equals(other: Trigger): boolean
 }
 
 /**
@@ -47,6 +48,10 @@ export class Link_Trigger extends Trigger {
 
   static fromJSON(obj: { value: string }): Link_Trigger {
     return new Link_Trigger(obj.value)
+  }
+
+  equals(other: Trigger): boolean {
+    return other instanceof Link_Trigger && this.value === other.value
   }
 }
 
@@ -105,6 +110,18 @@ export class Timed_Trigger extends Trigger {
   }): Timed_Trigger {
     return new Timed_Trigger(obj.key_time_pairs, obj.capture, obj.release)
   }
+
+  equals(other: Trigger): boolean {
+    return (
+      other instanceof Timed_Trigger &&
+      this.capture === other.capture &&
+      this.release === other.release &&
+      this.key_time_pairs.length === other.key_time_pairs.length &&
+      this.key_time_pairs.every(
+        ([k, t], i) => k === other.key_time_pairs[i][0] && t === other.key_time_pairs[i][1]
+      )
+    )
+  }
 }
 
 /**
@@ -131,6 +148,10 @@ export class Hold_Trigger extends Trigger {
   static fromJSON(obj: { value: string; wait: number }): Hold_Trigger {
     return new Hold_Trigger(obj.value, obj.wait)
   }
+
+  equals(other: Trigger): boolean {
+    return other instanceof Hold_Trigger && this.value === other.value && this.wait === other.wait
+  }
 }
 
 /**
@@ -138,21 +159,28 @@ export class Hold_Trigger extends Trigger {
  */
 export class App_Focus_Trigger extends Trigger {
   app_name: string
+  value: string
 
-  constructor(app_name: string) {
+  constructor(app_name: string, value: string) {
     super(TriggerType.AppFocused)
     this.app_name = app_name
+    this.value = value
   }
 
   toJSON(): object {
     return {
       type: TriggerType.AppFocused,
-      app_name: this.app_name
+      app_name: this.app_name,
+      value: this.value
     }
   }
 
-  static fromJSON(obj: { app_name: string }): App_Focus_Trigger {
-    return new App_Focus_Trigger(obj.app_name)
+  static fromJSON(obj: { app_name: string; value: string }): App_Focus_Trigger {
+    return new App_Focus_Trigger(obj.app_name, obj.value)
+  }
+
+  equals(other: Trigger): boolean {
+    return other instanceof App_Focus_Trigger && this.app_name === other.app_name && this.value === other.value
   }
 }
 
@@ -170,6 +198,7 @@ export abstract class Bind {
   }
 
   abstract toJSON(): object
+  abstract equals(other: Bind): boolean
 }
 
 /**
@@ -192,6 +221,10 @@ export class Link_Bind extends Bind {
 
   static fromJSON(obj: { value: string }): Link_Bind {
     return new Link_Bind(obj.value)
+  }
+
+  equals(other: Bind): boolean {
+    return other instanceof Link_Bind && this.value === other.value
   }
 }
 
@@ -224,6 +257,14 @@ export class Combo_Bind extends Bind {
   static fromJSON(obj: { values: string[] }): Combo_Bind {
     return new Combo_Bind(obj.values)
   }
+
+  equals(other: Bind): boolean {
+    return (
+      other instanceof Combo_Bind &&
+      this.values.length === other.values.length &&
+      this.values.every((v, i) => v === other.values[i])
+    )
+  }
 }
 
 /**
@@ -246,6 +287,14 @@ export class Macro_Bind extends Bind {
 
   static fromJSON(obj: { binds: object[] }): Macro_Bind {
     return new Macro_Bind(obj.binds.map(deserializeBind))
+  }
+
+  equals(other: Bind): boolean {
+    return (
+      other instanceof Macro_Bind &&
+      this.binds.length === other.binds.length &&
+      this.binds.every((b, i) => b.equals(other.binds[i]))
+    )
   }
 }
 
@@ -272,6 +321,16 @@ export class TimedMacro_Bind extends Bind {
 
   static fromJSON(obj: { binds: object[]; times: number[] }): TimedMacro_Bind {
     return new TimedMacro_Bind(obj.binds.map(deserializeBind), obj.times)
+  }
+
+  equals(other: Bind): boolean {
+    return (
+      other instanceof TimedMacro_Bind &&
+      this.binds.length === other.binds.length &&
+      this.times.length === other.times.length &&
+      this.binds.every((b, i) => b.equals(other.binds[i])) &&
+      this.times.every((t, i) => t === other.times[i])
+    )
   }
 }
 
@@ -313,6 +372,30 @@ export class Repeat_Bind extends Bind {
       cancel_trigger: this.cancel_trigger.toJSON()
     }
   }
+
+  static fromJSON(obj: {
+    value: object
+    time_delay: number
+    times_to_execute: number
+    cancel_trigger: object
+  }): Repeat_Bind {
+    return new Repeat_Bind(
+      deserializeBind(obj.value),
+      obj.time_delay,
+      obj.times_to_execute,
+      deserializeTrigger(obj.cancel_trigger)
+    )
+  }
+
+  equals(other: Bind): boolean {
+    return (
+      other instanceof Repeat_Bind &&
+      this.value.equals(other.value) &&
+      this.time_delay === other.time_delay &&
+      this.times_to_execute === other.times_to_execute &&
+      this.cancel_trigger.equals(other.cancel_trigger)
+    )
+  }
 }
 
 /**
@@ -335,6 +418,10 @@ export class SwapLayer_Bind extends Bind {
 
   static fromJSON(obj: { layer_num: number }): SwapLayer_Bind {
     return new SwapLayer_Bind(obj.layer_num)
+  }
+
+  equals(other: Bind): boolean {
+    return other instanceof SwapLayer_Bind && this.layer_num === other.layer_num
   }
 }
 
@@ -359,6 +446,10 @@ export class AppOpen_Bind extends Bind {
   static fromJSON(obj: { app_name: string }): AppOpen_Bind {
     return new AppOpen_Bind(obj.app_name)
   }
+
+  equals(other: Bind): boolean {
+    return other instanceof AppOpen_Bind && this.app_name === other.app_name
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -371,7 +462,7 @@ export function deserializeTrigger(obj: any): Trigger {
     case 'Hold_Trigger':
       return new Hold_Trigger(obj.value, obj.wait)
     case 'App_Focus_Trigger':
-      return new App_Focus_Trigger(obj.app_name)
+      return new App_Focus_Trigger(obj.app_name, obj.value)
     default:
       throw new Error(`Unknown Trigger type: ${obj.type}`)
   }

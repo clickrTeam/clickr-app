@@ -49,11 +49,19 @@ export class Layer {
 
   /**
    * Remaps a physical keypress to a Bind
-   * @param trig The associated trigger object
-   * @param bnd The bind associated the user desires. "enter, double tap"
+   * @param new_trig The associated trigger object
+   * @param new_bnd The bind associated the user desires. "enter, double tap"
    */
-  setRemapping(trig: TB.Trigger, bnd: TB.Bind): void {
-    this.remappings.set(trig, bnd)
+  setRemapping(old_trig: TB.Trigger, new_trig: TB.Trigger, new_bnd: TB.Bind): void {
+    // Keys are by reference, so unless the exact Trigger object is indexed, you won't ever delete anything.
+    // Using .equals will allow old_trig to be a different instance
+    for (const existing_trig of this.remappings.keys()) {
+      if (existing_trig.equals(old_trig)) {
+        this.remappings.delete(existing_trig)
+        break
+      }
+    }
+    this.remappings.set(new_trig, new_bnd)
   }
 
   /**
