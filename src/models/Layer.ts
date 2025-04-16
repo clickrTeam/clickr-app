@@ -1,44 +1,40 @@
-import * as TB from './Trigger_and_Bind'
-import { defaultQwertyLayout } from './DefaultLayout'
+import { Modification } from './Modification';
+import assert from 'assert';
 
 /**
  * Represents a keyboard layer within a profile
  */
 export class Layer {
   /**
-   * The name associated with the layer
+   * Used to generate unique identifiers
    */
-  layer_name: string
+  private static next_id = 0;
 
   /**
-   * The number associated with the layer. Must be unique from other layer numbers. Serves as an identifier
+   * A unique identifier for the layer.
    */
-  layer_number: number
+  readonly id: number;
+
+  /**
+   * The name associated with the layer
+   */
+  name: string
 
   /**
    * Contains all the associated Triggers and Binds for a layer.
    */
-  remappings: Map<TB.Trigger, TB.Bind>
+  private mods: Map<number, Modification>;
+
 
   /**
    * Creates an instance of the Layer class.
    * @param layer_name: The name of the layer
    * @param layer_number: A number associated with the layer
    */
-  constructor(layer_name: string, layer_number: number) {
-    this.layer_name = layer_name
-    this.layer_number = layer_number
-    this.remappings = new Map<TB.Trigger, TB.Bind>()
-
-    // Sets qwerty as the default values for a layer.
-    for (const row of defaultQwertyLayout) {
-      for (const key of row) {
-        //TODO: I think at some point it would be a good idea to use the user's layer0 as a default, instead of QWERTY.
-        const trig = new TB.Link_Trigger(key.value)
-        const bnd = new TB.Link_Bind(key.value)
-        this.remappings.set(trig, bnd)
-      }
-    }
+  constructor(name: string) {
+    this.id = Layer.next_id++;
+    this.name = name
+    this.mods = new Map();
   }
 
   /**
@@ -46,17 +42,46 @@ export class Layer {
    * @param trig The associated trigger object
    * @param bnd The bind associated the user desires. "enter, double tap"
    */
-  setRemapping(trig: TB.Trigger, bnd: TB.Bind): void {
-    this.remappings.set(trig, bnd)
+  addMod(mod: Modification) {
+    assert(!this.mods.has(mod.id));
+    this.mods.set(mod.id, mod);
   }
 
   /**
-   * Retrieves the mapping from the remapping dictionary
-   * @param key The trigger to query
-   * @returns The bind associated with that key
+   * Removes a modification from the layer by its ID.
+   * @param mod_id The ID of the modification to remove.
    */
-  getRemapping(trig: TB.Trigger): TB.Bind | undefined {
-    return this.remappings.get(trig)
+  removeMod(mod_id: number) {
+    assert(this.mods.delete(mod_id));
   }
 
+  // Static method to create an instance from JSON
+  static fromJSON(layerData: any): Layer {
+    const layer = new Layer(layerData.name);
+
+    layerData.mods.forEach((modData: any) => {
+      const mod = Modification.fromJSON(modData);
+      layer.addMod(mod);
+    });
+
+    return layer;
+  }
+
+  // Method to serialize the Layer instance into JSON
+  toJSON(): string {
+    // Convert the mods map to a list
+    const modsArray = Array.from(this.mods.values()).map(mod => ({
+      id: mod.id,
+      name: mod.name,
+      description: mod.description,
+      trigger: mod.trigger,
+      bind: mod.bind,
+    }));
+
+    return JSON.stringify({
+      id: this.id,
+      name: this.name,
+      mods: modsArray, // Include mods as a list of objects
+    });
+  }
 }
