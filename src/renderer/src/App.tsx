@@ -22,16 +22,26 @@ function App(): JSX.Element {
   const [currentView, setCurrentView] = React.useState<View>(View.HOME)
   const [profile, setProfile] = React.useState<Profile | null>(null)
   const [profileName, setProfileName] = React.useState<string>('')
+  console.log('electronAPI:', window.electronAPI) //debug
 
-  // Get the profile from the main process when the component mounts.
+
+  // Get the profile from the main process when the component mounts. TODO: This bit of code causes none of the gui to load
   React.useEffect(() => {
-    window.electronAPI.getProfile().then((profileJSON: ProfileJSON) => {
-      // Convert JSON back to a Profile instance using your fromJSON() helper.
-      const prof = Profile.fromJSON(profileJSON)
-      setProfile(prof)
-      setProfileName(prof.profile_name)
-    })
+    console.log('[App] useEffect running')
+    console.log('window.api:', window.api)
+  
+    window.api.getProfile()
+      .then((profileJSON: ProfileJSON) => {
+        console.log('Got profile:', profileJSON)
+        const prof = Profile.fromJSON(profileJSON)
+        setProfile(prof)
+        setProfileName(prof.profile_name)
+      })
+      .catch((err) => {
+        console.error('Failed to fetch profile:', err)
+      })
   }, [])
+
 
   const handleStartDaemon = (): void => {
     // Send an IPC message to the main process to run the daemon start signal

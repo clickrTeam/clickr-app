@@ -8,12 +8,9 @@ import * as os from 'os'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import { profile } from 'console'
-
 // Store the socket globally
 let client: net.Socket | null = null
-
 let active_profile: Profile | null = null
-
 /**
  * Gets the path to the socket which will be communicated on based on OS
  * @returns Socket path as string
@@ -25,7 +22,6 @@ function getSocketPath(): string {
     return path.join(os.tmpdir(), 'daemon.sock') // or /var/run/daemon.sock if your daemon creates it there
   }
 }
-
 /**
  * Creates a new profile object with the default values and sets it to active_profile
  * @param profile_name The name of the Profile
@@ -33,7 +29,6 @@ function getSocketPath(): string {
 function createNewProfile(profile_name: string): void {
   active_profile = new Profile(profile_name)
 }
-
 /**
  * Loads a profile.json from a file path and sets it to the active profile
  * @param profile_path Path to the JSON file which will be loaded
@@ -42,7 +37,6 @@ function loadProfile(profile_path: string): void {
   // temp = parseProfileJson()
   // active_profile = temp
 }
-
 /**
  * Parses the JSON to ensure it is not malformed, then returns a Profile object
  * @param profile_path Path to the JSON file which will be parsed
@@ -51,7 +45,6 @@ function loadProfile(profile_path: string): void {
 function parseProfileJson(profile_path: string): Profile {
   // do stuff
 }
-
 /**
  * Attempts to connect to the Daemon on the client socket. Then tells the daemon to start running.
  */
@@ -60,38 +53,30 @@ function sendStartSignalToDaemon(): void {
     console.log('Connected to daemon')
     client.write('start\n')
   })
-
   client.on('data', (data) => {
     console.log('Daemon responded:', data.toString())
     client.end()
   })
-
   client.on('error', (err) => {
     console.error('Failed to connect to daemon:', err.message)
   })
 }
-
 /**
  * Sends the Profile object as a JSON over the socket.
  * @param client The socket which will have the data sent to it.
  * @returns Returns early if the socket can't be connected to.
  */
 async function sendProfileJson(client: net.Socket): Promise<void> {
-  //const jsonPath = path.join(__dirname, '..', '..', 'resources', 'e1.json') // TODO: Just an example, eventually this will not be hardcoded.
-
+  const jsonPath = path.join(__dirname, '..', '..', 'resources', 'e1.json') // TODO: Just an example, eventually this will not be hardcoded.
   try {
     // Check if the socket is still writable
     if (!client.writable || client.destroyed) {
       console.error('Socket is not connected or already closed.')
       return
     }
-
-    //const data = await fs.readFile(jsonPath, 'utf8')
-    const data = JSON.stringify(active_profile?.toJSON())
-
+    const data = await fs.readFile(jsonPath, 'utf8')
     // Optional: Validate JSON
     JSON.parse(data)
-
     // Send it with newline for framing
     client.write(data + '\n')
     console.log('Sent profile JSON to daemon')
@@ -104,7 +89,6 @@ async function sendProfileJson(client: net.Socket): Promise<void> {
     }
   }
 }
-
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -118,16 +102,13 @@ function createWindow(): void {
       sandbox: false
     }
   })
-
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
-
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
-
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
@@ -136,28 +117,24 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then((createWindow) => {
+app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
-
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-
   /**
    * In this section, listen for 'commands' from the app to execute the underlying logic
    */
   ipcMain.on('start-daemon', () => {
     sendStartSignalToDaemon() // Call the function when the message is received
   })
-
   ipcMain.on('load', () => {
     if (client) {
       sendProfileJson(client)
@@ -165,46 +142,32 @@ app.whenReady().then((createWindow) => {
       console.error('Not connected to socket.')
     }
   })
-
   ipcMain.on('create-new-profile', () => {
     createNewProfile('default')
   })
-
   ipcMain.handle('get-profile', () => {
     if (active_profile == null) {
       createNewProfile('default')
     }
+    console.log(active_profile?.toJSON())
     return active_profile?.toJSON()
   })
-
-  // The renderer sends updated JSON; here we rehydrate it back to a Profile object.
-  ipcMain.on('update-profile', (_event, updatedProfileJSON) => {
-    try {
-      // Use Profile.fromJSON to create an instance from the JSON.
-      active_profile = Profile.fromJSON(updatedProfileJSON)
-      console.log('Profile updated:', profile)
-    } catch (error) {
-      console.error('Failed to update profile:', error)
-    }
-
-    createWindow()
-
-    app.on('activate', function () {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (BrowserWindow.getAllWindows().length === 0) createWindow()
-    })
+  createWindow()
+  app.on('activate', function () {
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
-
-  // Quit when all windows are closed, except on macOS. There, it's common
-  // for applications and their menu bar to stay active until the user quits
-  // explicitly with Cmd + Q.
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit()
-    }
-  })
-
-  // In this file you can include the rest of your app's specific main process
-  // code. You can also put them in separate files and require them here.
 })
+// Quit when all windows are closed, except on macOS. There, it's common
+// for applications and their menu bar to stay active until the user quits
+// explicitly with Cmd + Q.
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+// In this file you can include the rest of your app's specific main process
+// code. You can also put them in separate files and require them here.
+
+

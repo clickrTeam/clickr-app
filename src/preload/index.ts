@@ -1,8 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
+
 // Define interfaces for your API if you want more type safety.
-// For this example, we're using `unknown` for the profile JSON type.
 interface API {
   getProfile: () => Promise<unknown>
   updateProfile: (profileJSON: unknown) => void
@@ -19,7 +19,8 @@ const api: API = {
   }
 }
 
-// Use `contextBridge` APIs to expose Electron APIs to
+
+// Use contextBridge APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
 if (process.contextIsolated) {
