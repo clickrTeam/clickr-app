@@ -5,7 +5,8 @@ import { Profile } from '../models/Profile'
 import icon from '../../resources/icon.png?asset'
 import * as net from 'net'
 import * as os from 'os'
-import * as fs from 'fs/promises'
+import * as fs_prom from 'fs/promises'
+import * as fs from 'fs'
 import * as path from 'path'
 import { profile } from 'console'
 // Store the socket globally
@@ -74,7 +75,7 @@ async function sendProfileJson(client: net.Socket): Promise<void> {
       console.error('Socket is not connected or already closed.')
       return
     }
-    const data = await fs.readFile(jsonPath, 'utf8')
+    const data = await fs_prom.readFile(jsonPath, 'utf8')
     // Optional: Validate JSON
     JSON.parse(data)
     // Send it with newline for framing
@@ -149,7 +150,17 @@ app.whenReady().then(() => {
     if (active_profile == null) {
       createNewProfile('default')
     }
-    console.log(active_profile?.toJSON())
+    // Create the path to the file in ../../resources
+    const filePath = path.join(__dirname, '../../resources/test.json')
+
+    // Ensure the directory exists (optional, in case you need to create it)
+    fs.mkdirSync(path.dirname(filePath), { recursive: true })
+
+    // Write the JSON to the file
+    fs.writeFileSync(filePath, JSON.stringify(active_profile?.toJSON(), null, 2), 'utf-8')
+
+    console.log('JSON has been written to test.json')
+    //console.log(JSON.stringify(active_profile?.toJSON()), null, 2) //DEBUG
     return active_profile?.toJSON()
   })
   createWindow()
@@ -169,5 +180,3 @@ app.on('window-all-closed', () => {
 })
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-
-
