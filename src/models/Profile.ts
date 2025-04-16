@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { Layer } from './Layer'
 
 /**
@@ -5,93 +6,67 @@ import { Layer } from './Layer'
  */
 export class Profile {
   /**
-   * The name of the profile, most likely the user's name. "YourName"
+   * The name of the profile
    */
-  profile_name: string
+  name: string;
 
   /**
    * Contains all of the layers associated with a profile
    */
-  layers: Layer[]
+  private layers: Map<number, Layer>;
 
   /**
-   * Tracks the number of layers in the profile
+   * Id of default layer. May not be set immediately
    */
-  layer_count: number
+  private default_layer: number | undefined;
+
 
   /**
    * Creates an instance of a profile
    * @param profile_name: The name associated with the profile
    */
-  constructor(profile_name: string) {
-    this.profile_name = profile_name
-    this.layers = []
-    this.layer_count = 0
-
-    const default_layer = new Layer('default', 0)
-    this.layers.push(default_layer)
-    this.layer_count += 1
+  constructor(name: string) {
+    this.name = name
+    this.layers = new Map
+    this.default_layer = undefined;
   }
 
   /**
    * Adds a new layer to the profile so the user can customize it.
    * @param layer_name: The name associated with the layer. "Photoshop"
    */
-  addLayer(layer_name: string): void {
-    const lyr = new Layer(layer_name, this.layer_count)
-    this.layers.push(lyr)
-    this.layer_count += 1
+  addLayer(layer: Layer): void {
+    this.layers.set(layer.id, layer);
+  }
+
+  setDefaultLayer(layer_id: number) {
+    assert(this.layers.has(layer_id));
+    this.default_layer = layer_id;
+  }
+
+  /**
+   * Getter for layers
+   * @returns list of all layers.
+   */
+  getLayers(): Layer[] {
+    return Array.from(this.layers.values());
   }
 
   /**
    * Removes a layer from the profile, effectively deleting it.
-   * @param layer_number The number associated with the layer to be removed. layer_number is unique and as such is used instead of layer_name
+   * @param layer_id The id associated with the layer to be removed.
    * @returns True if the layer number was found and the layer removed, false otherwise
    */
-  removeLayer(layer_number: number): boolean {
-    const index = this.layers.findIndex((layer) => layer.layer_number === layer_number)
-
-    if (index === -1) {
-      return false // not found
-    }
-
-    // Remove the layer
-    this.layers.splice(index, 1)
-
-    // Decrement layer_numbers for layers after the removed one
-    for (let i = index; i < this.layers.length; i++) {
-      this.layers[i].layer_number -= 1
-    }
-
-    this.layer_count -= 1
-    return true
+  removeLayer(layer_id: number) {
+    assert(this.layers.delete(layer_id));
   }
 
-  /**
-   * Swaps the layer's positions in the layer array.
-   * @param num1 The layer_number of the first layer to be swapped
-   * @param num2 The layer_number of the second layer to be swapped
-   * @returns True if the layers were able to be swapped, false otherwise
-   */
-  swapLayers(num1: number, num2: number): boolean {
-    if (num1 === num2) return false // nothing to swap
-
-    const index1 = this.layers.findIndex((layer) => layer.layer_number === num1)
-    const index2 = this.layers.findIndex((layer) => layer.layer_number === num2)
-
-    if (index1 === -1 || index2 === -1) {
-      return false // one or both layers not found
+  validate(): boolean {
+    if (this.default_layer == undefined) {
+      return false;
     }
-
-    // Swap the positions in the array
-    const temp = this.layers[index1]
-    this.layers[index1] = this.layers[index2]
-    this.layers[index2] = temp
-
-    // Also swap their layer_number fields to keep them correct
-    this.layers[index1].layer_number = num1
-    this.layers[index2].layer_number = num2
-
-    return true
+    // TODO: look for Colliding key binds
+    return true;
   }
+
 }
