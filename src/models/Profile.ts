@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Layer } from './Layer'
-import * as TB from './Trigger_and_Bind'
+import * as T from './Trigger'
+import * as B from './Bind'
 /**
  * Represents an entire profile that can contain many layers.
  */
@@ -102,7 +103,7 @@ export class Profile {
   ADD_TEST_LAYER(test_layer_name: string): void {
     this.addLayer(test_layer_name)
 
-    const del_f1 = new TB.Timed_Trigger(
+    const del_f1 = new T.Timed_Trigger(
       [
         ['F1', 1],
         ['F1', 2]
@@ -110,11 +111,11 @@ export class Profile {
       true,
       true
     )
-    const del_f1_bind = new TB.Combo_Bind(['Ctrl', 'C'])
+    const del_f1_bind = new B.Combo_Bind(['Ctrl', 'C'])
     this.layers[1].addRemapping(del_f1, del_f1_bind)
 
     //Test deletion and adding
-    const new_f1 = new TB.Timed_Trigger(
+    const new_f1 = new T.Timed_Trigger(
       [
         ['F1', 1],
         ['F1', 3]
@@ -122,41 +123,41 @@ export class Profile {
       true,
       true
     )
-    const new_f1_bind = new TB.Combo_Bind(['Ctrl', 'V'])
+    const new_f1_bind = new B.Combo_Bind(['Ctrl', 'V'])
     this.layers[1].deleteRemapping(del_f1)
     this.layers[1].addRemapping(new_f1, new_f1_bind)
 
-    const old_f2 = new TB.Tap_Trigger('F2')
-    const new_f2 = new TB.Hold_Trigger('F2', 99)
-    const macro1 = new TB.Tap_Bind('A')
-    const macro2 = new TB.Combo_Bind(['Space', 'B', 'C'])
-    const new_f2_bind = new TB.Macro_Bind([macro1, macro2])
+    const old_f2 = new T.Tap_Trigger('F2')
+    const new_f2 = new T.Hold_Trigger('F2', 99)
+    const macro1 = new B.Tap_Bind('A')
+    const macro2 = new B.Combo_Bind(['Space', 'B', 'C'])
+    const new_f2_bind = new B.Macro_Bind([macro1, macro2])
     this.layers[1].deleteRemapping(old_f2)
     this.layers[1].addRemapping(new_f2, new_f2_bind)
 
-    const old_f3 = new TB.Tap_Trigger('F3')
-    const new_f3 = new TB.App_Focus_Trigger('Photoshop', 'F3')
-    const new_f3_bind = new TB.TimedMacro_Bind([macro1, macro2], [1, 2])
+    const old_f3 = new T.Tap_Trigger('F3')
+    const new_f3 = new T.App_Focus_Trigger('Photoshop', 'F3')
+    const new_f3_bind = new B.TimedMacro_Bind([macro1, macro2], [1, 2])
     this.layers[1].deleteRemapping(old_f3)
     this.layers[1].addRemapping(new_f3, new_f3_bind)
 
-    const old_f4 = new TB.Tap_Trigger('F4')
-    const new_f4 = new TB.Tap_Trigger('F4')
-    const cancel_trg = new TB.Tap_Trigger('Escape')
-    const rpt_bnd = new TB.Tap_Bind('Enter')
-    const new_f4_bind = new TB.Repeat_Bind(rpt_bnd, 11, 22, cancel_trg)
+    const old_f4 = new T.Tap_Trigger('F4')
+    const new_f4 = new T.Tap_Trigger('F4')
+    const cancel_trg = new T.Tap_Trigger('Escape')
+    const rpt_bnd = new B.Tap_Bind('Enter')
+    const new_f4_bind = new B.Repeat_Bind(rpt_bnd, 11, 22, cancel_trg)
     this.layers[1].deleteRemapping(old_f4)
     this.layers[1].addRemapping(new_f4, new_f4_bind)
 
-    const old_f5 = new TB.Tap_Trigger('F5')
-    const new_f5 = new TB.Tap_Trigger('F5')
-    const new_f5_bind = new TB.SwapLayer_Bind(0)
+    const old_f5 = new T.Tap_Trigger('F5')
+    const new_f5 = new T.Tap_Trigger('F5')
+    const new_f5_bind = new B.SwapLayer_Bind(0)
     this.layers[1].deleteRemapping(old_f5)
     this.layers[1].addRemapping(new_f5, new_f5_bind)
 
-    const old_f6 = new TB.Tap_Trigger('F6')
-    const new_f6 = new TB.Tap_Trigger('F6')
-    const new_f6_bind = new TB.AppOpen_Bind('Google Chrome')
+    const old_f6 = new T.Tap_Trigger('F6')
+    const new_f6 = new T.Tap_Trigger('F6')
+    const new_f6_bind = new B.AppOpen_Bind('Google Chrome')
     this.layers[1].deleteRemapping(old_f6)
     this.layers[1].addRemapping(new_f6, new_f6_bind)
   }

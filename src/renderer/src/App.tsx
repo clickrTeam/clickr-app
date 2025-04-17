@@ -120,6 +120,7 @@ function App(): JSX.Element {
           <h2>Allow a user to create a new profile</h2>
           {/*<KeyboardRemapper /> TODO: Rework this*/}
           <button onClick={goHome}>Home</button>
+          <button onClick={transmitProfile}>Transmit Profile</button>
           <button onClick={() => profile && saveProfile(profile)}>Save</button>
           <button onClick={createNewProfile}>New Profile</button>
         </div>
