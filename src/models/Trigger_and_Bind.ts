@@ -1,18 +1,18 @@
 export enum BindType {
-  Link = 'link',
-  Combo = 'combo',
-  Macro = 'macro',
-  TimedMacro = 'timed_macro',
-  Repeat = 'repeat',
-  SwapLayer = 'swap_layer',
-  AppOpen = 'app_open'
+  Link = 'Link_Bind',
+  Combo = 'Combo_Bind',
+  Macro = 'Macro_Bind',
+  TimedMacro = 'TimedMacro_Bind',
+  Repeat = 'Repeat_Bind',
+  SwapLayer = 'SwapLayer_Bind',
+  AppOpen = 'AppOpen_Bind'
 }
 
 export enum TriggerType {
-  Link = 'link',
-  Timed = 'timed',
-  Hold = 'hold',
-  AppFocused = 'app_focused'
+  Link = 'Link_Trigger',
+  Timed = 'Timed_Trigger',
+  Hold = 'Hold_Trigger',
+  AppFocused = 'App_Focus_Trigger'
 }
 /**
  * Represents a physical key on the keyboard
