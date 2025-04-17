@@ -59,7 +59,7 @@ function sendStartSignalToDaemon(): void {
   })
   client.on('data', (data) => {
     console.log('Daemon responded:', data.toString())
-    client.end()
+    // client.end()
   })
   client.on('error', (err) => {
     // TODO: Deamon likely offline, we should start the deamon.
@@ -83,7 +83,7 @@ async function sendProfileJson(client: net.Socket): Promise<void> {
     // Optional: Validate JSON
     JSON.parse(data)
     // Send it with newline for framing
-    client.write(data + '\n')
+    client.write('load:' + data + '\n')
     console.log('Sent profile JSON to daemon')
   } catch (err: unknown) {
     if (err instanceof Error) {
