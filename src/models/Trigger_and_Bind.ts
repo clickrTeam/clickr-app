@@ -1,18 +1,18 @@
 export enum BindType {
-  Link = 'Link_Bind',
-  Combo = 'Combo_Bind',
-  Macro = 'Macro_Bind',
-  TimedMacro = 'TimedMacro_Bind',
-  Repeat = 'Repeat_Bind',
-  SwapLayer = 'SwapLayer_Bind',
-  AppOpen = 'AppOpen_Bind'
+  Tap = 'tap_bind',
+  Combo = 'combo_bind',
+  Macro = 'macro_bind',
+  TimedMacro = 'timed_macro_bind',
+  Repeat = 'repeat_bind',
+  SwapLayer = 'swap_layer_bind',
+  AppOpen = 'app_open_bind'
 }
 
 export enum TriggerType {
-  Link = 'Link_Trigger',
-  Timed = 'Timed_Trigger',
-  Hold = 'Hold_Trigger',
-  AppFocused = 'App_Focus_Trigger'
+  Tap = 'link_trigger',
+  Timed = 'timed_trigger',
+  Hold = 'hold_trigger',
+  AppFocused = 'app_focus_trigger'
 }
 /**
  * Represents a physical key on the keyboard
@@ -31,27 +31,27 @@ export abstract class Trigger {
 /**
  * A link trigger is the simplest kind of trigger. It represents a single key press, think 'tap'.
  */
-export class Link_Trigger extends Trigger {
+export class Tap_Trigger extends Trigger {
   value: string
 
   constructor(value: string) {
-    super(TriggerType.Link)
+    super(TriggerType.Tap)
     this.value = value
   }
 
   toJSON(): object {
     return {
-      type: TriggerType.Link,
+      type: TriggerType.Tap,
       value: this.value
     }
   }
 
-  static fromJSON(obj: { value: string }): Link_Trigger {
-    return new Link_Trigger(obj.value)
+  static fromJSON(obj: { value: string }): Tap_Trigger {
+    return new Tap_Trigger(obj.value)
   }
 
   equals(other: Trigger): boolean {
-    return other instanceof Link_Trigger && this.value === other.value
+    return other instanceof Tap_Trigger && this.value === other.value
   }
 }
 
@@ -204,27 +204,27 @@ export abstract class Bind {
 /**
  * The simplest kind of bind, just activates one key.
  */
-export class Link_Bind extends Bind {
+export class Tap_Bind extends Bind {
   value: string
 
   constructor(value: string) {
-    super(BindType.Link)
+    super(BindType.Tap)
     this.value = value
   }
 
   toJSON(): object {
     return {
-      type: BindType.Link,
+      type: BindType.Tap,
       value: this.value
     }
   }
 
-  static fromJSON(obj: { value: string }): Link_Bind {
-    return new Link_Bind(obj.value)
+  static fromJSON(obj: { value: string }): Tap_Bind {
+    return new Tap_Bind(obj.value)
   }
 
   equals(other: Bind): boolean {
-    return other instanceof Link_Bind && this.value === other.value
+    return other instanceof Tap_Bind && this.value === other.value
   }
 }
 
@@ -455,13 +455,13 @@ export class AppOpen_Bind extends Bind {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function deserializeTrigger(obj: any): Trigger {
   switch (obj.type) {
-    case 'Link_Trigger':
-      return Link_Trigger.fromJSON(obj)
-    case 'Timed_Trigger':
+    case 'link_trigger':
+      return Tap_Trigger.fromJSON(obj)
+    case 'timed_trigger':
       return Timed_Trigger.fromJSON(obj)
-    case 'Hold_Trigger':
+    case 'hold_trigger':
       return new Hold_Trigger(obj.value, obj.wait)
-    case 'App_Focus_Trigger':
+    case 'app_focus_trigger':
       return new App_Focus_Trigger(obj.app_name, obj.value)
     default:
       throw new Error(`Unknown Trigger type: ${obj.type}`)
@@ -471,24 +471,24 @@ export function deserializeTrigger(obj: any): Trigger {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function deserializeBind(obj: any): Bind {
   switch (obj.type) {
-    case 'Link_Bind':
-      return new Link_Bind(obj.value)
-    case 'Combo_Bind':
+    case 'tap_bind':
+      return new Tap_Bind(obj.value)
+    case 'combo_bind':
       return new Combo_Bind(obj.values)
-    case 'Macro_Bind':
+    case 'macro_bind':
       return new Macro_Bind(obj.binds.map(deserializeBind))
-    case 'TimedMacro_Bind':
+    case 'timed_macro_bind':
       return new TimedMacro_Bind(obj.binds.map(deserializeBind), obj.times)
-    case 'Repeat_Bind':
+    case 'repeat_bind':
       return new Repeat_Bind(
         deserializeBind(obj.value),
         obj.time_delay,
         obj.times_to_execute,
         deserializeTrigger(obj.cancel_trigger)
       )
-    case 'SwapLayer_Bind':
+    case 'swap_layer_bind':
       return new SwapLayer_Bind(obj.layer_num)
-    case 'AppOpen_Bind':
+    case 'app_open_bind':
       return new AppOpen_Bind(obj.app_name)
     default:
       throw new Error(`Unknown Bind type: ${obj.type}`)

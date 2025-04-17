@@ -67,19 +67,18 @@ function sendStartSignalToDaemon(): void {
   })
 }
 /**
- * Sends the Profile object as a JSON over the socket.
+ * Sends the active_profile object as a JSON over the socket.
  * @param client The socket which will have the data sent to it.
  * @returns Returns early if the socket can't be connected to.
  */
 async function sendProfileJson(client: net.Socket): Promise<void> {
-  const jsonPath = path.join(__dirname, '..', '..', 'resources', 'e1.json') // TODO: Just an example, eventually this will not be hardcoded.
   try {
     // Check if the socket is still writable
     if (!client.writable || client.destroyed) {
       console.error('Socket is not connected or already closed.')
       return
     }
-    const data = await fs_prom.readFile(jsonPath, 'utf8')
+    const data = JSON.stringify(active_profile?.toJSON())
     // Optional: Validate JSON
     JSON.parse(data)
     // Send it with newline for framing

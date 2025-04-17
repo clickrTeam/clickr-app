@@ -44,30 +44,48 @@ function App(): JSX.Element {
       })
   }, [])
 
+  /**
+   * Send an IPC message to the main process to run the daemon start signal. 
+   * Will be depreceated once daemon runs on machine boot
+   */
   const handleStartDaemon = (): void => {
-    // Send an IPC message to the main process to run the daemon start signal
     window.electron.ipcRenderer.send('start-daemon')
   }
 
-  const loadProfile = (): void => {
-    // Eventually this will point to a specific .json file or path
+  /**
+   * Loads a profile.json from a specific path.
+   * @param file_path The path where the desired json is
+   */
+  const loadProfile = (file_path: string): void => {
+    // TODO: Implement logic
     window.electron.ipcRenderer.send('load')
   }
 
+  /**
+   * Sends an IPC message to the main process to create a new profile
+   */
   const createNewProfile = (): void => {
-    // Change view to create a new profile
     window.electron.ipcRenderer.send('create-new-profile')
   }
 
+  /**
+   * Changes the view to show the current profile. NOTE: Almost certainly will change when GUI is updated.
+   */
   const seeCurrentProfile = (): void => {
     setCurrentView(View.CURRENT_PROFILE)
   }
 
-  // Handle going back to the previous screen
+  /**
+   * Returns to the 'home' screen on the application. NOTE: Almost certainly will change when GUI is updated.
+   */
   const goHome = (): void => {
     setCurrentView(View.HOME)
   }
 
+  /**
+   * Sends an IPC message to the main process to save the current profile into a JSON file.
+   * @param prof The profile object to save.
+   */
   const saveProfile = (prof: Profile): void => {
     const json = prof.toJSON()
     console.log('Sending Profile: ', JSON.stringify(json))

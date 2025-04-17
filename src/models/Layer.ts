@@ -1,5 +1,4 @@
 import * as TB from './Trigger_and_Bind'
-import { defaultQwertyLayout } from './DefaultLayout'
 
 /**
  * Represents a keyboard layer within a profile
@@ -34,34 +33,33 @@ export class Layer {
       this.remappings = remappings
     } else {
       this.remappings = new Map<TB.Trigger, TB.Bind>()
-
-      // Sets qwerty as the default values for a layer.
-      for (const row of defaultQwertyLayout) {
-        for (const key of row) {
-          //TODO: I think at some point it would be a good idea to use the user's layer0 as a default, instead of QWERTY.
-          const trig = new TB.Link_Trigger(key.value)
-          const bnd = new TB.Link_Bind(key.value)
-          this.remappings.set(trig, bnd)
-        }
-      }
     }
   }
 
   /**
-   * Remaps a physical keypress to a Bind
-   * @param new_trig The associated trigger object
-   * @param new_bnd The bind associated the user desires. "enter, double tap"
+   * Deletes a remapping from a layer. Should be used in conjunction with addRemapping when changing a key
+   * that is already mapped.
+   * @param trig The associated trigger object
+   * @returns True if the trigger and bind was present and removed, false otherwise.
    */
-  setRemapping(old_trig: TB.Trigger, new_trig: TB.Trigger, new_bnd: TB.Bind): void {
+  deleteRemapping(trig: TB.Trigger): boolean {
     // Keys are by reference, so unless the exact Trigger object is indexed, you won't ever delete anything.
     // Using .equals will allow old_trig to be a different instance
     for (const existing_trig of this.remappings.keys()) {
-      if (existing_trig.equals(old_trig)) {
-        this.remappings.delete(existing_trig)
-        break
+      if (existing_trig.equals(trig)) {
+        return this.remappings.delete(existing_trig)
       }
     }
-    this.remappings.set(new_trig, new_bnd)
+    return false
+  }
+
+  /**
+   * Adds a trigger and bind to the remappings map.
+   * @param trig The trigger that should be associated with a bind
+   * @param bnd The desired bind
+   */
+  addRemapping(trig: TB.Trigger, bnd: TB.Bind): void {
+    this.remappings.set(trig, bnd)
   }
 
   /**
@@ -71,6 +69,14 @@ export class Layer {
    */
   getRemapping(trig: TB.Trigger): TB.Bind | undefined {
     return this.remappings.get(trig)
+  }
+
+  /**
+   * Updates the name of the layer
+   * @param new_name What the layer's name will be changed to.
+   */
+  updateName(new_name: string): void {
+    this.layer_name = new_name
   }
 
   toJSON(): object {
