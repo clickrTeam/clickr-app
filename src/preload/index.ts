@@ -14,7 +14,7 @@ const api: API = {
   getProfile: (): Promise<unknown> => ipcRenderer.invoke('get-profile'),
 
   // Sends the profile JSON back to the main process.
-  saveProfile: (profileJSON) => ipcRenderer.send('save-profile', profileJSON)
+  saveProfile: (profileJSON) => ipcRenderer.invoke('save-profile', profileJSON)
 }
 
 

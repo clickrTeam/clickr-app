@@ -70,6 +70,7 @@ function App(): JSX.Element {
 
   const saveProfile = (prof: Profile): void => {
     const json = prof.toJSON()
+    console.log('Sending Profile: ', JSON.stringify(json))
     window.api.saveProfile(json)
   }
 

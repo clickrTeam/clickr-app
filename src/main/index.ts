@@ -163,7 +163,7 @@ app.whenReady().then(() => {
     console.log('JSON has been written to test.json')
     return active_profile?.toJSON()
   })
-  ipcMain.on('save-profile', (profileJson) => {
+  ipcMain.handle('save-profile', async (_event, profileJson) => {
     console.log(
       'JSON recieved back in main. Deserialzing, updating active_profile, and writing profileJSON'
     )
