@@ -140,12 +140,20 @@ app.whenReady().then(() => {
     sendStartSignalToDaemon() // Call the function when the message is received
   })
   ipcMain.on('load', () => {
+    //TODO: This logic should change and should instead load a profile from a JSON
     if (client) {
       sendProfileJson(client)
     } else {
       console.error('Not connected to socket.')
     }
   })
+  ipcMain.on('send-prof-to-daemon', () => {
+    if (client) {
+      sendProfileJson(client)
+    } else {
+      console.error('Not connected to socket.')
+    }
+  }) 
   ipcMain.on('create-new-profile', () => {
     createNewProfile('default')
   })

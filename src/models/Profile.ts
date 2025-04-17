@@ -96,14 +96,34 @@ export class Profile {
     return true
   }
 
-  //NOTE: Just for testing JSON structure.
-  ADD_TEST_LAYER(test_layer_name: string): void { 
+  /**
+   * NOTE: Just for testing JSON structure.
+   */
+  ADD_TEST_LAYER(test_layer_name: string): void {
     this.addLayer(test_layer_name)
 
-    const old_f1 = new TB.Tap_Trigger('F1')
-    const new_f1 = new TB.Timed_Trigger([['F1', 1],['F1', 2]], true, true)
-    const new_f1_bind = new TB.Combo_Bind(['Ctrl', 'C'])
-    this.layers[1].deleteRemapping(old_f1)
+    const del_f1 = new TB.Timed_Trigger(
+      [
+        ['F1', 1],
+        ['F1', 2]
+      ],
+      true,
+      true
+    )
+    const del_f1_bind = new TB.Combo_Bind(['Ctrl', 'C'])
+    this.layers[1].addRemapping(del_f1, del_f1_bind)
+
+    //Test deletion and adding
+    const new_f1 = new TB.Timed_Trigger(
+      [
+        ['F1', 1],
+        ['F1', 3]
+      ],
+      true,
+      true
+    )
+    const new_f1_bind = new TB.Combo_Bind(['Ctrl', 'V'])
+    this.layers[1].deleteRemapping(del_f1)
     this.layers[1].addRemapping(new_f1, new_f1_bind)
 
     const old_f2 = new TB.Tap_Trigger('F2')

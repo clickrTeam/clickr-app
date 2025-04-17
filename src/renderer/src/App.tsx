@@ -61,6 +61,9 @@ function App(): JSX.Element {
     window.electron.ipcRenderer.send('load')
   }
 
+  const transmitProfile = (): void => {
+    window.electron.ipcRenderer.send('send-prof-to-daemon')
+  }
   /**
    * Sends an IPC message to the main process to create a new profile
    */
