@@ -1,10 +1,24 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-// Custom APIs for renderer
-const api = {}
 
-// Use `contextBridge` APIs to expose Electron APIs to
+// Define interfaces for your API if you want more type safety.
+interface API {
+  getProfile: () => Promise<unknown>
+  saveProfile: (profileJSON: unknown) => void
+}
+
+// Custom APIs for renderer to interact with the profile data.
+const api: API = {
+  // Gets the profile JSON from the main process.
+  getProfile: (): Promise<unknown> => ipcRenderer.invoke('get-profile'),
+
+  // Sends the profile JSON back to the main process.
+  saveProfile: (profileJSON) => ipcRenderer.invoke('save-profile', profileJSON)
+}
+
+
+// Use contextBridge APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
 if (process.contextIsolated) {
