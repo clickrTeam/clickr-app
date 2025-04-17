@@ -5,7 +5,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 // Define interfaces for your API if you want more type safety.
 interface API {
   getProfile: () => Promise<unknown>
-  updateProfile: (profileJSON: unknown) => void
+  saveProfile: (profileJSON: unknown) => void
 }
 
 // Custom APIs for renderer to interact with the profile data.
@@ -13,10 +13,8 @@ const api: API = {
   // Gets the profile JSON from the main process.
   getProfile: (): Promise<unknown> => ipcRenderer.invoke('get-profile'),
 
-  // Sends updated profile JSON back to the main process.
-  updateProfile: (profileJSON: unknown): void => {
-    ipcRenderer.send('update-profile', profileJSON)
-  }
+  // Sends the profile JSON back to the main process.
+  saveProfile: (profileJSON) => ipcRenderer.send('save-profile', profileJSON)
 }
 
 

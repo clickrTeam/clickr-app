@@ -6,7 +6,7 @@ import React from 'react'
 // Enum to represent different views/screens
 enum View {
   HOME = 'HOME',
-  NEW_PROFILE = 'NEW_PROFILE',
+  CURRENT_PROFILE = 'CURRENT_PROFILE',
   ANOTHER_VIEW = 'ANOTHER_VIEW' // Example of additional views
 }
 
@@ -26,13 +26,13 @@ function App(): JSX.Element {
   const [profileName, setProfileName] = React.useState<string>('')
   console.log('electronAPI:', window.electronAPI) //debug
 
-
   // Get the profile from the main process when the component mounts. TODO: This bit of code causes none of the gui to load
   React.useEffect(() => {
     console.log('[App] useEffect running')
     console.log('window.api:', window.api)
-  
-    window.api.getProfile()
+
+    window.api
+      .getProfile()
       .then((profileJSON: ProfileJSON) => {
         console.log('Got profile:', profileJSON)
         const parsed_profile = Profile.fromJSON(profileJSON)
@@ -43,7 +43,6 @@ function App(): JSX.Element {
         console.error('Failed to fetch profile:', err)
       })
   }, [])
-
 
   const handleStartDaemon = (): void => {
     // Send an IPC message to the main process to run the daemon start signal
@@ -57,8 +56,11 @@ function App(): JSX.Element {
 
   const createNewProfile = (): void => {
     // Change view to create a new profile
-    setCurrentView(View.NEW_PROFILE)
     window.electron.ipcRenderer.send('create-new-profile')
+  }
+
+  const seeCurrentProfile = (): void => {
+    setCurrentView(View.CURRENT_PROFILE)
   }
 
   // Handle going back to the previous screen
@@ -66,8 +68,9 @@ function App(): JSX.Element {
     setCurrentView(View.HOME)
   }
 
-  const editProfile = (): void => {
-    // Open profile.json and edit
+  const saveProfile = (prof: Profile): void => {
+    const json = prof.toJSON()
+    window.api.saveProfile(json)
   }
 
   return (
@@ -82,20 +85,21 @@ function App(): JSX.Element {
         <div>
           <h1>Clickr</h1>
           <button onClick={handleStartDaemon}>Start Daemon</button>
-          <button onClick={createNewProfile}>Create New Profile</button>
+          <button onClick={seeCurrentProfile}>Current Profile</button>
           <button onClick={loadProfile}>Load e1.json</button>
         </div>
       )}
 
-      {/* New Profile Screen */}
-      {currentView === View.NEW_PROFILE && (
+      {/* Current Profile Screen */}
+      {currentView === View.CURRENT_PROFILE && (
         <div>
           <h1>New Profile</h1>
           <h1>Current Profile: {profileName}</h1>
           <h2>Allow a user to create a new profile</h2>
           {/*<KeyboardRemapper /> TODO: Rework this*/}
           <button onClick={goHome}>Home</button>
-          <button onClick={goHome}>Save</button>
+          <button onClick={() => profile && saveProfile(profile)}>Save</button>
+          <button onClick={createNewProfile}>New Profile</button>
         </div>
       )}
 

@@ -163,6 +163,17 @@ app.whenReady().then(() => {
     console.log('JSON has been written to test.json')
     return active_profile?.toJSON()
   })
+  ipcMain.on('save-profile', (profileJson) => {
+    console.log(
+      'JSON recieved back in main. Deserialzing, updating active_profile, and writing profileJSON'
+    )
+    const filePath = path.join(__dirname, '../../resources/test_recieve_in_main.json')
+    fs.mkdirSync(path.dirname(filePath), { recursive: true })
+    fs.writeFileSync(filePath, JSON.stringify(profileJson, null, 2), 'utf-8')
+    console.log('JSON has been written to test_recieve_in_main.json')
+    active_profile = Profile.fromJSON(profileJson)
+    console.log('active_profile updated sucessfully')
+  })
   createWindow()
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
