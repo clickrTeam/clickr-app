@@ -1,187 +1,12 @@
+import { Trigger, deserializeTrigger } from "./Trigger"
 export enum BindType {
-  Link = 'Link_Bind',
-  Combo = 'Combo_Bind',
-  Macro = 'Macro_Bind',
-  TimedMacro = 'TimedMacro_Bind',
-  Repeat = 'Repeat_Bind',
-  SwapLayer = 'SwapLayer_Bind',
-  AppOpen = 'AppOpen_Bind'
-}
-
-export enum TriggerType {
-  Link = 'Link_Trigger',
-  Timed = 'Timed_Trigger',
-  Hold = 'Hold_Trigger',
-  AppFocused = 'App_Focus_Trigger'
-}
-/**
- * Represents a physical key on the keyboard
- */
-export abstract class Trigger {
-  trigger_type: TriggerType
-
-  constructor(trig_type: TriggerType) {
-    this.trigger_type = trig_type
-  }
-
-  abstract toJSON(): object
-  abstract equals(other: Trigger): boolean
-}
-
-/**
- * A link trigger is the simplest kind of trigger. It represents a single key press, think 'tap'.
- */
-export class Link_Trigger extends Trigger {
-  value: string
-
-  constructor(value: string) {
-    super(TriggerType.Link)
-    this.value = value
-  }
-
-  toJSON(): object {
-    return {
-      type: TriggerType.Link,
-      value: this.value
-    }
-  }
-
-  static fromJSON(obj: { value: string }): Link_Trigger {
-    return new Link_Trigger(obj.value)
-  }
-
-  equals(other: Trigger): boolean {
-    return other instanceof Link_Trigger && this.value === other.value
-  }
-}
-
-/**
- * A timed trigger will be used to represent double and triple taps.
- * A double tap will have 2 elements in the key_time_pairs list, a triple will have 3, etc.
- */
-export class Timed_Trigger extends Trigger {
-  /**
-   * This is represented as a list of tuples. Each tuple is a key, time pair.
-   * The time is a delay before moving on to the next key time pair.
-   * The value of the last time delay does not matter.
-   */
-  key_time_pairs: [string, number][]
-
-  /**
-   * 1. Default behavior is both capture and release are true.
-   *    Example:  If you tap 't', you will get 't' later.
-   *              If you double tap 't', you will get 'r'.
-   *              If you tap too slow, you get 'tt'.
-   * 2. If release is true and capture is false:
-   *        if you press 't' you will immediately get 't'.
-   *        If you double tap 't', you will get 'ttr'.
-   *        If you tap too slow, you get 'tt'.
-   * 3. If capture is true and release is not, the key will never go through.
-   *        For example: double tap 't' -> 'r', when you press 't' twice you just get 'r'
-   *        if you press 't', you won't get anything
-   */
-  capture: boolean
-  release: boolean
-
-  constructor(
-    key_time_pairs: [string, number][],
-    capture: boolean = true,
-    release: boolean = true
-  ) {
-    super(TriggerType.Timed)
-    this.key_time_pairs = key_time_pairs
-    this.capture = capture
-    this.release = release
-  }
-
-  toJSON(): object {
-    return {
-      type: TriggerType.Timed,
-      key_time_pairs: this.key_time_pairs,
-      capture: this.capture,
-      release: this.release
-    }
-  }
-
-  static fromJSON(obj: {
-    key_time_pairs: [string, number][]
-    capture: boolean
-    release: boolean
-  }): Timed_Trigger {
-    return new Timed_Trigger(obj.key_time_pairs, obj.capture, obj.release)
-  }
-
-  equals(other: Trigger): boolean {
-    return (
-      other instanceof Timed_Trigger &&
-      this.capture === other.capture &&
-      this.release === other.release &&
-      this.key_time_pairs.length === other.key_time_pairs.length &&
-      this.key_time_pairs.every(
-        ([k, t], i) => k === other.key_time_pairs[i][0] && t === other.key_time_pairs[i][1]
-      )
-    )
-  }
-}
-
-/**
- * Represents a trigged by pressing and holding a key.
- */
-export class Hold_Trigger extends Trigger {
-  value: string
-  wait: number
-
-  constructor(value: string, wait: number) {
-    super(TriggerType.Hold)
-    this.value = value
-    this.wait = wait
-  }
-
-  toJSON(): object {
-    return {
-      type: TriggerType.Hold,
-      value: this.value,
-      wait: this.wait
-    }
-  }
-
-  static fromJSON(obj: { value: string; wait: number }): Hold_Trigger {
-    return new Hold_Trigger(obj.value, obj.wait)
-  }
-
-  equals(other: Trigger): boolean {
-    return other instanceof Hold_Trigger && this.value === other.value && this.wait === other.wait
-  }
-}
-
-/**
- * This only applies when a certain application is running.
- */
-export class App_Focus_Trigger extends Trigger {
-  app_name: string
-  value: string
-
-  constructor(app_name: string, value: string) {
-    super(TriggerType.AppFocused)
-    this.app_name = app_name
-    this.value = value
-  }
-
-  toJSON(): object {
-    return {
-      type: TriggerType.AppFocused,
-      app_name: this.app_name,
-      value: this.value
-    }
-  }
-
-  static fromJSON(obj: { app_name: string; value: string }): App_Focus_Trigger {
-    return new App_Focus_Trigger(obj.app_name, obj.value)
-  }
-
-  equals(other: Trigger): boolean {
-    return other instanceof App_Focus_Trigger && this.app_name === other.app_name && this.value === other.value
-  }
+  Tap = 'tap_bind',
+  Combo = 'combo_bind',
+  Macro = 'macro_bind',
+  TimedMacro = 'timed_macro_bind',
+  Repeat = 'repeat_bind',
+  SwapLayer = 'swap_layer_bind',
+  AppOpen = 'app_open_bind'
 }
 
 /**
@@ -204,27 +29,27 @@ export abstract class Bind {
 /**
  * The simplest kind of bind, just activates one key.
  */
-export class Link_Bind extends Bind {
+export class Tap_Bind extends Bind {
   value: string
 
   constructor(value: string) {
-    super(BindType.Link)
+    super(BindType.Tap)
     this.value = value
   }
 
   toJSON(): object {
     return {
-      type: BindType.Link,
+      type: BindType.Tap,
       value: this.value
     }
   }
 
-  static fromJSON(obj: { value: string }): Link_Bind {
-    return new Link_Bind(obj.value)
+  static fromJSON(obj: { value: string }): Tap_Bind {
+    return new Tap_Bind(obj.value)
   }
 
   equals(other: Bind): boolean {
-    return other instanceof Link_Bind && this.value === other.value
+    return other instanceof Tap_Bind && this.value === other.value
   }
 }
 
@@ -453,42 +278,26 @@ export class AppOpen_Bind extends Bind {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function deserializeTrigger(obj: any): Trigger {
-  switch (obj.type) {
-    case 'Link_Trigger':
-      return Link_Trigger.fromJSON(obj)
-    case 'Timed_Trigger':
-      return Timed_Trigger.fromJSON(obj)
-    case 'Hold_Trigger':
-      return new Hold_Trigger(obj.value, obj.wait)
-    case 'App_Focus_Trigger':
-      return new App_Focus_Trigger(obj.app_name, obj.value)
-    default:
-      throw new Error(`Unknown Trigger type: ${obj.type}`)
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function deserializeBind(obj: any): Bind {
   switch (obj.type) {
-    case 'Link_Bind':
-      return new Link_Bind(obj.value)
-    case 'Combo_Bind':
+    case 'tap_bind':
+      return new Tap_Bind(obj.value)
+    case 'combo_bind':
       return new Combo_Bind(obj.values)
-    case 'Macro_Bind':
+    case 'macro_bind':
       return new Macro_Bind(obj.binds.map(deserializeBind))
-    case 'TimedMacro_Bind':
+    case 'timed_macro_bind':
       return new TimedMacro_Bind(obj.binds.map(deserializeBind), obj.times)
-    case 'Repeat_Bind':
+    case 'repeat_bind':
       return new Repeat_Bind(
         deserializeBind(obj.value),
         obj.time_delay,
         obj.times_to_execute,
         deserializeTrigger(obj.cancel_trigger)
       )
-    case 'SwapLayer_Bind':
+    case 'swap_layer_bind':
       return new SwapLayer_Bind(obj.layer_num)
-    case 'AppOpen_Bind':
+    case 'app_open_bind':
       return new AppOpen_Bind(obj.app_name)
     default:
       throw new Error(`Unknown Bind type: ${obj.type}`)
