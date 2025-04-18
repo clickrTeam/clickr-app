@@ -24,7 +24,7 @@ const formSchema = z
       message: "Username must be at least 1 characters",
     }),
     email: z.string().email({ message: "Invalid email address" }),
-    password: z.string().min(6, {
+    password: z.string().min(3, {
       message: "Password must be at least 6 characters",
     }),
     confirmPassword: z.string(),
