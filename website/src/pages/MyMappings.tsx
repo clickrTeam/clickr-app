@@ -1,0 +1,367 @@
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Search,
+  Plus,
+  MoreHorizontal,
+  Edit,
+  Share,
+  Trash2,
+  ArrowUpRight,
+  Keyboard,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  get_user_mappings,
+  create_new_mapping,
+  delete_mapping,
+} from "@/api/endpoints";
+import { useAuth } from "@/contexts/AuthContext";
+import { boolean } from "zod";
+
+type Mapping = {
+  id: string;
+  user: string;
+  name: string;
+  description: string;
+  mappings: Record<string, string>; // Object to store key-value pairs of mappings
+  updated_at: string;
+  lastEdited: string;
+  keyCount: number;
+  isActive: boolean;
+  isPublic: boolean;
+  numLikes: number;
+  numDownloads: number;
+  tags: Array<string>;
+};
+
+const MyMappings = () => {
+  const [mappings, setMappings] = useState<Mapping[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const { user } = useAuth();
+
+  const [newMappingName, setNewMappingName] = useState("");
+  const [newMappingDesc, setNewMappingDesc] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const username = user?.username || "bode"; // Fallback to 'bode' if user is null FOR TESTING ONLY
+  //TODO: Remove this fallback
+
+  useEffect(() => {
+    fetchMappings();
+  }, []);
+  const updateMappingCounts = () => {
+    setMappings((currentMappings) =>
+      currentMappings.map((mapping) => ({
+        ...mapping,
+        keyCount: Object.keys(mapping.mappings || {}).length,
+      }))
+    );
+  };
+
+  const updateLastEdited = () => {
+    setMappings((currentMappings) =>
+      currentMappings.map((mapping) => {
+        const updatedDate = new Date(mapping.updated_at);
+        const now = new Date();
+        const diffHours = Math.floor(
+          (now.getTime() - updatedDate.getTime()) / (1000 * 60 * 60)
+        );
+        const diffDays = Math.floor(diffHours / 24);
+
+        let lastEdited;
+        if (diffHours < 1) {
+          lastEdited = "Just now";
+        } else if (diffHours < 24) {
+          lastEdited = `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
+        } else {
+          lastEdited = `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
+        }
+
+        return {
+          ...mapping,
+          lastEdited,
+        };
+      })
+    );
+  };
+  const fetchMappings = async () => {
+    try {
+      setIsLoading(true);
+      const data = await get_user_mappings(username);
+      console.log(data);
+      setMappings(data);
+      updateMappingCounts();
+      updateLastEdited();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch mappings");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateMapping = async () => {
+    if (!newMappingName.trim()) return;
+
+    try {
+      const mappingData = {
+        name: newMappingName,
+        description: newMappingDesc,
+        mappings: {},
+        isActive: false,
+      };
+
+      const response = await create_new_mapping(username, mappingData);
+      await fetchMappings(); // Refresh the mappings list
+
+      setNewMappingName("");
+      setNewMappingDesc("");
+      setIsCreating(false);
+    } catch (error) {
+      console.error("Failed to create mapping:", error);
+      //TODO: might want to add error handling UI here
+    }
+  };
+
+  const handleDeleteMapping = async (id: string) => {
+    try {
+      await delete_mapping(username, id);
+      // After successful deletion, remove from local state
+      setMappings(mappings.filter((mapping) => mapping.id !== id));
+    } catch (error) {
+      console.error("Failed to delete mapping:", error);
+      //TODO: might want to add error handling UI here
+    }
+  };
+
+  const filteredMappings = mappings.filter((mapping) => {
+    if (!searchQuery) return true;
+    return (
+      mapping.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      mapping.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+  return (
+    <div className="min-h-screen pt-24 pb-16">
+      <div className="container mx-auto px-4">
+        <motion.div
+          className="max-w-4xl mx-auto mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">My Mappings</h1>
+              <p className="text-muted-foreground">
+                Create and manage your keyboard mapping profiles
+              </p>
+            </div>
+
+            <Dialog open={isCreating} onOpenChange={setIsCreating}>
+              <DialogTrigger asChild>
+                <Button size="lg" className="flex items-center gap-2">
+                  <Plus size={16} /> Create New Mapping
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Mapping</DialogTitle>
+                  <DialogDescription>
+                    Give your mapping a name and description to help you
+                    identify it later.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      placeholder="My Custom Mapping"
+                      className="col-span-3"
+                      value={newMappingName}
+                      onChange={(e) => setNewMappingName(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="description" className="text-right">
+                      Description
+                    </Label>
+                    <Input
+                      id="description"
+                      placeholder="Optional description"
+                      className="col-span-3"
+                      value={newMappingDesc}
+                      onChange={(e) => setNewMappingDesc(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsCreating(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={handleCreateMapping}>Create</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className="relative max-w-xl mb-8">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search mappings..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            {filteredMappings.length > 0 ? (
+              filteredMappings.map((mapping, index) => (
+                <motion.div
+                  key={mapping.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <Card
+                    className={`hover:shadow-md transition-shadow ${
+                      mapping.isActive ? "ring-2 ring-primary" : ""
+                    }`}
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            {mapping.name}
+                            {mapping.isActive && (
+                              <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+                                Active
+                              </span>
+                            )}
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {mapping.description}
+                          </p>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Actions</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link to={`/mapping/${mapping.id}/edit`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Share className="mr-2 h-4 w-4" />
+                              Share
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => handleDeleteMapping(mapping.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pb-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span>Last edited: {mapping.lastEdited}</span>
+                        <span>{mapping.keyCount} key mappings</span>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" className="w-full" asChild>
+                        <Link
+                          to={`/mapping/${mapping.id}`}
+                          className="flex items-center justify-center gap-2"
+                        >
+                          View Details
+                          <ArrowUpRight size={14} />
+                        </Link>
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </motion.div>
+              ))
+            ) : (
+              <motion.div
+                className="col-span-2 text-center py-12"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                  <Keyboard className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-medium mb-2">No mappings found</h3>
+                <p className="text-muted-foreground mb-6">
+                  {searchQuery
+                    ? "No mappings match your search criteria"
+                    : "You haven't created any keyboard mappings yet"}
+                </p>
+                <Button onClick={() => setIsCreating(true)}>
+                  Create your first mapping
+                </Button>
+              </motion.div>
+            )}
+          </motion.div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default MyMappings;
