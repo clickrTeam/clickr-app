@@ -1,16 +1,17 @@
-
 import HeroSection from "@/components/HeroSection";
 import HowItWorks from "@/components/HowItWorks";
 import DownloadSection from "@/components/DownloadSection";
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
+import TestimonialsCarousel from "@/components/TestimonialCarousel";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <HeroSection />
       <HowItWorks />
+      <TestimonialsCarousel />
       <DownloadSection />
-      
+
       <motion.footer
         className="bg-slate-100 py-12"
         initial={{ opacity: 0 }}
