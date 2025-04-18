@@ -62,11 +62,32 @@ const Register = () => {
       })
       .catch((error) => {
         console.error("Registration error:", error);
+
+        // Extract specific error messages from the response
+        const errorData = error.response?.data;
+        let errorMessage = "Something went wrong. Please try again.";
+
+        if (errorData) {
+          // Check for username error
+          if (errorData.username) {
+            errorMessage = `Username error: ${errorData.username[0]}`;
+          }
+          // Check for general error
+          else if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+          // Check for other field errors
+          else if (typeof errorData === "object") {
+            const firstErrorField = Object.keys(errorData)[0];
+            if (firstErrorField && errorData[firstErrorField]) {
+              errorMessage = `${firstErrorField}: ${errorData[firstErrorField][0]}`;
+            }
+          }
+        }
+
         toast({
           title: "Registration Failed",
-          description:
-            error.response?.data?.message ||
-            "Something went wrong. Please try again.",
+          description: errorMessage,
           variant: "destructive",
         });
       })
