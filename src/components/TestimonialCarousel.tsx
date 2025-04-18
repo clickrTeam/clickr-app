@@ -8,7 +8,6 @@ const testimonials = [
     role: "Founder, Framer",
     handle: "@koenbok",
     avatarUrl: "/placeholder.svg",
-    colorClass: "bg-gradient-to-br from-purple-900/90 to-purple-800/90",
   },
   {
     name: "Sarah Chen",
@@ -17,14 +16,12 @@ const testimonials = [
     avatarUrl: "/placeholder.svg",
     review:
       "Clickr has completely transformed how I handle keyboard shortcuts. It's intuitive and powerful.",
-    colorClass: "bg-gradient-to-br from-blue-900/90 to-blue-800/90",
   },
   {
     name: "Andreas Storm",
     role: "Designer & Iconograph",
     handle: "@avstorm",
     avatarUrl: "/placeholder.svg",
-    colorClass: "bg-gradient-to-br from-pink-900/90 to-pink-800/90",
   },
   {
     name: "Emma Thompson",
@@ -33,14 +30,12 @@ const testimonials = [
     avatarUrl: "/placeholder.svg",
     review:
       "The best investment I've made for my productivity workflow this year!",
-    colorClass: "bg-gradient-to-br from-green-900/90 to-green-800/90",
   },
   {
     name: "Adam Wathan",
     role: "Creator, Tailwind CSS",
     handle: "@adamwathan",
     avatarUrl: "/placeholder.svg",
-    colorClass: "bg-gradient-to-br from-yellow-900/90 to-yellow-800/90",
   },
   {
     name: "Mike Rivers",
@@ -49,7 +44,6 @@ const testimonials = [
     avatarUrl: "/placeholder.svg",
     review:
       "Game-changing tool for my design workflow. The customization options are endless!",
-    colorClass: "bg-gradient-to-br from-orange-900/90 to-orange-800/90",
   },
 ];
 
@@ -85,6 +79,7 @@ const TestimonialsCarousel = () => {
             <TestimonialCard
               key={`${testimonial.handle}-1-${idx}`}
               {...testimonial}
+              index={idx}
             />
           ))}
         </motion.div>
@@ -104,6 +99,7 @@ const TestimonialsCarousel = () => {
             <TestimonialCard
               key={`${testimonial.handle}-2-${idx}`}
               {...testimonial}
+              index={idx}
             />
           ))}
         </motion.div>
@@ -120,6 +116,7 @@ const TestimonialsCarousel = () => {
             <TestimonialCard
               key={`${testimonial.handle}-3-${idx}`}
               {...testimonial}
+              index={idx}
             />
           ))}
         </motion.div>
