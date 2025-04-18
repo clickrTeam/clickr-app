@@ -84,6 +84,10 @@ export const login = async (username: string, password: string) => {
     throw new Error("Login Failed");
   }
 };
+export const get_community_mappings = async () => {
+  const response = await api.get(`community/`);
+  return response.data;
+};
 
 export const register = async (
   username: string,

@@ -43,6 +43,7 @@ import {
   delete_mapping,
 } from "@/api/endpoints";
 import { useAuth } from "@/contexts/AuthContext";
+import { boolean } from "zod";
 
 type Mapping = {
   id: string;
@@ -54,6 +55,10 @@ type Mapping = {
   lastEdited: string;
   keyCount: number;
   isActive: boolean;
+  isPublic: boolean;
+  numLikes: number;
+  numDownloads: number;
+  tags: Array<string>;
 };
 
 const MyMappings = () => {

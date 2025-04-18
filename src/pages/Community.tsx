@@ -1,143 +1,235 @@
-
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, Heart, ArrowUpRight, User, Clock, Download } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Search,
+  Heart,
+  ArrowUpRight,
+  User,
+  Clock,
+  Download,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { get_community_mappings } from "@/api/endpoints";
 
 type Mapping = {
   id: string;
-  title: string;
+  user: string;
+  name: string;
   description: string;
-  author: string;
-  downloadCount: number;
-  likeCount: number;
-  timeAgo: string;
-  isLiked: boolean;
-  tags: string[];
+  mappings: Record<string, string>; // Object to store key-value pairs of mappings
+  updated_at: string;
+  lastEdited: string;
+  keyCount: number;
+  isActive: boolean;
+  isPublic: boolean;
+  numLikes: number;
+  numDownloads: number;
+  tags: Array<string>;
 };
-
 const dummyMappings: Mapping[] = [
   {
-    id: '1',
-    title: 'Vim-style Navigation',
-    description: 'Transform any editor into Vim with these keyboard shortcuts',
-    author: 'vimmaster',
-    downloadCount: 3452,
-    likeCount: 872,
-    timeAgo: '2 days ago',
-    isLiked: false,
-    tags: ['editor', 'productivity', 'vim']
+    id: "1",
+    name: "Vim-style Navigation",
+    description: "Transform any editor into Vim with these keyboard shortcuts",
+    user: "vimmaster",
+    mappings: {},
+    isActive: false,
+    isPublic: true,
+    updated_at: new Date().toISOString(),
+    lastEdited: "2 days ago",
+    keyCount: 24,
+    numDownloads: 3452,
+    numLikes: 872,
+    tags: ["editor", "productivity", "vim"],
   },
   {
-    id: '2',
-    title: 'Gamer Pro Setup',
-    description: 'Optimized key mappings for FPS and MOBA games',
-    author: 'progamer123',
-    downloadCount: 1892,
-    likeCount: 425,
-    timeAgo: '1 week ago',
-    isLiked: true,
-    tags: ['gaming', 'fps', 'moba']
+    id: "2",
+    name: "Gamer Pro Setup",
+    description: "Optimized key mappings for FPS and MOBA games",
+    user: "progamer123",
+    mappings: {},
+    isActive: false,
+    isPublic: true,
+    updated_at: new Date().toISOString(),
+    lastEdited: "1 week ago",
+    keyCount: 35,
+    numDownloads: 1892,
+    numLikes: 425,
+    tags: ["gaming", "fps", "moba"],
   },
   {
-    id: '3',
-    title: 'Designer Workflow',
-    description: 'Custom shortcuts for Figma, Photoshop and Illustrator',
-    author: 'designhub',
-    downloadCount: 978,
-    likeCount: 301,
-    timeAgo: '3 days ago',
-    isLiked: false,
-    tags: ['design', 'figma', 'photoshop']
+    id: "3",
+    name: "Designer Workflow",
+    description: "Custom shortcuts for Figma, Photoshop and Illustrator",
+    user: "designhub",
+    mappings: {},
+    isActive: false,
+    isPublic: true,
+    updated_at: new Date().toISOString(),
+    lastEdited: "3 days ago",
+    keyCount: 42,
+    numDownloads: 978,
+    numLikes: 301,
+    tags: ["design", "figma", "photoshop"],
   },
   {
-    id: '4',
-    title: 'Ergonomic Typing',
-    description: 'Remap your keyboard for less finger movement and better ergonomics',
-    author: 'ergouser',
-    downloadCount: 761,
-    likeCount: 284,
-    timeAgo: '5 days ago',
-    isLiked: false,
-    tags: ['ergonomic', 'health', 'typing']
+    id: "4",
+    name: "Ergonomic Typing",
+    description:
+      "Remap your keyboard for less finger movement and better ergonomics",
+    user: "ergouser",
+    mappings: {},
+    isActive: false,
+    isPublic: true,
+    updated_at: new Date().toISOString(),
+    lastEdited: "5 days ago",
+    keyCount: 28,
+    numDownloads: 761,
+    numLikes: 284,
+    tags: ["ergonomic", "health", "typing"],
   },
   {
-    id: '5',
-    title: 'Code Ninja',
-    description: 'VS Code optimized shortcuts for JavaScript development',
-    author: 'jsdev',
-    downloadCount: 2045,
-    likeCount: 512,
-    timeAgo: '2 weeks ago',
-    isLiked: false,
-    tags: ['development', 'vscode', 'javascript']
+    id: "5",
+    name: "Code Ninja",
+    description: "VS Code optimized shortcuts for JavaScript development",
+    user: "jsdev",
+    mappings: {},
+    isActive: false,
+    isPublic: true,
+    updated_at: new Date().toISOString(),
+    lastEdited: "2 weeks ago",
+    keyCount: 56,
+    numDownloads: 2045,
+    numLikes: 512,
+    tags: ["development", "vscode", "javascript"],
   },
   {
-    id: '6',
-    title: 'Mac to Windows',
-    description: 'Make your Windows PC feel like a Mac with these key mappings',
-    author: 'platformswitcher',
-    downloadCount: 1532,
-    likeCount: 347,
-    timeAgo: '1 month ago',
-    isLiked: true,
-    tags: ['mac', 'windows', 'productivity']
+    id: "6",
+    name: "Mac to Windows",
+    description: "Make your Windows PC feel like a Mac with these key mappings",
+    user: "platformswitcher",
+    mappings: {},
+    isActive: false,
+    isPublic: true,
+    updated_at: new Date().toISOString(),
+    lastEdited: "1 month ago",
+    keyCount: 32,
+    numDownloads: 1532,
+    numLikes: 347,
+    tags: ["mac", "windows", "productivity"],
   },
 ];
-
 const filters = [
-  'All',
-  'Popular',
-  'Recent',
-  'Gaming',
-  'Productivity',
-  'Design',
-  'Development',
+  "All",
+  "Popular",
+  "Recent",
+  "Gaming",
+  "Productivity",
+  "Design",
+  "Development",
 ];
 
 const Community = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('All');
-  const [mappings, setMappings] = useState(dummyMappings);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("All");
+  const [mappings, setMappings] = useState<Mapping[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLike = (id: string) => {
-    setMappings(mappings.map(mapping => {
-      if (mapping.id === id) {
-        return {
-          ...mapping,
-          isLiked: !mapping.isLiked,
-          likeCount: mapping.isLiked ? mapping.likeCount - 1 : mapping.likeCount + 1
-        };
-      }
-      return mapping;
-    }));
+  const fetchCommunityMappings = async () => {
+    try {
+      setIsLoading(true);
+      const data = await get_community_mappings();
+      console.log(data);
+      setMappings(data);
+      updateLastEdited();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch mappings");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const filteredMappings = mappings.filter(mapping => {
+  const updateLastEdited = () => {
+    setMappings((currentMappings) =>
+      currentMappings.map((mapping) => {
+        const updatedDate = new Date(mapping.updated_at);
+        const now = new Date();
+        const diffHours = Math.floor(
+          (now.getTime() - updatedDate.getTime()) / (1000 * 60 * 60)
+        );
+        const diffDays = Math.floor(diffHours / 24);
+
+        let lastEdited;
+        if (diffHours < 1) {
+          lastEdited = "Just now";
+        } else if (diffHours < 24) {
+          lastEdited = `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
+        } else {
+          lastEdited = `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
+        }
+
+        return {
+          ...mapping,
+          lastEdited,
+        };
+      })
+    );
+  };
+
+  useEffect(() => {
+    fetchCommunityMappings();
+  }, []);
+  const handleLike = (id: string) => {
+    setMappings(
+      mappings.map((mapping) => {
+        if (mapping.id === id) {
+          return {
+            ...mapping,
+            likeCount: mapping.numLikes
+              ? mapping.numLikes - 1
+              : mapping.numLikes + 1,
+          };
+        }
+        return mapping;
+      })
+    );
+  };
+
+  const filteredMappings = mappings.filter((mapping) => {
     if (searchQuery) {
       return (
-        mapping.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        mapping.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         mapping.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        mapping.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+        mapping.tags.some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase())
+        )
       );
     }
-    
-    if (selectedFilter !== 'All') {
-      return mapping.tags.some(tag => 
-        tag.toLowerCase() === selectedFilter.toLowerCase()
+
+    if (selectedFilter !== "All") {
+      return mapping.tags.some(
+        (tag) => tag.toLowerCase() === selectedFilter.toLowerCase()
       );
     }
-    
+
     return true;
   });
 
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
-        <motion.div 
+        <motion.div
           className="max-w-4xl mx-auto text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -147,7 +239,7 @@ const Community = () => {
           <p className="text-xl text-muted-foreground mb-8">
             Discover and share keyboard mappings created by the Clickr community
           </p>
-          
+
           <div className="relative max-w-xl mx-auto mb-8">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -158,7 +250,7 @@ const Community = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          
+
           <div className="flex flex-wrap gap-2 justify-center mb-8">
             {filters.map((filter) => (
               <Button
@@ -188,7 +280,7 @@ const Community = () => {
             >
               <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle>{mapping.title}</CardTitle>
+                  <CardTitle>{mapping.name}</CardTitle>
                   <CardDescription>{mapping.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
@@ -202,37 +294,42 @@ const Community = () => {
                       </span>
                     ))}
                   </div>
-                  
+
                   <div className="flex items-center text-sm text-muted-foreground">
                     <User size={14} className="mr-1" />
-                    <span className="mr-4">{mapping.author}</span>
+                    <span className="mr-4">{mapping.user}</span>
                     <Clock size={14} className="mr-1" />
-                    <span>{mapping.timeAgo}</span>
+                    <span>{mapping.lastEdited}</span>
                   </div>
                 </CardContent>
-                
+
                 <CardFooter className="border-t pt-4 flex justify-between">
                   <div className="flex gap-4">
                     <Button
                       size="sm"
                       variant="ghost"
-                      className={cn(
-                        "flex items-center gap-1",
-                        mapping.isLiked && "text-red-500"
-                      )}
+                      className={cn("flex items-center gap-1")}
                       onClick={() => handleLike(mapping.id)}
                     >
-                      <Heart size={16} fill={mapping.isLiked ? "currentColor" : "none"} />
-                      <span>{mapping.likeCount}</span>
+                      <Heart size={16} fill={"none"} />
+                      <span>{mapping.numLikes}</span>
                     </Button>
-                    
-                    <Button size="sm" variant="ghost" className="flex items-center gap-1">
+
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="flex items-center gap-1"
+                    >
                       <Download size={16} />
-                      <span>{mapping.downloadCount}</span>
+                      <span>{mapping.numDownloads}</span>
                     </Button>
                   </div>
-                  
-                  <Button size="sm" variant="outline" className="flex items-center gap-1">
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex items-center gap-1"
+                  >
                     Details
                     <ArrowUpRight size={14} />
                   </Button>
