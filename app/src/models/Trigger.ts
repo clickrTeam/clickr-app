@@ -1,10 +1,21 @@
 export enum TriggerType {
-  Tap = 'link_trigger',
-  Timed = 'timed_trigger',
+  KeyPress = 'key_press',
+  KeyRelease = 'key_release',
+  TapSequence = 'tap_sequence',
+
+  // not sure if differnt from tap tap_sequence
+  // Timed = 'timed_trigger',
+
+  // Not implemented in daemon
   Hold = 'hold_trigger',
   AppFocused = 'app_focus_trigger'
 }
-
+export enum TimedTriggerBehavior {
+  // Capture and release. probably a better name but this seems ok
+  Default = 'default',
+  Capture = 'capture',
+  Release = 'release'
+}
 /**
  * Represents a physical key on the keyboard
  */
@@ -20,37 +31,63 @@ export abstract class Trigger {
 }
 
 /**
- * A link trigger is the simplest kind of trigger. It represents a single key press, think 'tap'.
+ * Represents pressing a key
  */
-export class Tap_Trigger extends Trigger {
+export class KeyPress extends Trigger {
   value: string
 
   constructor(value: string) {
-    super(TriggerType.Tap)
+    super(TriggerType.KeyPress)
     this.value = value
   }
 
   toJSON(): object {
     return {
-      type: TriggerType.Tap,
+      type: TriggerType.KeyRelease,
       value: this.value
     }
   }
 
-  static fromJSON(obj: { value: string }): Tap_Trigger {
-    return new Tap_Trigger(obj.value)
+  static fromJSON(obj: { value: string }): KeyPress {
+    return new KeyPress(obj.value)
   }
 
   equals(other: Trigger): boolean {
-    return other instanceof Tap_Trigger && this.value === other.value
+    return other instanceof KeyPress && this.value === other.value
   }
 }
 
 /**
- * A timed trigger will be used to represent double and triple taps.
- * A double tap will have 2 elements in the key_time_pairs list, a triple will have 3, etc.
+ * Represents releasing a key
  */
-export class Timed_Trigger extends Trigger {
+export class KeyRelease extends Trigger {
+  value: string
+
+  constructor(value: string) {
+    super(TriggerType.KeyRelease)
+    this.value = value
+  }
+
+  toJSON(): object {
+    return {
+      type: TriggerType.KeyRelease,
+      value: this.value
+    }
+  }
+
+  static fromJSON(obj: { value: string }): KeyRelease {
+    return new KeyRelease(obj.value)
+  }
+
+  equals(other: Trigger): boolean {
+    return other instanceof KeyRelease && this.value === other.value
+  }
+}
+
+/**
+ * A timed trigger will be used to represent a sequence of taps
+ */
+export class TapSequence extends Trigger {
   /**
    * This is represented as a list of tuples. Each tuple is a key, time pair.
    * The time is a delay before moving on to the next key time pair.
@@ -71,42 +108,49 @@ export class Timed_Trigger extends Trigger {
    *        For example: double tap 't' -> 'r', when you press 't' twice you just get 'r'
    *        if you press 't', you won't get anything
    */
-  capture: boolean
-  release: boolean
+  behavior: TimedTriggerBehavior
 
   constructor(
     key_time_pairs: [string, number][],
-    capture: boolean = true,
-    release: boolean = true
+    behavior: TimedTriggerBehavior = TimedTriggerBehavior.Default,
   ) {
-    super(TriggerType.Timed)
+    super(TriggerType.TapSequence)
     this.key_time_pairs = key_time_pairs
-    this.capture = capture
-    this.release = release
+    this.behavior = behavior
   }
 
   toJSON(): object {
     return {
-      type: TriggerType.Timed,
+      type: TriggerType.TapSequence,
       key_time_pairs: this.key_time_pairs,
-      capture: this.capture,
-      release: this.release
+      behavior: this.behavior
     }
   }
 
   static fromJSON(obj: {
-    key_time_pairs: [string, number][]
-    capture: boolean
-    release: boolean
-  }): Timed_Trigger {
-    return new Timed_Trigger(obj.key_time_pairs, obj.capture, obj.release)
+    key_time_pairs: [string, number][];
+    behavior: string;
+  }): TapSequence {
+    let behavior: TimedTriggerBehavior;
+
+    if (obj.behavior === TimedTriggerBehavior.Capture) {
+      behavior = TimedTriggerBehavior.Capture;
+    } else if (obj.behavior === TimedTriggerBehavior.Release) {
+      behavior = TimedTriggerBehavior.Release;
+    } else if (obj.behavior === TimedTriggerBehavior.Default) {
+      behavior = TimedTriggerBehavior.Default;
+    } else {
+      console.log(`Unknown behavior "${obj.behavior}", defaulting to TimedTriggerBehavior.Default`);
+      behavior = TimedTriggerBehavior.Default;
+    }
+
+    return new TapSequence(obj.key_time_pairs, behavior);
   }
 
   equals(other: Trigger): boolean {
     return (
-      other instanceof Timed_Trigger &&
-      this.capture === other.capture &&
-      this.release === other.release &&
+      other instanceof TapSequence &&
+      this.behavior == other.behavior &&
       this.key_time_pairs.length === other.key_time_pairs.length &&
       this.key_time_pairs.every(
         ([k, t], i) => k === other.key_time_pairs[i][0] && t === other.key_time_pairs[i][1]
@@ -118,7 +162,7 @@ export class Timed_Trigger extends Trigger {
 /**
  * Represents a trigged by pressing and holding a key.
  */
-export class Hold_Trigger extends Trigger {
+export class Hold extends Trigger {
   value: string
   wait: number
 
@@ -136,19 +180,19 @@ export class Hold_Trigger extends Trigger {
     }
   }
 
-  static fromJSON(obj: { value: string; wait: number }): Hold_Trigger {
-    return new Hold_Trigger(obj.value, obj.wait)
+  static fromJSON(obj: { value: string; wait: number }): Hold {
+    return new Hold(obj.value, obj.wait)
   }
 
   equals(other: Trigger): boolean {
-    return other instanceof Hold_Trigger && this.value === other.value && this.wait === other.wait
+    return other instanceof Hold && this.value === other.value && this.wait === other.wait
   }
 }
 
 /**
  * This only applies when a certain application is running.
  */
-export class App_Focus_Trigger extends Trigger {
+export class AppFocus extends Trigger {
   app_name: string
   value: string
 
@@ -166,13 +210,13 @@ export class App_Focus_Trigger extends Trigger {
     }
   }
 
-  static fromJSON(obj: { app_name: string; value: string }): App_Focus_Trigger {
-    return new App_Focus_Trigger(obj.app_name, obj.value)
+  static fromJSON(obj: { app_name: string; value: string }): AppFocus {
+    return new AppFocus(obj.app_name, obj.value)
   }
 
   equals(other: Trigger): boolean {
     return (
-      other instanceof App_Focus_Trigger &&
+      other instanceof AppFocus &&
       this.app_name === other.app_name &&
       this.value === other.value
     )
@@ -182,14 +226,16 @@ export class App_Focus_Trigger extends Trigger {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function deserializeTrigger(obj: any): Trigger {
   switch (obj.type) {
-    case 'link_trigger':
-      return Tap_Trigger.fromJSON(obj)
-    case 'timed_trigger':
-      return Timed_Trigger.fromJSON(obj)
-    case 'hold_trigger':
-      return new Hold_Trigger(obj.value, obj.wait)
-    case 'app_focus_trigger':
-      return new App_Focus_Trigger(obj.app_name, obj.value)
+    case TriggerType.KeyPress:
+      return KeyPress.fromJSON(obj)
+    case TriggerType.KeyRelease:
+      return new KeyRelease(obj.value)
+    case TriggerType.TapSequence:
+      return TapSequence.fromJSON(obj)
+    case TriggerType.Hold:
+      return Hold.fromJSON(obj)
+    case TriggerType.AppFocused:
+      return AppFocus.fromJSON(obj)
     default:
       throw new Error(`Unknown Trigger type: ${obj.type}`)
   }
