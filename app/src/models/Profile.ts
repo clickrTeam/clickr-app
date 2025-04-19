@@ -102,64 +102,80 @@ export class Profile {
    */
   ADD_TEST_LAYER(test_layer_name: string): void {
     this.addLayer(test_layer_name)
+    // Map a to b
+    this.layers[1].addRemapping(new T.KeyPress("A"), new B.PressKey("B"));
+    this.layers[1].addRemapping(new T.KeyRelease("A"), new B.ReleaseKey("B"));
 
-    const del_f1 = new T.Timed_Trigger(
-      [
-        ['F1', 1],
-        ['F1', 2]
-      ],
-      true,
-      true
-    )
-    const del_f1_bind = new B.Combo_Bind(['Ctrl', 'C'])
-    this.layers[1].addRemapping(del_f1, del_f1_bind)
+    this.layers[1].addRemapping(
+      new T.TapSequence(
+        [
+          ['Q', 300],
+          ['Q', 300]
+        ],
+      ),
+      new B.TapKey("T")
+    );
 
-    //Test deletion and adding
-    const new_f1 = new T.Timed_Trigger(
-      [
-        ['F1', 1],
-        ['F1', 3]
-      ],
-      true,
-      true
-    )
-    const new_f1_bind = new B.Combo_Bind(['Ctrl', 'V'])
-    this.layers[1].deleteRemapping(del_f1)
-    this.layers[1].addRemapping(new_f1, new_f1_bind)
 
-    const old_f2 = new T.Tap_Trigger('F2')
-    const new_f2 = new T.Hold_Trigger('F2', 99)
-    const macro1 = new B.Tap_Bind('A')
-    const macro2 = new B.Combo_Bind(['Space', 'B', 'C'])
-    const new_f2_bind = new B.Macro_Bind([macro1, macro2])
-    this.layers[1].deleteRemapping(old_f2)
-    this.layers[1].addRemapping(new_f2, new_f2_bind)
 
-    const old_f3 = new T.Tap_Trigger('F3')
-    const new_f3 = new T.App_Focus_Trigger('Photoshop', 'F3')
-    const new_f3_bind = new B.TimedMacro_Bind([macro1, macro2], [1, 2])
-    this.layers[1].deleteRemapping(old_f3)
-    this.layers[1].addRemapping(new_f3, new_f3_bind)
 
-    const old_f4 = new T.Tap_Trigger('F4')
-    const new_f4 = new T.Tap_Trigger('F4')
-    const cancel_trg = new T.Tap_Trigger('Escape')
-    const rpt_bnd = new B.Tap_Bind('Enter')
-    const new_f4_bind = new B.Repeat_Bind(rpt_bnd, 11, 22, cancel_trg)
-    this.layers[1].deleteRemapping(old_f4)
-    this.layers[1].addRemapping(new_f4, new_f4_bind)
 
-    const old_f5 = new T.Tap_Trigger('F5')
-    const new_f5 = new T.Tap_Trigger('F5')
-    const new_f5_bind = new B.SwapLayer_Bind(0)
-    this.layers[1].deleteRemapping(old_f5)
-    this.layers[1].addRemapping(new_f5, new_f5_bind)
-
-    const old_f6 = new T.Tap_Trigger('F6')
-    const new_f6 = new T.Tap_Trigger('F6')
-    const new_f6_bind = new B.AppOpen_Bind('Google Chrome')
-    this.layers[1].deleteRemapping(old_f6)
-    this.layers[1].addRemapping(new_f6, new_f6_bind)
+    // const del_f1 = new T.TapSequence(
+    //   [
+    //     ['F1', 1],
+    //     ['F1', 2]
+    //   ],
+    //   T.TimedTriggerBehavior.Default
+    // )
+    // const del_f1_bind = new B.Combo(['Ctrl', 'C'])
+    // this.layers[1].addRemapping(del_f1, del_f1_bind)
+    //
+    // //Test deletion and adding
+    // const new_f1 = new T.TapSequence(
+    //   [
+    //     ['F1', 1],
+    //     ['F1', 3]
+    //   ],
+    //   true,
+    //   true
+    // )
+    // const new_f1_bind = new B.Combo(['Ctrl', 'V'])
+    // this.layers[1].deleteRemapping(del_f1)
+    // this.layers[1].addRemapping(new_f1, new_f1_bind)
+    //
+    // const old_f2 = new T.KeyPress('F2')
+    // const new_f2 = new T.Hold('F2', 99)
+    // const macro1 = new B.TapKey('A')
+    // const macro2 = new B.Combo(['Space', 'B', 'C'])
+    // const new_f2_bind = new B.Macro_Bind([macro1, macro2])
+    // this.layers[1].deleteRemapping(old_f2)
+    // this.layers[1].addRemapping(new_f2, new_f2_bind)
+    //
+    // const old_f3 = new T.KeyPress('F3')
+    // const new_f3 = new T.AppFocus('Photoshop', 'F3')
+    // const new_f3_bind = new B.TimedMacro_Bind([macro1, macro2], [1, 2])
+    // this.layers[1].deleteRemapping(old_f3)
+    // this.layers[1].addRemapping(new_f3, new_f3_bind)
+    //
+    // const old_f4 = new T.KeyPress('F4')
+    // const new_f4 = new T.KeyPress('F4')
+    // const cancel_trg = new T.KeyPress('Escape')
+    // const rpt_bnd = new B.TapKey('Enter')
+    // const new_f4_bind = new B.Repeat_Bind(rpt_bnd, 11, 22, cancel_trg)
+    // this.layers[1].deleteRemapping(old_f4)
+    // this.layers[1].addRemapping(new_f4, new_f4_bind)
+    //
+    // const old_f5 = new T.KeyPress('F5')
+    // const new_f5 = new T.KeyPress('F5')
+    // const new_f5_bind = new B.SwapLayer(0)
+    // this.layers[1].deleteRemapping(old_f5)
+    // this.layers[1].addRemapping(new_f5, new_f5_bind)
+    //
+    // const old_f6 = new T.KeyPress('F6')
+    // const new_f6 = new T.KeyPress('F6')
+    // const new_f6_bind = new B.AppOpen_Bind('Google Chrome')
+    // this.layers[1].deleteRemapping(old_f6)
+    // this.layers[1].addRemapping(new_f6, new_f6_bind)
   }
 
   /**

@@ -12,6 +12,7 @@ import { profile } from 'console'
 // Store the socket globally
 let client: net.Socket | null = null
 let active_profile: Profile | null = null
+
 /**
  * Gets the path to the socket which will be communicated on based on OS
  * @returns Socket path as string
@@ -153,7 +154,7 @@ app.whenReady().then(() => {
     } else {
       console.error('Not connected to socket.')
     }
-  }) 
+  })
   ipcMain.on('create-new-profile', () => {
     createNewProfile('default')
   })
@@ -185,7 +186,7 @@ app.whenReady().then(() => {
     console.log('active_profile updated sucessfully')
   })
   createWindow()
-  app.on('activate', function () {
+  app.on('activate', function() {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
