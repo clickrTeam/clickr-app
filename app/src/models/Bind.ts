@@ -1,13 +1,19 @@
 import { Trigger, deserializeTrigger } from "./Trigger"
 export enum BindType {
-  Tap = 'tap_bind',
+  PressKey = 'press_key',
+  ReleaseKey = 'release_key',
+  TapKey = 'tap_key',
+  SwapLayer = 'swap_layer',
+
+
+  // Not handled by Daemon
   Combo = 'combo_bind',
   Macro = 'macro_bind',
   TimedMacro = 'timed_macro_bind',
   Repeat = 'repeat_bind',
-  SwapLayer = 'swap_layer_bind',
   AppOpen = 'app_open_bind'
 }
+
 
 /**
  * Represents the desired bind to be associated with a key
@@ -27,32 +33,87 @@ export abstract class Bind {
 }
 
 /**
- * The simplest kind of bind, just activates one key.
+ * Sends a key press event
  */
-export class Tap_Bind extends Bind {
+export class PressKey extends Bind {
   value: string
 
   constructor(value: string) {
-    super(BindType.Tap)
+    super(BindType.PressKey)
     this.value = value
   }
 
   toJSON(): object {
     return {
-      type: BindType.Tap,
+      type: BindType.PressKey,
       value: this.value
     }
   }
 
-  static fromJSON(obj: { value: string }): Tap_Bind {
-    return new Tap_Bind(obj.value)
+  static fromJSON(obj: { value: string }): PressKey {
+    return new PressKey(obj.value)
   }
 
   equals(other: Bind): boolean {
-    return other instanceof Tap_Bind && this.value === other.value
+    return other instanceof PressKey && this.value === other.value
   }
 }
 
+/**
+ * Fires a key release when the trigger is released.
+ */
+export class ReleaseKey extends Bind {
+  value: string
+
+  constructor(value: string) {
+    super(BindType.ReleaseKey)
+    this.value = value
+  }
+
+  toJSON(): object {
+    return {
+      type: BindType.ReleaseKey,
+      value: this.value
+    }
+  }
+
+  static fromJSON(obj: { value: string }): ReleaseKey {
+    return new ReleaseKey(obj.value)
+  }
+
+  equals(other: Bind): boolean {
+    return other instanceof ReleaseKey && this.value === other.value
+  }
+}
+
+/**
+ * The simplest kind of bind, just activates one key.
+ */
+export class TapKey extends Bind {
+  value: string
+
+  constructor(value: string) {
+    super(BindType.TapKey)
+    this.value = value
+  }
+
+  toJSON(): object {
+    return {
+      type: BindType.TapKey,
+      value: this.value
+    }
+  }
+
+  static fromJSON(obj: { value: string }): TapKey {
+    return new TapKey(obj.value)
+  }
+
+  equals(other: Bind): boolean {
+    return other instanceof TapKey && this.value === other.value
+  }
+}
+
+// TODO: rework these not exactly sure what they do or why they need to be differnt
 /**
  * Represents multiple keys being pressed at once. ['Ctrl', 'Alt', 'Del']
  */
@@ -226,7 +287,7 @@ export class Repeat_Bind extends Bind {
 /**
  * Swaps to a different layer such that new triggers and binds are accessible.
  */
-export class SwapLayer_Bind extends Bind {
+export class SwapLayer extends Bind {
   layer_num: number
 
   constructor(layer_num: number) {
@@ -241,15 +302,16 @@ export class SwapLayer_Bind extends Bind {
     }
   }
 
-  static fromJSON(obj: { layer_num: number }): SwapLayer_Bind {
-    return new SwapLayer_Bind(obj.layer_num)
+  static fromJSON(obj: { layer_num: number }): SwapLayer {
+    return new SwapLayer(obj.layer_num)
   }
 
   equals(other: Bind): boolean {
-    return other instanceof SwapLayer_Bind && this.layer_num === other.layer_num
+    return other instanceof SwapLayer && this.layer_num === other.layer_num
   }
 }
 
+// Not going to happen for a while
 /**
  * Opens an application of the user's choice.
  */
@@ -280,25 +342,24 @@ export class AppOpen_Bind extends Bind {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function deserializeBind(obj: any): Bind {
   switch (obj.type) {
-    case 'tap_bind':
-      return new Tap_Bind(obj.value)
-    case 'combo_bind':
-      return new Combo_Bind(obj.values)
-    case 'macro_bind':
-      return new Macro_Bind(obj.binds.map(deserializeBind))
-    case 'timed_macro_bind':
-      return new TimedMacro_Bind(obj.binds.map(deserializeBind), obj.times)
-    case 'repeat_bind':
-      return new Repeat_Bind(
-        deserializeBind(obj.value),
-        obj.time_delay,
-        obj.times_to_execute,
-        deserializeTrigger(obj.cancel_trigger)
-      )
-    case 'swap_layer_bind':
-      return new SwapLayer_Bind(obj.layer_num)
-    case 'app_open_bind':
-      return new AppOpen_Bind(obj.app_name)
+    case BindType.PressKey:
+      return PressKey.fromJSON(obj)
+    case BindType.ReleaseKey:
+      return ReleaseKey.fromJSON(obj)
+    case BindType.TapKey:
+      return TapKey.fromJSON(obj)
+    case BindType.Combo:
+      return Combo_Bind.fromJSON(obj)
+    case BindType.Macro:
+      return Macro_Bind.fromJSON(obj)
+    case BindType.TimedMacro:
+      return TimedMacro_Bind.fromJSON(obj)
+    case BindType.Repeat:
+      return Repeat_Bind.fromJSON(obj)
+    case BindType.SwapLayer:
+      return SwapLayer.fromJSON(obj)
+    case BindType.AppOpen:
+      return AppOpen_Bind.fromJSON(obj)
     default:
       throw new Error(`Unknown Bind type: ${obj.type}`)
   }
