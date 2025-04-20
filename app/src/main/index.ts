@@ -3,29 +3,11 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { Profile } from '../models/Profile'
 import icon from '../../resources/icon.png?asset'
-import * as net from 'net'
-import * as os from 'os'
-import * as fs_prom from 'fs/promises'
 import * as fs from 'fs'
 import * as path from 'path'
-import { profile } from 'console'
-// Store the socket globally
-let client: net.Socket | null = null
-let active_profile: Profile | null = null
 
-/**
- * Gets the path to the socket which will be communicated on based on OS
- * @returns Socket path as string
- */
-function getSocketPath(): string {
-  if (process.platform === 'win32') {
-    const PIPE_NAME = "mypipe";
-    const PIPE_PATH = `\\\\.\\pipe\\${PIPE_NAME}`;
-    return PIPE_PATH;
-  } else {
-    return path.join(os.tmpdir(), 'daemon.sock') // or /var/run/daemon.sock if your daemon creates it there
-  }
-}
+
+let active_profile: Profile | null = null
 /**
  * Creates a new profile object with the default values and sets it to active_profile
  * @param profile_name The name of the Profile
@@ -49,50 +31,6 @@ function loadProfile(profile_path: string): void {
  */
 function parseProfileJson(profile_path: string): Profile {
   // do stuff
-}
-/**
- * Attempts to connect to the Daemon on the client socket. Then tells the daemon to start running.
- */
-function sendStartSignalToDaemon(): void {
-  client = net.createConnection(getSocketPath(), (): void => {
-    console.log('Connected to daemon')
-    client.write('start\n')
-  })
-  client.on('data', (data) => {
-    console.log('Daemon responded:', data.toString())
-    // client.end()
-  })
-  client.on('error', (err) => {
-    // TODO: Deamon likely offline, we should start the deamon.
-    console.error('Failed to connect to daemon:', err.message)
-  })
-}
-/**
- * Sends the active_profile object as a JSON over the socket.
- * @param client The socket which will have the data sent to it.
- * @returns Returns early if the socket can't be connected to.
- */
-async function sendProfileJson(client: net.Socket): Promise<void> {
-  try {
-    // Check if the socket is still writable
-    if (!client.writable || client.destroyed) {
-      console.error('Socket is not connected or already closed.')
-      return
-    }
-    const data = JSON.stringify(active_profile?.toJSON())
-    // Optional: Validate JSON
-    JSON.parse(data)
-    // Send it with newline for framing
-    client.write('load:' + data + '\n')
-    console.log('Sent profile JSON to daemon')
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      console.error('Error sending JSON file:', err.message)
-    } else {
-      // Handle other types of errors if needed (e.g., a string or object)
-      console.error('Unknown error:', err)
-    }
-  }
 }
 function createWindow(): void {
   // Create the browser window.
