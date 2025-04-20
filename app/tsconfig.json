@@ -23,7 +23,8 @@
     "declarationDir": "./dist/types",      // Directory to store generated .d.ts files
     "sourceMap": true,                     // Enable source maps for debugging
     "resolveJsonModule": true,             // Allow importing JSON modules
-    "types": ["node", "electron"]          // Type definitions for both Node.js and Electron
+    "types": ["node", "electron"],         // Type definitions for both Node.js and Electron
+    "jsx": "react-jsx"                     // Add this line to handle JSX correctly
   },
   "include": [
     "src/**/*"                             // Include all files in the src directory
