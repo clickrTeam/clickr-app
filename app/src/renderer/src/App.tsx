@@ -2,6 +2,7 @@ import Versions from './components/Versions'
 import electronLogo from './assets/electron.svg'
 import { Profile } from '../../models/Profile'
 import React from 'react'
+import { Button } from './components/ui/button'
 
 // Enum to represent different views/screens
 enum View {
@@ -45,7 +46,7 @@ function App(): JSX.Element {
   }, [])
 
   /**
-   * Send an IPC message to the main process to run the daemon start signal. 
+   * Send an IPC message to the main process to run the daemon start signal.
    * Will be depreceated once daemon runs on machine boot
    */
   const handleStartDaemon = (): void => {
@@ -106,9 +107,11 @@ function App(): JSX.Element {
       {currentView === View.HOME && (
         <div>
           <h1>Clickr</h1>
-          <button onClick={handleStartDaemon}>Start Daemon</button>
-          <button onClick={seeCurrentProfile}>Current Profile</button>
-          <button onClick={loadProfile}>Load e1.json</button>
+          <Button onClick={handleStartDaemon}>Start Daemon</Button>
+          <Button onClick={seeCurrentProfile}>Current Profile</Button>
+          <Button className="white" onClick={loadProfile}>
+            Load e1.json
+          </Button>
         </div>
       )}
 
@@ -119,10 +122,10 @@ function App(): JSX.Element {
           <h1>Current Profile: {profileName}</h1>
           <h2>Allow a user to create a new profile</h2>
           {/*<KeyboardRemapper /> TODO: Rework this*/}
-          <button onClick={goHome}>Home</button>
-          <button onClick={transmitProfile}>Transmit Profile</button>
-          <button onClick={() => profile && saveProfile(profile)}>Save</button>
-          <button onClick={createNewProfile}>New Profile</button>
+          <Button onClick={goHome}>Home</Button>
+          <Button onClick={transmitProfile}>Transmit Profile</Button>
+          <Button onClick={() => profile && saveProfile(profile)}>Save</Button>
+          <Button onClick={createNewProfile}>New Profile</Button>
         </div>
       )}
 
@@ -130,7 +133,7 @@ function App(): JSX.Element {
       {currentView === View.ANOTHER_VIEW && (
         <div>
           <h1>Another View</h1>
-          <button onClick={goHome}>Home</button>
+          <Button onClick={goHome}>Home</Button>
         </div>
       )}
     </div>
