@@ -44,22 +44,37 @@ function App(): JSX.Element {
         console.error('Failed to fetch profile:', err)
       })
   }, [])
-
+  /**
+   * Send an IPC message to the main process to run the daemon start signal.
+   * Will be depreceated once daemon runs on machine boot
+   */
   const handleStartDaemon = (): void => {
     window.electron.ipcRenderer.send('start-daemon')
   }
+  /**
+   * Loads a profile.json from a specific path.
+   * @param file_path The path where the desired json is
+   */
 
   const loadProfile = (file_path: string): void => {
+    // TODO: Implement logic
     window.electron.ipcRenderer.send('load')
   }
 
   const transmitProfile = (): void => {
     window.electron.ipcRenderer.send('send-prof-to-daemon')
   }
+  /**
+   * Sends an IPC message to the main process to create a new profile
+   */
 
   const createNewProfile = (): void => {
     window.electron.ipcRenderer.send('create-new-profile')
   }
+  /**
+   * Sends an IPC message to the main process to save the current profile into a JSON file.
+   * @param prof The profile object to save.
+   */
 
   const saveProfile = (prof: Profile): void => {
     const json = prof.toJSON()
