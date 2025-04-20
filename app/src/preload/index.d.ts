@@ -8,9 +8,9 @@ export interface API {
   updateProfile(index: number, profileData: Profile): Promise<void>;
 }
 
-
 declare global {
   interface Window {
+    electron: ElectronAPI
     api: API
   }
 }
