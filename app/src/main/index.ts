@@ -18,9 +18,9 @@ let active_profile: Profile | null = null
  */
 function getSocketPath(): string {
   if (process.platform === 'win32') {
-    const PIPE_NAME = "mypipe";
-    const PIPE_PATH = `\\\\.\\pipe\\${PIPE_NAME}`;
-    return PIPE_PATH;
+    const PIPE_NAME = 'mypipe'
+    const PIPE_PATH = `\\\\.\\pipe\\${PIPE_NAME}`
+    return PIPE_PATH
   } else {
     return path.join(os.tmpdir(), 'daemon.sock') // or /var/run/daemon.sock if your daemon creates it there
   }
@@ -96,8 +96,8 @@ async function sendProfileJson(client: net.Socket): Promise<void> {
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1200,
+    height: 800,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -153,7 +153,7 @@ app.whenReady().then(() => {
     } else {
       console.error('Not connected to socket.')
     }
-  }) 
+  })
   ipcMain.on('create-new-profile', () => {
     createNewProfile('default')
   })

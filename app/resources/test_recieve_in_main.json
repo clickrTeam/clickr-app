@@ -1,0 +1,132 @@
+{
+  "profile_name": "default",
+  "layer_count": 2,
+  "layers": [
+    {
+      "layer_name": "layer 0",
+      "layer_number": 0,
+      "remappings": []
+    },
+    {
+      "layer_name": "TEST_LAYER",
+      "layer_number": 1,
+      "remappings": [
+        {
+          "trigger": {
+            "type": "timed_trigger",
+            "key_time_pairs": [
+              [
+                "F1",
+                1
+              ],
+              [
+                "F1",
+                3
+              ]
+            ],
+            "capture": true,
+            "release": true
+          },
+          "bind": {
+            "type": "combo_bind",
+            "values": [
+              "Ctrl",
+              "V"
+            ]
+          }
+        },
+        {
+          "trigger": {
+            "type": "hold_trigger",
+            "value": "F2",
+            "wait": 99
+          },
+          "bind": {
+            "type": "macro_bind",
+            "binds": [
+              {
+                "type": "tap_bind",
+                "value": "A"
+              },
+              {
+                "type": "combo_bind",
+                "values": [
+                  "Space",
+                  "B",
+                  "C"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "trigger": {
+            "type": "app_focus_trigger",
+            "app_name": "Photoshop",
+            "value": "F3"
+          },
+          "bind": {
+            "type": "timed_macro_bind",
+            "binds": [
+              {
+                "type": "tap_bind",
+                "value": "A"
+              },
+              {
+                "type": "combo_bind",
+                "values": [
+                  "Space",
+                  "B",
+                  "C"
+                ]
+              }
+            ],
+            "times": [
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "trigger": {
+            "type": "link_trigger",
+            "value": "F4"
+          },
+          "bind": {
+            "type": "repeat_bind",
+            "value": {
+              "type": "tap_bind",
+              "value": "Enter"
+            },
+            "time_delay": 11,
+            "times_to_execute": 22,
+            "cancel_trigger": {
+              "type": "link_trigger",
+              "value": "Escape"
+            }
+          }
+        },
+        {
+          "trigger": {
+            "type": "link_trigger",
+            "value": "F5"
+          },
+          "bind": {
+            "type": "swap_layer_bind",
+            "layer_num": 0
+          }
+        },
+        {
+          "trigger": {
+            "type": "link_trigger",
+            "value": "F6"
+          },
+          "bind": {
+            "type": "app_open_bind",
+            "app_name": "Google Chrome"
+          }
+        }
+      ]
+    }
+  ]
+}
