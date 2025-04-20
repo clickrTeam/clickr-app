@@ -10,27 +10,32 @@
 // }
 {
   "compilerOptions": {
-    "target": "ES6",                      // Target ECMAScript 6 (use ES6 features in the app)
-    "module": "CommonJS",                  // Use CommonJS module system (required for Node.js)
-    "lib": ["ES6", "DOM", "ES2020"],      // Include DOM and ES6 APIs, since Electron has both Node.js and browser code
-    "moduleResolution": "node",            // Resolve modules as Node.js would (resolve npm packages, etc.)
-    "strict": true,                        // Enable strict type checking options
-    "esModuleInterop": true,               // Allow importing of CommonJS modules using ES module syntax
-    "skipLibCheck": true,                  // Skip type checking of declaration files (helps improve build performance)
-    "forceConsistentCasingInFileNames": true,  // Ensure file names are case-sensitive across the entire project
-    "outDir": "./dist",                    // Where the compiled JavaScript files will be placed
-    "declaration": true,                   // Generate declaration files (.d.ts) for type information
-    "declarationDir": "./dist/types",      // Directory to store generated .d.ts files
-    "sourceMap": true,                     // Enable source maps for debugging
-    "resolveJsonModule": true,             // Allow importing JSON modules
-    "types": ["node", "electron"]          // Type definitions for both Node.js and Electron
+    "jsx": "react-jsx",
+    "target": "ES6", // Target ECMAScript 6 (use ES6 features in the app)
+    "module": "CommonJS", // Use CommonJS module system (required for Node.js)
+    "lib": ["ES6", "DOM", "ES2020"], // Include DOM and ES6 APIs, since Electron has both Node.js and browser code
+    "moduleResolution": "node", // Resolve modules as Node.js would (resolve npm packages, etc.)
+    "strict": true, // Enable strict type checking options
+    "esModuleInterop": true, // Allow importing of CommonJS modules using ES module syntax
+    "skipLibCheck": true, // Skip type checking of declaration files (helps improve build performance)
+    "forceConsistentCasingInFileNames": true, // Ensure file names are case-sensitive across the entire project
+    "outDir": "./dist", // Where the compiled JavaScript files will be placed
+    "declaration": true, // Generate declaration files (.d.ts) for type information
+    "declarationDir": "./dist/types", // Directory to store generated .d.ts files
+    "sourceMap": true, // Enable source maps for debugging
+    "resolveJsonModule": true, // Allow importing JSON modules
+    "composite": true,
+    "types": ["electron-vite/node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/renderer/src/*"]
+    } // Type definitions for both Node.js and Electron
   },
   "include": [
-    "src/**/*"                             // Include all files in the src directory
+    "src/**/*" // Include all files in the src directory
   ],
   "exclude": [
-    "node_modules",                        // Exclude node_modules directory from the compilation
-    "dist"                                 // Exclude dist directory from the compilation
+    "node_modules", // Exclude node_modules directory from the compilation
+    "dist" // Exclude dist directory from the compilation
   ]
 }
-
