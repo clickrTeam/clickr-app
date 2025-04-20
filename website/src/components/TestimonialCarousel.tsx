@@ -58,7 +58,7 @@ const TestimonialsCarousel = () => {
   return (
     <section className="py-32 bg-white overflow-hidden">
       <div className="container mx-auto px-4 text-center mb-20">
-        <h2 className="text-4xl font-bold text-gradient mb-4">
+        <h2 className="text-4xl font-bold text-gradient mb-1 leading-relaxed">
           Built for professionals like you
         </h2>
         <p className="text-xl text-muted-foreground">
@@ -66,7 +66,7 @@ const TestimonialsCarousel = () => {
         </p>
       </div>
 
-      <div className="relative h-[800px]">
+      <div className="relative h-[550px]">
         <motion.div
           className="flex absolute top-0"
           animate={{
