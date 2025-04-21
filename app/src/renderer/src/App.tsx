@@ -12,12 +12,6 @@ export enum View {
   LOCAL_MAPPINGS = 'TEST'
 }
 
-// Define type for the Profile JSON that matches Profile.toJSON()
-interface ProfileJSON {
-  profile_name: string
-  layer_count: number
-  layers: object[]
-}
 
 function App(): JSX.Element {
   // State to manage which view to show
@@ -30,7 +24,7 @@ function App(): JSX.Element {
   function updateProfiles() {
     window.api.getProfiles()
       .then((profiles: Profile[]) => {
-        console.log('Got profile:', profiles)
+        console.log('Got profiles:', profiles)
         setProfiles(profiles)
       });
 
@@ -50,26 +44,6 @@ function App(): JSX.Element {
 
   }, [])
 
-  /**
-   * Loads a profile.json from a specific path.
-   * TODO: Add logic to the new backed
-   * @param file_path The path where the desired json is
-   */
-  const loadProfile = (file_path: string): void => {
-    // // TODO: Implement logic
-    // window.electron.ipcRenderer.send('load')
-  }
-
-  /**
-   * TOOD: not implemnted this seems like some kind of export utility currently all json is stored in the app data
-   * Sends an IPC message to the main process to save the current profile into a JSON file.
-   * @param prof The profile object to save.
-   */
-  const saveProfile = (prof: Profile): void => {
-    // const json = prof.toJSON()
-    // console.log('Sending Profile: ', JSON.stringify(json))
-    // window.api.saveProfile(json)
-  }
 
   const logout = (): void => {
     setIsAuthenticated(false)
@@ -194,21 +168,27 @@ function App(): JSX.Element {
                         <p className="text-sm text-gray-600">
                           Layers: {profile.layer_count}
                         </p>
+                        <Button onClick={() => { window.api.deleteProfile(index); updateProfiles(); }}>Delete</Button>
                       </div>
-                      {activeProfile === index && (
+                      {activeProfile === index ? (
                         <span className="px-2 py-1 text-sm bg-cyan-100 text-cyan-800 rounded-full">
                           Active
                         </span>
-                      )}
+                      ) :
+                        <Button onClick={() => { window.api.setActiveProfile(index); updateProfiles(); }}>Set Active</Button>
+                      }
                     </div>
                   </li>
                 ))}
               </ul>
             )}
+
+            {/* TODO: create a form to give it a name */}
+            <Button onClick={() => { window.api.createProfile(`Profile ${profiles?.length}`); updateProfiles() }}>New Profile</Button>
           </div>
         )}
       </div>
-    </div>
+    </div >
   )
 }
 

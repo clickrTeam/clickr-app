@@ -10,6 +10,7 @@ type Profiles = {
 
 // Path to the single JSON file storing all app data
 const dataFilePath = path.join(app.getPath('userData'), 'profiles.json')
+console.log(dataFilePath)
 
 // Ensure the data file exists with default structure
 function ensureDataFile(): void {
@@ -83,6 +84,22 @@ export const profileStore = {
       return
 
     data.profiles[index] = newProfile
+    writeProfiles()
+  },
+
+  deleteProfileByIndex(index: number) {
+    const data = getProfiles()
+    if (index < 0 || index >= data.profiles.length)
+      return
+    if (data.activeProfileIndex != undefined) {
+      if (index == data.activeProfileIndex) {
+        data.activeProfileIndex = undefined
+      } else if (index < data.activeProfileIndex) {
+        data.activeProfileIndex--
+      }
+    }
+
+    data.profiles.splice(index, 1)
     writeProfiles()
   }
 }

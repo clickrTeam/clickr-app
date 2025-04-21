@@ -6,6 +6,7 @@ export interface API {
   createProfile(name: string): Promise<void>;
   setActiveProfile(index: number): Promise<void>;
   updateProfile(index: number, profileData: Profile): Promise<void>;
+  deleteProfile(index: number): Promise<void>;
 }
 
 declare global {

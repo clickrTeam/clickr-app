@@ -25,4 +25,8 @@ export function registerProfileHandlers() {
     const updated = Profile.fromJSON(profileData)
     profileStore.setProfileByIndex(index, updated)
   })
+
+  ipcMain.handle('delete-profile', (_event, index: number) => {
+    profileStore.deleteProfileByIndex(index)
+  })
 }

@@ -21,6 +21,10 @@ const api: API = {
   },
   updateProfile: function(index: number, profileData: Profile): Promise<void> {
     return ipcRenderer.invoke('update-profile', index, profileData.toJSON()) // Send the profile's JSON representation
+  },
+  deleteProfile: function(index: number): Promise<void> {
+    return ipcRenderer.invoke('delete-profile', index)
+
   }
 }
 
