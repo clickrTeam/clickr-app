@@ -2,6 +2,7 @@ import { Profile } from '../../models/Profile'
 import React, { useState } from 'react'
 import { Button } from './components/ui/button'
 import Navbar from './components/Navbar'
+import Community from './pages/community'
 
 // Enum to represent different views/screens
 export enum View {
@@ -12,7 +13,6 @@ export enum View {
   LOCAL_MAPPINGS = 'TEST'
 }
 
-
 function App(): JSX.Element {
   // State to manage which view to show
   const [currentView, setCurrentView] = useState<View>(View.HOME)
@@ -22,18 +22,15 @@ function App(): JSX.Element {
   const [username, setUsername] = useState<string>('')
 
   function updateProfiles() {
-    window.api.getProfiles()
-      .then((profiles: Profile[]) => {
-        console.log('Got profiles:', profiles)
-        setProfiles(profiles)
-      });
+    window.api.getProfiles().then((profiles: Profile[]) => {
+      console.log('Got profiles:', profiles)
+      setProfiles(profiles)
+    })
 
-    window.api.getActiveProfile()
-      .then((activeProfile: number | null) => {
-        console.log('Active profile is index: ', activeProfile)
-        setActiveProfile(activeProfile)
-      });
-
+    window.api.getActiveProfile().then((activeProfile: number | null) => {
+      console.log('Active profile is index: ', activeProfile)
+      setActiveProfile(activeProfile)
+    })
   }
 
   // Get the profile from the main process when the component mounts
@@ -41,9 +38,7 @@ function App(): JSX.Element {
     console.log('[App] useEffect running')
     console.log('window.api:', window.api)
     updateProfiles()
-
   }, [])
-
 
   const logout = (): void => {
     setIsAuthenticated(false)
@@ -124,12 +119,7 @@ function App(): JSX.Element {
         )}
 
         {/* Community Screen Placeholder */}
-        {currentView === View.COMMUNITY && (
-          <div className="flex flex-col items-center">
-            <h1 className="text-2xl font-bold mb-6 text-black">Community Mappings</h1>
-            <p className="text-black">Community mapping content will be displayed here.</p>
-          </div>
-        )}
+        {currentView === View.COMMUNITY && <Community />}
 
         {/* My Mappings Screen Placeholder */}
         {currentView === View.MY_MAPPINGS && (
@@ -162,21 +152,31 @@ function App(): JSX.Element {
                   <li key={index} className="p-4 hover:bg-gray-50 transition">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-lg font-semibold text-black">
-                          {profile.profile_name}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Layers: {profile.layer_count}
-                        </p>
-                        <Button onClick={() => { window.api.deleteProfile(index); updateProfiles(); }}>Delete</Button>
+                        <p className="text-lg font-semibold text-black">{profile.profile_name}</p>
+                        <p className="text-sm text-gray-600">Layers: {profile.layer_count}</p>
+                        <Button
+                          onClick={() => {
+                            window.api.deleteProfile(index)
+                            updateProfiles()
+                          }}
+                        >
+                          Delete
+                        </Button>
                       </div>
                       {activeProfile === index ? (
                         <span className="px-2 py-1 text-sm bg-cyan-100 text-cyan-800 rounded-full">
                           Active
                         </span>
-                      ) :
-                        <Button onClick={() => { window.api.setActiveProfile(index); updateProfiles(); }}>Set Active</Button>
-                      }
+                      ) : (
+                        <Button
+                          onClick={() => {
+                            window.api.setActiveProfile(index)
+                            updateProfiles()
+                          }}
+                        >
+                          Set Active
+                        </Button>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -184,11 +184,18 @@ function App(): JSX.Element {
             )}
 
             {/* TODO: create a form to give it a name */}
-            <Button onClick={() => { window.api.createProfile(`Profile ${profiles?.length}`); updateProfiles() }}>New Profile</Button>
+            <Button
+              onClick={() => {
+                window.api.createProfile(`Profile ${profiles?.length}`)
+                updateProfiles()
+              }}
+            >
+              New Profile
+            </Button>
           </div>
         )}
       </div>
-    </div >
+    </div>
   )
 }
 
