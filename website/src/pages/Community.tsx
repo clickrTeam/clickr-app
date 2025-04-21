@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { get_community_mappings } from "@/api/endpoints";
+import { useNavigate } from "react-router-dom";
 
 type Mapping = {
   id: string;
@@ -145,6 +146,7 @@ const Community = () => {
   const [mappings, setMappings] = useState<Mapping[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const fetchCommunityMappings = async () => {
     try {
@@ -329,6 +331,7 @@ const Community = () => {
                     size="sm"
                     variant="outline"
                     className="flex items-center gap-1"
+                    onClick={() => navigate("*")}
                   >
                     Details
                     <ArrowUpRight size={14} />
