@@ -94,10 +94,17 @@ export const register = async (
   email: string,
   password: string
 ) => {
-  const response = await api.post("register", {
+  const response = await api.post("register/", {
     username: username,
     email: email,
     password: password,
+  });
+  return response.data;
+};
+
+export const joinWaitlist = async (email: string) => {
+  const response = await api.post("waitlist/", {
+    email: email,
   });
   return response.data;
 };

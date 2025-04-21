@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import {
   Form,
   FormControl,
@@ -12,6 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { joinWaitlist } from "@/api/endpoints";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -27,7 +27,7 @@ const NotFound = () => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Here you would typically send this to your backend
+    joinWaitlist(values.email);
     console.log(values);
     toast({
       title: "Thanks for joining!",

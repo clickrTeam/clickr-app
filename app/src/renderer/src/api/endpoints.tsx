@@ -85,7 +85,7 @@ export const get_community_mappings = async () => {
 }
 
 export const register = async (username: string, email: string, password: string) => {
-  const response = await api.post('register', {
+  const response = await api.post('register/', {
     username: username,
     email: email,
     password: password
