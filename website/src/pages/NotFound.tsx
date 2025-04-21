@@ -1,24 +1,82 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+const formSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+});
 
 const NotFound = () => {
-  const location = useLocation();
+  const { toast } = useToast();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-  useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
-  }, [location.pathname]);
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    // Here you would typically send this to your backend
+    console.log(values);
+    toast({
+      title: "Thanks for joining!",
+      description: "We'll notify you when Clickr launches.",
+    });
+    form.reset();
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
+        <div className="w-32 h-32 mx-auto mb-6">
+          <img
+            src="/gifs/crane.gif"
+            alt="Page under construction"
+            className="w-full h-full object-contain mix-blend-multiply"
+          />
+        </div>
+        <p className="text-xl text-gray-600 mb-4">
+          This page isn't quite ready yet, join the waitlist!
+        </p>
+        <div className="glass-panel p-6 backdrop-blur-lg max-w-md mx-auto">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your email"
+                        type="email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="submit"
+                className="w-full bg-clickr-light-blue hover:bg-clickr-light-blue/90"
+              >
+                Join the waitlist
+              </Button>
+            </form>
+          </Form>
+        </div>
       </div>
     </div>
   );

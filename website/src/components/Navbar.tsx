@@ -63,7 +63,7 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Community", path: "/community" },
     { name: "My Mappings", path: "/my-mappings" },
-    { name: "Get JSON", onClick: handleDownloadJSON },
+    // { name: "Get JSON", onClick: handleDownloadJSON },
   ];
 
   const isActive = (path: string) => {
@@ -87,18 +87,19 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
           <div className="flex space-x-6">
-            {navLinks.map((link) =>
-              link.onClick ? (
-                <button
-                  key={link.name}
-                  onClick={link.onClick}
-                  className={cn(
-                    "font-medium transition-colors hover:text-clickr-blue text-foreground/80"
-                  )}
-                >
-                  {link.name}
-                </button>
-              ) : (
+            {
+              navLinks.map((link) => (
+                // link.onClick ? (
+                //   <button
+                //     key={link.name}
+                //     onClick={link.onClick}
+                //     className={cn(
+                //       "font-medium transition-colors hover:text-clickr-blue text-foreground/80"
+                //     )}
+                //   >
+                //     {link.name}
+                //   </button>
+                // ) : (
                 <Link
                   key={link.name}
                   to={link.path}
@@ -111,8 +112,9 @@ const Navbar = () => {
                 >
                   {link.name}
                 </Link>
-              )
-            )}
+              ))
+              // )
+            }
           </div>
           {/* If user is authenticated, remove the register button and make download more prominate */}
           {!isAuthenticated ? (
