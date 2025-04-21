@@ -2,6 +2,7 @@ import { Profile } from '../../models/Profile'
 import React, { useState } from 'react'
 import { Button } from './components/ui/button'
 import Navbar from './components/Navbar'
+import NewProfileDialog from './components/NewProfileDialog'
 
 // Enum to represent different views/screens
 export enum View {
@@ -19,6 +20,7 @@ function App(): JSX.Element {
   const [profiles, setProfiles] = useState<Profile[] | null>(null)
   const [activeProfile, setActiveProfile] = useState<number | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [isCreatingProfile, setisCreatingProfile] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
 
   function updateProfiles() {
@@ -183,8 +185,16 @@ function App(): JSX.Element {
               </ul>
             )}
 
-            {/* TODO: create a form to give it a name */}
-            <Button onClick={() => { window.api.createProfile(`Profile ${profiles?.length}`); updateProfiles() }}>New Profile</Button>
+            {/* <Button onClick={() => { window.api.createProfile(`Profile ${profiles?.length}`); updateProfiles() }}>New Profile</Button> */}
+            <Button onClick={() => setisCreatingProfile(true)}>New Profile</Button>
+            {isCreatingProfile && (
+              // TODO: use desc
+              <NewProfileDialog
+                isOpen={isCreatingProfile}
+                onCancel={() => setisCreatingProfile(false)}
+                onCreate={(name, desc) => { window.api.createProfile(name); updateProfiles() }}>
+              </NewProfileDialog>
+            )}
           </div>
         )}
       </div>
