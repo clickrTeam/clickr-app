@@ -2,14 +2,8 @@ import { useState, useEffect } from 'react'
 import { LogIn, LogOut, Home, Users, Layers } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
+import { View } from '../App'
 
-// Enum to represent different views/screens
-enum View {
-  HOME = 'HOME',
-  COMMUNITY = 'COMMUNITY',
-  MY_MAPPINGS = 'MY_MAPPINGS',
-  LOGIN = 'LOGIN'
-}
 
 interface NavbarProps {
   currentView: View

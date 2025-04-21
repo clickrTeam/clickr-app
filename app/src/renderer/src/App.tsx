@@ -4,83 +4,46 @@ import { Button } from './components/ui/button'
 import Navbar from './components/Navbar'
 
 // Enum to represent different views/screens
-enum View {
+export enum View {
   HOME = 'HOME',
   COMMUNITY = 'COMMUNITY',
   MY_MAPPINGS = 'MY_MAPPINGS',
   LOGIN = 'LOGIN',
-  TEST = 'TEST'
+  LOCAL_MAPPINGS = 'TEST'
 }
 
-// Define type for the Profile JSON that matches Profile.toJSON()
-interface ProfileJSON {
-  profile_name: string
-  layer_count: number
-  layers: object[]
-}
 
 function App(): JSX.Element {
   // State to manage which view to show
   const [currentView, setCurrentView] = useState<View>(View.HOME)
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [profileName, setProfileName] = useState<string>('')
+  const [profiles, setProfiles] = useState<Profile[] | null>(null)
+  const [activeProfile, setActiveProfile] = useState<number | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
+
+  function updateProfiles() {
+    window.api.getProfiles()
+      .then((profiles: Profile[]) => {
+        console.log('Got profiles:', profiles)
+        setProfiles(profiles)
+      });
+
+    window.api.getActiveProfile()
+      .then((activeProfile: number | null) => {
+        console.log('Active profile is index: ', activeProfile)
+        setActiveProfile(activeProfile)
+      });
+
+  }
 
   // Get the profile from the main process when the component mounts
   React.useEffect(() => {
     console.log('[App] useEffect running')
     console.log('window.api:', window.api)
+    updateProfiles()
 
-    window.api
-      .getProfile()
-      .then((profileJSON: ProfileJSON) => {
-        console.log('Got profile:', profileJSON)
-        const parsed_profile = Profile.fromJSON(profileJSON)
-        setProfile(parsed_profile)
-        setProfileName(parsed_profile.profile_name)
-      })
-      .catch((err) => {
-        console.error('Failed to fetch profile:', err)
-      })
   }, [])
-  /**
-   * Send an IPC message to the main process to run the daemon start signal.
-   * Will be depreceated once daemon runs on machine boot
-   */
-  const handleStartDaemon = (): void => {
-    window.electron.ipcRenderer.send('start-daemon')
-  }
-  /**
-   * Loads a profile.json from a specific path.
-   * @param file_path The path where the desired json is
-   */
 
-  const loadProfile = (file_path: string): void => {
-    // TODO: Implement logic
-    window.electron.ipcRenderer.send('load')
-  }
-
-  const transmitProfile = (): void => {
-    window.electron.ipcRenderer.send('send-prof-to-daemon')
-  }
-  /**
-   * Sends an IPC message to the main process to create a new profile
-   */
-
-  const createNewProfile = (): void => {
-    window.electron.ipcRenderer.send('create-new-profile')
-  }
-  /**
-   * Sends an IPC message to the main process to save the current profile into a JSON file.
-   * @param prof The profile object to save.
-   */
-
-  const saveProfile = (prof: Profile): void => {
-    const json = prof.toJSON()
-    console.log('Sending Profile: ', JSON.stringify(json))
-    window.api.saveProfile(json)
-  }
 
   const logout = (): void => {
     setIsAuthenticated(false)
@@ -121,7 +84,7 @@ function App(): JSX.Element {
                 size="lg"
                 variant="outline"
                 className="border-cyan-600 text-black hover:bg-cyan-700 px-8"
-                onClick={() => setCurrentView(View.TEST)}
+                onClick={() => setCurrentView(View.LOCAL_MAPPINGS)}
               >
                 Test
               </Button>
@@ -184,36 +147,48 @@ function App(): JSX.Element {
         )}
 
         {/* Test Page (Original functionality) */}
-        {currentView === View.TEST && (
+        {currentView === View.LOCAL_MAPPINGS && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-black">Test Page</h1>
+              <h1 className="text-2xl font-bold text-black">Local Profiles</h1>
               <Button onClick={() => setCurrentView(View.HOME)}>Back to Home</Button>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md text-black">
-              <h2 className="text-xl mb-4 text-black">Test Functions</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button onClick={handleStartDaemon}>Start Daemon</Button>
-                <Button onClick={() => loadProfile('')}>Load Profile</Button>
-                <Button onClick={transmitProfile}>Transmit Profile</Button>
-                <Button onClick={createNewProfile}>Create New Profile</Button>
-                <Button onClick={() => profile && saveProfile(profile)}>Save Profile</Button>
-              </div>
+            {!profiles || profiles.length === 0 ? (
+              <p className="text-black">No profiles found.</p>
+            ) : (
+              <ul className="divide-y divide-gray-200 bg-white rounded-lg shadow-md">
+                {profiles.map((profile, index) => (
+                  <li key={index} className="p-4 hover:bg-gray-50 transition">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-lg font-semibold text-black">
+                          {profile.profile_name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Layers: {profile.layer_count}
+                        </p>
+                        <Button onClick={() => { window.api.deleteProfile(index); updateProfiles(); }}>Delete</Button>
+                      </div>
+                      {activeProfile === index ? (
+                        <span className="px-2 py-1 text-sm bg-cyan-100 text-cyan-800 rounded-full">
+                          Active
+                        </span>
+                      ) :
+                        <Button onClick={() => { window.api.setActiveProfile(index); updateProfiles(); }}>Set Active</Button>
+                      }
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
 
-              {profile && (
-                <div className="mt-6 p-4 bg-gray-100 rounded-md">
-                  <h3 className="font-medium mb-2">Current Profile: {profileName}</h3>
-                  <p className="text-sm text-gray-600">
-                    Profile data is loaded and can be edited/saved.
-                  </p>
-                </div>
-              )}
-            </div>
+            {/* TODO: create a form to give it a name */}
+            <Button onClick={() => { window.api.createProfile(`Profile ${profiles?.length}`); updateProfiles() }}>New Profile</Button>
           </div>
         )}
       </div>
-    </div>
+    </div >
   )
 }
 
