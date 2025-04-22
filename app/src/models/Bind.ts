@@ -28,6 +28,7 @@ export abstract class Bind {
     this.bind_type = bind_type
   }
 
+  abstract toString(): string
   abstract toJSON(): object
   abstract equals(other: Bind): boolean
 }
@@ -57,6 +58,10 @@ export class PressKey extends Bind {
   equals(other: Bind): boolean {
     return other instanceof PressKey && this.value === other.value
   }
+
+  toString(): string {
+    return `Press: ${this.value}`
+  }
 }
 
 /**
@@ -83,6 +88,9 @@ export class ReleaseKey extends Bind {
 
   equals(other: Bind): boolean {
     return other instanceof ReleaseKey && this.value === other.value
+  }
+  toString(): string {
+    return `Release: ${this.value}`
   }
 }
 
@@ -111,6 +119,10 @@ export class TapKey extends Bind {
   equals(other: Bind): boolean {
     return other instanceof TapKey && this.value === other.value
   }
+
+  toString(): string {
+    return `Tap: ${this.value}`
+  }
 }
 
 // TODO: rework these not exactly sure what they do or why they need to be differnt
@@ -118,6 +130,9 @@ export class TapKey extends Bind {
  * Represents multiple keys being pressed at once. ['Ctrl', 'Alt', 'Del']
  */
 export class Combo_Bind extends Bind {
+  toString(): string {
+    throw new Error("Method not implemented.")
+  }
   /**
    * The values that will be remapped to. Will be multiple: ['Ctrl', 'V']
    */
@@ -157,6 +172,9 @@ export class Combo_Bind extends Bind {
  * A combination of different types of binds. Can be link and combo, combo and repeat, etc.
  */
 export class Macro_Bind extends Bind {
+  toString(): string {
+    throw new Error("Method not implemented.")
+  }
   binds: Bind[]
 
   constructor(binds: Bind[]) {
@@ -188,6 +206,9 @@ export class Macro_Bind extends Bind {
  * A macro where there are time delays between each bind. Each time delay can be different.
  */
 export class TimedMacro_Bind extends Bind {
+  toString(): string {
+    throw new Error("Method not implemented.")
+  }
   binds: Bind[]
   times: number[]
 
@@ -224,6 +245,9 @@ export class TimedMacro_Bind extends Bind {
  * A bind that will repeat a certain number of times with or without a delay.
  */
 export class Repeat_Bind extends Bind {
+  toString(): string {
+    throw new Error("Method not implemented.")
+  }
   value: Bind
 
   /**
@@ -309,6 +333,11 @@ export class SwapLayer extends Bind {
   equals(other: Bind): boolean {
     return other instanceof SwapLayer && this.layer_num === other.layer_num
   }
+
+  toString(): string {
+    return `Swap Layer: ${this.layer_num}`
+
+  }
 }
 
 // Not going to happen for a while
@@ -336,6 +365,10 @@ export class AppOpen_Bind extends Bind {
 
   equals(other: Bind): boolean {
     return other instanceof AppOpen_Bind && this.app_name === other.app_name
+  }
+
+  toString(): string {
+    throw new Error("Method not implemented.")
   }
 }
 
