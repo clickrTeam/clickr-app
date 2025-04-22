@@ -125,7 +125,7 @@ const filters = ['All', 'Popular', 'Recent', 'Gaming', 'Productivity', 'Design',
 const Community = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('All')
-  const [mappings, setMappings] = useState<Mapping[]>(dummyMappings)
+  const [mappings, setMappings] = useState<Mapping[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
