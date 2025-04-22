@@ -28,6 +28,7 @@ export abstract class Trigger {
 
   abstract toJSON(): object
   abstract equals(other: Trigger): boolean
+  abstract toString(): string
 }
 
 /**
@@ -55,6 +56,10 @@ export class KeyPress extends Trigger {
   equals(other: Trigger): boolean {
     return other instanceof KeyPress && this.value === other.value
   }
+
+  toString(): string {
+    return `Press: ${this.value}`
+  }
 }
 
 /**
@@ -81,6 +86,10 @@ export class KeyRelease extends Trigger {
 
   equals(other: Trigger): boolean {
     return other instanceof KeyRelease && this.value === other.value
+  }
+
+  toString(): string {
+    return `Release: ${this.value}`
   }
 }
 
@@ -157,12 +166,19 @@ export class TapSequence extends Trigger {
       )
     )
   }
+
+  toString(): string {
+    return `Tap: ${this.key_time_pairs.map((key) => key[0]).join(" + ")}`
+  }
 }
 
 /**
  * Represents a trigged by pressing and holding a key.
  */
 export class Hold extends Trigger {
+  toString(): string {
+    throw new Error("Method not implemented.")
+  }
   value: string
   wait: number
 
@@ -193,6 +209,9 @@ export class Hold extends Trigger {
  * This only applies when a certain application is running.
  */
 export class AppFocus extends Trigger {
+  toString(): string {
+    throw new Error("Method not implemented.")
+  }
   app_name: string
   value: string
 

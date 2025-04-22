@@ -2,7 +2,10 @@ import { Profile } from '../../models/Profile'
 import React, { useState } from 'react'
 import { Button } from './components/ui/button'
 import Navbar from './components/Navbar'
+import NewProfileDialog from './components/NewProfileDialog'
 import Community from './pages/community'
+import { ProfileEditor } from './components/ProfileEditor'
+import { Card } from './components/ui/card'
 
 // Enum to represent different views/screens
 export enum View {
@@ -10,7 +13,7 @@ export enum View {
   COMMUNITY = 'COMMUNITY',
   MY_MAPPINGS = 'MY_MAPPINGS',
   LOGIN = 'LOGIN',
-  LOCAL_MAPPINGS = 'TEST'
+  LOCAL_MAPPINGS = 'LOCAL_MAPPINGS',
 }
 
 function App(): JSX.Element {
@@ -18,13 +21,15 @@ function App(): JSX.Element {
   const [currentView, setCurrentView] = useState<View>(View.HOME)
   const [profiles, setProfiles] = useState<Profile[] | null>(null)
   const [activeProfile, setActiveProfile] = useState<number | null>(null)
+  const [editedProfileIndex, setEditedProfileIndex] = useState<number | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
 
   function updateProfiles() {
-    window.api.getProfiles().then((profiles: Profile[]) => {
+    window.api.getProfiles().then((profiles: object[]) => {
       console.log('Got profiles:', profiles)
-      setProfiles(profiles)
+      setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
     })
 
     window.api.getActiveProfile().then((activeProfile: number | null) => {
@@ -79,8 +84,7 @@ function App(): JSX.Element {
                 size="lg"
                 variant="outline"
                 className="border-cyan-600 text-black hover:bg-cyan-700 px-8"
-                onClick={() => setCurrentView(View.LOCAL_MAPPINGS)}
-              >
+                onClick={() => setCurrentView(View.LOCAL_MAPPINGS)}>
                 Test
               </Button>
             </div>
@@ -140,62 +144,104 @@ function App(): JSX.Element {
         {currentView === View.LOCAL_MAPPINGS && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-black">Local Profiles</h1>
-              <Button onClick={() => setCurrentView(View.HOME)}>Back to Home</Button>
+              <h1 className="text-2xl font-bold">Local Profiles</h1>
+              <div className="space-x-2">
+                <Button variant="outline" onClick={() => setCurrentView(View.HOME)}>
+                  Back to Home
+                </Button>
+                <Button onClick={() => setIsCreatingProfile(true)}>
+                  New Profile
+                </Button>
+              </div>
             </div>
 
-            {!profiles || profiles.length === 0 ? (
-              <p className="text-black">No profiles found.</p>
+            {editedProfileIndex !== null && profiles != null ? (
+              <ProfileEditor
+                profile={profiles[editedProfileIndex]}
+                onSave={(updatedProfile: Profile) => {
+                  console.log("here", updatedProfile)
+                  window.api.updateProfile(editedProfileIndex, updatedProfile);
+                  updateProfiles();
+                  setEditedProfileIndex(null);
+                }}
+                onBack={() => setEditedProfileIndex(null)}
+              />
             ) : (
-              <ul className="divide-y divide-gray-200 bg-white rounded-lg shadow-md">
-                {profiles.map((profile, index) => (
-                  <li key={index} className="p-4 hover:bg-gray-50 transition">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-lg font-semibold text-black">{profile.profile_name}</p>
-                        <p className="text-sm text-gray-600">Layers: {profile.layer_count}</p>
-                        <Button
-                          onClick={() => {
-                            window.api.deleteProfile(index)
-                            updateProfiles()
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                      {activeProfile === index ? (
-                        <span className="px-2 py-1 text-sm bg-cyan-100 text-cyan-800 rounded-full">
-                          Active
-                        </span>
-                      ) : (
-                        <Button
-                          onClick={() => {
-                            window.api.setActiveProfile(index)
-                            updateProfiles()
-                          }}
-                        >
-                          Set Active
-                        </Button>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <>
+                {!profiles || profiles.length === 0 ? (
+                  <div className="text-center p-8">
+                    <p className="text-muted-foreground">No profiles found</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {profiles.map((profile, index) => (
+                      <Card key={index}>
+                        <div className="flex items-center justify-between p-4">
+                          <div className="space-y-1">
+                            <h3 className="text-lg font-semibold">
+                              {profile.profile_name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {profile.layer_count} layers
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {activeProfile === index ? (
+                              <span className="px-2 py-1 text-sm bg-primary/10 text-primary rounded-full">
+                                Active
+                              </span>
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  window.api.setActiveProfile(index);
+                                  updateProfiles();
+                                }}
+                              >
+                                Set Active
+                              </Button>
+                            )}
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => setEditedProfileIndex(index)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                window.api.deleteProfile(index);
+                                updateProfiles();
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
 
-            {/* TODO: create a form to give it a name */}
-            <Button
-              onClick={() => {
-                window.api.createProfile(`Profile ${profiles?.length}`)
-                updateProfiles()
+            <NewProfileDialog
+              isOpen={isCreatingProfile}
+              onCancel={() => setIsCreatingProfile(false)}
+              onCreate={(name, _desc) => {
+                window.api.createProfile(name);
+                updateProfiles();
+                setIsCreatingProfile(false);
               }}
-            >
-              New Profile
-            </Button>
+            />
           </div>
         )}
       </div>
-    </div>
+    </div >
   )
 }
 

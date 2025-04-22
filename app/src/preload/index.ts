@@ -1,14 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { API } from '../preload/index.d'
-import { Profile } from '../models/Profile'
 
 const api: API = {
-  getProfiles: function(): Promise<Profile[]> {
-    return ipcRenderer.invoke('get-profiles').then((profilesJson: any[]) => {
-      // Convert the plain objects to Profile instances
-      return profilesJson.map(profileJson => Profile.fromJSON(profileJson))
-    })
+  getProfiles: function(): Promise<object[]> {
+    return ipcRenderer.invoke('get-profiles') as Promise<object[]>
   },
   getActiveProfile: function(): Promise<number | null> {
     return ipcRenderer.invoke('get-active-profile')
@@ -19,8 +15,9 @@ const api: API = {
   setActiveProfile: function(index: number): Promise<void> {
     return ipcRenderer.invoke('set-active-profile', index)
   },
-  updateProfile: function(index: number, profileData: Profile): Promise<void> {
-    return ipcRenderer.invoke('update-profile', index, profileData.toJSON()) // Send the profile's JSON representation
+  updateProfile: function(index: number, profileData: object): Promise<void> {
+    console.log("HERE", index, profileData)
+    return ipcRenderer.invoke('update-profile', index, profileData) // Send the profile's JSON representation
   },
   deleteProfile: function(index: number): Promise<void> {
     return ipcRenderer.invoke('delete-profile', index)
