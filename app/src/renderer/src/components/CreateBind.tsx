@@ -1,88 +1,86 @@
+import { useState } from "react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Bind, BindType, PressKey, ReleaseKey, TapKey, SwapLayer } from "src/models/Bind"
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
+import KeySelecter from "./KeySelector"
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "./ui/dialog";
-import React, { useEffect, useState } from "react";
-import { Bind } from "src/models/Bind"
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+interface BindSelectorProps {
+  maxLayer: number,
+  onBindSelected: (bind: Bind) => void,
+}
 
+export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps) {
+  const [type, setType] = useState<BindType | null>(null)
+  const [bindValue, setBindValue] = useState<string>('')
 
-export type CreateBindDialogProps = {
-  isOpen: boolean;
-  onCancel: () => void;
-  onCreate: (trigger: Trigger, bind: Bind) => void;
-};
+  const handleSingleKeyChange = (key: string) => {
+    setBindValue(key)
 
-export default function CreateMappingDialog({
-  isOpen,
-  onCancel,
-  onCreate,
-}: CreateBindDialogProps) {
-  const [bind, setBind] = useState<Bind | null>(null);
+    if (!type || (type !== BindType.PressKey && type !== BindType.ReleaseKey
+      && type !== BindType.TapKey))
+      return
 
-  // Reset inputs when dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      setTrigger(null);
-      setBind(null);
-    }
-  }, [isOpen]);
+    const newBind = {
+      [BindType.PressKey]: new PressKey(key),
+      [BindType.ReleaseKey]: new ReleaseKey(key),
+      [BindType.TapKey]: new TapKey(key),
+    }[type]
 
+    if (newBind) onBindSelected(newBind)
+  }
+
+  const handleLayerChange = (newLayer: number) => {
+    setBindValue(newLayer.toString())
+    onBindSelected(new SwapLayer(newLayer))
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onCancel()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create New Modification</DialogTitle>
-          <DialogDescription>
-            Match up a trigger and an effect
-          </DialogDescription>
-        </DialogHeader>
-        {/*TODO: */}
-        {/* <div className="grid gap-4 py-4"> */}
-        {/*   <div className="grid grid-cols-4 items-center gap-4"> */}
-        {/*     <Label htmlFor="mapping-name" className="text-right"> */}
-        {/*       Name */}
-        {/*     </Label> */}
-        {/*     <Input */}
-        {/*       id="mapping-name" */}
-        {/*       placeholder="My Custom Mapping" */}
-        {/*       className="col-span-3" */}
-        {/*       value={name} */}
-        {/*       onChange={(e) => setName(e.target.value)} */}
-        {/*     /> */}
-        {/*   </div> */}
-        {/**/}
-        {/*   <div className="grid grid-cols-4 items-center gap-4"> */}
-        {/*     <Label htmlFor="mapping-desc" className="text-right"> */}
-        {/*       Description */}
-        {/*     </Label> */}
-        {/*     <Input */}
-        {/*       id="mapping-desc" */}
-        {/*       placeholder="Optional description" */}
-        {/*       className="col-span-3" */}
-        {/*       value={description} */}
-        {/*       onChange={(e) => setDescription(e.target.value)} */}
-        {/*     /> */}
-        {/*   </div> */}
-        {/* </div> */}
+    <Card>
+      <CardHeader>
+        <CardTitle>Select Bind</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Trigger Type Dropdown */}
+        <Select
+          value={type}
+          onValueChange={(type: BindType) => {
+            setBindValue('')
+            setType(type)
+          }}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select bind type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={BindType.PressKey}>Press Key</SelectItem>
+            <SelectItem value={BindType.ReleaseKey}>Release Key</SelectItem>
+            <SelectItem value={BindType.TapKey}>Tap Key</SelectItem>
+            <SelectItem value={BindType.SwapLayer}>Change Layer</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button onClick={() => onCreate(trigger as Trigger, bind as Bind)} disabled={trigger != null && bind != null}>
-            Create
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+
+        {/* Single key input for press/release */}
+        {type && type !== BindType.SwapLayer && (
+          <KeySelecter
+            selectedKey={bindValue}
+            onSelect={handleSingleKeyChange}
+          />
+        )}
+
+        {/* Sequence builder for taps */}
+        {type && type === BindType.SwapLayer && (
+          <Input
+            type="number"
+            placeholder="Layer number"
+            min={0}
+            max={maxLayer}
+            onChange={(e) =>
+              handleLayerChange(Number(e.target.value))
+            }
+          />
+        )}
+      </CardContent>
+    </Card >
+  )
 }
