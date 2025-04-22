@@ -5,7 +5,7 @@ export interface API {
   getActiveProfile(): Promise<number | null>;
   createProfile(name: string): Promise<void>;
   setActiveProfile(index: number): Promise<void>;
-  updateProfile(index: number, profileData: Profile): Promise<void>;
+  updateProfile(index: number, profileData: object): Promise<void>;
   deleteProfile(index: number): Promise<void>;
 }
 
