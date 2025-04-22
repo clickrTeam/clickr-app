@@ -39,7 +39,6 @@ export default function CreateMappingDialog({
 
   const handleCreate = () => {
     onCreate(name.trim(), description.trim());
-    onCancel();
   };
 
   const handleCancel = () => {
@@ -85,7 +84,7 @@ export default function CreateMappingDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleCancel}>
+          <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
           <Button onClick={handleCreate} disabled={!name.trim()}>
