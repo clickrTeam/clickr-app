@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { Button } from './components/ui/button'
 import Navbar from './components/Navbar'
 import NewProfileDialog from './components/NewProfileDialog'
+import Community from './pages/community'
 
 // Enum to represent different views/screens
 export enum View {
@@ -10,9 +11,8 @@ export enum View {
   COMMUNITY = 'COMMUNITY',
   MY_MAPPINGS = 'MY_MAPPINGS',
   LOGIN = 'LOGIN',
-  LOCAL_MAPPINGS = 'TEST'
+  LOCAL_MAPPINGS = 'TEST',
 }
-
 
 function App(): JSX.Element {
   // State to manage which view to show
@@ -20,22 +20,19 @@ function App(): JSX.Element {
   const [profiles, setProfiles] = useState<Profile[] | null>(null)
   const [activeProfile, setActiveProfile] = useState<number | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
-  const [isCreatingProfile, setisCreatingProfile] = useState<boolean>(false)
+  const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
 
   function updateProfiles() {
-    window.api.getProfiles()
-      .then((profiles: Profile[]) => {
-        console.log('Got profiles:', profiles)
-        setProfiles(profiles)
-      });
+    window.api.getProfiles().then((profiles: Profile[]) => {
+      console.log('Got profiles:', profiles)
+      setProfiles(profiles)
+    })
 
-    window.api.getActiveProfile()
-      .then((activeProfile: number | null) => {
-        console.log('Active profile is index: ', activeProfile)
-        setActiveProfile(activeProfile)
-      });
-
+    window.api.getActiveProfile().then((activeProfile: number | null) => {
+      console.log('Active profile is index: ', activeProfile)
+      setActiveProfile(activeProfile)
+    })
   }
 
   // Get the profile from the main process when the component mounts
@@ -43,9 +40,7 @@ function App(): JSX.Element {
     console.log('[App] useEffect running')
     console.log('window.api:', window.api)
     updateProfiles()
-
   }, [])
-
 
   const logout = (): void => {
     setIsAuthenticated(false)
@@ -126,12 +121,7 @@ function App(): JSX.Element {
         )}
 
         {/* Community Screen Placeholder */}
-        {currentView === View.COMMUNITY && (
-          <div className="flex flex-col items-center">
-            <h1 className="text-2xl font-bold mb-6 text-black">Community Mappings</h1>
-            <p className="text-black">Community mapping content will be displayed here.</p>
-          </div>
-        )}
+        {currentView === View.COMMUNITY && <Community />}
 
         {/* My Mappings Screen Placeholder */}
         {currentView === View.MY_MAPPINGS && (
@@ -171,34 +161,40 @@ function App(): JSX.Element {
                           Layers: {profile.layer_count}
                         </p>
                         <Button onClick={() => { window.api.deleteProfile(index); updateProfiles(); }}>Delete</Button>
+                        <Button onClick={() => { window.api.deleteProfile(index); updateProfiles(); }}>Edit</Button>
                       </div>
                       {activeProfile === index ? (
                         <span className="px-2 py-1 text-sm bg-cyan-100 text-cyan-800 rounded-full">
                           Active
                         </span>
-                      ) :
-                        <Button onClick={() => { window.api.setActiveProfile(index); updateProfiles(); }}>Set Active</Button>
-                      }
+                      ) : (
+                        <Button
+                          onClick={() => {
+                            window.api.setActiveProfile(index)
+                            updateProfiles()
+                          }}
+                        >
+                          Set Active
+                        </Button>
+                      )}
                     </div>
                   </li>
                 ))}
               </ul>
             )}
-
-            {/* <Button onClick={() => { window.api.createProfile(`Profile ${profiles?.length}`); updateProfiles() }}>New Profile</Button> */}
-            <Button onClick={() => setisCreatingProfile(true)}>New Profile</Button>
+            <Button onClick={() => setIsCreatingProfile(true)}>New Profile</Button>
             {isCreatingProfile && (
               // TODO: use desc
               <NewProfileDialog
                 isOpen={isCreatingProfile}
-                onCancel={() => setisCreatingProfile(false)}
-                onCreate={(name, desc) => { window.api.createProfile(name); updateProfiles() }}>
+                onCancel={() => setIsCreatingProfile(false)}
+                onCreate={(name, _desc) => { window.api.createProfile(name); updateProfiles() }}>
               </NewProfileDialog>
             )}
           </div>
         )}
       </div>
-    </div >
+    </div>
   )
 }
 
