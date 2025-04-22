@@ -40,6 +40,9 @@ export const create_new_mapping = async (
     description: string;
     mappings: object;
     isActive: boolean;
+    is_public: boolean;
+    num_likes: number;
+    num_downloads: number;
   }
 ) => {
   const response = await api.post(

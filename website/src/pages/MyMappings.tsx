@@ -69,6 +69,8 @@ const MyMappings = () => {
 
   const [newMappingName, setNewMappingName] = useState("");
   const [newMappingDesc, setNewMappingDesc] = useState("");
+  const [newMappingJson, setNewMappingJson] = useState("");
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -78,6 +80,7 @@ const MyMappings = () => {
   useEffect(() => {
     fetchMappings();
   }, []);
+
   const updateMappingCounts = () => {
     setMappings((currentMappings) =>
       currentMappings.map((mapping) => ({
@@ -132,10 +135,22 @@ const MyMappings = () => {
     if (!newMappingName.trim()) return;
 
     try {
+      let parsedMappings = {};
+      if (newMappingJson.trim()) {
+        try {
+          parsedMappings = JSON.parse(newMappingJson);
+          if (typeof parsedMappings !== "object") {
+            throw new Error("JSON must be an object");
+          }
+        } catch (e) {
+          return;
+        }
+      }
+
       const mappingData = {
         name: newMappingName,
         description: newMappingDesc,
-        mappings: {},
+        mappings: parsedMappings,
         isActive: false,
       };
 
@@ -144,12 +159,13 @@ const MyMappings = () => {
 
       setNewMappingName("");
       setNewMappingDesc("");
+      setNewMappingJson("");
       setIsCreating(false);
     } catch (error) {
       console.error("Failed to create mapping:", error);
-      //TODO: might want to add error handling UI here
     }
   };
+  // ... existing code ...
 
   const handleDeleteMapping = async (id: string) => {
     try {
@@ -224,6 +240,23 @@ const MyMappings = () => {
                       className="col-span-3"
                       value={newMappingDesc}
                       onChange={(e) => setNewMappingDesc(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="JSON Config" className="text-right">
+                    JSON Config
+                  </Label>
+                  <div className="col-span-3">
+                    <textarea
+                      id="json"
+                      placeholder='Optional JSON mappings (e.g., {"a": "b"})'
+                      className="w-full min-h-[100px] px-3 py-2 rounded-md border border-input bg-background"
+                      value={newMappingJson}
+                      onChange={(e) => {
+                        setNewMappingJson(e.target.value);
+                      }}
                     />
                   </div>
                 </div>
