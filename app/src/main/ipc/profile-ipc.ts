@@ -22,6 +22,7 @@ export function registerProfileHandlers() {
   })
 
   ipcMain.handle('update-profile', (_event, index: number, profileData) => {
+    console.log(JSON.stringify(profileData, null, 2))
     const updated = Profile.fromJSON(profileData)
     profileStore.setProfileByIndex(index, updated)
   })

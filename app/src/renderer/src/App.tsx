@@ -27,9 +27,9 @@ function App(): JSX.Element {
   const [username, setUsername] = useState<string>('')
 
   function updateProfiles() {
-    window.api.getProfiles().then((profiles: Profile[]) => {
+    window.api.getProfiles().then((profiles: object[]) => {
       console.log('Got profiles:', profiles)
-      setProfiles(profiles)
+      setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
     })
 
     window.api.getActiveProfile().then((activeProfile: number | null) => {

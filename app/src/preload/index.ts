@@ -1,14 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { API } from '../preload/index.d'
-import { Profile } from '../models/Profile'
 
 const api: API = {
-  getProfiles: function(): Promise<Profile[]> {
-    return ipcRenderer.invoke('get-profiles').then((profilesJson: any[]) => {
-      // Convert the plain objects to Profile instances
-      return profilesJson.map(profileJson => Profile.fromJSON(profileJson))
-    })
+  getProfiles: function(): Promise<object[]> {
+    return ipcRenderer.invoke('get-profiles') as Promise<object[]>
   },
   getActiveProfile: function(): Promise<number | null> {
     return ipcRenderer.invoke('get-active-profile')

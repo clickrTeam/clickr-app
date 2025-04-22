@@ -12,11 +12,10 @@ interface ProfileEditorProps {
 }
 
 export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps) => {
-  console.log(profile)
   const [localProfile, setLocalProfile] = useState(profile)
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer) => {
-    const next = structuredClone(localProfile);
+    const next = Profile.fromJSON(localProfile.toJSON());
     next.layers[layerIndex] = updatedLayer
     setLocalProfile(next)
   }

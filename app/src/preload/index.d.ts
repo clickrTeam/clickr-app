@@ -1,7 +1,7 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { Profile } from "../models/Profile.ts"
 export interface API {
-  getProfiles(): Promise<Profile[]>;
+  getProfiles(): Promise<object[]>;
   getActiveProfile(): Promise<number | null>;
   createProfile(name: string): Promise<void>;
   setActiveProfile(index: number): Promise<void>;
