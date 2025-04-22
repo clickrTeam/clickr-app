@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerProfileHandlers } from './ipc/profile-ipc'
+import { registerApiHandlers } from './ipc/api-ipc'
 
 function createWindow(): void {
   // Create the browser window.
@@ -32,7 +33,6 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-
 }
 
 // This method will be called when Electron has finished
@@ -50,9 +50,10 @@ app.whenReady().then(() => {
   })
 
   registerProfileHandlers()
+  registerApiHandlers() // Register our new API handlers
   createWindow()
 
-  app.on('activate', function() {
+  app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

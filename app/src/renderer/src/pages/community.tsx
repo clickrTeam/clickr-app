@@ -12,7 +12,6 @@ import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import { Search, Heart, ArrowUpRight, User, Clock, Download } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
-import { get_community_mappings } from '@renderer/api/endpoints'
 
 type Mapping = {
   id: string
@@ -133,7 +132,8 @@ const Community = () => {
   const fetchCommunityMappings = async () => {
     try {
       setIsLoading(true)
-      const data = await get_community_mappings()
+      // Use the IPC bridge instead of direct API call
+      const data = await window.api.fetchCommunityMappings()
       console.log(data)
       setMappings(data)
       updateLastEdited()
@@ -169,9 +169,9 @@ const Community = () => {
     )
   }
 
-  //   useEffect(() => {
-  //     fetchCommunityMappings()
-  //   }, [])
+  useEffect(() => {
+    fetchCommunityMappings()
+  }, [])
   const handleLike = (id: string) => {
     setMappings(
       mappings.map((mapping) => {
