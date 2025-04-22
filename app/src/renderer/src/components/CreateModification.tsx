@@ -6,9 +6,9 @@ import {
   DialogDescription,
   DialogFooter,
 } from "./ui/dialog";
-import React, { useEffect, useState } from "react";
-import { Bind } from "src/models/Bind";
-import { Trigger } from "src/models/Trigger";
+import { useEffect, useState } from "react";
+import { Bind } from "../../../models/Bind";
+import { Trigger } from "../../../models/Trigger";
 import { Button } from "./ui/button";
 import TriggerSelector from "./CreateTrigger";
 import { BindSelector } from "./CreateBind";

@@ -41,9 +41,6 @@ export default function CreateMappingDialog({
     onCreate(name.trim(), description.trim());
   };
 
-  const handleCancel = () => {
-    onCancel();
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onCancel()}>

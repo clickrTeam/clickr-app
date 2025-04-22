@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Bind, BindType, PressKey, ReleaseKey, TapKey, SwapLayer } from "src/models/Bind"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Input } from "./ui/input"
+import { Bind, BindType, PressKey, ReleaseKey, TapKey, SwapLayer } from "../../../models/Bind"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import KeySelecter from "./KeySelector"
 
@@ -43,7 +43,6 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps) {
       <CardContent className="space-y-4">
         {/* Trigger Type Dropdown */}
         <Select
-          value={type}
           onValueChange={(type: BindType) => {
             setBindValue('')
             setType(type)

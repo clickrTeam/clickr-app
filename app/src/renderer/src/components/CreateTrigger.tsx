@@ -4,11 +4,11 @@ import {
   KeyRelease,
   TapSequence,
   Trigger,
-} from 'src/models/Trigger'
+} from '../../../models/Trigger'
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select'
+import { Button } from './ui/button'
 import KeySelecter from './KeySelector'
 import { useState } from 'react'
 
@@ -43,7 +43,6 @@ const TriggerSelector: React.FC<TriggerSelectorProps> = ({ onTriggerSelected }) 
       <CardContent className="space-y-4">
         {/* Trigger Type Dropdown */}
         <Select
-          value={type}
           onValueChange={(val: any) => {
             setSequence([])
             setSingleKey("")
