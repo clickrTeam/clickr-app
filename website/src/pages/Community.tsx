@@ -314,7 +314,7 @@ const Community = () => {
                       onClick={() => handleLike(mapping.id)}
                     >
                       <Heart size={16} fill={"none"} />
-                      <span>{mapping.numLikes}</span>
+                      <span>{mapping.numLikes ?? 0}</span>
                     </Button>
 
                     <Button
@@ -323,7 +323,7 @@ const Community = () => {
                       className="flex items-center gap-1"
                     >
                       <Download size={16} />
-                      <span>{mapping.numDownloads}</span>
+                      <span>{mapping.numDownloads ?? 0}</span>
                     </Button>
                   </div>
 
