@@ -12,20 +12,20 @@ interface ProfileEditorProps {
 }
 
 export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps) => {
+  console.log(profile)
   const [localProfile, setLocalProfile] = useState(profile)
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer) => {
-    const newProfile = new Profile(localProfile.profile_name)
-    newProfile.layers = [...localProfile.layers]
-    newProfile.layers[layerIndex] = updatedLayer
-    setLocalProfile(newProfile)
+    const next = structuredClone(localProfile);
+    next.layers[layerIndex] = updatedLayer
+    setLocalProfile(next)
   }
 
   const handleAddLayer = () => {
-    const newProfile = new Profile(localProfile.profile_name)
-    newProfile.layers = [...localProfile.layers]
-    newProfile.addLayer(`Layer ${newProfile.layers.length}`)
-    setLocalProfile(newProfile)
+    const next = structuredClone(localProfile);
+    next.layers.push(new Layer(`Layer ${next.layers.length}`, next.layers.length, new Map()))
+    console.log(next)
+    setLocalProfile(next)
   }
 
   return (
@@ -60,6 +60,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps) =
           <TabsContent key={index} value={index.toString()}>
             <LayerComponent
               layer={layer}
+              maxLayer={profile.layers.length}
               onUpdate={(updatedLayer) => handleLayerUpdate(index, updatedLayer)}
             />
           </TabsContent>

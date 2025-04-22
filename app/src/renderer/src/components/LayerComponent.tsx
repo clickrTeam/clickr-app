@@ -9,17 +9,19 @@ import { Trigger } from '../../../models/Trigger'
 import { Bind } from '../../../models/Bind'
 
 interface LayerComponentProps {
-  layer: Layer
+  layer: Layer,
+  maxLayer: number,
   onUpdate: (updatedLayer: Layer) => void
 }
 
-export const LayerComponent = ({ layer, onUpdate }: LayerComponentProps) => {
+export const LayerComponent = ({ layer, maxLayer, onUpdate }: LayerComponentProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleAddMapping = (trigger: Trigger, bind: Bind) => {
     const newLayer = new Layer(layer.layer_name, layer.layer_number, new Map(layer.remappings))
     newLayer.addRemapping(trigger, bind)
     onUpdate(newLayer)
+    setIsDialogOpen(false)
   }
 
   const handleDeleteMapping = (trigger: Trigger) => {
@@ -78,7 +80,7 @@ export const LayerComponent = ({ layer, onUpdate }: LayerComponentProps) => {
 
       <CreateMappingDialog
         isOpen={isDialogOpen}
-        maxLayer={layer.remappings.size}
+        maxLayer={maxLayer}
         onCancel={() => setIsDialogOpen(false)}
         onCreate={handleAddMapping}
       />

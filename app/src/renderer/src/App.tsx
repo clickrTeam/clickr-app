@@ -160,7 +160,7 @@ function App(): JSX.Element {
                 profile={profiles[editedProfileIndex]}
                 onSave={(updatedProfile: Profile) => {
                   console.log("here", updatedProfile)
-                  window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON());
+                  window.api.updateProfile(editedProfileIndex, updatedProfile);
                   updateProfiles();
                   setEditedProfileIndex(null);
                 }}
