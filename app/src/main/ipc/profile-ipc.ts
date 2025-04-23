@@ -13,7 +13,7 @@ export function registerProfileHandlers() {
   })
 
   ipcMain.handle('create-profile', (_event, name: string) => {
-    return profileStore.create(name).toJSON()
+    return profileStore.create(name)
   })
 
   ipcMain.handle('set-active-profile', (_event, index: number) => {

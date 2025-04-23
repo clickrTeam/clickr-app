@@ -13,7 +13,6 @@ export enum View {
   COMMUNITY = 'COMMUNITY',
   MY_MAPPINGS = 'MY_MAPPINGS',
   LOGIN = 'LOGIN',
-  LOCAL_MAPPINGS = 'LOCAL_MAPPINGS',
 }
 
 function App(): JSX.Element {
@@ -122,7 +121,14 @@ function App(): JSX.Element {
         )}
 
         {/* Community Screen Placeholder */}
-        {currentView === View.COMMUNITY && <Community />}
+        {currentView === View.COMMUNITY &&
+          <Community
+            onDownload={async (newProfile: Profile) => {
+              let newProfileIndex = await window.api.createProfile(newProfile.profile_name)
+              window.api.updateProfile(newProfileIndex, newProfile)
+              updateProfiles()
+            }}
+          />}
 
         {/* My Mappings Screen Placeholder */}
         {/* Test Page (Original functionality) */}
@@ -196,6 +202,17 @@ function App(): JSX.Element {
                               Edit
                             </Button>
                             <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => {
+                                window.api.createMapping("TEST_USER", profile.toJSON());
+                                updateProfiles();
+                              }}
+                            >
+                              Upload
+                            </Button>
+
+                            <Button
                               variant="destructive"
                               size="sm"
                               onClick={() => {
@@ -205,6 +222,7 @@ function App(): JSX.Element {
                             >
                               Delete
                             </Button>
+
                           </div>
                         </div>
                       </Card>

@@ -4,7 +4,7 @@ import { Profile } from '../models/Profile.ts'
 export interface API {
   getProfiles(): Promise<object[]>
   getActiveProfile(): Promise<number | null>
-  createProfile(name: string): Promise<void>
+  createProfile(name: string): Promise<number>
   setActiveProfile(index: number): Promise<void>
   updateProfile(index: number, profileData: object): Promise<void>
   deleteProfile(index: number): Promise<void>

@@ -3,46 +3,45 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { API } from '../preload/index.d'
 
 const api: API = {
-  getProfiles: function (): Promise<object[]> {
+  getProfiles: function(): Promise<object[]> {
     return ipcRenderer.invoke('get-profiles') as Promise<object[]>
   },
-  getActiveProfile: function (): Promise<number | null> {
+  getActiveProfile: function(): Promise<number | null> {
     return ipcRenderer.invoke('get-active-profile')
   },
-  createProfile: function (name: string): Promise<void> {
+  createProfile: function(name: string): Promise<number> {
     return ipcRenderer.invoke('create-profile', name)
   },
-  setActiveProfile: function (index: number): Promise<void> {
+  setActiveProfile: function(index: number): Promise<void> {
     return ipcRenderer.invoke('set-active-profile', index)
   },
-  updateProfile: function (index: number, profileData: object): Promise<void> {
-    console.log('HERE', index, profileData)
+  updateProfile: function(index: number, profileData: object): Promise<void> {
     return ipcRenderer.invoke('update-profile', index, profileData) // Send the profile's JSON representation
   },
-  deleteProfile: function (index: number): Promise<void> {
+  deleteProfile: function(index: number): Promise<void> {
     return ipcRenderer.invoke('delete-profile', index)
   },
 
   // API communication methods
-  fetchCommunityMappings: function (): Promise<any> {
+  fetchCommunityMappings: function(): Promise<any> {
     return ipcRenderer.invoke('fetch-community-mappings')
   },
-  fetchUserMappings: function (username: string): Promise<any> {
+  fetchUserMappings: function(username: string): Promise<any> {
     return ipcRenderer.invoke('fetch-user-mappings', username)
   },
-  createMapping: function (username: string, mappingData: any): Promise<any> {
+  createMapping: function(username: string, mappingData: any): Promise<any> {
     return ipcRenderer.invoke('create-mapping', username, mappingData)
   },
-  deleteMapping: function (username: string, mappingId: string): Promise<any> {
+  deleteMapping: function(username: string, mappingId: string): Promise<any> {
     return ipcRenderer.invoke('delete-mapping', username, mappingId)
   },
-  setActiveMapping: function (username: string, mappingId: string): Promise<any> {
+  setActiveMapping: function(username: string, mappingId: string): Promise<any> {
     return ipcRenderer.invoke('set-active-mapping', username, mappingId)
   },
-  login: function (username: string, password: string): Promise<any> {
+  login: function(username: string, password: string): Promise<any> {
     return ipcRenderer.invoke('login', username, password)
   },
-  register: function (username: string, email: string, password: string): Promise<any> {
+  register: function(username: string, email: string, password: string): Promise<any> {
     return ipcRenderer.invoke('register', username, email, password)
   }
 }

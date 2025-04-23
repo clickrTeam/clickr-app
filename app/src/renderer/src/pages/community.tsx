@@ -12,13 +12,14 @@ import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import { Search, Heart, ArrowUpRight, User, Clock, Download } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
+import { Profile } from '../../../models/Profile'
 
 type Mapping = {
   id: string
   user: string
   name: string
   description: string
-  mappings: Record<string, string> // Object to store key-value pairs of mappings
+  mappings: Profile
   updated_at: string
   lastEdited: string
   keyCount: number
@@ -28,101 +29,9 @@ type Mapping = {
   numDownloads: number
   tags: Array<string>
 }
-const dummyMappings: Mapping[] = [
-  {
-    id: '1',
-    name: 'Vim-style Navigation',
-    description: 'Transform any editor into Vim with these keyboard shortcuts',
-    user: 'vimmaster',
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: '2 days ago',
-    keyCount: 24,
-    numDownloads: 3452,
-    numLikes: 872,
-    tags: ['editor', 'productivity', 'vim']
-  },
-  {
-    id: '2',
-    name: 'Gamer Pro Setup',
-    description: 'Optimized key mappings for FPS and MOBA games',
-    user: 'progamer123',
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: '1 week ago',
-    keyCount: 35,
-    numDownloads: 1892,
-    numLikes: 425,
-    tags: ['gaming', 'fps', 'moba']
-  },
-  {
-    id: '3',
-    name: 'Designer Workflow',
-    description: 'Custom shortcuts for Figma, Photoshop and Illustrator',
-    user: 'designhub',
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: '3 days ago',
-    keyCount: 42,
-    numDownloads: 978,
-    numLikes: 301,
-    tags: ['design', 'figma', 'photoshop']
-  },
-  {
-    id: '4',
-    name: 'Ergonomic Typing',
-    description: 'Remap your keyboard for less finger movement and better ergonomics',
-    user: 'ergouser',
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: '5 days ago',
-    keyCount: 28,
-    numDownloads: 761,
-    numLikes: 284,
-    tags: ['ergonomic', 'health', 'typing']
-  },
-  {
-    id: '5',
-    name: 'Code Ninja',
-    description: 'VS Code optimized shortcuts for JavaScript development',
-    user: 'jsdev',
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: '2 weeks ago',
-    keyCount: 56,
-    numDownloads: 2045,
-    numLikes: 512,
-    tags: ['development', 'vscode', 'javascript']
-  },
-  {
-    id: '6',
-    name: 'Mac to Windows',
-    description: 'Make your Windows PC feel like a Mac with these key mappings',
-    user: 'platformswitcher',
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: '1 month ago',
-    keyCount: 32,
-    numDownloads: 1532,
-    numLikes: 347,
-    tags: ['mac', 'windows', 'productivity']
-  }
-]
 const filters = ['All', 'Popular', 'Recent', 'Gaming', 'Productivity', 'Design', 'Development']
 
-const Community = () => {
+const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('All')
   const [mappings, setMappings] = useState<Mapping[]>([])
@@ -291,7 +200,7 @@ const Community = () => {
                       <span>{mapping.numLikes ?? 0}</span>
                     </Button>
 
-                    <Button size="sm" variant="ghost" className="flex items-center gap-1">
+                    <Button size="sm" variant="ghost" className="flex items-center gap-1" onClick={() => onDownload(mapping.mappings)}>
                       <Download size={16} />
                       <span>{mapping.numDownloads ?? 0}</span>
                     </Button>
@@ -307,7 +216,7 @@ const Community = () => {
           ))}
         </motion.div>
       </div>
-    </div>
+    </div >
   )
 }
 
