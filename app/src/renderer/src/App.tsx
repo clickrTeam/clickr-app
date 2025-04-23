@@ -41,7 +41,6 @@ function App(): JSX.Element {
   // Get the profile from the main process when the component mounts
   React.useEffect(() => {
     console.log('[App] useEffect running')
-    console.log('window.api:', window.api)
     updateProfiles()
   }, [])
 
@@ -160,7 +159,7 @@ function App(): JSX.Element {
                 profile={profiles[editedProfileIndex]}
                 onSave={(updatedProfile: Profile) => {
                   console.log("here", updatedProfile)
-                  window.api.updateProfile(editedProfileIndex, updatedProfile);
+                  window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON());
                   updateProfiles();
                   setEditedProfileIndex(null);
                 }}

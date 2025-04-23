@@ -59,13 +59,12 @@ export const LayerComponent = ({ layer, maxLayer, onUpdate }: LayerComponentProp
             </span>
 
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger>
                 <Button variant="ghost" size="sm">
                   ⋮
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Edit</DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-destructive"
                   onClick={() => handleDeleteMapping(trigger)}
