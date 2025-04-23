@@ -64,7 +64,7 @@ export const profileStore = {
     const newProfile = new Profile(name)
     data.profiles.push(newProfile)
     writeProfiles()
-    return Profile.fromJSON(data.profiles[data.profiles.length - 1])
+    return data.profiles.length - 1
   },
 
   /**

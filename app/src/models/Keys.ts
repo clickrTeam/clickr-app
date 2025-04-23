@@ -35,4 +35,5 @@ export const keys: string[] = [
   "7",
   "8",
   "9",
+  "Space"
 ]

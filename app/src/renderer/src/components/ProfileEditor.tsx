@@ -21,9 +21,8 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps) =
   }
 
   const handleAddLayer = () => {
-    const next = structuredClone(localProfile);
+    const next = Profile.fromJSON(localProfile.toJSON());
     next.layers.push(new Layer(`Layer ${next.layers.length}`, next.layers.length, new Map()))
-    console.log(next)
     setLocalProfile(next)
   }
 

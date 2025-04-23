@@ -13,7 +13,6 @@ export enum View {
   COMMUNITY = 'COMMUNITY',
   MY_MAPPINGS = 'MY_MAPPINGS',
   LOGIN = 'LOGIN',
-  LOCAL_MAPPINGS = 'LOCAL_MAPPINGS',
 }
 
 function App(): JSX.Element {
@@ -41,7 +40,6 @@ function App(): JSX.Element {
   // Get the profile from the main process when the component mounts
   React.useEffect(() => {
     console.log('[App] useEffect running')
-    console.log('window.api:', window.api)
     updateProfiles()
   }, [])
 
@@ -84,8 +82,8 @@ function App(): JSX.Element {
                 size="lg"
                 variant="outline"
                 className="border-cyan-600 text-black hover:bg-cyan-700 px-8"
-                onClick={() => setCurrentView(View.LOCAL_MAPPINGS)}>
-                Test
+                onClick={() => setCurrentView(View.MY_MAPPINGS)}>
+                My Mappins
               </Button>
             </div>
           </div>
@@ -123,25 +121,18 @@ function App(): JSX.Element {
         )}
 
         {/* Community Screen Placeholder */}
-        {currentView === View.COMMUNITY && <Community />}
+        {currentView === View.COMMUNITY &&
+          <Community
+            onDownload={async (newProfile: Profile) => {
+              let newProfileIndex = await window.api.createProfile(newProfile.profile_name)
+              window.api.updateProfile(newProfileIndex, newProfile)
+              updateProfiles()
+            }}
+          />}
 
         {/* My Mappings Screen Placeholder */}
-        {currentView === View.MY_MAPPINGS && (
-          <div className="flex flex-col items-center">
-            <h1 className="text-2xl font-bold mb-6 text-black">My Mappings</h1>
-            {isAuthenticated ? (
-              <p>Your personal mappings will be displayed here.</p>
-            ) : (
-              <div className="text-center">
-                <p className="mb-4">Please login to view your mappings.</p>
-                <Button onClick={() => setCurrentView(View.LOGIN)}>Go to Login</Button>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Test Page (Original functionality) */}
-        {currentView === View.LOCAL_MAPPINGS && (
+        {currentView === View.MY_MAPPINGS && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold">Local Profiles</h1>
@@ -160,7 +151,7 @@ function App(): JSX.Element {
                 profile={profiles[editedProfileIndex]}
                 onSave={(updatedProfile: Profile) => {
                   console.log("here", updatedProfile)
-                  window.api.updateProfile(editedProfileIndex, updatedProfile);
+                  window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON());
                   updateProfiles();
                   setEditedProfileIndex(null);
                 }}
@@ -211,6 +202,17 @@ function App(): JSX.Element {
                               Edit
                             </Button>
                             <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => {
+                                window.api.createMapping("TEST_USER", profile.toJSON());
+                                updateProfiles();
+                              }}
+                            >
+                              Upload
+                            </Button>
+
+                            <Button
                               variant="destructive"
                               size="sm"
                               onClick={() => {
@@ -220,6 +222,7 @@ function App(): JSX.Element {
                             >
                               Delete
                             </Button>
+
                           </div>
                         </div>
                       </Card>
