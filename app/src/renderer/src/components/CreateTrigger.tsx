@@ -11,6 +11,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { Button } from './ui/button'
 import KeySelecter from './KeySelector'
 import { useState } from 'react'
+import { Trash2 } from 'lucide-react'
 
 interface TriggerSelectorProps {
   onTriggerSelected: (trigger: Trigger) => void
@@ -28,12 +29,6 @@ const TriggerSelector: React.FC<TriggerSelectorProps> = ({ onTriggerSelected }) 
     onTriggerSelected(trigger)
   }
 
-  const confirmSequence = () => {
-    //TOOD: use timout values
-    const keyTimePairs: [string, number][] = sequence.map((k) => [k, 0])
-    const trigger = new TapSequence(keyTimePairs)
-    onTriggerSelected(trigger)
-  }
 
   return (
     <Card>
@@ -82,6 +77,9 @@ const TriggerSelector: React.FC<TriggerSelectorProps> = ({ onTriggerSelected }) 
                   onSelect={(k) => {
                     const newSeq = [...sequence]
                     newSeq[idx] = k
+                    //TOOD: use timeout values
+                    if (newSeq.every((k) => k !== ''))
+                      onTriggerSelected(new TapSequence(newSeq.map((k) => [k, 0])))
                     setSequence(newSeq)
                   }}
                 />
@@ -92,20 +90,13 @@ const TriggerSelector: React.FC<TriggerSelectorProps> = ({ onTriggerSelected }) 
                     setSequence(sequence.filter((_, i) => i !== idx))
                   }
                 >
-                  Remove
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
 
             <Button onClick={() => setSequence([...sequence, ''])}>
               Add Key
-            </Button>
-
-            <Button
-              onClick={confirmSequence}
-              disabled={sequence.some((k) => k === '')}
-            >
-              Confirm Sequence
             </Button>
           </div>
         )}
