@@ -44,7 +44,7 @@ export class KeyPress extends Trigger {
 
   toJSON(): object {
     return {
-      type: TriggerType.KeyRelease,
+      type: TriggerType.KeyPress,
       value: this.value
     }
   }
@@ -248,7 +248,7 @@ export function deserializeTrigger(obj: any): Trigger {
     case TriggerType.KeyPress:
       return KeyPress.fromJSON(obj)
     case TriggerType.KeyRelease:
-      return new KeyRelease(obj.value)
+      return KeyRelease.fromJSON(obj.value)
     case TriggerType.TapSequence:
       return TapSequence.fromJSON(obj)
     case TriggerType.Hold:
