@@ -1,8 +1,7 @@
 import { ipcMain } from 'electron'
 import axios from 'axios'
 
-const BASE_URL = 'http://127.0.0.1:8000/api/'
-// 'https://temp-django-docker-production.up.railway.app/api/'
+const BASE_URL = 'https://temp-django-docker-production.up.railway.app/api/'
 
 const api = axios.create({
   baseURL: BASE_URL,
