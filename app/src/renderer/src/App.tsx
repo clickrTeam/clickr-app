@@ -83,8 +83,8 @@ function App(): JSX.Element {
                 size="lg"
                 variant="outline"
                 className="border-cyan-600 text-black hover:bg-cyan-700 px-8"
-                onClick={() => setCurrentView(View.LOCAL_MAPPINGS)}>
-                Test
+                onClick={() => setCurrentView(View.MY_MAPPINGS)}>
+                My Mappins
               </Button>
             </div>
           </div>
@@ -125,22 +125,8 @@ function App(): JSX.Element {
         {currentView === View.COMMUNITY && <Community />}
 
         {/* My Mappings Screen Placeholder */}
-        {currentView === View.MY_MAPPINGS && (
-          <div className="flex flex-col items-center">
-            <h1 className="text-2xl font-bold mb-6 text-black">My Mappings</h1>
-            {isAuthenticated ? (
-              <p>Your personal mappings will be displayed here.</p>
-            ) : (
-              <div className="text-center">
-                <p className="mb-4">Please login to view your mappings.</p>
-                <Button onClick={() => setCurrentView(View.LOGIN)}>Go to Login</Button>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Test Page (Original functionality) */}
-        {currentView === View.LOCAL_MAPPINGS && (
+        {currentView === View.MY_MAPPINGS && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold">Local Profiles</h1>
