@@ -28,6 +28,7 @@
     "types": ["electron-vite/node"],
     "baseUrl": ".",
     "paths": {
+      "@renderer/*": ["./src/renderer/src/*"],
       "@/*": ["./src/renderer/src/*"]
     } // Type definitions for both Node.js and Electron
   },
