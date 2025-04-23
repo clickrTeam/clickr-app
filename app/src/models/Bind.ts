@@ -3,7 +3,7 @@ export enum BindType {
   PressKey = 'press_key',
   ReleaseKey = 'release_key',
   TapKey = 'tap_key',
-  SwapLayer = 'swap_layer',
+  SwitchLayer = 'switch_layer',
 
 
   // Not handled by Daemon
@@ -312,30 +312,30 @@ export class Repeat_Bind extends Bind {
  * Swaps to a different layer such that new triggers and binds are accessible.
  */
 export class SwapLayer extends Bind {
-  layer_num: number
+  layer_number: number
 
   constructor(layer_num: number) {
-    super(BindType.SwapLayer)
-    this.layer_num = layer_num
+    super(BindType.SwitchLayer)
+    this.layer_number = layer_num
   }
 
   toJSON(): object {
     return {
-      type: BindType.SwapLayer,
-      layer_num: this.layer_num
+      type: BindType.SwitchLayer,
+      value: this.layer_number
     }
   }
 
-  static fromJSON(obj: { layer_num: number }): SwapLayer {
-    return new SwapLayer(obj.layer_num)
+  static fromJSON(obj: { value: number }): SwapLayer {
+    return new SwapLayer(obj.value)
   }
 
   equals(other: Bind): boolean {
-    return other instanceof SwapLayer && this.layer_num === other.layer_num
+    return other instanceof SwapLayer && this.layer_number === other.layer_number
   }
 
   toString(): string {
-    return `Swap Layer: ${this.layer_num}`
+    return `Swap Layer: ${this.layer_number}`
 
   }
 }
@@ -389,7 +389,7 @@ export function deserializeBind(obj: any): Bind {
       return TimedMacro_Bind.fromJSON(obj)
     case BindType.Repeat:
       return Repeat_Bind.fromJSON(obj)
-    case BindType.SwapLayer:
+    case BindType.SwitchLayer:
       return SwapLayer.fromJSON(obj)
     case BindType.AppOpen:
       return AppOpen_Bind.fromJSON(obj)
