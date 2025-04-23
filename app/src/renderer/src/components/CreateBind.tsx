@@ -54,13 +54,13 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps) {
             <SelectItem value={BindType.PressKey}>Press Key</SelectItem>
             <SelectItem value={BindType.ReleaseKey}>Release Key</SelectItem>
             <SelectItem value={BindType.TapKey}>Tap Key</SelectItem>
-            <SelectItem value={BindType.SwapLayer}>Change Layer</SelectItem>
+            <SelectItem value={BindType.SwitchLayer}>Change Layer</SelectItem>
           </SelectContent>
         </Select>
 
 
         {/* Single key input for press/release */}
-        {type && type !== BindType.SwapLayer && (
+        {type && type !== BindType.SwitchLayer && (
           <KeySelecter
             selectedKey={bindValue}
             onSelect={handleSingleKeyChange}
@@ -68,7 +68,7 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps) {
         )}
 
         {/* Sequence builder for taps */}
-        {type && type === BindType.SwapLayer && (
+        {type && type === BindType.SwitchLayer && (
           <Input
             type="number"
             placeholder="Layer number"

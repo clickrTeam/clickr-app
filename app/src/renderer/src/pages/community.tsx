@@ -43,7 +43,6 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
       setIsLoading(true)
       // Use the IPC bridge instead of direct API call
       const data = await window.api.fetchCommunityMappings()
-      console.log(data)
       setMappings(data)
       updateLastEdited()
     } catch (err) {
