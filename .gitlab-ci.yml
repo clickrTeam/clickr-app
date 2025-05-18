@@ -6,7 +6,7 @@ deploy_production:
         - website/**/*
   script:
     - npm install --global vercel
-    - npm install
+    - npm install --global vite
     - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
     - vercel build --prod --token=$VERCEL_TOKEN
     - vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
