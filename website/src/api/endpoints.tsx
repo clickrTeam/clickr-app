@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "clickr-backend-production.up.railway.app/api/";
+const BASE_URL = "https://clickr-backend-production.up.railway.app/api/";
 
 const api = axios.create({
   baseURL: BASE_URL,
