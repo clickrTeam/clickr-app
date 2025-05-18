@@ -3,8 +3,6 @@ default:
 
 deploy_production:
   stage: deploy
-  only:
-    - main
   rules:
     - changes:
         - website/**/*
