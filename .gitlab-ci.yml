@@ -3,10 +3,9 @@ default:
 
 deploy_preview:
   stage: deploy
-  except:
-    - main
   rules:
-    - changes:
+    - if: $CI_COMMIT_BRANCH != "main"
+      changes:
         - website/**/*
   script:
     - npm install --global vercel
@@ -16,10 +15,9 @@ deploy_preview:
 
 deploy_production:
   stage: deploy
-  only:
-    - main
   rules:
-    - changes:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
         - website/**/*
   script:
     - npm install --global vercel
