@@ -41,7 +41,7 @@ const NotFound = () => {
       <div className="text-center">
         <div className="w-32 h-32 mx-auto mb-6">
           <img
-            src="/gifs/engineer.gif"
+            src="/gifs/under-constuction.gif"
             alt="Page under construction"
             className="w-full h-full object-contain mix-blend-multiply"
           />
