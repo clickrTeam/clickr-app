@@ -13,6 +13,9 @@ asarUnpack:
   - resources/**
 win:
   executableName: clickr
+  extraResources:
+  - from: ../../deployment/keybinder
+    to: keybinder
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
