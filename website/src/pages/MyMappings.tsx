@@ -69,6 +69,7 @@ const MyMappings = () => {
 
   const [newMappingName, setNewMappingName] = useState("");
   const [newMappingDesc, setNewMappingDesc] = useState("");
+  const [newMappingTags, setNewMappingTags] = useState<string[]>([]);
   const [newMappingJson, setNewMappingJson] = useState("");
 
   const [isLoading, setIsLoading] = useState(true);
@@ -152,8 +153,12 @@ const MyMappings = () => {
         description: newMappingDesc,
         mappings: parsedMappings,
         isActive: false,
+        is_public: false,
+        num_likes: 0,
+        num_downloads: 0,
+        tags: newMappingTags,
       };
-
+      console.log(mappingData);
       const response = await create_new_mapping(username, mappingData);
       await fetchMappings(); // Refresh the mappings list
 
@@ -165,7 +170,6 @@ const MyMappings = () => {
       console.error("Failed to create mapping:", error);
     }
   };
-  // ... existing code ...
 
   const handleDeleteMapping = async (id: string) => {
     try {
@@ -240,6 +244,22 @@ const MyMappings = () => {
                       className="col-span-3"
                       value={newMappingDesc}
                       onChange={(e) => setNewMappingDesc(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="description" className="text-right">
+                      Tags
+                    </Label>
+                    <Input
+                      id="tags"
+                      placeholder="Enter tags separated by commas"
+                      className="col-span-3"
+                      value={newMappingTags}
+                      onChange={(e) =>
+                        setNewMappingTags(
+                          e.target.value.split(",").map((tag) => tag.trim())
+                        )
+                      }
                     />
                   </div>
                 </div>
