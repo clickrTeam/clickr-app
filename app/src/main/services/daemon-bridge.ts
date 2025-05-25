@@ -1,18 +1,16 @@
-import path from "path";
+import path from 'path'
 import * as os from 'os'
 import * as net from 'net'
-import { Profile } from "../../models/Profile";
+import { Profile } from '../../models/Profile'
 
 // Path to the socket which is based on the OS
-const SOCKET_PATH = process.platform === 'win32'
-  ? `\\\\.\\pipe\\clickr`
-  : path.join(os.tmpdir(), 'clickr.sock');
-
+const SOCKET_PATH =
+  process.platform === 'win32' ? `\\\\.\\pipe\\clickr` : path.join(os.tmpdir(), 'clickr.sock')
 
 type DaemonReponse = {
-  status: string,
-  error?: string,
-};
+  status: string
+  error?: string
+}
 
 /**
  * Sends a profile to the daemon to be loaded as the active profile.
@@ -21,9 +19,9 @@ type DaemonReponse = {
  */
 export function sendActiveProfile(profile: Profile): Promise<DaemonReponse> {
   return sendMessage({
-    type: "load_profile",
+    type: 'load_profile',
     profile: profile
-  });
+  })
 }
 
 /**
@@ -50,7 +48,7 @@ function sendMessage(message: object): Promise<DaemonReponse> {
         try {
           const parsed: DaemonReponse = JSON.parse(line)
           resolve(parsed)
-        } catch (err) {
+        } catch {
           reject(new Error('Failed to parse response from daemon'))
         } finally {
           client.end()

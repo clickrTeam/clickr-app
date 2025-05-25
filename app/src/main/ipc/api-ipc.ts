@@ -8,7 +8,7 @@ const api = axios.create({
   withCredentials: true
 })
 
-export function registerApiHandlers() {
+export function registerApiHandlers(): void {
   // Community mappings
   ipcMain.handle('fetch-community-mappings', async () => {
     try {
@@ -34,14 +34,14 @@ export function registerApiHandlers() {
   // Create mapping
   ipcMain.handle('create-mapping', async (_, username: string, mappingData: any) => {
     //TODO: Temparary hack
-    let entireMapping = {
+    const entireMapping = {
       name: mappingData.profile_name,
-      description: "TODO",
+      description: 'TODO',
       mappings: mappingData,
       isActive: false,
       is_public: true,
       num_likes: 0,
-      num_downloads: 0,
+      num_downloads: 0
     }
 
     try {
