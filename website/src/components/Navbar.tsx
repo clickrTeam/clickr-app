@@ -6,12 +6,29 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { get_user_mappings } from "@/api/endpoints";
 import { useAuth } from "@/contexts/AuthContext";
+// Define the type for the detected operating system
+type OperatingSystem = "windows" | "macos" | "linux" | "unknown";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [detectedOS, setDetectedOS] = useState<OperatingSystem>("unknown");
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
+
+  useEffect(() => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+
+    if (userAgent.includes("win")) {
+      setDetectedOS("windows");
+    } else if (userAgent.includes("mac")) {
+      setDetectedOS("macos");
+    } else if (userAgent.includes("linux")) {
+      setDetectedOS("linux");
+    } else {
+      setDetectedOS("unknown");
+    }
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,30 +49,41 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  const handleDownloadJSON = async () => {
-    try {
-      const username = "bode";
-      const mappingsData = await get_user_mappings(username);
+  const getDownloadLink = () => {
+    switch (detectedOS) {
+      case "windows":
+        return "/downloads/clickr-app-win.txt";
+      case "macos":
+        return "/downloads/clickr-app-mac.txt";
+      case "linux":
+        return "/downloads/clickr-app-linux.txt";
+      default:
+        return "/downloads/clickr-app-mac.txt";
+    }
+  };
+  const getDownloadFilename = () => {
+    switch (detectedOS) {
+      case "windows":
+        return "clickr-app-win.txt";
+      case "macos":
+        return "clickr-app-mac.txt";
+      case "linux":
+        return "clickr-app-linux.txt";
+      default:
+        return "clickr-app.txt";
+    }
+  };
 
-      // Create a Blob with the JSON data
-      const blob = new Blob([JSON.stringify(mappingsData, null, 2)], {
-        type: "application/json",
-      });
-
-      // Create a download link and trigger the download
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${username}-mappings.json`;
-      document.body.appendChild(a);
-      a.click();
-
-      // Clean up
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading mappings:", error);
-      alert("Failed to download mappings");
+  const getDownloadButtonText = () => {
+    switch (detectedOS) {
+      case "windows":
+        return "Download for Windows";
+      case "macos":
+        return "Download for macOS";
+      case "linux":
+        return "Download for Linux";
+      default:
+        return "Download App";
     }
   };
 
@@ -63,7 +91,6 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Community", path: "/community" },
     { name: "My Mappings", path: "/my-mappings" },
-    // { name: "Get JSON", onClick: handleDownloadJSON },
   ];
 
   const isActive = (path: string) => {
@@ -124,10 +151,14 @@ const Navbar = () => {
                 className="flex items-center gap-2"
                 asChild
               >
-                <Link to="/download">
+                <a
+                  href={getDownloadLink()}
+                  download={getDownloadFilename()}
+                  className="flex items-center gap-2"
+                >
                   <Download size={18} />
-                  <span>Download</span>
-                </Link>
+                  <span>{getDownloadButtonText()}</span>
+                </a>
               </Button>
 
               <Button className="flex items-center gap-2" asChild>
@@ -154,10 +185,14 @@ const Navbar = () => {
                 className="flex items-center gap-2 bg-gradient-to-r from-indigo-700 to-clickr-blue text-white"
                 asChild
               >
-                <Link to="/download">
+                <a
+                  href={getDownloadLink()}
+                  download={getDownloadFilename()}
+                  className="flex items-center gap-2"
+                >
                   <Download size={18} />
-                  <span>Download App</span>
-                </Link>
+                  <span>{getDownloadButtonText()}</span>
+                </a>
               </Button>
 
               <Button
@@ -207,11 +242,11 @@ const Navbar = () => {
               ))}
 
               <Link
-                to="/download"
+                to={getDownloadLink()}
                 className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue"
               >
                 <Download size={18} />
-                <span>Download</span>
+                <span>{getDownloadButtonText()}</span>
               </Link>
 
               <Link
