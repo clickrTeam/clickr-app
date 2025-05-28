@@ -3,9 +3,9 @@ import { profileStore } from '../services/profile-store'
 import { Profile } from '../../models/Profile'
 import { sendActiveProfile } from '../services/daemon-bridge'
 
-export function registerProfileHandlers() {
+export function registerProfileHandlers(): void {
   ipcMain.handle('get-profiles', () => {
-    return profileStore.getProfiles().map(p => p.toJSON())
+    return profileStore.getProfiles().map((p) => p.toJSON())
   })
 
   ipcMain.handle('get-active-profile', () => {

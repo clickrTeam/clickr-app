@@ -1,36 +1,38 @@
-import { useState } from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { Input } from "./ui/input"
-import { Bind, BindType, PressKey, ReleaseKey, TapKey, SwapLayer } from "../../../models/Bind"
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-import KeySelecter from "./KeySelector"
+import { useState } from 'react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
+import { Input } from './ui/input'
+import { Bind, BindType, PressKey, ReleaseKey, TapKey, SwapLayer } from '../../../models/Bind'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import KeySelecter from './KeySelector'
 
 interface BindSelectorProps {
-  maxLayer: number,
-  onBindSelected: (bind: Bind) => void,
+  maxLayer: number
+  onBindSelected: (bind: Bind) => void
 }
 
-export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps) {
+export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): JSX.Element {
   const [type, setType] = useState<BindType | null>(null)
   const [bindValue, setBindValue] = useState<string>('')
 
-  const handleSingleKeyChange = (key: string) => {
+  const handleSingleKeyChange = (key: string): void => {
     setBindValue(key)
 
-    if (!type || (type !== BindType.PressKey && type !== BindType.ReleaseKey
-      && type !== BindType.TapKey))
+    if (
+      !type ||
+      (type !== BindType.PressKey && type !== BindType.ReleaseKey && type !== BindType.TapKey)
+    )
       return
 
     const newBind = {
       [BindType.PressKey]: new PressKey(key),
       [BindType.ReleaseKey]: new ReleaseKey(key),
-      [BindType.TapKey]: new TapKey(key),
+      [BindType.TapKey]: new TapKey(key)
     }[type]
 
     if (newBind) onBindSelected(newBind)
   }
 
-  const handleLayerChange = (newLayer: number) => {
+  const handleLayerChange = (newLayer: number): void => {
     setBindValue(newLayer.toString())
     onBindSelected(new SwapLayer(newLayer))
   }
@@ -46,7 +48,8 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps) {
           onValueChange={(type: BindType) => {
             setBindValue('')
             setType(type)
-          }}>
+          }}
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select bind type" />
           </SelectTrigger>
@@ -58,13 +61,9 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps) {
           </SelectContent>
         </Select>
 
-
         {/* Single key input for press/release */}
         {type && type !== BindType.SwitchLayer && (
-          <KeySelecter
-            selectedKey={bindValue}
-            onSelect={handleSingleKeyChange}
-          />
+          <KeySelecter selectedKey={bindValue} onSelect={handleSingleKeyChange} />
         )}
 
         {/* Sequence builder for taps */}
@@ -74,12 +73,10 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps) {
             placeholder="Layer number"
             min={0}
             max={maxLayer}
-            onChange={(e) =>
-              handleLayerChange(Number(e.target.value))
-            }
+            onChange={(e) => handleLayerChange(Number(e.target.value))}
           />
         )}
       </CardContent>
-    </Card >
+    </Card>
   )
 }

@@ -43,6 +43,7 @@ export const create_new_mapping = async (
     is_public: boolean;
     num_likes: number;
     num_downloads: number;
+    tags: string[];
   }
 ) => {
   const response = await api.post(

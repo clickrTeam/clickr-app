@@ -20,15 +20,15 @@ function ensureDataFile(): void {
   }
 }
 
-let profiles: Profiles | undefined = undefined;
+let profiles: Profiles | undefined = undefined
 // Read and parse the data file
 function getProfiles(): Profiles {
   ensureDataFile()
   if (profiles == undefined) {
     const raw = fs.readFileSync(dataFilePath, 'utf-8')
-    let json = JSON.parse(raw);
-    json.profiles = json.profiles.map(Profile.fromJSON);  // Update profiles array with parsed profiles
-    profiles = json;
+    const json = JSON.parse(raw)
+    json.profiles = json.profiles.map(Profile.fromJSON) // Update profiles array with parsed profiles
+    profiles = json
   }
 
   return profiles as Profiles
@@ -39,27 +39,26 @@ function writeProfiles(): void {
   fs.writeFileSync(dataFilePath, JSON.stringify(getProfiles(), null, 2), 'utf-8')
 }
 
-
 export const profileStore = {
   /**
    * Get all profiles stored in the app data file
    */
   getProfiles(): Profile[] {
-    return getProfiles().profiles;
+    return getProfiles().profiles
   },
 
   /**
    * Get the currently active profile, if any
    */
   getActive(): number | undefined {
-    return getProfiles().activeProfileIndex;
+    return getProfiles().activeProfileIndex
   },
 
   /**
    * Create a new profile with the given name and store it.
    * This new profile will always be stored at the end of the list
    */
-  create(name: string) {
+  create(name: string): number {
     const data = getProfiles()
     const newProfile = new Profile(name)
     data.profiles.push(newProfile)
@@ -78,19 +77,17 @@ export const profileStore = {
     }
   },
 
-  setProfileByIndex(index: number, newProfile: Profile) {
+  setProfileByIndex(index: number, newProfile: Profile): void {
     const data = getProfiles()
-    if (index < 0 || index >= data.profiles.length)
-      return
+    if (index < 0 || index >= data.profiles.length) return
 
     data.profiles[index] = newProfile
     writeProfiles()
   },
 
-  deleteProfileByIndex(index: number) {
+  deleteProfileByIndex(index: number): void {
     const data = getProfiles()
-    if (index < 0 || index >= data.profiles.length)
-      return
+    if (index < 0 || index >= data.profiles.length) return
     if (data.activeProfileIndex != undefined) {
       if (index == data.activeProfileIndex) {
         data.activeProfileIndex = undefined
