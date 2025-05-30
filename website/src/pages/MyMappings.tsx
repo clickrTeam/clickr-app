@@ -43,7 +43,6 @@ import {
   delete_mapping,
 } from "@/api/endpoints";
 import { useAuth } from "@/contexts/AuthContext";
-import { boolean } from "zod";
 
 type Mapping = {
   id: string;
@@ -75,8 +74,7 @@ const MyMappings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const username = user?.username || "bode"; // Fallback to 'bode' if user is null FOR TESTING ONLY
-  //TODO: Remove this fallback
+  const username = user?.username;
 
   useEffect(() => {
     fetchMappings();
@@ -122,6 +120,7 @@ const MyMappings = () => {
       setIsLoading(true);
       const data = await get_user_mappings(username);
       console.log(data);
+      localStorage.setItem("mappings", JSON.stringify(data));
       setMappings(data);
       updateMappingCounts();
       updateLastEdited();
