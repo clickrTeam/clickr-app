@@ -38,7 +38,11 @@ type Layer = {
   remappings: Remapping[];
 };
 
-// ... other imports remain the same
+type MappingLayers = {
+  layers: Layer[];
+  layer_count: number;
+  profile_name: string;
+};
 
 // Update the types to match the actual data structure
 type MappingDetails = {
@@ -46,7 +50,7 @@ type MappingDetails = {
   user: string;
   name: string;
   description: string;
-  mappings: Record<string, string>; // This matches the actual data structure
+  mappings: MappingLayers; // This matches the actual data structure
   updated_at: string;
   lastEdited: string;
   keyCount: number;
@@ -59,22 +63,22 @@ type MappingDetails = {
 
 const MappingDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [mapping, setMapping] = useState<MappingDetails | undefined>(undefined);
+  const [mapping, setMapping] = useState<MappingDetails>();
   const [isLoading, setIsLoading] = useState(true);
-
+  const [remappings, setRemappings] = useState<Layer[]>([]);
   useEffect(() => {
     const fetchMapping = async () => {
       try {
         // Get the mapping from localStorage
         const storedMappings = localStorage.getItem("mappings");
         if (storedMappings) {
-          const mappings = JSON.parse(storedMappings);
-          console.log(mappings);
-          const foundMapping = mappings.find(
+          const parsedMappings = JSON.parse(storedMappings);
+          const foundMapping = parsedMappings.find(
             (m: MappingDetails) => m.id.toString() === id
           );
-          console.log(foundMapping.mappings);
-          setMapping(foundMapping.mappings);
+          setMapping(foundMapping);
+          // Set remappings to the layers array
+          setRemappings(foundMapping?.mappings?.layers || []);
         }
       } catch (error) {
         console.error("Error fetching mapping:", error);
@@ -127,9 +131,11 @@ const MappingDetail = () => {
     );
   }
 
-  // Convert mappings object to array of entries
-  const mappingEntries = Object.entries(mapping.mappings || {});
-  console.log(mappingEntries);
+  // // Convert mappings object to array of entries
+  // const mappingEntries = Object.entries(remappings[0] || {});
+  // console.log(mapping);
+  // console.log(remappings);
+  // console.log(mappingEntries);
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -152,17 +158,7 @@ const MappingDetail = () => {
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-3xl font-bold">{mapping.name}</h1>
-                  {mapping.isActive && (
-                    <Badge
-                      variant="outline"
-                      className="bg-green-50 text-green-700 border-green-200"
-                    >
-                      Active
-                    </Badge>
-                  )}
-                </div>
+                <h1 className="text-2xl font-bold pb-1">{mapping.name}</h1>
                 <p className="text-muted-foreground">{mapping.description}</p>
                 <p className="text-sm text-muted-foreground mt-1">
                   Last edited: {mapping.lastEdited}
@@ -191,53 +187,77 @@ const MappingDetail = () => {
                 <Keyboard size={20} />
                 <h2 className="text-xl font-semibold">Key Mappings</h2>
                 <Badge variant="secondary">
-                  {mappingEntries.length}{" "}
-                  {mappingEntries.length === 1 ? "mapping" : "mappings"}
+                  {remappings.reduce(
+                    (acc, layer) => acc + layer.remappings.length,
+                    0
+                  )}{" "}
+                  mappings
                 </Badge>
               </div>
-
-              <div className="border rounded-md overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-muted/50">
-                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">
-                        Source Key
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">
-                        Target Key
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {mappingEntries.map(([sourceKey, targetKey], index) => (
-                      <motion.tr
-                        key={index}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.1 * index }}
-                        className="hover:bg-muted/30"
-                      >
-                        <td className="py-3 px-4">
-                          <Badge
-                            variant="outline"
-                            className="font-mono text-xs"
+              {remappings.map((layer, layerIdx) => (
+                <div key={layer.layer_number} className="mb-6">
+                  <div className="font-bold mb-2 flex items-center gap-2">
+                    <Layers size={16} /> {layer.layer_name}
+                    <Badge variant="outline">Layer {layer.layer_number}</Badge>
+                  </div>
+                  <div className="border rounded-md overflow-hidden">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-muted/50">
+                          <th className="text-left py-3 px-4 font-medium text-muted-foreground">
+                            Trigger
+                          </th>
+                          <th className="text-left py-3 px-4 font-medium text-muted-foreground">
+                            Bind
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {layer.remappings.map((remap, remapIdx) => (
+                          <motion.tr
+                            key={remapIdx}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{
+                              duration: 0.3,
+                              delay: 0.05 * remapIdx,
+                            }}
+                            className="hover:bg-muted/30"
                           >
-                            {sourceKey}
-                          </Badge>
-                        </td>
-                        <td className="py-3 px-4">
-                          <Badge
-                            variant="outline"
-                            className="font-mono text-xs"
-                          >
-                            {targetKey}
-                          </Badge>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                            <td className="py-3 px-4">
+                              <Badge
+                                variant="outline"
+                                className="font-mono text-xs"
+                              >
+                                {remap.trigger.type}
+                                {remap.trigger.value
+                                  ? `: ${remap.trigger.value}`
+                                  : ""}
+                                {remap.trigger.key_time_pairs
+                                  ? `: ${remap.trigger.key_time_pairs
+                                      .map(([k, t]) => `${k} (${t}ms)`)
+                                      .join(", ")}`
+                                  : ""}
+                              </Badge>
+                            </td>
+                            <td className="py-3 px-4">
+                              <Badge
+                                variant="outline"
+                                className="font-mono text-xs"
+                              >
+                                {remap.bind.type}
+                                {remap.bind.value
+                                  ? `: ${remap.bind.value}`
+                                  : ""}
+                              </Badge>
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
             </CardContent>
           </Card>
         </motion.div>
