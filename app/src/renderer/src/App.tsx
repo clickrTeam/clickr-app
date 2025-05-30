@@ -12,7 +12,7 @@ export enum View {
   HOME = 'HOME',
   COMMUNITY = 'COMMUNITY',
   MY_MAPPINGS = 'MY_MAPPINGS',
-  LOGIN = 'LOGIN',
+  LOGIN = 'LOGIN'
 }
 
 function App(): JSX.Element {
@@ -82,7 +82,8 @@ function App(): JSX.Element {
                 size="lg"
                 variant="outline"
                 className="border-cyan-600 text-black hover:bg-cyan-700 px-8"
-                onClick={() => setCurrentView(View.MY_MAPPINGS)}>
+                onClick={() => setCurrentView(View.MY_MAPPINGS)}
+              >
                 My Mappins
               </Button>
             </div>
@@ -121,14 +122,15 @@ function App(): JSX.Element {
         )}
 
         {/* Community Screen Placeholder */}
-        {currentView === View.COMMUNITY &&
+        {currentView === View.COMMUNITY && (
           <Community
             onDownload={async (newProfile: Profile) => {
-              let newProfileIndex = await window.api.createProfile(newProfile.profile_name)
+              const newProfileIndex = await window.api.createProfile(newProfile.profile_name)
               window.api.updateProfile(newProfileIndex, newProfile)
               updateProfiles()
             }}
-          />}
+          />
+        )}
 
         {/* My Mappings Screen Placeholder */}
         {/* Test Page (Original functionality) */}
@@ -140,9 +142,7 @@ function App(): JSX.Element {
                 <Button variant="outline" onClick={() => setCurrentView(View.HOME)}>
                   Back to Home
                 </Button>
-                <Button onClick={() => setIsCreatingProfile(true)}>
-                  New Profile
-                </Button>
+                <Button onClick={() => setIsCreatingProfile(true)}>New Profile</Button>
               </div>
             </div>
 
@@ -150,10 +150,10 @@ function App(): JSX.Element {
               <ProfileEditor
                 profile={profiles[editedProfileIndex]}
                 onSave={(updatedProfile: Profile) => {
-                  console.log("here", updatedProfile)
-                  window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON());
-                  updateProfiles();
-                  setEditedProfileIndex(null);
+                  console.log('here', updatedProfile)
+                  window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON())
+                  updateProfiles()
+                  setEditedProfileIndex(null)
                 }}
                 onBack={() => setEditedProfileIndex(null)}
               />
@@ -169,9 +169,7 @@ function App(): JSX.Element {
                       <Card key={index}>
                         <div className="flex items-center justify-between p-4">
                           <div className="space-y-1">
-                            <h3 className="text-lg font-semibold">
-                              {profile.profile_name}
-                            </h3>
+                            <h3 className="text-lg font-semibold">{profile.profile_name}</h3>
                             <p className="text-sm text-muted-foreground">
                               {profile.layer_count} layers
                             </p>
@@ -187,8 +185,8 @@ function App(): JSX.Element {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
-                                  window.api.setActiveProfile(index);
-                                  updateProfiles();
+                                  window.api.setActiveProfile(index)
+                                  updateProfiles()
                                 }}
                               >
                                 Set Active
@@ -205,8 +203,8 @@ function App(): JSX.Element {
                               variant="secondary"
                               size="sm"
                               onClick={() => {
-                                window.api.createMapping("TEST_USER", profile.toJSON());
-                                updateProfiles();
+                                window.api.createMapping('TEST_USER', profile.toJSON())
+                                updateProfiles()
                               }}
                             >
                               Upload
@@ -216,13 +214,12 @@ function App(): JSX.Element {
                               variant="destructive"
                               size="sm"
                               onClick={() => {
-                                window.api.deleteProfile(index);
-                                updateProfiles();
+                                window.api.deleteProfile(index)
+                                updateProfiles()
                               }}
                             >
                               Delete
                             </Button>
-
                           </div>
                         </div>
                       </Card>
@@ -236,15 +233,15 @@ function App(): JSX.Element {
               isOpen={isCreatingProfile}
               onCancel={() => setIsCreatingProfile(false)}
               onCreate={(name, _desc) => {
-                window.api.createProfile(name);
-                updateProfiles();
-                setIsCreatingProfile(false);
+                window.api.createProfile(name)
+                updateProfiles()
+                setIsCreatingProfile(false)
               }}
             />
           </div>
         )}
       </div>
-    </div >
+    </div>
   )
 }
 

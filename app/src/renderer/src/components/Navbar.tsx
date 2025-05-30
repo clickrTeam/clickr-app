@@ -4,7 +4,6 @@ import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
 import { View } from '../App'
 
-
 interface NavbarProps {
   currentView: View
   setCurrentView: (view: View) => void

@@ -1,7 +1,12 @@
 import { Layer } from '../../../models/Layer'
 import { Button } from './ui/button'
 import { Card, CardHeader, CardContent } from './ui/card'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from './ui/dropdown-menu'
 import CreateMappingDialog from './CreateModification'
 import { useState } from 'react'
 import { Input } from './ui/input'
@@ -9,8 +14,8 @@ import { Trigger } from '../../../models/Trigger'
 import { Bind } from '../../../models/Bind'
 
 interface LayerComponentProps {
-  layer: Layer,
-  maxLayer: number,
+  layer: Layer
+  maxLayer: number
   onUpdate: (updatedLayer: Layer) => void
 }
 
@@ -37,14 +42,16 @@ export const LayerComponent = ({ layer, maxLayer, onUpdate }: LayerComponentProp
           <Input
             value={layer.layer_name}
             onChange={(e) => {
-              const newLayer = new Layer(e.target.value, layer.layer_number, new Map(layer.remappings))
+              const newLayer = new Layer(
+                e.target.value,
+                layer.layer_number,
+                new Map(layer.remappings)
+              )
               onUpdate(newLayer)
             }}
             className="w-48"
           />
-          <span className="text-sm text-muted-foreground">
-            Layer {layer.layer_number}
-          </span>
+          <span className="text-sm text-muted-foreground">Layer {layer.layer_number}</span>
         </div>
         <Button size="sm" onClick={() => setIsDialogOpen(true)}>
           Add Mapping

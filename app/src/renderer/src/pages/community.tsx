@@ -199,7 +199,12 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
                       <span>{mapping.numLikes ?? 0}</span>
                     </Button>
 
-                    <Button size="sm" variant="ghost" className="flex items-center gap-1" onClick={() => onDownload(mapping.mappings)}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="flex items-center gap-1"
+                      onClick={() => onDownload(mapping.mappings)}
+                    >
                       <Download size={16} />
                       <span>{mapping.numDownloads ?? 0}</span>
                     </Button>
@@ -215,7 +220,7 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
           ))}
         </motion.div>
       </div>
-    </div >
+    </div>
   )
 }
 
