@@ -49,10 +49,12 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+
+  const WIN_DOWNLOAD: string = "clickr-1.0.0-setup.exe";
   const getDownloadLink = () => {
     switch (detectedOS) {
       case "windows":
-        return "/downloads/clickr-app-win.txt";
+        return `/downloads/${WIN_DOWNLOAD}`;
       case "macos":
         return "/downloads/clickr-app-mac.txt";
       case "linux":
@@ -64,7 +66,7 @@ const Navbar = () => {
   const getDownloadFilename = () => {
     switch (detectedOS) {
       case "windows":
-        return "clickr-app-win.txt";
+        return WIN_DOWNLOAD;
       case "macos":
         return "clickr-app-mac.txt";
       case "linux":
