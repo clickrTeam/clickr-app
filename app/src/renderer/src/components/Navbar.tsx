@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { LogIn, LogOut, Home, Users, Layers } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'

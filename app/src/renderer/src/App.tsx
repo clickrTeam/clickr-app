@@ -93,9 +93,7 @@ function App(): JSX.Element {
         )}
 
         {/* DAEMON Screen Placeholder */}
-        {currentView === View.DAEMON && (
-          <Daemon/>
-        )}
+        {currentView === View.DAEMON && <Daemon />}
 
         {/* Login Screen */}
         {currentView === View.LOGIN && (

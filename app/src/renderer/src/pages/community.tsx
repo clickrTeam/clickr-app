@@ -95,6 +95,8 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
   }
 
   const filteredMappings = mappings.filter((mapping) => {
+    if (isLoading) console.log('Loading mappings...')
+    if (error) console.error('Error fetching mappings:', error)
     if (searchQuery) {
       return (
         mapping.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -40,19 +40,20 @@ export const isKeybinderRunning = (): Promise<unknown> => {
 
 export const runKeybinder = (): void => {
   console.log('Running keybinder...')
-  const command =
-    path.join(
-      'C:',
-      'Users',
-      'Lukew',
-      'OneDrive',
-      'Desktop',
-      'Qt',
-      'clickr-deployment',
-      'bin',
-      'keybinder',
-      'keybinder.exe'
-    ) + ' ./startup.json'
+  // const command =
+  //   path.join(
+  //     'C:',
+  //     'Users',
+  //     'Lukew',
+  //     'OneDrive',
+  //     'Desktop',
+  //     'Qt',
+  //     'clickr-deployment',
+  //     'bin',
+  //     'keybinder',
+  //     'keybinder.exe'
+  //   ) + ' ./startup.json'
+  const command = path.join(__dirname, 'resources', 'keybinder', 'keybinder.exe')
 
   console.log(`Command to run: ${command}`)
   const ls = spawn(command, {

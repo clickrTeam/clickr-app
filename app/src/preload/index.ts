@@ -54,7 +54,7 @@ const api: API = {
   },
   stopKeybinder: function (): Promise<void> {
     return ipcRenderer.invoke('stop-keybinder')
-  },
+  }
 }
 
 // Corrected check for context isolation
