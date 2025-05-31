@@ -4,12 +4,14 @@ import { Button } from './components/ui/button'
 import Navbar from './components/Navbar'
 import NewProfileDialog from './components/NewProfileDialog'
 import Community from './pages/community'
+import Daemon from './pages/deamon'
 import { ProfileEditor } from './components/ProfileEditor'
 import { Card } from './components/ui/card'
 
 // Enum to represent different views/screens
 export enum View {
   HOME = 'HOME',
+  DAEMON = 'DAEMON',
   COMMUNITY = 'COMMUNITY',
   MY_MAPPINGS = 'MY_MAPPINGS',
   LOGIN = 'LOGIN'
@@ -88,6 +90,11 @@ function App(): JSX.Element {
               </Button>
             </div>
           </div>
+        )}
+
+        {/* DAEMON Screen Placeholder */}
+        {currentView === View.DAEMON && (
+          <Daemon/>
         )}
 
         {/* Login Screen */}
