@@ -43,7 +43,18 @@ const api: API = {
   },
   register: function (username: string, email: string, password: string): Promise<any> {
     return ipcRenderer.invoke('register', username, email, password)
-  }
+  },
+
+  // Deamon Manager methods
+  isKeybinderRunning: function (): Promise<boolean> {
+    return ipcRenderer.invoke('is-keybinder-running')
+  },
+  runKeybinder: function (): Promise<void> {
+    return ipcRenderer.invoke('run-keybinder')
+  },
+  stopKeybinder: function (): Promise<void> {
+    return ipcRenderer.invoke('stop-keybinder')
+  },
 }
 
 // Corrected check for context isolation

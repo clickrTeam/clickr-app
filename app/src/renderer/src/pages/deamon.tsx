@@ -20,24 +20,33 @@ const Daemon = (): JSX.Element => {
               id="is-running-button"
               key="isRun"
               size="sm"
-              // onClick={() =>
-              //   isKeybinderRunning().then((isRun) => {
-              //     if (isRun) {
-              //       console.log('Keybinder is running')
-              //     } else {
-              //       console.log('Keybinder is running')
-              //     }
-              //   })
-              // }
+              onClick={
+                () =>
+                  window.api.isKeybinderRunning().then((isRun) => {
+                    if (isRun) {
+                      console.log('Keybinder is running')
+                    } else {
+                      console.log('Keybinder is not running')
+                    }
+                  })
+                // isKeybinderRunning().then((isRun) => {
+                //   if (isRun) {
+                //     console.log('Keybinder is running')
+                //   } else {
+                //     console.log('Keybinder is running')
+                //   }
+                // })
+              }
             >
               isRun
             </Button>
-            <Button key="runKeybinder" size="sm" onClick={() => runKeybinder()}>
+            <Button key="runKeybinder" size="sm" onClick={() => window.api.runKeybinder()}>
               runKeybinder
             </Button>
-            <Button key="stopKeybinder" size="sm" onClick={() => stopKeybinder()}>
+            <Button key="stopKeybinder" size="sm" onClick={() => window.api.stopKeybinder()}>
               stopKeybinder
             </Button>
+            
           </div>
         </motion.div>
       </div>

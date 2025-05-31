@@ -3,7 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerProfileHandlers } from './ipc/profile-ipc'
 import { registerApiHandlers } from './ipc/api-ipc'
-import { isKeybinderRunning, runKeybinder, stopKeybinder } from './daemon-manager/daemon-manager'
+import { registerDeamonManagerHandlers } from './services/daemon-manager'
 
 function createWindow(): void {
   // Create the browser window.
@@ -51,6 +51,7 @@ app.whenReady().then(() => {
   })
 
   registerProfileHandlers()
+  registerDeamonManagerHandlers() // Register daemon manager handlers
   registerApiHandlers() // Register our new API handlers
   createWindow()
 
@@ -63,27 +64,27 @@ app.whenReady().then(() => {
   console.log('Starting Express server for keybinder control...')
 
   // Handle IPC messages
-  ipcMain.on('is-keybinder-running', async (event) => {
-    const isRunning = await isKeybinderRunning()
-    event.reply('is-keybinder-running', isRunning)
-  })
+  // ipcMain.on('is-keybinder-running', async (event) => {
+  //   const isRunning = await isKeybinderRunning()
+  //   event.reply('is-keybinder-running', isRunning)
+  // })
 
-  ipcMain.on('run-keybinder', () => {
-    runKeybinder()
-  })
+  // ipcMain.on('run-keybinder', () => {
+  //   runKeybinder()
+  // })
 
-  ipcMain.on('stop-keybinder', () => {
-    stopKeybinder()
-  })
+  // ipcMain.on('stop-keybinder', () => {
+  //   stopKeybinder()
+  // })
 
-  isKeybinderRunning().then((isRunning) => {
-    console.log('Keybinder running:', isRunning)
-    if (!isRunning) {
-      runKeybinder()
-    } else {
-      stopKeybinder()
-    }
-  })
+  // isKeybinderRunning().then((isRunning) => {
+  //   console.log('Keybinder running:', isRunning)
+  //   if (!isRunning) {
+  //     runKeybinder()
+  //   } else {
+  //     stopKeybinder()
+  //   }
+  // })
 })
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

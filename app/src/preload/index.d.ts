@@ -17,6 +17,11 @@ export interface API {
   setActiveMapping(username: string, mappingId: string): Promise<any>
   login(username: string, password: string): Promise<any>
   register(username: string, email: string, password: string): Promise<any>
+
+  // Daemon Manager methods
+  isKeybinderRunning(): Promise<boolean>
+  runKeybinder(): Promise<void>
+  stopKeybinder(): Promise<void>
 }
 
 declare global {

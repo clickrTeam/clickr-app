@@ -1,6 +1,23 @@
 import { spawn, exec } from 'child_process'
+import { ipcMain } from 'electron'
 import { platform } from 'os'
 import path from 'path'
+
+export function registerDeamonManagerHandlers(): void {
+  ipcMain.handle('is-keybinder-running', async () => {
+    return await isKeybinderRunning()
+  })
+
+  ipcMain.handle('run-keybinder', async () => {
+    await runKeybinder()
+    return true
+  })
+
+  ipcMain.handle('stop-keybinder', async () => {
+    await stopKeybinder()
+    return true
+  })
+}
 
 const KEYBINDER_EXE = 'keybinder.exe'
 
@@ -23,7 +40,19 @@ export const isKeybinderRunning = (): Promise<unknown> => {
 
 export const runKeybinder = (): void => {
   console.log('Running keybinder...')
-  const command = path.join('C:', 'Users', 'Lukew', 'OneDrive', 'Desktop', 'Qt', 'clickr-deployment', 'bin', 'keybinder', 'keybinder.exe') + " startup.json"
+  const command =
+    path.join(
+      'C:',
+      'Users',
+      'Lukew',
+      'OneDrive',
+      'Desktop',
+      'Qt',
+      'clickr-deployment',
+      'bin',
+      'keybinder',
+      'keybinder.exe'
+    ) + ' ./startup.json'
 
   console.log(`Command to run: ${command}`)
   const ls = spawn(command, {
@@ -31,18 +60,17 @@ export const runKeybinder = (): void => {
   })
 
   ls.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-  });
+    console.log(`stdout: ${data}`)
+  })
 
   ls.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`);
-  });
+    console.error(`stderr: ${data}`)
+  })
 
   ls.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
-  });
+    console.log(`child process exited with code ${code}`)
+  })
 }
-
 
 // export const runKeybinder = (): void => {
 //   console.log('Running keybinder...')
