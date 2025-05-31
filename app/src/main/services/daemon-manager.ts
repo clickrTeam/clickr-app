@@ -53,7 +53,8 @@ export const runKeybinder = (): void => {
   //     'keybinder',
   //     'keybinder.exe'
   //   ) + ' ./startup.json'
-  const command = path.join(__dirname, 'resources', 'keybinder', 'keybinder.exe')
+  // C:\Users\Lukew\AppData\Local\Programs\clickr\resources\app.asar\out\main\resources\keybinder\keybinder.exe
+  const command = path.join(__dirname, '../../../../', 'resources', 'keybinder', 'keybinder.exe')
 
   console.log(`Command to run: ${command}`)
   const ls = spawn(command, {
@@ -96,7 +97,7 @@ export const runKeybinder = (): void => {
 export const stopKeybinder = (): void => {
   console.log('Stopping keybinder...')
   const command =
-    platform() === 'win32' ? `taskkill /im ${KEYBINDER_EXE} /t` : `pkill -15 -f ${KEYBINDER_EXE}`
+    platform() === 'win32' ? `taskkill /im ${KEYBINDER_EXE} /t /F` : `pkill -15 -f ${KEYBINDER_EXE}`
   exec(command, (error) => {
     if (error) {
       console.error(error)
