@@ -95,6 +95,8 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
   }
 
   const filteredMappings = mappings.filter((mapping) => {
+    if (isLoading) console.log('Loading mappings...')
+    if (error) console.error('Error fetching mappings:', error)
     if (searchQuery) {
       return (
         mapping.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -199,7 +201,12 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
                       <span>{mapping.numLikes ?? 0}</span>
                     </Button>
 
-                    <Button size="sm" variant="ghost" className="flex items-center gap-1" onClick={() => onDownload(mapping.mappings)}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="flex items-center gap-1"
+                      onClick={() => onDownload(mapping.mappings)}
+                    >
                       <Download size={16} />
                       <span>{mapping.numDownloads ?? 0}</span>
                     </Button>
@@ -215,7 +222,7 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
           ))}
         </motion.div>
       </div>
-    </div >
+    </div>
   )
 }
 

@@ -15,13 +15,13 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps) =
   const [localProfile, setLocalProfile] = useState(profile)
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer) => {
-    const next = Profile.fromJSON(localProfile.toJSON());
+    const next = Profile.fromJSON(localProfile.toJSON())
     next.layers[layerIndex] = updatedLayer
     setLocalProfile(next)
   }
 
   const handleAddLayer = () => {
-    const next = Profile.fromJSON(localProfile.toJSON());
+    const next = Profile.fromJSON(localProfile.toJSON())
     next.layers.push(new Layer(`Layer ${next.layers.length}`, next.layers.length, new Map()))
     setLocalProfile(next)
   }
@@ -34,9 +34,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps) =
           <Button variant="outline" onClick={onBack}>
             Back
           </Button>
-          <Button onClick={() => onSave(localProfile)}>
-            Save Changes
-          </Button>
+          <Button onClick={() => onSave(localProfile)}>Save Changes</Button>
         </div>
       </div>
 

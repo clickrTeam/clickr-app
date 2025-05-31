@@ -1,9 +1,7 @@
-import { useState, useEffect } from 'react'
 import { LogIn, LogOut, Home, Users, Layers } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
 import { View } from '../App'
-
 
 interface NavbarProps {
   currentView: View
@@ -23,10 +21,11 @@ const Navbar = ({
   const navLinks = [
     { name: 'Home', view: View.HOME, icon: Home },
     { name: 'Community', view: View.COMMUNITY, icon: Users },
+    { name: 'DAEMON', view: View.DAEMON, icon: Layers },
     { name: 'My Mappings', view: View.MY_MAPPINGS, icon: Layers }
   ]
 
-  const handleViewChange = (view: View) => {
+  const handleViewChange = (view: View): void => {
     setCurrentView(view)
   }
 

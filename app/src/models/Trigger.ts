@@ -121,7 +121,7 @@ export class TapSequence extends Trigger {
 
   constructor(
     key_time_pairs: [string, number][],
-    behavior: TimedTriggerBehavior = TimedTriggerBehavior.Default,
+    behavior: TimedTriggerBehavior = TimedTriggerBehavior.Default
   ) {
     super(TriggerType.TapSequence)
     this.key_time_pairs = key_time_pairs
@@ -136,24 +136,21 @@ export class TapSequence extends Trigger {
     }
   }
 
-  static fromJSON(obj: {
-    key_time_pairs: [string, number][];
-    behavior: string;
-  }): TapSequence {
-    let behavior: TimedTriggerBehavior;
+  static fromJSON(obj: { key_time_pairs: [string, number][]; behavior: string }): TapSequence {
+    let behavior: TimedTriggerBehavior
 
     if (obj.behavior === TimedTriggerBehavior.Capture) {
-      behavior = TimedTriggerBehavior.Capture;
+      behavior = TimedTriggerBehavior.Capture
     } else if (obj.behavior === TimedTriggerBehavior.Release) {
-      behavior = TimedTriggerBehavior.Release;
+      behavior = TimedTriggerBehavior.Release
     } else if (obj.behavior === TimedTriggerBehavior.Default) {
-      behavior = TimedTriggerBehavior.Default;
+      behavior = TimedTriggerBehavior.Default
     } else {
-      console.log(`Unknown behavior "${obj.behavior}", defaulting to TimedTriggerBehavior.Default`);
-      behavior = TimedTriggerBehavior.Default;
+      console.log(`Unknown behavior "${obj.behavior}", defaulting to TimedTriggerBehavior.Default`)
+      behavior = TimedTriggerBehavior.Default
     }
 
-    return new TapSequence(obj.key_time_pairs, behavior);
+    return new TapSequence(obj.key_time_pairs, behavior)
   }
 
   equals(other: Trigger): boolean {
@@ -168,7 +165,7 @@ export class TapSequence extends Trigger {
   }
 
   toString(): string {
-    return `Tap: ${this.key_time_pairs.map((key) => key[0]).join(" + ")}`
+    return `Tap: ${this.key_time_pairs.map((key) => key[0]).join(' + ')}`
   }
 }
 
@@ -177,7 +174,7 @@ export class TapSequence extends Trigger {
  */
 export class Hold extends Trigger {
   toString(): string {
-    throw new Error("Method not implemented.")
+    throw new Error('Method not implemented.')
   }
   value: string
   wait: number
@@ -210,7 +207,7 @@ export class Hold extends Trigger {
  */
 export class AppFocus extends Trigger {
   toString(): string {
-    throw new Error("Method not implemented.")
+    throw new Error('Method not implemented.')
   }
   app_name: string
   value: string
@@ -235,9 +232,7 @@ export class AppFocus extends Trigger {
 
   equals(other: Trigger): boolean {
     return (
-      other instanceof AppFocus &&
-      this.app_name === other.app_name &&
-      this.value === other.value
+      other instanceof AppFocus && this.app_name === other.app_name && this.value === other.value
     )
   }
 }
