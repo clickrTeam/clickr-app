@@ -118,17 +118,6 @@ const Navbar = () => {
           <div className="flex space-x-6">
             {
               navLinks.map((link) => (
-                // link.onClick ? (
-                //   <button
-                //     key={link.name}
-                //     onClick={link.onClick}
-                //     className={cn(
-                //       "font-medium transition-colors hover:text-clickr-blue text-foreground/80"
-                //     )}
-                //   >
-                //     {link.name}
-                //   </button>
-                // ) : (
                 <Link
                   key={link.name}
                   to={link.path}
@@ -243,30 +232,61 @@ const Navbar = () => {
                 </Link>
               ))}
 
-              <Link
-                to={getDownloadLink()}
-                className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue"
-              >
-                <Download size={18} />
-                <span>{getDownloadButtonText()}</span>
-              </Link>
-
-              <Link
-                to="/register"
-                className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue"
-              >
-                <UserPlus size={18} />
-                <span>Register</span>
-              </Link>
-              <Button
-                className="flex items-center justify-center gap-2 w-full"
-                asChild
-              >
-                <Link to="/login">
-                  <LogIn size={18} />
-                  <span>Login</span>
-                </Link>
-              </Button>
+              {!isAuthenticated ? (
+                <>
+                  <Link
+                    to={getDownloadLink()}
+                    download={getDownloadFilename()}
+                    className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue"
+                  >
+                    <Download size={18} />
+                    <span>{getDownloadButtonText()}</span>
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue"
+                  >
+                    <UserPlus size={18} />
+                    <span>Register</span>
+                  </Link>
+                  <Button
+                    className="flex items-center justify-center gap-2 w-full"
+                    asChild
+                  >
+                    <Link to="/login">
+                      <LogIn size={18} />
+                      <span>Login</span>
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <span className="py-2 text-sm font-medium text-foreground/80 ">
+                    Welcome {user?.username}
+                  </span>
+                  <Button
+                    className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-indigo-700 to-clickr-blue text-white"
+                    asChild
+                  >
+                    <a
+                      href={getDownloadLink()}
+                      download={getDownloadFilename()}
+                      className="flex items-center gap-2"
+                    >
+                      <Download size={18} />
+                      <span>{getDownloadButtonText()}</span>
+                    </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={logout}
+                    className="flex items-center justify-center gap-2 w-full"
+                  >
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                  </Button>
+                </>
+              )}
             </div>
           </motion.div>
         )}

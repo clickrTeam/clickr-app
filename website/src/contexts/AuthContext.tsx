@@ -72,10 +72,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     localStorage.setItem("user", JSON.stringify(userData));
   };
 
-  // Logout function - clear user from context and localStorage
+  // Logout function - clear user and stored mappings from context and localStorage
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("mappings");
     window.location.href = "/login";
   };
 
