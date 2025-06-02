@@ -103,22 +103,16 @@ export class Profile {
   ADD_TEST_LAYER(test_layer_name: string): void {
     this.addLayer(test_layer_name)
     // Map a to b
-    this.layers[1].addRemapping(new T.KeyPress("A"), new B.PressKey("B"));
-    this.layers[1].addRemapping(new T.KeyRelease("A"), new B.ReleaseKey("B"));
+    this.layers[1].addRemapping(new T.KeyPress('A'), new B.PressKey('B'))
+    this.layers[1].addRemapping(new T.KeyRelease('A'), new B.ReleaseKey('B'))
 
     this.layers[1].addRemapping(
-      new T.TapSequence(
-        [
-          ['Q', 300],
-          ['Q', 300]
-        ],
-      ),
-      new B.TapKey("T")
-    );
-
-
-
-
+      new T.TapSequence([
+        ['Q', 300],
+        ['Q', 300]
+      ]),
+      new B.TapKey('T')
+    )
 
     // const del_f1 = new T.TapSequence(
     //   [

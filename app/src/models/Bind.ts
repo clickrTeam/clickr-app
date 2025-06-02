@@ -1,10 +1,9 @@
-import { Trigger, deserializeTrigger } from "./Trigger"
+import { Trigger, deserializeTrigger } from './Trigger'
 export enum BindType {
   PressKey = 'press_key',
   ReleaseKey = 'release_key',
   TapKey = 'tap_key',
   SwitchLayer = 'switch_layer',
-
 
   // Not handled by Daemon
   Combo = 'combo_bind',
@@ -13,7 +12,6 @@ export enum BindType {
   Repeat = 'repeat_bind',
   AppOpen = 'app_open_bind'
 }
-
 
 /**
  * Represents the desired bind to be associated with a key
@@ -131,7 +129,7 @@ export class TapKey extends Bind {
  */
 export class Combo_Bind extends Bind {
   toString(): string {
-    throw new Error("Method not implemented.")
+    throw new Error('Method not implemented.')
   }
   /**
    * The values that will be remapped to. Will be multiple: ['Ctrl', 'V']
@@ -173,7 +171,7 @@ export class Combo_Bind extends Bind {
  */
 export class Macro_Bind extends Bind {
   toString(): string {
-    throw new Error("Method not implemented.")
+    throw new Error('Method not implemented.')
   }
   binds: Bind[]
 
@@ -207,7 +205,7 @@ export class Macro_Bind extends Bind {
  */
 export class TimedMacro_Bind extends Bind {
   toString(): string {
-    throw new Error("Method not implemented.")
+    throw new Error('Method not implemented.')
   }
   binds: Bind[]
   times: number[]
@@ -246,7 +244,7 @@ export class TimedMacro_Bind extends Bind {
  */
 export class Repeat_Bind extends Bind {
   toString(): string {
-    throw new Error("Method not implemented.")
+    throw new Error('Method not implemented.')
   }
   value: Bind
 
@@ -336,7 +334,6 @@ export class SwapLayer extends Bind {
 
   toString(): string {
     return `Swap Layer: ${this.layer_number}`
-
   }
 }
 
@@ -368,7 +365,7 @@ export class AppOpen_Bind extends Bind {
   }
 
   toString(): string {
-    throw new Error("Method not implemented.")
+    throw new Error('Method not implemented.')
   }
 }
 

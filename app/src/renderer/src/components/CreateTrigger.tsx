@@ -1,10 +1,4 @@
-import {
-  TriggerType,
-  KeyPress,
-  KeyRelease,
-  TapSequence,
-  Trigger,
-} from '../../../models/Trigger'
+import { TriggerType, KeyPress, KeyRelease, TapSequence, Trigger } from '../../../models/Trigger'
 
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select'
@@ -24,11 +18,9 @@ const TriggerSelector: React.FC<TriggerSelectorProps> = ({ onTriggerSelected }) 
 
   const handleSingleKeyChange = (key: string) => {
     setSingleKey(key)
-    const trigger =
-      type === TriggerType.KeyPress ? new KeyPress(key) : new KeyRelease(key)
+    const trigger = type === TriggerType.KeyPress ? new KeyPress(key) : new KeyRelease(key)
     onTriggerSelected(trigger)
   }
-
 
   return (
     <Card>
@@ -40,9 +32,8 @@ const TriggerSelector: React.FC<TriggerSelectorProps> = ({ onTriggerSelected }) 
         <Select
           onValueChange={(val: any) => {
             setSequence([])
-            setSingleKey("")
+            setSingleKey('')
             setType(val as TriggerType)
-
           }}
         >
           <SelectTrigger className="w-full">
@@ -55,23 +46,16 @@ const TriggerSelector: React.FC<TriggerSelectorProps> = ({ onTriggerSelected }) 
           </SelectContent>
         </Select>
 
-
         {/* Single key input for press/release */}
         {type && type !== TriggerType.TapSequence && (
-          <KeySelecter
-            selectedKey={singleKey}
-            onSelect={handleSingleKeyChange}
-          />
+          <KeySelecter selectedKey={singleKey} onSelect={handleSingleKeyChange} />
         )}
 
         {/* Sequence builder for taps */}
         {type && type === TriggerType.TapSequence && (
           <div className="space-y-2">
             {sequence.map((seqKey, idx) => (
-              <div
-                key={idx}
-                className="flex items-center space-x-2"
-              >
+              <div key={idx} className="flex items-center space-x-2">
                 <KeySelecter
                   selectedKey={seqKey}
                   onSelect={(k) => {
@@ -86,18 +70,14 @@ const TriggerSelector: React.FC<TriggerSelectorProps> = ({ onTriggerSelected }) 
                 <Button
                   variant="destructive"
                   size="icon"
-                  onClick={() =>
-                    setSequence(sequence.filter((_, i) => i !== idx))
-                  }
+                  onClick={() => setSequence(sequence.filter((_, i) => i !== idx))}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
 
-            <Button onClick={() => setSequence([...sequence, ''])}>
-              Add Key
-            </Button>
+            <Button onClick={() => setSequence([...sequence, ''])}>Add Key</Button>
           </div>
         )}
       </CardContent>

@@ -1,8 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerProfileHandlers } from './ipc/profile-ipc'
 import { registerApiHandlers } from './ipc/api-ipc'
+import { registerDeamonManagerHandlers } from './services/daemon-manager'
 
 function createWindow(): void {
   // Create the browser window.
@@ -50,6 +51,7 @@ app.whenReady().then(() => {
   })
 
   registerProfileHandlers()
+  registerDeamonManagerHandlers() // Register daemon manager handlers
   registerApiHandlers() // Register our new API handlers
   createWindow()
 
@@ -58,6 +60,31 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
+  console.log('Starting Express server for keybinder control...')
+
+  // Handle IPC messages
+  // ipcMain.on('is-keybinder-running', async (event) => {
+  //   const isRunning = await isKeybinderRunning()
+  //   event.reply('is-keybinder-running', isRunning)
+  // })
+
+  // ipcMain.on('run-keybinder', () => {
+  //   runKeybinder()
+  // })
+
+  // ipcMain.on('stop-keybinder', () => {
+  //   stopKeybinder()
+  // })
+
+  // isKeybinderRunning().then((isRunning) => {
+  //   console.log('Keybinder running:', isRunning)
+  //   if (!isRunning) {
+  //     runKeybinder()
+  //   } else {
+  //     stopKeybinder()
+  //   }
+  // })
 })
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

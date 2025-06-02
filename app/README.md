@@ -32,3 +32,7 @@ $ npm run build:mac
 # For Linux
 $ npm run build:linux
 ```
+
+### Prod
+
+Can test server side output by running the .exe through a cmd line.
