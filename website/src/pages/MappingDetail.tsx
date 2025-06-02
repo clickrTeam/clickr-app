@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 
-// Updated types to match the actual mapping structure
 type Trigger = {
   type: string;
   value?: string;
@@ -44,15 +43,13 @@ type MappingLayers = {
   profile_name: string;
 };
 
-// Update the types to match the actual data structure
 type MappingDetails = {
   id: string;
   user: string;
   name: string;
   description: string;
-  mappings: MappingLayers; // This matches the actual data structure
+  mappings: MappingLayers;
   updated_at: string;
-  lastEdited: string;
   keyCount: number;
   isActive: boolean;
   isPublic: boolean;
@@ -90,7 +87,6 @@ const MappingDetail = () => {
     fetchMapping();
   }, [id]);
 
-  // Helper function to format the last edited time
   const formatLastEdited = (updatedAt: string) => {
     const updatedDate = new Date(updatedAt);
     const now = new Date();
@@ -98,14 +94,15 @@ const MappingDetail = () => {
       (now.getTime() - updatedDate.getTime()) / (1000 * 60 * 60)
     );
     const diffDays = Math.floor(diffHours / 24);
-
+    let lastEdited: string;
     if (diffHours < 1) {
-      return "Just now";
+      lastEdited = "Just now";
     } else if (diffHours < 24) {
-      return `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
+      lastEdited = `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
     } else {
-      return `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
+      lastEdited = `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
     }
+    return lastEdited;
   };
 
   if (isLoading) {
@@ -131,12 +128,6 @@ const MappingDetail = () => {
     );
   }
 
-  // // Convert mappings object to array of entries
-  // const mappingEntries = Object.entries(remappings[0] || {});
-  // console.log(mapping);
-  // console.log(remappings);
-  // console.log(mappingEntries);
-
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
@@ -146,7 +137,6 @@ const MappingDetail = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Header section remains the same */}
           <div className="mb-8">
             <Link
               to="/my-mappings"
@@ -161,7 +151,7 @@ const MappingDetail = () => {
                 <h1 className="text-2xl font-bold pb-1">{mapping.name}</h1>
                 <p className="text-muted-foreground">{mapping.description}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Last edited: {mapping.lastEdited}
+                  Last edited: {formatLastEdited(mapping.updated_at)}
                 </p>
               </div>
 
@@ -194,7 +184,7 @@ const MappingDetail = () => {
                   mappings
                 </Badge>
               </div>
-              {remappings.map((layer, layerIdx) => (
+              {remappings.map((layer) => (
                 <div key={layer.layer_number} className="mb-6">
                   <div className="font-bold mb-2 flex items-center gap-2">
                     <Layers size={16} /> {layer.layer_name}
