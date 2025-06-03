@@ -331,7 +331,7 @@ const Community = () => {
                     size="sm"
                     variant="outline"
                     className="flex items-center gap-1"
-                    onClick={() => navigate("*")}
+                    onClick={() => navigate(`/community/mapping/${mapping.id}`)}
                   >
                     Details
                     <ArrowUpRight size={14} />

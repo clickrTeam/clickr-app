@@ -11,8 +11,13 @@ import {
   Copy,
   Keyboard,
   Layers,
+  Plus,
+  TriangleAlert,
+  Heart,
+  Share,
 } from "lucide-react";
 import { useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Trigger = {
   type: string;
@@ -63,6 +68,16 @@ const MappingDetail = () => {
   const [mapping, setMapping] = useState<MappingDetails>();
   const [isLoading, setIsLoading] = useState(true);
   const [remappings, setRemappings] = useState<Layer[]>([]);
+  const { user } = useAuth();
+
+  // Determine if this is viewed from community or personal context
+  // You can determine this from the route path or add a prop
+  const isFromCommunity = window.location.pathname.includes("/community/");
+  console.log(isFromCommunity);
+  const currentUser = user?.username;
+  // Check if current user owns this mapping
+  const isOwnMapping = mapping?.user === currentUser;
+
   useEffect(() => {
     const fetchMapping = async () => {
       try {
@@ -156,17 +171,39 @@ const MappingDetail = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="gap-1" asChild>
-                  <Link to={`/mapping/${mapping.id}/edit`}>
-                    <Edit size={14} /> Edit
-                  </Link>
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1">
-                  <Copy size={14} /> Clone
-                </Button>
-                <Button size="sm" className="gap-1">
-                  <Download size={14} /> Export
-                </Button>
+                {isFromCommunity && !isOwnMapping ? (
+                  // Community mapping buttons (not owned by current user)
+                  <>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Heart size={14} /> Like
+                    </Button>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Copy size={14} /> Fork
+                    </Button>
+                    <Button size="sm" className="gap-1">
+                      <Download size={14} /> Import
+                    </Button>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Share size={14} /> Share
+                    </Button>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <TriangleAlert size={14} /> Report
+                    </Button>
+                  </>
+                ) : (
+                  // Personal mapping buttons (owned by current user)
+                  <>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Copy size={14} /> Duplicate
+                    </Button>
+                    <Button size="sm" className="gap-1">
+                      <Download size={14} /> Export
+                    </Button>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Share size={14} /> Share
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>

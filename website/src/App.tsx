@@ -29,13 +29,14 @@ const App = () => (
             <Route path="/community" element={<Community />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/community/mapping/:id" element={<MappingDetail />} />
 
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/my-mappings" element={<MyMappings />} />
               <Route path="/mapping/:id" element={<MappingDetail />} />
             </Route>
-            
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
