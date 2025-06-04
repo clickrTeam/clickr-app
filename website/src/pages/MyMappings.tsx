@@ -43,6 +43,7 @@ import {
   delete_mapping,
 } from "@/api/endpoints";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 type Mapping = {
   id: string;
@@ -174,9 +175,22 @@ const MyMappings = () => {
       await delete_mapping(username, id);
       // After successful deletion, remove from local state
       setMappings(mappings.filter((mapping) => mapping.id !== id));
+      toast.success('Mapping deleted successfully');
     } catch (error) {
       console.error("Failed to delete mapping:", error);
-      //TODO: might want to add error handling UI here
+      toast.error('Failed to delete mapping');
+    }
+  };
+
+    const copyToClipboard = async (mappingId: string) => {
+    try {
+      await navigator.clipboard.writeText(`https://clickr-web.vercel.app/community/mapping/${mappingId}`);
+      toast.success('Mapping link copied to clipboard', {
+        style: { background: '#22c55e', color: 'white' },
+      });
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      toast.error('Failed to copy mapping link to clipboard');
     }
   };
 
@@ -346,12 +360,8 @@ const MyMappings = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link to={`/mapping/${mapping.id}/edit`}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                              </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => copyToClipboard(mapping.id)}>
                               <Share className="mr-2 h-4 w-4" />
                               Share
                             </DropdownMenuItem>

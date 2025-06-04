@@ -19,6 +19,7 @@ import {
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { get_specific_mapping } from "@/api/endpoints";
+import { toast } from "sonner";
 
 type Trigger = {
   type: string;
@@ -135,6 +136,33 @@ const MappingDetail = () => {
     );
   }
 
+  const copyToClipboard = async (mappingId: string) => {
+
+    try {
+      await navigator.clipboard.writeText(`https://clickr-web.vercel.app/community/mapping/${mappingId}`);
+      toast.success('Mapping link copied to clipboard', {
+        style: { background: '#22c55e', color: 'white' },
+      });
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      toast.error('Failed to copy mapping link to clipboard');
+    }
+  };
+
+  const downloadMapping = async (mappingId: string) => {
+    try {
+      const response = await get_specific_mapping(mappingId);
+      const jsonStr = JSON.stringify(response.mappings, null, 2);
+      const link = document.createElement("a");
+      link.href = "data:application/json;charset=utf-8," + encodeURIComponent(jsonStr);
+      link.download = `${response.name || "mapping"}.json`;
+      link.click();
+      return response;
+    } catch (error) {
+      console.error('Failed to download mapping: ', error);
+    }
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
@@ -169,8 +197,8 @@ const MappingDetail = () => {
                     <Button size="sm" variant="outline" className="gap-1">
                       <Heart size={14} /> Like
                     </Button>
-                    <Button size="sm" variant="outline" className="gap-1">
-                      <Copy size={14} /> Fork
+                    <Button size="sm" variant="outline" className="gap-1" onClick={() => copyToClipboard(mapping.id)}>
+                      <Copy size={14} /> Share
                     </Button>
                     <Button size="sm" className="gap-1">
                       <Download size={14} /> Import
@@ -185,11 +213,11 @@ const MappingDetail = () => {
                     <Button size="sm" variant="outline" className="gap-1">
                       <Copy size={14} /> Duplicate
                     </Button>
-                    <Button size="sm" className="gap-1">
-                      <Download size={14} /> Export
-                    </Button>
-                    <Button size="sm" variant="outline" className="gap-1">
+                    <Button size="sm" variant="outline" className="gap-1" onClick={() => copyToClipboard(mapping.id)}>
                       <Share size={14} /> Share
+                    </Button>
+                    <Button size="sm" className="gap-1" onClick={() => downloadMapping(mapping.id)}>
+                      <Download size={14} /> Download
                     </Button>
                   </>
                 )}
