@@ -120,7 +120,6 @@ const MyMappings = () => {
       setIsLoading(true);
       const data = await get_user_mappings(username);
       console.log(data);
-      localStorage.setItem("mappings", JSON.stringify(data));
       setMappings(data);
       updateMappingCounts();
       updateLastEdited();

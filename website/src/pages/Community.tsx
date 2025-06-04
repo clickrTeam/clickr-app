@@ -37,99 +37,6 @@ type Mapping = {
   numDownloads: number;
   tags: Array<string>;
 };
-const dummyMappings: Mapping[] = [
-  {
-    id: "1",
-    name: "Vim-style Navigation",
-    description: "Transform any editor into Vim with these keyboard shortcuts",
-    user: "vimmaster",
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: "2 days ago",
-    keyCount: 24,
-    numDownloads: 3452,
-    numLikes: 872,
-    tags: ["editor", "productivity", "vim"],
-  },
-  {
-    id: "2",
-    name: "Gamer Pro Setup",
-    description: "Optimized key mappings for FPS and MOBA games",
-    user: "progamer123",
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: "1 week ago",
-    keyCount: 35,
-    numDownloads: 1892,
-    numLikes: 425,
-    tags: ["gaming", "fps", "moba"],
-  },
-  {
-    id: "3",
-    name: "Designer Workflow",
-    description: "Custom shortcuts for Figma, Photoshop and Illustrator",
-    user: "designhub",
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: "3 days ago",
-    keyCount: 42,
-    numDownloads: 978,
-    numLikes: 301,
-    tags: ["design", "figma", "photoshop"],
-  },
-  {
-    id: "4",
-    name: "Ergonomic Typing",
-    description:
-      "Remap your keyboard for less finger movement and better ergonomics",
-    user: "ergouser",
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: "5 days ago",
-    keyCount: 28,
-    numDownloads: 761,
-    numLikes: 284,
-    tags: ["ergonomic", "health", "typing"],
-  },
-  {
-    id: "5",
-    name: "Code Ninja",
-    description: "VS Code optimized shortcuts for JavaScript development",
-    user: "jsdev",
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: "2 weeks ago",
-    keyCount: 56,
-    numDownloads: 2045,
-    numLikes: 512,
-    tags: ["development", "vscode", "javascript"],
-  },
-  {
-    id: "6",
-    name: "Mac to Windows",
-    description: "Make your Windows PC feel like a Mac with these key mappings",
-    user: "platformswitcher",
-    mappings: {},
-    isActive: false,
-    isPublic: true,
-    updated_at: new Date().toISOString(),
-    lastEdited: "1 month ago",
-    keyCount: 32,
-    numDownloads: 1532,
-    numLikes: 347,
-    tags: ["mac", "windows", "productivity"],
-  },
-];
 const filters = [
   "All",
   "Popular",
@@ -331,7 +238,7 @@ const Community = () => {
                     size="sm"
                     variant="outline"
                     className="flex items-center gap-1"
-                    onClick={() => navigate("*")}
+                    onClick={() => navigate(`/community/mapping/${mapping.id}`)}
                   >
                     Details
                     <ArrowUpRight size={14} />

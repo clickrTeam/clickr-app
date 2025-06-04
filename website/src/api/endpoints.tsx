@@ -33,6 +33,11 @@ export const get_user_mappings = async (username: string) => {
   return response.data;
 };
 
+export const get_specific_mapping = async (mappingId: string) => {
+  const response = await api.get(`users/mappings/${mappingId}`);
+  return response.data;
+};
+
 export const create_new_mapping = async (
   username: string,
   mappingData: {
