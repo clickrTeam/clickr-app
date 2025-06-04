@@ -347,9 +347,19 @@ const MyMappings = () => {
                               </span>
                             )}
                           </CardTitle>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {mapping.description}
-                          </p>
+                          <div className="flex flex-wrap items-center gap-2 mt-1">
+                            <p className="text-sm text-muted-foreground m-0">
+                              {mapping.description}
+                            </p>
+                            {mapping.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="px-2 py-1 rounded-full bg-primary/10 text-xs font-medium text-primary"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -378,6 +388,8 @@ const MyMappings = () => {
                       </div>
                     </CardHeader>
                     <CardContent className="pb-2">
+                    <div className="flex flex-wrap gap-2 mb-4 mt-1">
+                  </div>
                       <div className="flex items-center justify-between text-sm">
                         <span>Last edited: {mapping.lastEdited}</span>
                         <span>{mapping.keyCount} key mappings</span>
