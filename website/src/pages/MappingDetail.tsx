@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { get_specific_mapping } from "@/api/endpoints";
 
 type Trigger = {
   type: string;
@@ -71,9 +72,7 @@ const MappingDetail = () => {
   const { user } = useAuth();
 
   // Determine if this is viewed from community or personal context
-  // You can determine this from the route path or add a prop
   const isFromCommunity = window.location.pathname.includes("/community/");
-  console.log(isFromCommunity);
   const currentUser = user?.username;
   // Check if current user owns this mapping
   const isOwnMapping = mapping?.user === currentUser;
@@ -81,17 +80,10 @@ const MappingDetail = () => {
   useEffect(() => {
     const fetchMapping = async () => {
       try {
-        // Get the mapping from localStorage
-        const storedMappings = localStorage.getItem("mappings");
-        if (storedMappings) {
-          const parsedMappings = JSON.parse(storedMappings);
-          const foundMapping = parsedMappings.find(
-            (m: MappingDetails) => m.id.toString() === id
-          );
-          setMapping(foundMapping);
-          // Set remappings to the layers array
-          setRemappings(foundMapping?.mappings?.layers || []);
-        }
+        setIsLoading(true);
+        const mapping = await get_specific_mapping(id);
+        setMapping(mapping);
+        setRemappings(mapping?.mappings?.layers || []);
       } catch (error) {
         console.error("Error fetching mapping:", error);
       } finally {
@@ -154,11 +146,11 @@ const MappingDetail = () => {
         >
           <div className="mb-8">
             <Link
-              to="/my-mappings"
+              to={isFromCommunity ? "/community" : "/my-mappings"}
               className="text-muted-foreground hover:text-foreground flex items-center mb-4"
             >
               <ArrowLeft size={16} className="mr-2" />
-              Back to My Mappings
+              {isFromCommunity ? "Back to Community" : "Back to My Mappings"}
             </Link>
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -183,10 +175,7 @@ const MappingDetail = () => {
                     <Button size="sm" className="gap-1">
                       <Download size={14} /> Import
                     </Button>
-                    <Button size="sm" variant="outline" className="gap-1">
-                      <Share size={14} /> Share
-                    </Button>
-                    <Button size="sm" variant="outline" className="gap-1">
+                    <Button size="sm" variant="destructive" className="gap-1">
                       <TriangleAlert size={14} /> Report
                     </Button>
                   </>
