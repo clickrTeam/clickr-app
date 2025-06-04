@@ -51,28 +51,34 @@ const Navbar = () => {
 
 
   const WIN_DOWNLOAD: string = "clickr-1.0.0-setup.exe";
+  // const WIN_DOWNLOAD: string = "clickr-temp-windows.exe";
+  const MAC_DOWNLOAD: string = "clickr-app-mac.txt";
+  const LINUX_DOWNLOAD: string = "clickr-app-linux.txt";
+  
   const getDownloadLink = () => {
+    const baseUrl = "https://pub-88623f5677af473299bdb0e0cb10017e.r2.dev";
     switch (detectedOS) {
       case "windows":
-        return `/downloads/${WIN_DOWNLOAD}`;
+        return `${baseUrl}/${WIN_DOWNLOAD}`;
       case "macos":
-        return "/downloads/clickr-app-mac.txt";
+        return `${baseUrl}/${MAC_DOWNLOAD}`;
       case "linux":
-        return "/downloads/clickr-app-linux.txt";
+        return `${baseUrl}/${LINUX_DOWNLOAD}`;
       default:
-        return "/downloads/clickr-app-mac.txt";
+        return `${baseUrl}/${MAC_DOWNLOAD}`;
     }
   };
+  
   const getDownloadFilename = () => {
     switch (detectedOS) {
       case "windows":
         return WIN_DOWNLOAD;
       case "macos":
-        return "clickr-app-mac.txt";
+        return MAC_DOWNLOAD;
       case "linux":
-        return "clickr-app-linux.txt";
+        return LINUX_DOWNLOAD;
       default:
-        return "clickr-app.txt";
+        return "clickr-app";
     }
   };
 
