@@ -252,6 +252,8 @@ const MappingDetail = () => {
                   <DialogTitle>Edit Tags</DialogTitle>
                   <DialogDescription>
                     Edit tags to your mapping to help you and others identify it later.
+                    <br />
+                      *Hint: Use dashes or underscores instead of spaces.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
