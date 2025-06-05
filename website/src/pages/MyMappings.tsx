@@ -357,6 +357,7 @@ const MyMappings = () => {
                     setIsRenaming(false);
                     setModifiedMappingName("");
                     setRenamingMappingId(null);
+                    fetchMappings();
                   }}
                   disabled={!modifiedMappingName.trim()}
                 >

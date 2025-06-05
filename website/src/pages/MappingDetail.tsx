@@ -217,6 +217,29 @@ const MappingDetail = () => {
     }
   };
 
+  const importMapping = async () => {
+    try {
+      const mappingData = {
+        name: mapping.name + " (Imported)",
+        description: mapping.description,
+        mappings: mapping.mappings,
+        isActive: false,
+        is_public: false,
+        num_likes: 0,
+        num_downloads: 0,
+        tags: mapping.tags,
+      };
+      console.log(mappingData);
+      await create_new_mapping(currentUser, mappingData);
+      toast.success('Mapping imported successfully', {
+        style: { background: '#22c55e', color: 'white' },
+      });
+      navigate(`/my-mappings`);
+    } catch (error) {
+      console.error('Failed to import mapping: ', error);
+    }
+  }
+
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
@@ -252,9 +275,9 @@ const MappingDetail = () => {
                       <Heart size={14} /> Like
                     </Button>
                     <Button size="sm" variant="outline" className="gap-1" onClick={() => copyToClipboard(mapping.id)}>
-                      <Copy size={14} /> Share
+                      <Share size={14} /> Share
                     </Button>
-                    <Button size="sm" className="gap-1">
+                    <Button size="sm" className="gap-1" onClick={() => importMapping()}>
                       <Download size={14} /> Import
                     </Button>
                     <Button size="sm" variant="destructive" className="gap-1">

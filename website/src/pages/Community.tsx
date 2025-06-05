@@ -99,10 +99,12 @@ const Community = () => {
   useEffect(() => {
     fetchCommunityMappings();
   }, []);
+  
   const handleLike = (id: string) => {
     setMappings(
       mappings.map((mapping) => {
         if (mapping.id === id) {
+          console.log("here")
           return {
             ...mapping,
             likeCount: mapping.numLikes
@@ -110,6 +112,7 @@ const Community = () => {
               : mapping.numLikes + 1,
           };
         }
+        console.log("here2")
         return mapping;
       })
     );
