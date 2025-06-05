@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,7 +14,6 @@ import {
   Search,
   Plus,
   MoreHorizontal,
-  Edit,
   Share,
   Trash2,
   ArrowUpRight,
@@ -74,7 +73,6 @@ const MyMappings = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
   const username = user?.username;
 
   useEffect(() => {

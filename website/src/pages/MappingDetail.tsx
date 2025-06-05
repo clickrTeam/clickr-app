@@ -6,12 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
-  Edit,
   Download,
   Copy,
   Keyboard,
   Layers,
-  Plus,
   TriangleAlert,
   Heart,
   Share,
@@ -186,8 +184,8 @@ const MappingDetail = () => {
 
   const handleAddTags = async (mappingId: string, tags: string[]) => {
     try {
-      const response = await add_tags(mappingId, tags);
-      toast.success('Tags added successfully', {
+      await add_tags(mappingId, tags);
+      toast.success('Tags updated successfully', {
         style: { background: '#22c55e', color: 'white' },
       });
     } catch (error) {
