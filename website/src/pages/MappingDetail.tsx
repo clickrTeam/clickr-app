@@ -15,11 +15,24 @@ import {
   TriangleAlert,
   Heart,
   Share,
+  Tag,
 } from "lucide-react";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { get_specific_mapping } from "@/api/endpoints";
+import { get_specific_mapping, add_tags } from "@/api/endpoints";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 type Trigger = {
   type: string;
@@ -70,6 +83,8 @@ const MappingDetail = () => {
   const [mapping, setMapping] = useState<MappingDetails>();
   const [isLoading, setIsLoading] = useState(true);
   const [remappings, setRemappings] = useState<Layer[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
+  const [newMappingTags, setNewMappingTags] = useState<string[]>([]);
   const { user } = useAuth();
 
   // Determine if this is viewed from community or personal context
@@ -94,6 +109,12 @@ const MappingDetail = () => {
 
     fetchMapping();
   }, [id]);
+
+  useEffect(() => {
+    if (mapping?.tags) {
+      setNewMappingTags([...mapping.tags]);
+    }
+  }, [mapping]);
 
   const formatLastEdited = (updatedAt: string) => {
     const updatedDate = new Date(updatedAt);
@@ -163,6 +184,17 @@ const MappingDetail = () => {
     }
   };
 
+  const handleAddTags = async (mappingId: string, tags: string[]) => {
+    try {
+      const response = await add_tags(mappingId, tags);
+      toast.success('Tags added successfully', {
+        style: { background: '#22c55e', color: 'white' },
+      });
+    } catch (error) {
+      console.error('Failed to add tags: ', error);
+    }
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
@@ -210,6 +242,54 @@ const MappingDetail = () => {
                 ) : (
                   // Personal mapping buttons (owned by current user)
                   <>
+                    
+                    <Dialog open={isCreating} onOpenChange={setIsCreating}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline" className="gap-1">
+                      <Tag size={14} /> Edit Tags
+                    </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Tags</DialogTitle>
+                  <DialogDescription>
+                    Edit tags to your mapping to help you and others identify it later.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="description" className="text-right">
+                      Edit Tags
+                    </Label>
+                    <Input
+                      id="tags"
+                      placeholder="Enter tags separated by commas"
+                      className="col-span-3"
+                      value={newMappingTags ? newMappingTags.join(", ") : ""}
+                      onChange={(e) =>
+                        setNewMappingTags(
+                          e.target.value.split(",").map((tag) => tag.trim())
+                        )
+                      }
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline" onClick={() => {setIsCreating(false); setNewMappingTags([])}}>Cancel</Button>
+                  </DialogClose>
+                  <Button
+                    onClick={() => {
+                      handleAddTags(mapping.id, newMappingTags);
+                      setNewMappingTags([])
+                      setIsCreating(false);
+                    }}
+                  >
+                    Add
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
                     <Button size="sm" variant="outline" className="gap-1">
                       <Copy size={14} /> Duplicate
                     </Button>

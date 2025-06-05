@@ -58,6 +58,14 @@ export const create_new_mapping = async (
   return response.data;
 };
 
+export const add_tags = async (mappingId: string, tags: string[]) => {
+  const response = await api.patch(`users/mappings/${mappingId}/add_tags`, {
+    tags: tags,
+  });
+  
+  return response.data;
+};
+
 export const delete_mapping = async (username: string, mappingId: string) => {
   const response = await api.post(`users/${username}/mappings/delete`, {
     mapping_id: mappingId,

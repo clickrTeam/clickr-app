@@ -191,10 +191,10 @@ const Community = () => {
                 <CardHeader>
                   <CardTitle>{mapping.name}</CardTitle>
                   <CardDescription>
-                    <div className="flex flex-wrap items-center gap-2 mt-1">
-                            <p className="text-sm text-muted-foreground m-0">
+                    <span className="flex flex-wrap items-center gap-2 mt-1">
+                            <span className="text-sm text-muted-foreground m-0">
                               {mapping.description}
-                            </p>
+                            </span>
                             {mapping.tags.map((tag) => (
                               <span
                                 key={tag}
@@ -203,21 +203,10 @@ const Community = () => {
                                 {tag}
                               </span>
                             ))}
-                          </div>
+                          </span>
                           </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  {/* <div className="flex flex-wrap gap-2 mb-4 mt-[-10px]">
-                    {mapping.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 rounded-full bg-primary/10 text-xs font-medium text-primary"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div> */}
-
                   <div className="flex items-center text-sm text-muted-foreground">
                     <User size={14} className="mr-1" />
                     <span className="mr-4">{mapping.user}</span>
