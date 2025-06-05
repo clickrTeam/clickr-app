@@ -213,7 +213,7 @@ const MyMappings = () => {
       mapping.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       mapping.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  });
+  }).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
