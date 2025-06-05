@@ -62,7 +62,13 @@ export const add_tags = async (mappingId: string, tags: string[]) => {
   const response = await api.patch(`users/mappings/${mappingId}/add_tags`, {
     tags: tags,
   });
-  
+  return response.data;
+};
+
+export const rename_mapping = async (mappingId: string, newName: string) => {
+  const response = await api.patch(`users/mappings/${mappingId}/rename`, {
+    name: newName,
+  });
   return response.data;
 };
 

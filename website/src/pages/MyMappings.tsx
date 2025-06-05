@@ -18,6 +18,7 @@ import {
   Trash2,
   ArrowUpRight,
   Keyboard,
+  Pencil,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -40,6 +41,7 @@ import {
   get_user_mappings,
   create_new_mapping,
   delete_mapping,
+  rename_mapping,
 } from "@/api/endpoints";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -70,6 +72,9 @@ const MyMappings = () => {
   const [newMappingDesc, setNewMappingDesc] = useState("");
   const [newMappingTags, setNewMappingTags] = useState<string[]>([]);
   const [newMappingJson, setNewMappingJson] = useState("");
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renamingMappingId, setRenamingMappingId] = useState<string | null>(null);
+  const [modifiedMappingName, setModifiedMappingName] = useState("");
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -83,7 +88,7 @@ const MyMappings = () => {
     setMappings((currentMappings) =>
       currentMappings.map((mapping) => ({
         ...mapping,
-        keyCount: Object.keys(mapping.mappings || {}).length,
+        keyCount: Object.keys(mapping.mappings || {}).length - 1,
       }))
     );
   };
@@ -191,6 +196,15 @@ const MyMappings = () => {
       toast.error('Failed to copy mapping link to clipboard');
     }
   };
+
+  const handleRenameMapping = async (id: string, newName: string) => {
+    try {
+      await rename_mapping(id, newName);
+      toast.success('Mapping renamed successfully');
+    } catch (error) {
+      toast.error('Failed to rename mapping');
+    }
+  }
 
   const filteredMappings = mappings.filter((mapping) => {
     if (!searchQuery) return true;
@@ -304,6 +318,54 @@ const MyMappings = () => {
             </Dialog>
           </div>
 
+          {/* Rename Dialog */}
+          <Dialog open={isRenaming} onOpenChange={setIsRenaming}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Rename Mapping</DialogTitle>
+                <DialogDescription>
+                  Enter a new name for your mapping.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-name">New Name</Label>
+                  <Input
+                    id="new-name"
+                    placeholder="Enter new name"
+                    value={modifiedMappingName}
+                    onChange={(e) => setModifiedMappingName(e.target.value)}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setIsRenaming(false);
+                    setModifiedMappingName("");
+                    setRenamingMappingId(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (renamingMappingId) {
+                      handleRenameMapping(renamingMappingId, modifiedMappingName);
+                    }
+                    setIsRenaming(false);
+                    setModifiedMappingName("");
+                    setRenamingMappingId(null);
+                  }}
+                  disabled={!modifiedMappingName.trim()}
+                >
+                  Rename
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           <div className="relative max-w-xl mb-8">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -367,7 +429,14 @@ const MyMappings = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                setRenamingMappingId(mapping.id);
+                                setModifiedMappingName(mapping.name);
+                                setIsRenaming(true);
+                              }}
+                            >
+                              <Pencil className="mr-2 h-4 w-4" /> Rename
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => copyToClipboard(mapping.id)}>
                               <Share className="mr-2 h-4 w-4" />
@@ -390,7 +459,7 @@ const MyMappings = () => {
                   </div>
                       <div className="flex items-center justify-between text-sm">
                         <span>Last edited: {mapping.lastEdited}</span>
-                        <span>{mapping.keyCount} key mappings</span>
+                        <span>{mapping.keyCount} Layers</span>
                       </div>
                     </CardContent>
                     <CardFooter>

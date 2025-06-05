@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { get_specific_mapping, add_tags } from "@/api/endpoints";
+import { get_specific_mapping, add_tags, create_new_mapping } from "@/api/endpoints";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -83,6 +83,7 @@ const MappingDetail = () => {
   const [remappings, setRemappings] = useState<Layer[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [newMappingTags, setNewMappingTags] = useState<string[]>([]);
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   // Determine if this is viewed from community or personal context
@@ -193,6 +194,29 @@ const MappingDetail = () => {
     }
   };
 
+  const duplicateMapping = async () => {
+    try {
+      const mappingData = {
+        name: mapping.name + " (Copy)",
+        description: mapping.description,
+        mappings: mapping.mappings,
+        isActive: false,
+        is_public: false,
+        num_likes: 0,
+        num_downloads: 0,
+        tags: mapping.tags,
+      };
+      console.log(mappingData);
+      await create_new_mapping(currentUser, mappingData);
+      toast.success('Mapping duplicated successfully', {
+        style: { background: '#22c55e', color: 'white' },
+      });
+      navigate(`/my-mappings`);
+    } catch (error) {
+      console.error('Failed to duplicate mapping: ', error);
+    }
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
@@ -241,7 +265,7 @@ const MappingDetail = () => {
                   // Personal mapping buttons (owned by current user)
                   <>
                     
-                    <Dialog open={isCreating} onOpenChange={setIsCreating}>
+              <Dialog open={isCreating} onOpenChange={setIsCreating}>
               <DialogTrigger asChild>
                 <Button size="sm" variant="outline" className="gap-1">
                       <Tag size={14} /> Edit Tags
@@ -290,7 +314,7 @@ const MappingDetail = () => {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-                    <Button size="sm" variant="outline" className="gap-1">
+                    <Button size="sm" variant="outline" className="gap-1" onClick={() => duplicateMapping()}>
                       <Copy size={14} /> Duplicate
                     </Button>
                     <Button size="sm" variant="outline" className="gap-1" onClick={() => copyToClipboard(mapping.id)}>
