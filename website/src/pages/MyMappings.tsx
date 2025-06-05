@@ -19,6 +19,7 @@ import {
   ArrowUpRight,
   Keyboard,
   Pencil,
+  Globe,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -42,7 +43,8 @@ import {
   create_new_mapping,
   delete_mapping,
   rename_mapping,
-} from "@/api/endpoints";
+  update_mapping_visibility,
+  } from "@/api/endpoints";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -55,8 +57,8 @@ type Mapping = {
   updated_at: string;
   lastEdited: string;
   keyCount: number;
-  isActive: boolean;
-  isPublic: boolean;
+  is_active: boolean;
+  is_public: boolean;
   numLikes: number;
   numDownloads: number;
   tags: Array<string>;
@@ -123,10 +125,10 @@ const MyMappings = () => {
     try {
       setIsLoading(true);
       const data = await get_user_mappings(username);
-      console.log(data);
       setMappings(data);
       updateMappingCounts();
       updateLastEdited();
+      console.log(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch mappings");
     } finally {
@@ -154,14 +156,13 @@ const MyMappings = () => {
         name: newMappingName,
         description: newMappingDesc,
         mappings: parsedMappings,
-        isActive: false,
+        is_active: false,
         is_public: false,
         num_likes: 0,
         num_downloads: 0,
         tags: newMappingTags,
       };
-      console.log(mappingData);
-      const response = await create_new_mapping(username, mappingData);
+      await create_new_mapping(username, mappingData);
       await fetchMappings(); // Refresh the mappings list
 
       setNewMappingName("");
@@ -394,7 +395,7 @@ const MyMappings = () => {
                 >
                   <Card
                     className={`hover:shadow-md transition-shadow ${
-                      mapping.isActive ? "ring-2 ring-primary" : ""
+                      mapping.is_public ? "ring-2 ring-primary" : ""
                     }`}
                   >
                     <CardHeader className="pb-2">
@@ -402,9 +403,9 @@ const MyMappings = () => {
                         <div>
                           <CardTitle className="flex items-center gap-2">
                             {mapping.name}
-                            {mapping.isActive && (
+                            {mapping.is_public && (
                               <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                                Active
+                                Public
                               </span>
                             )}
                           </CardTitle>
@@ -439,6 +440,15 @@ const MyMappings = () => {
                             >
                               <Pencil className="mr-2 h-4 w-4" /> Rename
                             </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={async () => {
+                                await update_mapping_visibility(mapping.id, !mapping.is_public);
+                                await fetchMappings();
+                              }}
+                            >
+                              <Globe className="mr-2 h-4 w-4" />
+                              {mapping.is_public ? "Hide" : "Publish"}
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => copyToClipboard(mapping.id)}>
                               <Share className="mr-2 h-4 w-4" />
                               Share
@@ -460,7 +470,7 @@ const MyMappings = () => {
                   </div>
                       <div className="flex items-center justify-between text-sm">
                         <span>Last edited: {mapping.lastEdited}</span>
-                        <span>{mapping.keyCount} Layers</span>
+                        <span>{mapping.keyCount < 0 ? 0 : mapping.keyCount} Layers</span>
                       </div>
                     </CardContent>
                     <CardFooter>

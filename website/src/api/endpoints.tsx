@@ -44,7 +44,7 @@ export const create_new_mapping = async (
     name: string;
     description: string;
     mappings: object;
-    isActive: boolean;
+    is_active: boolean;
     is_public: boolean;
     num_likes: number;
     num_downloads: number;
@@ -68,6 +68,13 @@ export const add_tags = async (mappingId: string, tags: string[]) => {
 export const rename_mapping = async (mappingId: string, newName: string) => {
   const response = await api.patch(`users/mappings/${mappingId}/rename`, {
     name: newName,
+  });
+  return response.data;
+};
+
+export const update_mapping_visibility = async (mappingId: string, isPublic: boolean) => {
+  const response = await api.patch(`users/mappings/${mappingId}/visibility`, {
+    is_public: isPublic,
   });
   return response.data;
 };

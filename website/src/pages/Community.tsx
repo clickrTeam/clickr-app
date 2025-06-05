@@ -31,8 +31,8 @@ type Mapping = {
   updated_at: string;
   lastEdited: string;
   keyCount: number;
-  isActive: boolean;
-  isPublic: boolean;
+  is_active: boolean;
+  is_public: boolean;
   numLikes: number;
   numDownloads: number;
   tags: Array<string>;

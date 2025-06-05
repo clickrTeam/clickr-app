@@ -69,8 +69,8 @@ type MappingDetails = {
   mappings: MappingLayers;
   updated_at: string;
   keyCount: number;
-  isActive: boolean;
-  isPublic: boolean;
+  is_active: boolean;
+  is_public: boolean;
   numLikes: number;
   numDownloads: number;
   tags: Array<string>;
@@ -200,7 +200,7 @@ const MappingDetail = () => {
         name: mapping.name + " (Copy)",
         description: mapping.description,
         mappings: mapping.mappings,
-        isActive: false,
+        is_active: false,
         is_public: false,
         num_likes: 0,
         num_downloads: 0,
@@ -223,13 +223,12 @@ const MappingDetail = () => {
         name: mapping.name + " (Imported)",
         description: mapping.description,
         mappings: mapping.mappings,
-        isActive: false,
+        is_active: false,
         is_public: false,
         num_likes: 0,
         num_downloads: 0,
         tags: mapping.tags,
       };
-      console.log(mappingData);
       await create_new_mapping(currentUser, mappingData);
       toast.success('Mapping imported successfully', {
         style: { background: '#22c55e', color: 'white' },
