@@ -60,7 +60,7 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): J
   }
 
   // Update a bind at a specific index
-  const handleUpdateMacroBind = (idx: number, bind: Bind) => {
+  const handleUpdateMacroBind = (idx: number, bind: Bind): void => {
     const newBinds = [...macroBinds]
     newBinds[idx] = bind
     setMacroBinds(newBinds)
@@ -137,7 +137,7 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): J
                   maxHeight: '400px',
                   overflowY: 'auto',
                   overflowX: 'hidden',
-                  width: '100%',
+                  width: '100%'
                 }}
               >
                 {macroBinds.map((bind, idx) => (

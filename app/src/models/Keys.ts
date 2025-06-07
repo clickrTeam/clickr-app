@@ -1,4 +1,5 @@
 export const keys: string[] = [
+  // Letters
   'A',
   'B',
   'C',
@@ -25,6 +26,7 @@ export const keys: string[] = [
   'X',
   'Y',
   'Z',
+  // Digits
   '0',
   '1',
   '2',
@@ -35,5 +37,62 @@ export const keys: string[] = [
   '7',
   '8',
   '9',
-  'Space'
+  // Special Characters
+  'Space',
+  'Enter',
+  'Esc',
+  'Escape',
+  'Tab',
+  'Backspace',
+  'Pause',
+  'CapsLock',
+  // Special Characters with directions.
+  'Shift',
+  'ShiftLeft',
+  'ShiftRight',
+  'Ctrl',
+  'CtrlLeft',
+  'CtrlRight',
+  'Alt',
+  'AltLeft',
+  'AltRight',
+  // Function Keys
+  'F1',
+  'F2',
+  'F3',
+  'F4',
+  'F5',
+  'F6',
+  'F7',
+  'F8',
+  'F9',
+  'F10',
+  'F11',
+  'F12',
+  // Special Symbols
+  '~',
+  '`',
+  '-',
+  '=',
+  '[',
+  ']',
+  '\\',
+  ';',
+  "'",
+  ',',
+  '.',
+  '/',
+  // Arrow Keys
+  'Up',
+  'Down',
+  'Left',
+  'Right',
+  // Other special keys
+  'Insert',
+  'Delete',
+  'Home',
+  'End',
+  'PageUp',
+  'PageDown',
+  'Cmd'
 ]

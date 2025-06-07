@@ -11,7 +11,7 @@ type KeySelecterProps = {
   onSelect: (value: string) => void
 }
 
-export default function KeySelecter({ selectedKey, onSelect }: KeySelecterProps) {
+export default function KeySelecter({ selectedKey, onSelect }: KeySelecterProps): JSX.Element {
   return (
     <Select value={selectedKey} onValueChange={onSelect}>
       <SelectTrigger className="w-full">
