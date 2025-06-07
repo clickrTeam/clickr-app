@@ -39,10 +39,10 @@ const mainRows: { key: string; width?: number; gapAfter?: boolean }[][] = [
     { key: '0' },
     { key: '-' },
     { key: '=' },
-    { key: 'Backspace', width: 2 }
+    { key: 'Backspace', width: 5 }
   ],
   [
-    { key: 'Tab', width: 1.5 },
+    { key: 'Tab', width: 3.75 },
     { key: 'Q' },
     { key: 'W' },
     { key: 'E' },
@@ -55,10 +55,10 @@ const mainRows: { key: string; width?: number; gapAfter?: boolean }[][] = [
     { key: 'P' },
     { key: '[' },
     { key: ']' },
-    { key: '\\', width: 1.5 }
+    { key: '\\', width: 3.5 }
   ],
   [
-    { key: 'CapsLock', width: 1.75 },
+    { key: 'CapsLock', width: 4.5 },
     { key: 'A' },
     { key: 'S' },
     { key: 'D' },
@@ -70,10 +70,10 @@ const mainRows: { key: string; width?: number; gapAfter?: boolean }[][] = [
     { key: 'L' },
     { key: ';' },
     { key: "'" },
-    { key: 'Enter', width: 2.25 }
+    { key: 'Enter', width: 5.25 }
   ],
   [
-    { key: 'ShiftLeft', width: 2.25 },
+    { key: 'ShiftLeft', width: 5.75 },
     { key: 'Z' },
     { key: 'X' },
     { key: 'C' },
@@ -84,60 +84,123 @@ const mainRows: { key: string; width?: number; gapAfter?: boolean }[][] = [
     { key: ',' },
     { key: '.' },
     { key: '/' },
-    { key: 'ShiftRight', width: 2.75 }
+    { key: 'ShiftRight', width: 6.5 }
   ],
   [
-    { key: 'CtrlLeft', width: 1.25 },
-    { key: 'Win', width: 1.25 },
-    { key: 'AltLeft', width: 1.25 },
-    { key: 'Space', width: 6.25 },
-    { key: 'AltRight', width: 1.25 },
-    { key: 'Fn', width: 1.25 },
-    { key: 'Menu', width: 1.25 },
-    { key: 'CtrlRight', width: 1.25 }
+    { key: 'CtrlLeft', width: 3 },
+    { key: 'Win', width: 3 },
+    { key: 'AltLeft', width: 3 },
+    { key: 'Space', width: 14.75 },
+    { key: 'AltRight', width: 3 },
+    { key: 'Fn', width: 3 },
+    { key: 'Menu', width: 3 },
+    { key: 'CtrlRight', width: 3 }
   ]
 ]
 
 // Specialty keys above arrows (3x3 grid)
-const specialtyRows: { key: string }[][] = [
+const specialtyRows: { key: string; width?: number }[][] = [
   [{ key: 'PrintScreen' }, { key: 'ScrollLock' }, { key: 'Pause' }],
   [{ key: 'Insert' }, { key: 'Home' }, { key: 'PageUp' }],
-  [{ key: 'Delete' }, { key: 'End' }, { key: 'PageDown' }]
+  [{ key: 'Delete' }, { key: 'End' }, { key: 'PageDown' }],
+  [{ key: '' }], // Empty row for spacing
+  [{ key: '' }, { key: 'Up' }, { key: '' }],
+  [{ key: 'Left' }, { key: 'Down' }, { key: 'Right' }]
 ]
 
-// Arrow keys section (T-shaped)
-const arrowRows: { key: string; width?: number }[][] = [
-  [
-    { key: '', width: 1 },
-    { key: 'Up', width: 1 },
-    { key: '', width: 1 }
-  ],
-  [
-    { key: 'Left', width: 1 },
-    { key: 'Down', width: 1 },
-    { key: 'Right', width: 1 }
-  ]
-]
-
-// Numpad section
+// Numpad section (with an empty row at the top)
 const numpadRows: { key: string; width?: number }[][] = [
+  [{ key: '' }], // Empty row for spacing
   [
     { key: 'NumLock' },
     { key: 'NumpadDivide' },
     { key: 'NumpadMultiply' },
     { key: 'NumpadSubtract' }
   ],
-  [{ key: 'Numpad7' }, { key: 'Numpad8' }, { key: 'Numpad9' }, { key: 'NumpadAdd', width: 1 }],
-  [{ key: 'Numpad4' }, { key: 'Numpad5' }, { key: 'Numpad6' }, { key: 'NumpadAdd', width: 1 }],
-  [{ key: 'Numpad1' }, { key: 'Numpad2' }, { key: 'Numpad3' }, { key: 'NumpadEnter', width: 1 }],
-  [{ key: 'Numpad0', width: 2 }, { key: 'NumpadDecimal' }, { key: 'NumpadEnter', width: 1 }]
+  [{ key: 'Numpad7' }, { key: 'Numpad8' }, { key: 'Numpad9' }, { key: 'NumpadAdd' }],
+  [{ key: 'Numpad4' }, { key: 'Numpad5' }, { key: 'Numpad6' }, { key: 'NumpadAdd' }],
+  [{ key: 'Numpad1' }, { key: 'Numpad2' }, { key: 'Numpad3' }, { key: 'NumpadEnter' }],
+  [{ key: 'Numpad0', width: 4.75 }, { key: 'NumpadDecimal' }, { key: 'NumpadEnter' }]
 ]
 
+// Map for short key labels (max 5 chars)
+const keyShortLabels: Record<string, string> = {
+  PrintScreen: 'PrtSc',
+  ScrollLock: 'ScrLk',
+  Pause: 'Pause',
+  Insert: 'Ins',
+  Delete: 'Del',
+  Home: 'Home',
+  End: 'End',
+  PageUp: 'PgUp',
+  PageDown: 'PgDn',
+  CapsLock: 'Caps',
+  Backspace: 'Bksp',
+  ShiftLeft: 'Shift',
+  ShiftRight: 'Shift',
+  CtrlLeft: 'Ctrl',
+  CtrlRight: 'Ctrl',
+  AltLeft: 'Alt',
+  AltRight: 'Alt',
+  NumLock: 'Num',
+  NumpadDivide: '/',
+  NumpadMultiply: '*',
+  NumpadSubtract: '-',
+  NumpadAdd: '+',
+  NumpadEnter: 'Ent',
+  NumpadDecimal: '.',
+  Numpad0: '0',
+  Numpad1: '1',
+  Numpad2: '2',
+  Numpad3: '3',
+  Numpad4: '4',
+  Numpad5: '5',
+  Numpad6: '6',
+  Numpad7: '7',
+  Numpad8: '8',
+  Numpad9: '9',
+  ArrowUp: 'Up',
+  ArrowDown: 'Down',
+  ArrowLeft: 'Left',
+  ArrowRight: 'Right',
+  Win: 'Win',
+  Menu: 'Menu',
+  Fn: 'Fn',
+  Space: 'Space',
+  Tab: 'Tab',
+  Enter: 'Enter',
+  Esc: 'Esc',
+  Bksp: 'Bksp',
+  PgUp: 'PgUp',
+  PgDn: 'PgDn',
+  Del: 'Del',
+  Ins: 'Ins'
+}
+
+// Helper to get short label or icon
+const getShortLabel = (key: string): JSX.Element | string => {
+  if (keyShortLabels[key]) return keyShortLabels[key]
+  if (/^F\d{1,2}$/.test(key)) return key // F1-F12
+  if (key.length > 5) return key.slice(0, 5)
+  return key
+}
+
 // Utility to normalize key names from KeyboardEvent to our key names
-const normalizeKey = (key: string) => {
+const normalizeKey = (event: KeyboardEvent): string => {
+  // Prefer location for Ctrl, Alt, Shift, Numpad
+  if (event.code.startsWith('Numpad')) return event.code
+  if (event.code === 'ShiftLeft') return 'ShiftLeft'
+  if (event.code === 'ShiftRight') return 'ShiftRight'
+  if (event.code === 'ControlLeft') return 'CtrlLeft'
+  if (event.code === 'ControlRight') return 'CtrlRight'
+  if (event.code === 'AltLeft') return 'AltLeft'
+  if (event.code === 'AltRight') return 'AltRight'
+  if (event.code === 'MetaLeft' || event.code === 'MetaRight') return 'Win'
+  // Fallback for other keys
+  const key = event.key
   if (key === ' ') return 'Space'
-  if (key === 'Control') return 'Ctrl'
-  if (key === 'AltGraph') return 'AltRight'
+  if (key === 'Control') return 'CtrlLeft'
+  if (key === 'Alt') return 'AltLeft'
   if (key === 'Meta') return 'Win'
   if (key === 'OS') return 'Win'
   if (key === 'ArrowUp') return 'Up'
@@ -152,7 +215,6 @@ const normalizeKey = (key: string) => {
   if (key === 'PrintScreen') return 'PrintScreen'
   if (key === 'ScrollLock') return 'ScrollLock'
   if (key === 'Pause') return 'Pause'
-  if (key.startsWith('NumPad')) return 'Numpad' + key.slice(6)
   return key.length === 1 ? key.toUpperCase() : key
 }
 
@@ -160,85 +222,89 @@ export const VisualKeyboard = ({ layer, maxLayer, onUpdate }: VisualKeyboardProp
   const [pressedKeys, setPressedKeys] = useState<string[]>([])
   const [clickedKeys, setClickedKeys] = useState<string[]>([])
 
-  useEffect(() => {
-    const handleDown = (e: KeyboardEvent) => {
-      const norm = normalizeKey(e.key)
-      setPressedKeys((prev) => (prev.includes(norm) ? prev : [...prev, norm]))
+  // Track if Win key is pressed, and clear on blur (since OS may eat keyup)
+  useEffect((): (() => void) => {
+    const handleDown = (e: KeyboardEvent): void => {
+      const norm = normalizeKey(e)
+      setPressedKeys((prev: string[]) => (prev.includes(norm) ? prev : [...prev, norm]))
     }
-    const handleUp = (e: KeyboardEvent) => {
-      const norm = normalizeKey(e.key)
-      setPressedKeys((prev) => prev.filter((k) => k !== norm))
+    const handleUp = (e: KeyboardEvent): void => {
+      const norm = normalizeKey(e)
+      setPressedKeys((prev: string[]) => prev.filter((k) => k !== norm))
+    }
+    const handleBlur = (): void => {
+      setPressedKeys((prev: string[]) => prev.filter((k) => k !== 'Win'))
     }
     window.addEventListener('keydown', handleDown)
     window.addEventListener('keyup', handleUp)
-    return () => {
+    window.addEventListener('blur', handleBlur)
+    return (): void => {
       window.removeEventListener('keydown', handleDown)
       window.removeEventListener('keyup', handleUp)
+      window.removeEventListener('blur', handleBlur)
     }
   }, [])
 
-  const handleKeyClick = (key: string) => {
-    setClickedKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]))
+  const handleKeyClick = (key: string): void => {
+    setClickedKeys((prev: string[]) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    )
   }
 
   // Helper to render a row of keys
   const renderRow = (
     row: { key: string; width?: number; gapAfter?: boolean }[],
     rowIdx: number
-  ) => (
-    <div key={rowIdx} className="flex flex-row gap-1 mb-1">
-      {row.map(({ key, width, gapAfter }, idx) => (
-        <>
-          <button
-            key={key || `empty-${idx}`}
-            type="button"
-            disabled={!key}
-            className={`
+  ): JSX.Element => {
+    return (
+      <div key={rowIdx} className="flex flex-row mb-1" style={{ gap: '0.25rem' }}>
+        {row.map(({ key, width, gapAfter }, idx) => (
+          <span key={key || `empty-${idx}`} className="flex items-center">
+            <button
+              type="button"
+              disabled={!key}
+              className={`
               transition-all
               border
               rounded
-              text-xs
               font-mono
               h-10
-              flex items-center justify-center
-              select-none
+              ${key && key.length >= 4 ? 'text-xs' : key && key.length >= 2 ? 'text-sm' : ''}
               ${key && pressedKeys.includes(key) ? 'bg-blue-300 border-blue-600' : ''}
               ${key && clickedKeys.includes(key) ? 'bg-green-300 border-green-600' : ''}
               ${key && !pressedKeys.includes(key) && !clickedKeys.includes(key) ? 'bg-white border-gray-300' : ''}
               ${!key ? 'bg-transparent border-none cursor-default' : ''}
-            `}
-            style={{
-              minWidth: `${(width || 1) * 2.5}rem`,
-              maxWidth: `${(width || 1) * 2.5}rem`
-            }}
-            onClick={key ? () => handleKeyClick(key) : undefined}
-            tabIndex={key ? 0 : -1}
-          >
-            {key}
-          </button>
-          {gapAfter && <span key={`gap-${idx}`} className="w-4 inline-block" />}
-        </>
-      ))}
-    </div>
-  )
+              `}
+              style={{
+                minWidth: `${width || 2.25}rem`
+              }}
+              onClick={key ? (): void => handleKeyClick(key) : undefined}
+              tabIndex={key ? 0 : -1}
+            >
+              {key ? getShortLabel(key) : ''}
+            </button>
+            {gapAfter && (
+              <span
+                className="inline-block"
+                style={{
+                  minWidth: `${width || 0.25 + (2 * 2.25) / 3}rem`
+                }}
+              />
+            )}
+          </span>
+        ))}
+      </div>
+    )
+  }
 
   return (
-    <Card className="p-4 bg-neutral-100 overflow-auto">
-      <div className="flex flex-row gap-6 items-start">
-        {/* Main keyboard */}
-        <div>{mainRows.map(renderRow)}</div>
-        {/* Specialty + Arrows */}
-        <div className="flex flex-col gap-2 items-center">
-          {/* Specialty 3x3 */}
-          <div>{specialtyRows.map(renderRow)}</div>
-          {/* Spacer */}
-          <div style={{ height: '1.5rem' }} />
-          {/* Arrows */}
-          <div>{arrowRows.map(renderRow)}</div>
-        </div>
-        {/* Numpad */}
-        <div>{numpadRows.map(renderRow)}</div>
-      </div>
+    <Card className="p-4 bg-neutral-100 overflow-auto flex flex-row items-start">
+      {/* Main keyboard */}
+      <div className="flex flex-col">{mainRows.map(renderRow)}</div>
+      {/* Specialty + Arrows */}
+      <div className="flex flex-col">{specialtyRows.map(renderRow)}</div>
+      {/* Numpad */}
+      <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
     </Card>
   )
 }
