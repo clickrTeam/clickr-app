@@ -12,6 +12,7 @@ import { Trigger } from '../../../models/Trigger'
 import { Button } from './ui/button'
 import TriggerSelector from './CreateTrigger'
 import { BindSelector } from './CreateBind'
+import React from 'react'
 
 export type CreateModificationDialogProps = {
   isOpen: boolean
@@ -25,7 +26,7 @@ export default function CreateMappingDialog({
   maxLayer,
   onCancel,
   onCreate
-}: CreateModificationDialogProps) {
+}: CreateModificationDialogProps): React.ReactElement | null {
   const [trigger, setTrigger] = useState<Trigger | null>(null)
   const [bind, setBind] = useState<Bind | null>(null)
 

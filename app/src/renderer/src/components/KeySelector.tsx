@@ -14,7 +14,7 @@ type KeySelecterProps = {
 export default function KeySelecter({ selectedKey, onSelect }: KeySelecterProps) {
   return (
     <Select value={selectedKey} onValueChange={onSelect}>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-full">
         <SelectValue placeholder="Select key" />
       </SelectTrigger>
       <SelectContent>
