@@ -40,20 +40,6 @@ export const isKeybinderRunning = (): Promise<unknown> => {
 
 export const runKeybinder = (): void => {
   console.log('Running keybinder...')
-  // const command =
-  //   path.join(
-  //     'C:',
-  //     'Users',
-  //     'Lukew',
-  //     'OneDrive',
-  //     'Desktop',
-  //     'Qt',
-  //     'clickr-deployment',
-  //     'bin',
-  //     'keybinder',
-  //     'keybinder.exe'
-  //   ) + ' ./startup.json'
-  // C:\Users\Lukew\AppData\Local\Programs\clickr\resources\app.asar\out\main\resources\keybinder\keybinder.exe
   const command = path.join(__dirname, '../../../../', 'resources', 'keybinder', 'keybinder.exe')
 
   console.log(`Command to run: ${command}`)
@@ -74,26 +60,6 @@ export const runKeybinder = (): void => {
   })
 }
 
-// export const runKeybinder = (): void => {
-//   console.log('Running keybinder...')
-//   const command = platform() === 'win32' ? KEYBINDER_EXE : `./resources/keybinder/${KEYBINDER_EXE}`
-//   const ls = spawn(command, { shell: true })
-//   // path.join(__dirname, '../../../../', //'resources', 'keybinder', KEYBINDER_EXE)
-//   // const ls = spawn(`cd ./../../../../; dir`, { shell: true })
-
-//   ls.stdout.on('data', (data) => {
-//     console.log(`stdout: ${data}`);
-//   });
-
-//   ls.stderr.on('data', (data) => {
-//     console.error(`stderr: ${data}`);
-//   });
-
-//   ls.on('close', (code) => {
-//     console.log(`child process exited with code ${code}`);
-//   });
-// }
-
 export const stopKeybinder = (): void => {
   console.log('Stopping keybinder...')
   const command =
@@ -104,12 +70,3 @@ export const stopKeybinder = (): void => {
     }
   })
 }
-
-// Example usage:
-// isKeybinderRunning().then((isRunning) => {
-//   if (!isRunning) {
-//     runKeybinder()
-//   } else {
-//     stopKeybinder()
-//   }
-// })

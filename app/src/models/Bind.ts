@@ -4,10 +4,9 @@ export enum BindType {
   ReleaseKey = 'release_key',
   TapKey = 'tap_key',
   SwitchLayer = 'switch_layer',
+  Macro = 'macro',
 
   // Not handled by Daemon
-  Combo = 'combo_bind',
-  Macro = 'macro_bind',
   TimedMacro = 'timed_macro_bind',
   Repeat = 'repeat_bind',
   AppOpen = 'app_open_bind'
@@ -123,55 +122,12 @@ export class TapKey extends Bind {
   }
 }
 
-// TODO: rework these not exactly sure what they do or why they need to be differnt
-/**
- * Represents multiple keys being pressed at once. ['Ctrl', 'Alt', 'Del']
- */
-export class Combo_Bind extends Bind {
-  toString(): string {
-    throw new Error('Method not implemented.')
-  }
-  /**
-   * The values that will be remapped to. Will be multiple: ['Ctrl', 'V']
-   */
-  values: string[]
-
-  /**
-   * Instantiates a Combo object
-   * @param bind_type 'Combo'
-   * @param values A list of values to be remapped to
-   */
-  constructor(values: string[]) {
-    super(BindType.Combo)
-    this.values = values
-  }
-
-  toJSON(): object {
-    return {
-      type: BindType.Combo,
-      values: this.values
-    }
-  }
-
-  static fromJSON(obj: { values: string[] }): Combo_Bind {
-    return new Combo_Bind(obj.values)
-  }
-
-  equals(other: Bind): boolean {
-    return (
-      other instanceof Combo_Bind &&
-      this.values.length === other.values.length &&
-      this.values.every((v, i) => v === other.values[i])
-    )
-  }
-}
-
 /**
  * A combination of different types of binds. Can be link and combo, combo and repeat, etc.
  */
 export class Macro_Bind extends Bind {
   toString(): string {
-    throw new Error('Method not implemented.')
+    return `Macro: ${this.binds.map((b) => b.toString()).join(', ')}`
   }
   binds: Bind[]
 
@@ -200,6 +156,7 @@ export class Macro_Bind extends Bind {
   }
 }
 
+// Could possibly just do a delayed macro where it presses the key later.
 /**
  * A macro where there are time delays between each bind. Each time delay can be different.
  */
@@ -378,8 +335,6 @@ export function deserializeBind(obj: any): Bind {
       return ReleaseKey.fromJSON(obj)
     case BindType.TapKey:
       return TapKey.fromJSON(obj)
-    case BindType.Combo:
-      return Combo_Bind.fromJSON(obj)
     case BindType.Macro:
       return Macro_Bind.fromJSON(obj)
     case BindType.TimedMacro:
