@@ -11,16 +11,16 @@ interface ProfileEditorProps {
   onBack: () => void
 }
 
-export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps) => {
+export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): JSX.Element => {
   const [localProfile, setLocalProfile] = useState(profile)
 
-  const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer) => {
+  const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer): void => {
     const next = Profile.fromJSON(localProfile.toJSON())
     next.layers[layerIndex] = updatedLayer
     setLocalProfile(next)
   }
 
-  const handleAddLayer = () => {
+  const handleAddLayer = (): void => {
     const next = Profile.fromJSON(localProfile.toJSON())
     next.layers.push(new Layer(`Layer ${next.layers.length}`, next.layers.length, new Map()))
     setLocalProfile(next)
