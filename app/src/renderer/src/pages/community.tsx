@@ -31,14 +31,20 @@ type Mapping = {
 }
 const filters = ['All', 'Popular', 'Recent', 'Gaming', 'Productivity', 'Design', 'Development']
 
-const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
+const Community = ({
+  onDownload,
+  onViewDetails
+}: {
+  onDownload: (arg: Profile) => void;
+  onViewDetails: (mappingId: string) => void;
+}): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('All')
   const [mappings, setMappings] = useState<Mapping[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchCommunityMappings = async () => {
+  const fetchCommunityMappings = async (): Promise<void> => {
     try {
       setIsLoading(true)
       // Use the IPC bridge instead of direct API call
@@ -52,7 +58,7 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
     }
   }
 
-  const updateLastEdited = () => {
+  const updateLastEdited = (): void => {
     setMappings((currentMappings) =>
       currentMappings.map((mapping) => {
         const updatedDate = new Date(mapping.updated_at)
@@ -80,7 +86,7 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
   useEffect(() => {
     fetchCommunityMappings()
   }, [])
-  const handleLike = (id: string) => {
+  const handleLike = (id: string): void => {
     setMappings(
       mappings.map((mapping) => {
         if (mapping.id === id) {
@@ -167,20 +173,23 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
               <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle>{mapping.name}</CardTitle>
-                  <CardDescription>{mapping.description}</CardDescription>
+                  <CardDescription>
+                    <span className="flex flex-wrap items-center gap-2 mt-1">
+                      <span className="text-sm text-muted-foreground m-0">
+                        {mapping.description}
+                      </span>
+                      {mapping.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-1 rounded-full bg-primary/10 text-xs font-medium text-primary"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </span>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {mapping.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 rounded-full bg-primary/10 text-xs font-medium text-primary"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
                   <div className="flex items-center text-sm text-muted-foreground">
                     <User size={14} className="mr-1" />
                     <span className="mr-4">{mapping.user}</span>
@@ -201,18 +210,17 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
                       <span>{mapping.numLikes ?? 0}</span>
                     </Button>
 
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="flex items-center gap-1"
-                      onClick={() => onDownload(mapping.mappings)}
-                    >
+                    <Button size="sm" variant="ghost" className="flex items-center gap-1">
                       <Download size={16} />
                       <span>{mapping.numDownloads ?? 0}</span>
                     </Button>
                   </div>
 
-                  <Button size="sm" className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    className="flex items-center gap-1"
+                    onClick={() => onViewDetails(mapping.id)}
+                  >
                     Details
                     <ArrowUpRight size={14} />
                   </Button>

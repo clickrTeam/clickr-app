@@ -7,6 +7,8 @@ import Community from './pages/community'
 import Daemon from './pages/deamon'
 import { ProfileEditor } from './components/ProfileEditor'
 import { Card } from './components/ui/card'
+import MappingDetails from './pages/mappingDetails'
+import { Toaster } from '@renderer/components/ui/sonner'
 
 // Enum to represent different views/screens
 export enum View {
@@ -14,7 +16,8 @@ export enum View {
   DAEMON = 'DAEMON',
   COMMUNITY = 'COMMUNITY',
   MY_MAPPINGS = 'MY_MAPPINGS',
-  LOGIN = 'LOGIN'
+  LOGIN = 'LOGIN',
+  MAPPING_DETAILS = 'MAPPING_DETAILS'
 }
 
 function App(): JSX.Element {
@@ -26,8 +29,9 @@ function App(): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
+  const [selectedMappingId, setSelectedMappingId] = useState<string | null>(null)
 
-  function updateProfiles() {
+  function updateProfiles(): void {
     window.api.getProfiles().then((profiles: object[]) => {
       console.log('Got profiles:', profiles)
       setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
@@ -134,8 +138,20 @@ function App(): JSX.Element {
               window.api.updateProfile(newProfileIndex, newProfile)
               updateProfiles()
             }}
+            onViewDetails={(mappingId: string) => {
+              setSelectedMappingId(mappingId)
+              setCurrentView(View.MAPPING_DETAILS)
+            }}
           />
         )}
+
+        {/* Mapping Details Screen */}
+        {/* {currentView === View.MAPPING_DETAILS && (
+          <MappingDetails 
+            mappingId={selectedMappingId ?? ''}
+            onBack={() => setCurrentView(View.COMMUNITY)}
+          />
+        )} */}
 
         {/* My Mappings Screen Placeholder */}
         {/* Test Page (Original functionality) */}
@@ -237,7 +253,7 @@ function App(): JSX.Element {
             <NewProfileDialog
               isOpen={isCreatingProfile}
               onCancel={() => setIsCreatingProfile(false)}
-              onCreate={(name, _desc) => {
+              onCreate={(name) => {
                 window.api.createProfile(name)
                 updateProfiles()
                 setIsCreatingProfile(false)
@@ -246,6 +262,8 @@ function App(): JSX.Element {
           </div>
         )}
       </div>
+      {/* Toaster for notifications */}
+      <Toaster />
     </div>
   )
 }

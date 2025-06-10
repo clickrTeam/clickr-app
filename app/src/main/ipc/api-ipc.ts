@@ -1,11 +1,11 @@
 import { ipcMain } from 'electron'
 import axios from 'axios'
 
-const BASE_URL = 'https://temp-django-docker-production.up.railway.app/api/'
+const BASE_URL = 'https://clickr-backend-production.up.railway.app/api/'
 
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true
+  withCredentials: false
 })
 
 export function registerApiHandlers(): void {
@@ -30,9 +30,18 @@ export function registerApiHandlers(): void {
       throw new Error(error instanceof Error ? error.message : 'Failed to fetch user mappings')
     }
   })
+  ipcMain.handle('fetch-specific-mapping', async (_, mappingId: string) => {
+    try {
+      const response = await api.get(`users/mappings/${mappingId}`)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching specific mapping:', error)
+      throw new Error(error instanceof Error ? error.message : 'Failed to fetch specific mapping')
+    }
+  })
 
   // Create mapping
-  ipcMain.handle('create-mapping', async (_, username: string, mappingData: any) => {
+  ipcMain.handle('create-mapping', async (_, username: string, mappingData) => {
     //TODO: Temparary hack
     const entireMapping = {
       name: mappingData.profile_name,
@@ -101,3 +110,39 @@ export function registerApiHandlers(): void {
     }
   })
 }
+
+ipcMain.handle('add-tags', async (_, mappingId: string, tags: string[]) => {
+  try {
+    const response = await api.patch(`users/mappings/${mappingId}/add_tags`, {
+      tags: tags
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error adding tags:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to add tags')
+  }
+})
+
+ipcMain.handle('rename-mapping', async (_, mappingId: string, newName: string) => {
+  try {
+    const response = await api.patch(`users/mappings/${mappingId}/rename`, {
+      name: newName
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error renaming mapping:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to rename mapping')
+  }
+})
+
+ipcMain.handle('update-mapping-visibility', async (_, mappingId: string, isPublic: boolean) => {
+  try {
+    const response = await api.patch(`users/mappings/${mappingId}/visibility`, {
+      is_public: isPublic
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error updating mapping visibility:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to update mapping visibility')
+  }
+})

@@ -44,7 +44,7 @@ const Navbar = ({
                 onClick={() => handleViewChange(link.view)}
                 className={cn(
                   'font-medium transition-colors hover:text-cyan-600 flex items-center gap-2',
-                  currentView === link.view ? 'text-purple-400' : 'text-foreground/80'
+                  currentView === link.view ? 'text-white' : 'text-foreground/80'
                 )}
               >
                 <link.icon size={18} />

@@ -29,7 +29,13 @@ const api: API = {
   fetchUserMappings: function (username: string): Promise<any> {
     return ipcRenderer.invoke('fetch-user-mappings', username)
   },
+  fetchSpecificMapping: function (mappingId: string): Promise<any> {
+    return ipcRenderer.invoke('fetch-specific-mapping', mappingId)
+  },
   createMapping: function (username: string, mappingData: any): Promise<any> {
+    return ipcRenderer.invoke('create-mapping', username, mappingData)
+  },
+  createNewMapping: function (username: string, mappingData: any): Promise<any> {
     return ipcRenderer.invoke('create-mapping', username, mappingData)
   },
   deleteMapping: function (username: string, mappingId: string): Promise<any> {
@@ -37,6 +43,9 @@ const api: API = {
   },
   setActiveMapping: function (username: string, mappingId: string): Promise<any> {
     return ipcRenderer.invoke('set-active-mapping', username, mappingId)
+  },
+  addTags: function (mappingId: string, tags: string[]): Promise<any> {
+    return ipcRenderer.invoke('add-tags', mappingId, tags)
   },
   login: function (username: string, password: string): Promise<any> {
     return ipcRenderer.invoke('login', username, password)
