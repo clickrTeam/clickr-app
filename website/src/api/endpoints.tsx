@@ -4,9 +4,24 @@ const BASE_URL = "https://clickr-backend-production.up.railway.app/api/";
 
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true,
+  withCredentials: false,
 });
-// Interceptor that will atempt to revalidate a user if they fail to login.
+
+// Add request interceptor to include token in headers
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Interceptor that will attempt to revalidate a user if they fail to login.
 // Uses the refresh token to do that, otherwise if no token nothing happens
 api.interceptors.response.use(
   (response) => response,
@@ -18,8 +33,16 @@ api.interceptors.response.use(
 
       try {
         await refresh_token();
+        // Retry the original request with new token
+        const token = localStorage.getItem('access_token');
+        if (token) {
+          original_request.headers.Authorization = `Bearer ${token}`;
+        }
         return api(original_request);
       } catch (refreshError) {
+        // Clear tokens and redirect to login
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         window.location.href = "/login";
         return Promise.reject(refreshError);
       }
@@ -97,7 +120,21 @@ export const set_active_mapping = async (
 };
 
 export const refresh_token = async () => {
-  const response = await api.post("token/refresh/");
+  const refreshToken = localStorage.getItem('refresh_token');
+  
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
+  }
+
+  const response = await api.post("token/refresh/", {
+    refresh: refreshToken
+  });
+  
+  // Store the new access token
+  if (response.data.access_token) {
+    localStorage.setItem('access_token', response.data.access_token);
+  }
+  
   return response.data;
 };
 
@@ -109,10 +146,24 @@ export const get_auth = async () => {
 export const login = async (username: string, password: string) => {
   try {
     const response = await api.post("token/", { username, password });
+    
+    // Store tokens in localStorage for Safari compatibility
+    if (response.data.access_token) {
+      localStorage.setItem('access_token', response.data.access_token);
+    }
+    if (response.data.refresh_token) {
+      localStorage.setItem('refresh_token', response.data.refresh_token);
+    }
+    
     return response.data;
   } catch (error) {
     throw new Error("Login Failed");
   }
+};
+
+export const logout = () => {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
 };
 export const get_community_mappings = async () => {
   const response = await api.get(`community/`);
@@ -138,3 +189,4 @@ export const joinWaitlist = async (email: string) => {
   });
   return response.data;
 };
+

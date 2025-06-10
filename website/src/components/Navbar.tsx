@@ -194,7 +194,7 @@ const Navbar = () => {
               <Button
                 variant="outline"
                 onClick={logout}
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2"
               >
                 <LogOut size={18} />
                 <span>Logout</span>

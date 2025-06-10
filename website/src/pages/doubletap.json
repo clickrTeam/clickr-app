@@ -1,0 +1,266 @@
+{
+    "layers": [
+      {
+        "layer_name": "Default",
+        "remappings": [
+          {
+            "bind": {
+              "type": "switch_layer",
+              "layer_num": 1
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "Z",
+                  0
+                ],
+                [
+                  "Z",
+                  0
+                ],
+                [
+                  "Z",
+                  0
+                ]
+              ]
+            }
+          }
+        ],
+        "layer_number": 0
+      },
+      {
+        "layer_name": "Numbers",
+        "remappings": [
+          {
+            "bind": {
+              "type": "switch_layer",
+              "layer_num": 0
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "Z",
+                  0
+                ],
+                [
+                  "Z",
+                  0
+                ],
+                [
+                  "Z",
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "bind": {
+              "type": "tap_key",
+              "value": "1"
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "Q",
+                  0
+                ],
+                [
+                  "Q",
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "bind": {
+              "type": "tap_key",
+              "value": "2"
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "W",
+                  0
+                ],
+                [
+                  "W",
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "bind": {
+              "type": "tap_key",
+              "value": "3"
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "E",
+                  0
+                ],
+                [
+                  "E",
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "bind": {
+              "type": "tap_key",
+              "value": "4"
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "R",
+                  0
+                ],
+                [
+                  "R",
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "bind": {
+              "type": "tap_key",
+              "value": "5"
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "T",
+                  0
+                ],
+                [
+                  "T",
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "bind": {
+              "type": "tap_key",
+              "value": "6"
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "Y",
+                  0
+                ],
+                [
+                  "Y",
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "bind": {
+              "type": "tap_key",
+              "value": "7"
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "U",
+                  0
+                ],
+                [
+                  "U",
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "bind": {
+              "type": "tap_key",
+              "value": "8"
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "I",
+                  0
+                ],
+                [
+                  "I",
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "bind": {
+              "type": "tap_key",
+              "value": "9"
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "O",
+                  0
+                ],
+                [
+                  "O",
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "bind": {
+              "type": "tap_key",
+              "value": "0"
+            },
+            "trigger": {
+              "type": "tap_sequence",
+              "behavior": "default",
+              "key_time_pairs": [
+                [
+                  "P",
+                  0
+                ],
+                [
+                  "P",
+                  0
+                ]
+              ]
+            }
+          }
+        ],
+        "layer_number": 1
+      }
+    ],
+    "layer_count": 2,
+    "profile_name": "Double Tap Numbers"
+  }

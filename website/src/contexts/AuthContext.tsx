@@ -5,7 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { get_auth, refresh_token } from "@/api/endpoints";
+import { get_auth, refresh_token, logout as apiLogout } from "@/api/endpoints";
 
 // Define the User type
 type User = {
@@ -46,17 +46,38 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     const checkUserLoggedIn = async () => {
       try {
-        // Try to refresh the token to validate the session
-        await get_auth();
+        const accessToken = localStorage.getItem('access_token');
+        const storedUser = localStorage.getItem('user');
+        
+        if (!accessToken || !storedUser) {
+          setLoading(false);
+          return;
+        }
 
-        // If successful, retrieve user data from localStorage
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
+        // Try to validate the current session
+        try {
+          await get_auth();
+          // If successful, set user from localStorage
           setUser(JSON.parse(storedUser));
+        } catch (error) {
+          // Token might be expired, try to refresh
+          try {
+            await refresh_token();
+            // If refresh successful, set user
+            setUser(JSON.parse(storedUser));
+          } catch (refreshError) {
+            // Both access and refresh failed, clear everything
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user');
+            setUser(null);
+          }
         }
       } catch (error) {
-        // If refresh fails, user is not authenticated
-        localStorage.removeItem("user");
+        // Any error means user is not authenticated
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
         setUser(null);
       } finally {
         setLoading(false);
@@ -75,6 +96,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   // Logout function - clear user from context and localStorage
   const logout = () => {
     setUser(null);
+    apiLogout(); // This clears tokens from localStorage
     localStorage.removeItem("user");
     window.location.href = "/login";
   };
@@ -83,7 +105,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const refreshUser = async () => {
     try {
       await refresh_token();
-      // could fetch fresh user data here if needed
+      // Could fetch fresh user data here if needed
     } catch (error) {
       logout();
     }
