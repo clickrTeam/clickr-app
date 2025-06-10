@@ -15,8 +15,7 @@ import {
   Tag
 } from 'lucide-react'
 import { useEffect } from 'react'
-
-import { toast } from '@renderer/sonner'
+import { toast } from '@renderer/components/ui/sonner'
 import {
   Dialog,
   DialogClose,
@@ -74,27 +73,24 @@ type MappingDetails = {
   tags: Array<string>
 }
 
-const MappingDetail = () => {
-  //const { id } = useParams<{ id: string }>()
+const MappingDetail = ({ 
+  mappingId, 
+  onBack 
+}: { 
+  mappingId: string; 
+  onBack: () => void; 
+}): JSX.Element => {
   const [mapping, setMapping] = useState<MappingDetails>()
   const [isLoading, setIsLoading] = useState(true)
   const [remappings, setRemappings] = useState<Layer[]>([])
   const [isCreating, setIsCreating] = useState(false)
   const [newMappingTags, setNewMappingTags] = useState<string[]>([])
-  //const navigate = useNavigate()
-  //const { user } = useAuth()
-
-  // Determine if this is viewed from community or personal context
-  const isFromCommunity = window.location.pathname.includes('/community/')
-  //const currentUser = user?.username
-  // Check if current user owns this mapping
-  //const isOwnMapping = mapping?.user === currentUser
 
   useEffect(() => {
-    const fetchMapping = async () => {
+    const fetchMapping = async (): Promise<void> => {
       try {
         setIsLoading(true)
-        const mapping = await window.api.fetchSpecificMapping(id)
+        const mapping = await window.api.fetchSpecificMapping(mappingId)
         setMapping(mapping)
         setRemappings(mapping?.mappings?.layers || [])
       } catch (error) {
@@ -105,8 +101,7 @@ const MappingDetail = () => {
     }
 
     fetchMapping()
-    //Todo: Add id to dependencies
-  }, [])
+  }, [mappingId])
 
   useEffect(() => {
     if (mapping?.tags) {
@@ -114,7 +109,7 @@ const MappingDetail = () => {
     }
   }, [mapping])
 
-  const formatLastEdited = (updatedAt: string) => {
+  const formatLastEdited = (updatedAt: string): string => {
     const updatedDate = new Date(updatedAt)
     const now = new Date()
     const diffHours = Math.floor((now.getTime() - updatedDate.getTime()) / (1000 * 60 * 60))
@@ -154,7 +149,7 @@ const MappingDetail = () => {
     )
   }
 
-  const copyToClipboard = async (mappingId: string) => {
+  const copyToClipboard = async (mappingId: string): Promise<void> => {
     try {
       // TODO: Figure out if this works or fix it
       await navigator.clipboard.writeText(
@@ -169,7 +164,7 @@ const MappingDetail = () => {
     }
   }
 
-  const downloadMapping = async (mappingId: string) => {
+  const downloadMapping = async (mappingId: string): Promise<void> => {
     try {
       const response = await window.api.fetchSpecificMapping(mappingId)
       const jsonStr = JSON.stringify(response.mappings, null, 2)
@@ -183,7 +178,7 @@ const MappingDetail = () => {
     }
   }
 
-  const handleAddTags = async (mappingId: string, tags: string[]) => {
+  const handleAddTags = async (mappingId: string, tags: string[]): Promise<void> => {
     try {
       await window.api.addTags(mappingId, tags)
       toast.success('Tags updated successfully', {
@@ -194,7 +189,7 @@ const MappingDetail = () => {
     }
   }
 
-  const duplicateMapping = async () => {
+  const duplicateMapping = async (): Promise<void> => {
     try {
       const mappingData = {
         name: mapping.name + ' (Copy)',
@@ -219,7 +214,7 @@ const MappingDetail = () => {
     }
   }
 
-  const importMapping = async () => {
+  const importMapping = async (): Promise<void> => {
     try {
       const mappingData = {
         name: mapping.name + ' (Imported)',
@@ -253,13 +248,13 @@ const MappingDetail = () => {
           transition={{ duration: 0.5 }}
         >
           <div className="mb-8">
-            {/* <Link
-              to={isFromCommunity ? '/community' : '/my-mappings'}
+            <button
+              onClick={onBack}
               className="text-muted-foreground hover:text-foreground flex items-center mb-4"
             >
               <ArrowLeft size={16} className="mr-2" />
-              {isFromCommunity ? 'Back to Community' : 'Back to My Mappings'}
-            </Link> */}
+              Back to Community
+            </button>
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>

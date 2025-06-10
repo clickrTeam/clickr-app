@@ -5,7 +5,7 @@ const BASE_URL = 'https://clickr-backend-production.up.railway.app/api/'
 
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true
+  withCredentials: false
 })
 
 export function registerApiHandlers(): void {
@@ -41,7 +41,7 @@ export function registerApiHandlers(): void {
   })
 
   // Create mapping
-  ipcMain.handle('create-mapping', async (_, username: string, mappingData: any) => {
+  ipcMain.handle('create-mapping', async (_, username: string, mappingData) => {
     //TODO: Temparary hack
     const entireMapping = {
       name: mappingData.profile_name,

@@ -12,9 +12,12 @@ export interface API {
   // API communication methods
   fetchCommunityMappings(): Promise<any>
   fetchUserMappings(username: string): Promise<any>
+  fetchSpecificMapping(mappingId: string): Promise<any>
   createMapping(username: string, mappingData: any): Promise<any>
+  createNewMapping(username: string, mappingData: any): Promise<any>
   deleteMapping(username: string, mappingId: string): Promise<any>
   setActiveMapping(username: string, mappingId: string): Promise<any>
+  addTags(mappingId: string, tags: string[]): Promise<any>
   login(username: string, password: string): Promise<any>
   register(username: string, email: string, password: string): Promise<any>
 

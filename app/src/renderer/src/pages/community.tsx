@@ -10,7 +10,7 @@ import {
 } from '@renderer/components/ui/card'
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
-import { Search, Heart, ArrowUpRight, User, Clock, Download, View } from 'lucide-react'
+import { Search, Heart, ArrowUpRight, User, Clock, Download } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import { Profile } from '../../../models/Profile'
 
@@ -31,14 +31,20 @@ type Mapping = {
 }
 const filters = ['All', 'Popular', 'Recent', 'Gaming', 'Productivity', 'Design', 'Development']
 
-const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
+const Community = ({
+  onDownload,
+  onViewDetails
+}: {
+  onDownload: (arg: Profile) => void;
+  onViewDetails: (mappingId: string) => void;
+}): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('All')
   const [mappings, setMappings] = useState<Mapping[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchCommunityMappings = async () => {
+  const fetchCommunityMappings = async (): Promise<void> => {
     try {
       setIsLoading(true)
       // Use the IPC bridge instead of direct API call
@@ -52,7 +58,7 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
     }
   }
 
-  const updateLastEdited = () => {
+  const updateLastEdited = (): void => {
     setMappings((currentMappings) =>
       currentMappings.map((mapping) => {
         const updatedDate = new Date(mapping.updated_at)
@@ -80,7 +86,7 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
   useEffect(() => {
     fetchCommunityMappings()
   }, [])
-  const handleLike = (id: string) => {
+  const handleLike = (id: string): void => {
     setMappings(
       mappings.map((mapping) => {
         if (mapping.id === id) {
@@ -213,8 +219,7 @@ const Community = ({ onDownload }: { onDownload: (arg: Profile) => void }) => {
                   <Button
                     size="sm"
                     className="flex items-center gap-1"
-                    // TODO: Add mapping details view navigation
-                    onClick={() => setCurrentView(View.MAPPING_DETAILS)}
+                    onClick={() => onViewDetails(mapping.id)}
                   >
                     Details
                     <ArrowUpRight size={14} />
