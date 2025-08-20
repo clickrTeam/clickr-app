@@ -2,10 +2,14 @@ import path from 'path'
 import * as os from 'os'
 import * as net from 'net'
 import { Profile } from '../../models/Profile'
+import log from 'electron-log'
+
 
 // Path to the socket which is based on the OS
 const SOCKET_PATH =
   process.platform === 'win32' ? `\\\\.\\pipe\\clickr` : path.join(os.tmpdir(), 'clickr.sock')
+
+let client: net.Socket | null = null
 
 type DaemonReponse = {
   status: string
@@ -25,6 +29,20 @@ export function sendActiveProfile(profile: Profile): Promise<DaemonReponse> {
 }
 
 /**
+ * @returns the current socket such that it can be used in other parts of the application.
+ */
+export function getClient(): net.Socket | null {
+  return client
+}
+
+/**
+ * @returns The path to the socket used for communication with the daemon.
+ */
+export function getSocketPath(): string {
+  return SOCKET_PATH
+}
+
+/**
  * Sends a JSON message to the local daemon via a UNIX domain socket or named pipe,
  * waits for a newline-delimited JSON response, and resolves with the parsed result.
  *
@@ -33,8 +51,9 @@ export function sendActiveProfile(profile: Profile): Promise<DaemonReponse> {
  */
 function sendMessage(message: object): Promise<DaemonReponse> {
   return new Promise((resolve, reject) => {
-    const client = net.createConnection(SOCKET_PATH, () => {
-      client.write(JSON.stringify(message) + '\n')
+    client = net.createConnection(SOCKET_PATH, () => {
+      log.info('Connected to daemon at', SOCKET_PATH)
+      client!.write(JSON.stringify(message) + '\n')
     })
 
     let buffer = ''
@@ -51,7 +70,7 @@ function sendMessage(message: object): Promise<DaemonReponse> {
         } catch {
           reject(new Error('Failed to parse response from daemon'))
         } finally {
-          client.end()
+          client!.end()
         }
       }
     })
