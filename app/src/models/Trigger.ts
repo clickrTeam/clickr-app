@@ -1,3 +1,5 @@
+import log from 'electron-log'
+
 export enum TriggerType {
   KeyPress = 'key_press',
   KeyRelease = 'key_release',
@@ -146,7 +148,7 @@ export class TapSequence extends Trigger {
     } else if (obj.behavior === TimedTriggerBehavior.Default) {
       behavior = TimedTriggerBehavior.Default
     } else {
-      console.log(`Unknown behavior "${obj.behavior}", defaulting to TimedTriggerBehavior.Default`)
+      log.info(`Unknown behavior "${obj.behavior}", defaulting to TimedTriggerBehavior.Default`)
       behavior = TimedTriggerBehavior.Default
     }
 

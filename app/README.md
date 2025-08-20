@@ -36,3 +36,10 @@ $ npm run build:linux
 ### Prod
 
 Can test server side output by running the .exe through a cmd line.
+
+
+### Logging
+Logs are currently stored in the current locations:  
+On Linux: ~/.config/clickr/logs/main.log
+On Windows: %USERPROFILE%\AppData\Roaming clickr\logs\main.log
+On macOS: ~/Library/Application Support/clickr/logs/main.log

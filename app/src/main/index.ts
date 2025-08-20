@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerProfileHandlers } from './ipc/profile-ipc'
 import { registerApiHandlers } from './ipc/api-ipc'
 import { registerDeamonManagerHandlers } from './services/daemon-manager'
+import log from 'electron-log'
 
 function createWindow(): void {
   // Create the browser window.
@@ -20,6 +21,7 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    log.info('Clickr main window sucessfully created and ready to show.')
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -61,7 +63,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  console.log('Starting Express server for keybinder control...')
+  log.info('Starting Express server for keybinder control...')
 
   // Handle IPC messages
   // ipcMain.on('is-keybinder-running', async (event) => {
@@ -92,5 +94,6 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
+    log.info('All windows closed.')
   }
 })

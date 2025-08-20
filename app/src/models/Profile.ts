@@ -2,6 +2,7 @@
 import { Layer } from './Layer'
 import * as T from './Trigger'
 import * as B from './Bind'
+import log from 'electron-log'
 /**
  * Represents an entire profile that can contain many layers.
  */
@@ -31,6 +32,7 @@ export class Profile {
     this.layer_count = 0
 
     this.addLayer('layer 0')
+    log.info(`Profile "${this.profile_name}" created with initial layer "layer 0".`)
   }
 
   /**
@@ -42,6 +44,7 @@ export class Profile {
     this.layers.push(lyr)
     this.layer_count += 1
 
+    log.info(`Layer ${layer_name} with number ${this.layer_count - 1} created.`)
     //TODO: Add support for cloning layer 0 when you want to create a new layer.
   }
 
@@ -54,6 +57,7 @@ export class Profile {
     const index = this.layers.findIndex((layer) => layer.layer_number === layer_number)
 
     if (index === -1) {
+      log.warn(`Attempted to remove layer ${layer_number} and that does not exist in layer array.`)
       return false // not found
     }
 
@@ -66,6 +70,7 @@ export class Profile {
     }
 
     this.layer_count -= 1
+    log.info(`Layer ${layer_number} removed successfully.`)
     return true
   }
 
@@ -82,6 +87,7 @@ export class Profile {
     const index2 = this.layers.findIndex((layer) => layer.layer_number === num2)
 
     if (index1 === -1 || index2 === -1) {
+      log.warn(`Attempted to swap layers ${num1} and ${num2}, but one or both do not exist.`)
       return false // one or both layers not found
     }
 
@@ -94,6 +100,7 @@ export class Profile {
     this.layers[index1].layer_number = num1
     this.layers[index2].layer_number = num2
 
+    log.info(`Layers ${num1} and ${num2} swapped successfully.`)
     return true
   }
 
@@ -176,6 +183,7 @@ export class Profile {
    * Serializes the Profile instance to a JSON-compatible object.
    */
   toJSON(): object {
+    log.info(`Serialization of profile "${this.profile_name}" started.`)
     return {
       profile_name: this.profile_name,
       layer_count: this.layer_count,
@@ -192,12 +200,15 @@ export class Profile {
   static fromJSON(obj: any): Profile {
     // Validate the essential properties
     if (typeof obj !== 'object' || obj === null) {
+      log.error('Profile JSON is not an object or is null.')
       throw new Error('Profile JSON is not an object')
     }
     if (typeof obj.profile_name !== 'string') {
+      log.error('Profiles name is missing or is invalid.')
       throw new Error("Profile JSON missing or invalid 'profile_name'")
     }
     if (!Array.isArray(obj.layers)) {
+      log.error('Profile JSON missing or invalid layers')
       throw new Error("Profile JSON missing or invalid 'layers'")
     }
 
@@ -208,6 +219,7 @@ export class Profile {
     profile.layers = obj.layers.map((layerObj: any) => Layer.fromJSON(layerObj))
     profile.layer_count = profile.layers.length
 
+    log.info(`Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`)
     return profile
   }
 }

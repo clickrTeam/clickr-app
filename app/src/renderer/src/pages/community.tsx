@@ -13,6 +13,7 @@ import { Input } from '@renderer/components/ui/input'
 import { Search, Heart, ArrowUpRight, User, Clock, Download } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import { Profile } from '../../../models/Profile'
+import log from 'electron-log'
 
 type Mapping = {
   id: string
@@ -101,8 +102,8 @@ const Community = ({
   }
 
   const filteredMappings = mappings.filter((mapping) => {
-    if (isLoading) console.log('Loading mappings...')
-    if (error) console.error('Error fetching mappings:', error)
+    if (isLoading) log.info('Loading mappings...')
+    if (error) log.error('Error fetching mappings:', error)
     if (searchQuery) {
       return (
         mapping.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
