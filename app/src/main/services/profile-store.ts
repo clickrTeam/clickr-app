@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { app } from 'electron'
 import { Profile } from '../../models/Profile'
+import log from 'electron-log'
 
 type Profiles = {
   profiles: Profile[]
@@ -10,7 +11,7 @@ type Profiles = {
 
 // Path to the single JSON file storing all app data
 const dataFilePath = path.join(app.getPath('userData'), 'profiles.json')
-console.log(dataFilePath)
+log.info(dataFilePath)
 
 // Ensure the data file exists with default structure
 function ensureDataFile(): void {

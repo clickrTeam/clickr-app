@@ -9,6 +9,7 @@ import { ProfileEditor } from './components/ProfileEditor'
 import { Card } from './components/ui/card'
 import MappingDetails from './pages/mappingDetails'
 import { Toaster } from '@renderer/components/ui/sonner'
+import log from 'electron-log'
 
 // Enum to represent different views/screens
 export enum View {
@@ -33,19 +34,19 @@ function App(): JSX.Element {
 
   function updateProfiles(): void {
     window.api.getProfiles().then((profiles: object[]) => {
-      console.log('Got profiles:', profiles)
+      log.info('Got profiles:', profiles)
       setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
     })
 
     window.api.getActiveProfile().then((activeProfile: number | null) => {
-      console.log('Active profile is index: ', activeProfile)
+      log.info('Active profile is index: ', activeProfile)
       setActiveProfile(activeProfile)
     })
   }
 
   // Get the profile from the main process when the component mounts
   React.useEffect(() => {
-    console.log('[App] useEffect running')
+    log.info('[App] useEffect running')
     updateProfiles()
   }, [])
 
@@ -90,7 +91,7 @@ function App(): JSX.Element {
                 className="border-cyan-600 text-black hover:bg-cyan-700 px-8"
                 onClick={() => setCurrentView(View.MY_MAPPINGS)}
               >
-                My Mappins
+                My Mappings
               </Button>
             </div>
           </div>
@@ -171,7 +172,7 @@ function App(): JSX.Element {
               <ProfileEditor
                 profile={profiles[editedProfileIndex]}
                 onSave={(updatedProfile: Profile) => {
-                  console.log('here', updatedProfile)
+                  log.info(`Profile has been updated and saved. Updated profile: ${updatedProfile}`)
                   window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON())
                   updateProfiles()
                   setEditedProfileIndex(null)

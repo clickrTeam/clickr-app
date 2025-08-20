@@ -2,6 +2,7 @@ import { spawn, exec } from 'child_process'
 import { ipcMain } from 'electron'
 import { platform } from 'os'
 import path from 'path'
+import log from 'electron-log'
 
 export function registerDeamonManagerHandlers(): void {
   ipcMain.handle('is-keybinder-running', async () => {
@@ -22,7 +23,7 @@ export function registerDeamonManagerHandlers(): void {
 const KEYBINDER_EXE = 'keybinder.exe'
 
 export const isKeybinderRunning = (): Promise<unknown> => {
-  console.log('Checking if keybinder is running...')
+  log.info('Checking if keybinder is running...')
   const command =
     platform() === 'win32'
       ? `tasklist | findstr ${KEYBINDER_EXE}`
@@ -39,34 +40,36 @@ export const isKeybinderRunning = (): Promise<unknown> => {
 }
 
 export const runKeybinder = (): void => {
-  console.log('Running keybinder...')
+  log.info('Running keybinder...')
+  /// @todo This is hardcoding the path to the keybinder executable on Windows. Mac & Linux will not use an .exe file.
   const command = path.join(__dirname, '../../../../', 'resources', 'keybinder', 'keybinder.exe')
 
-  console.log(`Command to run: ${command}`)
+  log.info(`Command to run: ${command}`)
   const ls = spawn(command, {
     shell: true
   })
 
   ls.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`)
+    log.info('stdout: ', data)
   })
 
   ls.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`)
+    log.error('stderr: ', data)
   })
 
   ls.on('close', (code) => {
-    console.log(`child process exited with code ${code}`)
+    log.info('child process exited with code: ', code)
   })
 }
 
 export const stopKeybinder = (): void => {
-  console.log('Stopping keybinder...')
+  log.info('Stopping keybinder...')
+  /// @todo KEYBINDER_EXE expands to keybinder.exe. Mac & Linux will not use an .exe file.
   const command =
     platform() === 'win32' ? `taskkill /im ${KEYBINDER_EXE} /t /F` : `pkill -15 -f ${KEYBINDER_EXE}`
   exec(command, (error) => {
     if (error) {
-      console.error(error)
+      log.error('Error when attempting to stop keybinder: ', error)
     }
   })
 }

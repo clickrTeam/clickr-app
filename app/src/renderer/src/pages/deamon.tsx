@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@renderer/components/ui/button'
+import log from 'electron-log'
+
 
 const Daemon = (): JSX.Element => {
   const [isRunning, setIsRunning] = useState<boolean>(false)
@@ -10,9 +12,9 @@ const Daemon = (): JSX.Element => {
     window.api.isKeybinderRunning().then((isRun: boolean) => {
       setIsRunning(isRun)
       if (isRun) {
-        console.log('Keybinder is running')
+        log.info('Keybinder is running')
       } else {
-        console.log('Keybinder is not running')
+        log.info('Keybinder is not running')
       }
     })
   }, [])

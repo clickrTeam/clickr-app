@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { API } from '../preload/index.d'
+import log from 'electron-log'
 
 const api: API = {
   getProfiles: function (): Promise<object[]> {
@@ -73,7 +74,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
   } catch (error) {
-    console.error(error)
+    log.error('Error when exposing Electron APIs in the renderer process: ', error)
   }
 } else {
   // If context isolation is not enabled, expose them directly (less secure)

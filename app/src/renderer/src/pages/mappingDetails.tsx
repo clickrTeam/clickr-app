@@ -28,6 +28,8 @@ import {
 } from '@renderer/components/ui/dialog'
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
+import log from 'electron-log'
+
 
 type Trigger = {
   type: string
@@ -94,7 +96,7 @@ const MappingDetail = ({
         setMapping(mapping)
         setRemappings(mapping?.mappings?.layers || [])
       } catch (error) {
-        console.error('Error fetching mapping:', error)
+        log.error('Error fetching mapping:', error)
       } finally {
         setIsLoading(false)
       }
@@ -159,7 +161,7 @@ const MappingDetail = ({
         style: { background: '#22c55e', color: 'white' }
       })
     } catch (err) {
-      console.error('Failed to copy text: ', err)
+      log.error('Failed to copy text: ', err)
       toast.error('Failed to copy mapping link to clipboard')
     }
   }
@@ -174,7 +176,7 @@ const MappingDetail = ({
       link.click()
       return response
     } catch (error) {
-      console.error('Failed to download mapping: ', error)
+      log.error('Failed to download mapping: ', error)
     }
   }
 
@@ -185,7 +187,7 @@ const MappingDetail = ({
         style: { background: '#22c55e', color: 'white' }
       })
     } catch (error) {
-      console.error('Failed to add tags: ', error)
+      log.error('Failed to add tags: ', error)
     }
   }
 
@@ -201,7 +203,7 @@ const MappingDetail = ({
         num_downloads: 0,
         tags: mapping.tags
       }
-      console.log(mappingData)
+      log.info('Attempting to duplicate mapping data:', mappingData)
       // TODO: Add current user and change from TEST_USER
       await window.api.createNewMapping('TEST_USER', mappingData)
       toast.success('Mapping duplicated successfully', {
@@ -210,7 +212,7 @@ const MappingDetail = ({
       // TODO: Add my mappings view navigation
       //   navigate(`/my-mappings`)
     } catch (error) {
-      console.error('Failed to duplicate mapping: ', error)
+      log.error('Failed to duplicate mapping: ', error)
     }
   }
 
@@ -234,7 +236,7 @@ const MappingDetail = ({
       // TODO: Add my mappings view navigation
       //   navigate(`/my-mappings`)
     } catch (error) {
-      console.error('Failed to import mapping: ', error)
+      log.error('Failed to import mapping: ', error)
     }
   }
 
