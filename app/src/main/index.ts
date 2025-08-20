@@ -67,6 +67,7 @@ app.whenReady().then(() => {
   app.on('before-quit', () => {
     // Perform all necessary cleanup before quitting
     log.info('Application is quitting, performing cleanup...')
+    const connectionType = process.platform === 'win32' ? 'Named Pipe' : 'UNIX Socket'
     const client = getClient()
 
     /**
@@ -87,17 +88,18 @@ app.whenReady().then(() => {
       client.end(() => {
         client.destroy()
         if (!cleanupError) {
-          log.info('Socket fully closed and destroyed on the electron side.')
+          log.info(`${connectionType} fully closed and destroyed on the electron side.`)
+
           // This checks to see if the socket file still exists after closing the connection.
           if (fs.existsSync(SOCKET_PATH)) {
-            log.warn('Socket file still exists after cleanup:', SOCKET_PATH)
+            log.warn(`${connectionType} still exists after cleanup:`, SOCKET_PATH)
           } else {
-            log.info('Socket file successfully cleaned up:', SOCKET_PATH)
+            log.info(`${connectionType} successfully cleaned up:`, SOCKET_PATH)
           }
         }
       })
     } else {
-      log.error('Attempted to close socket (or named pipe) connection that was not open.')
+      log.error(`Attempted to close ${connectionType} connection that was not open.`)
     }
   })
 
