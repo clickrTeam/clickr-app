@@ -1,21 +1,16 @@
 import React from 'react'
-import { Bind } from '../../../../models/Bind'
+import { KeyTileModel } from './Model'
 
 interface InspectPopoverProps {
-  inspectedKey: string
-  keyRef: HTMLButtonElement | null
-  binds: Bind[]
+  inspectedKey: KeyTileModel
   onClose: () => void
 }
 
-export const InspectPopover: React.FC<InspectPopoverProps> = ({
-  inspectedKey,
-  keyRef,
-  binds,
-  onClose
-}) => {
-  if (!inspectedKey || !keyRef) return null
-  const rect = keyRef.getBoundingClientRect()
+export const InspectPopover: React.FC<InspectPopoverProps> = ({ inspectedKey, onClose }) => {
+  const rect = inspectedKey.keyRef?.getBoundingClientRect()
+  // Assuming 'inspectedKey' has a 'binds' property; adjust as needed
+  const binds = inspectedKey.mapped.map(([, bind]) => bind)
+  if (!rect) return null
   return (
     <div
       style={{

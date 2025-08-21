@@ -1,6 +1,5 @@
 // Utility functions for VisualKeyboard
-import { Layer } from '../../../models/Layer'
-import { keyShortLabels } from './VisualKeyboard/Layout.const'
+import { keyShortLabels } from './Layout.const'
 
 // Helper to get short label or icon
 export const getShortLabel = (key: string): string => {

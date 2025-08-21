@@ -1,6 +1,6 @@
 // Editor footer for VisualKeyboard
 import React, { useState } from 'react'
-import { BindType } from '../../../../models/Bind'
+import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 
 const bindTypeColors: Record<BindType, string> = {
   [BindType.PressKey]: '#60a5fa',
@@ -13,15 +13,10 @@ const bindTypeColors: Record<BindType, string> = {
   [BindType.AppOpen]: '#facc15'
 }
 
-export interface MacroItem {
-  key: string
-  type: BindType
-}
-
 export interface VisualKeyboardFooterProps {
   selectedKey: string | null
-  macro: MacroItem[]
-  onMacroChange: (macro: MacroItem[]) => void
+  macro: Bind[]
+  onMacroChange: (macro: Bind[]) => void
   onClose: () => void
 }
 
@@ -42,7 +37,24 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
 
   // Handler to change type of a macro item
   const handleTypeChange = (idx: number, type: BindType): void => {
-    const newMacro = macro.map((item, i) => (i === idx ? { ...item, type } : item))
+    const existing = macro[idx]
+    let value: string
+    if (existing instanceof TapKey || existing instanceof PressKey || existing instanceof ReleaseKey) {
+      value = existing.value
+    } else {
+      throw new Error('Macro bind is not a TapKey, PressKey, or ReleaseKey. Cannot change type.')
+    }
+    let newBind: Bind
+    if (type === BindType.TapKey) {
+      newBind = new TapKey(value)
+    } else if (type === BindType.PressKey) {
+      newBind = new PressKey(value)
+    } else if (type === BindType.ReleaseKey) {
+      newBind = new ReleaseKey(value)
+    } else {
+      throw new Error('Unsupported bind type for macro UI')
+    }
+    const newMacro = macro.map((item, i) => (i === idx ? newBind : item))
     onMacroChange(newMacro)
     setOpenDropdown(null)
   }
@@ -68,12 +80,12 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
               <button
                 className="px-2 py-1 rounded font-mono text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 style={{
-                  background: `${bindTypeColors[item.type]}80` // 50% opacity
+                  background: `${bindTypeColors[item.bind_type as BindType]}80` // 50% opacity
                 }}
                 onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
                 tabIndex={0}
               >
-                {item.key}
+                {'value' in item ? (item as TapKey | PressKey | ReleaseKey).value : ''}
               </button>
               {openDropdown === i && (
                 <div
@@ -83,10 +95,10 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
                   {typeOptions.map((opt) => (
                     <button
                       key={opt.value}
-                      className={`w-full text-left px-3 py-1 hover:bg-blue-100 ${item.type === opt.value ? 'font-bold text-blue-700' : ''}`}
+                      className={`w-full text-left px-3 py-1 hover:bg-blue-100 ${item.bind_type === opt.value ? 'font-bold text-blue-700' : ''}`}
                       style={{
                         background:
-                          item.type === opt.value ? `${bindTypeColors[opt.value]}22` : undefined
+                          item.bind_type === opt.value ? `${bindTypeColors[opt.value]}22` : undefined
                       }}
                       onClick={() => handleTypeChange(i, opt.value)}
                     >

@@ -1,30 +1,25 @@
 import { useState, useEffect, useRef } from 'react'
 import { Card } from '../ui/card'
 import { Layer } from '../../../../models/Layer'
-import { mainRows, specialtyRows, numpadRows } from './VisualKeyboardLayout'
-import { getShortLabel, normalizeKey, getKeyBackground, getKeyClass } from './VisualKeyboardUtil'
+import { mainRows, specialtyRows, numpadRows } from './Layout.const'
+import { normalizeKey } from './Util'
 import { InspectPopover } from './InspectPopover'
-import { VisualKeyboardFooter } from './VisualKeyboardFooter'
-import { BindType } from '../../../../models/Bind'
+import { VisualKeyboardFooter } from './Footer'
+import { Bind, TapKey } from '../../../../models/Bind'
+import { KeyTile } from './KeyTile'
+import { buildVisualKeyboardModel, KeyTileModel, VisualKeyboardModel } from './Model'
+import { Trigger } from 'src/models/Trigger'
 
 interface VisualKeyboardProps {
   layer: Layer
-  maxLayer: number
-  onUpdate: (updatedLayer: Layer) => void
-}
-
-interface MacroItem {
-  key: string
-  type: BindType
 }
 
 export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
   const [pressedKeys, setPressedKeys] = useState<string[]>([])
   const [clickedKeys, setClickedKeys] = useState<string[]>([])
-  const [inspectedKey, setInspectedKey] = useState<string | null>(null)
+  const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
-  const [macro, setMacro] = useState<MacroItem[]>([])
-  const keyRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const [macro, setMacro] = useState<Bind[]>([])
 
   useEffect((): (() => void) => {
     const handleDown = (e: KeyboardEvent): void => {
@@ -50,11 +45,11 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
 
   // Remove inspect popover on any click
   useEffect((): (() => void) => {
-    const handleAnyClick = (): void => setInspectedKey(null)
-    window.addEventListener('mousedown', handleAnyClick)
-    return (): void => {
-      window.removeEventListener('mousedown', handleAnyClick)
-    }
+    // const handleAnyClick = (): void => setInspectedKey(null)
+    // window.addEventListener('mousedown', handleAnyClick)
+    // return (): void => {
+    //   window.removeEventListener('mousedown', handleAnyClick)
+    // }
   }, [])
 
   // Listen for keydown to build macro if a key is selected
@@ -62,7 +57,7 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
     if (!selectedKey) return () => {}
     const handleDown = (e: KeyboardEvent): void => {
       const norm = normalizeKey(e)
-      setMacro((prev) => [...prev, { key: norm, type: BindType.TapKey }])
+      setMacro((prev) => [...prev, new TapKey(norm)])
     }
     window.addEventListener('keydown', handleDown)
     return (): void => {
@@ -70,13 +65,22 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
     }
   }, [selectedKey])
 
+  // Build the keyboard model once for all keys
+  const allKeys = [...mainRows.flat(), ...specialtyRows.flat(), ...numpadRows.flat()]
+  const visualKeyboardModel: VisualKeyboardModel = buildVisualKeyboardModel(
+    allKeys,
+    layer.remappings
+  )
+
   // Context menu inspect
-  const handleContextMenu = (key: string): ((e: React.MouseEvent) => void) => {
-    return (e: React.MouseEvent): void => {
+  const handleContextMenu =
+    (key: KeyTileModel) =>
+    (e: React.MouseEvent): void => {
       e.preventDefault()
+      e.stopPropagation()
       setInspectedKey(key)
     }
-  }
+
   const handleCloseInspect = (): void => setInspectedKey(null)
 
   const handleKeyClick = (key: string): void => {
@@ -86,60 +90,33 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
   }
 
   // Helper to render a row of keys
-  const renderRow = (
-    row: { key: string; width?: number; gapAfter?: boolean }[],
-    rowIdx: number
-  ): JSX.Element => {
+  const renderRow = (row: { key: string; width?: number; gapAfter?: boolean }[]): JSX.Element => {
     return (
-      <div key={rowIdx} className="flex flex-row mb-1" style={{ gap: '0.25rem' }}>
-        {row.map(({ key, width, gapAfter }, idx) => (
-          <span key={key || `empty-${idx}`} className="flex items-center">
-            <button
-              ref={(el) => {
-                if (key) keyRefs.current[key] = el
+      <div className="flex flex-row mb-1" style={{ gap: '0.25rem' }}>
+        {row.map(({ key }) => {
+          const keyModel: KeyTileModel = visualKeyboardModel.keyModels[key]
+          return (
+            <KeyTile
+              key={keyModel.key}
+              keyModel={keyModel}
+              onClick={(): void => {
+                handleKeyClick(key)
               }}
-              type="button"
-              disabled={!key}
-              className={getKeyClass(key, pressedKeys, clickedKeys)}
-              style={{
-                minWidth: `${width || 2.25}rem`,
-                background: getKeyBackground(key, layer)
-              }}
-              onClick={key ? (): void => handleKeyClick(key) : undefined}
-              onContextMenu={key ? handleContextMenu(key) : undefined}
-              tabIndex={key ? 0 : -1}
-            >
-              {key ? getShortLabel(key) : ''}
-            </button>
-            {gapAfter && (
-              <span
-                className="inline-block"
-                style={{
-                  minWidth: `${width || 0.25 + (2 * 2.25) / 3}rem`
-                }}
-              />
-            )}
-          </span>
-        ))}
+              onContextMenu={handleContextMenu(keyModel)}
+            />
+          )
+        })}
       </div>
     )
   }
 
   // Render inspect popover
   const renderInspectPopover = (): JSX.Element | null => {
-    if (!inspectedKey || !keyRefs.current[inspectedKey]) return null
-    // Find all binds for this key
-    const binds = Array.from(layer.remappings.entries())
-      .filter(([trigger]) => {
-        // @ts-expect-error: value is not in base Trigger, but is in subclasses
-        return typeof trigger.value === 'string' && trigger.value === inspectedKey
-      })
-      .map(([, bind]) => bind)
+    if (!inspectedKey) return null
+    console.log('renderInspectPopover', inspectedKey)
     return (
       <InspectPopover
         inspectedKey={inspectedKey}
-        keyRef={keyRefs.current[inspectedKey]}
-        binds={binds}
         onClose={handleCloseInspect}
       />
     )

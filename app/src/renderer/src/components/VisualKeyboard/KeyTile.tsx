@@ -1,0 +1,61 @@
+import React from 'react'
+import { getShortLabel } from './Util'
+import { KeyTileModel } from './Model'
+import { getBindColor } from './Colors'
+
+interface KeyTileProps {
+  keyModel: KeyTileModel
+  onClick: () => void
+  onContextMenu: (e: React.MouseEvent) => void
+}
+
+export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onContextMenu }) => {
+  if (keyModel.key === '') {
+    return (
+      <span className="flex items-center">
+        <span
+          className="inline-block"
+          style={{
+            minWidth: keyModel.displayWidth,
+          }}
+        />
+        {keyModel.gapAfter !== '0rem' && (
+          <span
+            className="inline-block"
+            style={{
+              minWidth: keyModel.gapAfter
+            }}
+          />
+        )}
+      </span>
+    )
+  }
+
+  return (
+    <span className="flex items-center">
+      <button
+        ref={(el) => {
+          keyModel.keyRef = el
+        }}
+        type="button"
+        className={keyModel.className}
+        style={{
+          minWidth: keyModel.displayWidth,
+          background: getBindColor(keyModel.mapped)
+        }}
+        onClick={onClick}
+        onContextMenu={onContextMenu}
+      >
+        {getShortLabel(keyModel.key)}
+      </button>
+      {keyModel.gapAfter !== '0rem' && (
+        <span
+          className="inline-block"
+          style={{
+            minWidth: keyModel.gapAfter
+          }}
+        />
+      )}
+    </span>
+  )
+}
