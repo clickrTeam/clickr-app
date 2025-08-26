@@ -5,9 +5,10 @@ import { mainRows, specialtyRows, numpadRows } from './Layout.const'
 import { normalizeKey } from './Util'
 import { InspectPopover } from './InspectPopover'
 import { VisualKeyboardFooter } from './Footer'
-import { Bind, TapKey } from '../../../../models/Bind'
+import { Bind, Macro_Bind, TapKey } from '../../../../models/Bind'
 import { KeyTile } from './KeyTile'
 import { buildVisualKeyboardModel, KeyTileModel, VisualKeyboardModel } from './Model'
+import * as T from '../../../../models/Trigger'
 
 interface VisualKeyboardProps {
   layer: Layer
@@ -17,7 +18,8 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
   const [pressedKeys, setPressedKeys] = useState<string[]>([])
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
-  const [macro, setMacro] = useState<Bind[]>([])
+  const [bind, setBind] = useState<Bind[]>([])
+  const [trigger, setTrigger] = useState<T.Trigger | null>(null)
 
   useEffect((): (() => void) => {
     function handleKeyDown(e: KeyboardEvent): void {
@@ -25,7 +27,7 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
       e.preventDefault()
       e.stopPropagation()
       setPressedKeys((prev: string[]) => (prev.includes(norm) ? prev : [...prev, norm]))
-      if (selectedKey) setMacro((prev) => [...prev, new TapKey(norm)])
+      if (selectedKey) setBind((prev) => [...prev, new TapKey(norm)])
     }
     function handleKeyUp(e: KeyboardEvent): void {
       const norm = normalizeKey(e)
@@ -63,8 +65,14 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
   const handleCloseInspect = (): void => setInspectedKey(null)
 
   const handleKeyClick = (key: string): void => {
-    setSelectedKey(key)
-    setMacro([])
+    if (selectedKey === key) {
+      setSelectedKey(null)
+      setTrigger(null)
+    } else {
+      setSelectedKey(key)
+      setTrigger(new T.KeyPress(key))
+    }
+    setBind([])
   }
 
   const renderRow = (row: { key: string; width?: number; gapAfter?: boolean }[]): JSX.Element => {
@@ -97,11 +105,15 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
     return (
       <VisualKeyboardFooter
         selectedKey={selectedKey}
-        macro={macro}
-        onMacroChange={setMacro}
+        macro={bind}
+        onMacroChange={setBind}
         onClose={() => {
+          if (trigger) {
+            layer.addRemapping(trigger, new Macro_Bind(bind))
+            setTrigger(null)
+          }
           setSelectedKey(null)
-          setMacro([])
+          setBind([])
         }}
       />
     )

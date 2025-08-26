@@ -1,8 +1,27 @@
-// Editor footer for VisualKeyboard
 import React, { useState } from 'react'
 import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
+import { keys } from '../../../../models/Keys'
 import { bindTypeColors } from './Colors'
 import './Footer.css'
+
+const typeOptions: { value: BindType; label: string }[] = [
+  { value: BindType.TapKey, label: 'Tap' },
+  { value: BindType.PressKey, label: 'Press' },
+  { value: BindType.ReleaseKey, label: 'Release' }
+]
+
+function getMacroButtonBg(item: Bind): string {
+  return `${bindTypeColors[item.bind_type as BindType]}80`
+}
+
+function getDropdownBg(item: Bind, opt: { value: BindType }): string | undefined {
+  return item.bind_type === opt.value ? `${bindTypeColors[opt.value]}22` : undefined
+}
+
+function getMacroValue(item: Bind): string {
+  if ('value' in item) return (item as TapKey | PressKey | ReleaseKey).value
+  return ''
+}
 
 export interface VisualKeyboardFooterProps {
   selectedKey: string | null
@@ -11,12 +30,6 @@ export interface VisualKeyboardFooterProps {
   onClose: () => void
 }
 
-const typeOptions: { value: BindType; label: string }[] = [
-  { value: BindType.TapKey, label: 'Tap' },
-  { value: BindType.PressKey, label: 'Press' },
-  { value: BindType.ReleaseKey, label: 'Release' }
-]
-
 export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   selectedKey,
   macro,
@@ -24,10 +37,10 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   onClose
 }): JSX.Element | null => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
+  const [showKeySelector, setShowKeySelector] = useState(false)
   if (!selectedKey) return null
 
-  // Handler to change type of a macro item
-  const handleTypeChange = (idx: number, type: BindType): void => {
+  function handleTypeChange(idx: number, type: BindType): void {
     const existing = macro[idx]
     let value: string
     if (
@@ -54,6 +67,11 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     setOpenDropdown(null)
   }
 
+  function handleAddKeyToMacro(key: string): void {
+    onMacroChange([...macro, new TapKey(key)])
+    setShowKeySelector(false)
+  }
+
   return (
     <div className="vk-footer">
       <div className="vk-footer-row">
@@ -65,6 +83,30 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       </div>
       <div className="vk-footer-row">
         <span className="vk-footer-macro-label">Macro:</span>
+        <button
+          className="vk-footer-macro-btn"
+          style={{ fontWeight: 'bold', fontSize: 18, padding: '0 0.7rem', marginRight: 8 }}
+          onClick={() => setShowKeySelector((v) => !v)}
+        >
+          +
+        </button>
+        {showKeySelector && (
+          <div
+            className="vk-footer-macro-dropdown"
+            style={{ left: 0, minWidth: 160, maxHeight: 200, overflowY: 'auto' }}
+          >
+            {keys.map((key) => (
+              <button
+                key={key}
+                className="vk-footer-macro-dropdown-btn"
+                style={{ width: '100%' }}
+                onClick={() => handleAddKeyToMacro(key)}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
+        )}
         {macro.length === 0 ? (
           <span className="vk-footer-macro-empty">(Tap keys to add to macro)</span>
         ) : (
@@ -72,13 +114,11 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             <span key={i} style={{ position: 'relative', display: 'inline-block' }}>
               <button
                 className="vk-footer-macro-btn"
-                style={{
-                  background: `${bindTypeColors[item.bind_type as BindType]}80`
-                }}
+                style={{ background: getMacroButtonBg(item) }}
                 onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
                 tabIndex={0}
               >
-                {'value' in item ? (item as TapKey | PressKey | ReleaseKey).value : ''}
+                {getMacroValue(item)}
               </button>
               {openDropdown === i && (
                 <div className="vk-footer-macro-dropdown">
@@ -86,12 +126,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
                     <button
                       key={opt.value}
                       className={`vk-footer-macro-dropdown-btn${item.bind_type === opt.value ? ' selected' : ''}`}
-                      style={{
-                        background:
-                          item.bind_type === opt.value
-                            ? `${bindTypeColors[opt.value]}22`
-                            : undefined
-                      }}
+                      style={{ background: getDropdownBg(item, opt) }}
                       onClick={() => handleTypeChange(i, opt.value)}
                     >
                       {opt.label}
