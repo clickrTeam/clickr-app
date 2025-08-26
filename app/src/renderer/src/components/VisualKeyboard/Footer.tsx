@@ -1,17 +1,8 @@
 // Editor footer for VisualKeyboard
 import React, { useState } from 'react'
 import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
-
-const bindTypeColors: Record<BindType, string> = {
-  [BindType.PressKey]: '#60a5fa',
-  [BindType.ReleaseKey]: '#f87171',
-  [BindType.TapKey]: '#34d399',
-  [BindType.SwitchLayer]: '#fbbf24',
-  [BindType.Macro]: '#a78bfa',
-  [BindType.TimedMacro]: '#f472b6',
-  [BindType.Repeat]: '#fb7185',
-  [BindType.AppOpen]: '#facc15'
-}
+import { bindTypeColors } from './Colors'
+import './Footer.css'
 
 export interface VisualKeyboardFooterProps {
   selectedKey: string | null
@@ -39,7 +30,11 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   const handleTypeChange = (idx: number, type: BindType): void => {
     const existing = macro[idx]
     let value: string
-    if (existing instanceof TapKey || existing instanceof PressKey || existing instanceof ReleaseKey) {
+    if (
+      existing instanceof TapKey ||
+      existing instanceof PressKey ||
+      existing instanceof ReleaseKey
+    ) {
       value = existing.value
     } else {
       throw new Error('Macro bind is not a TapKey, PressKey, or ReleaseKey. Cannot change type.')
@@ -60,27 +55,25 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   }
 
   return (
-    <div className="fixed left-0 right-0 bottom-0 z-50 bg-white border-t border-gray-300 shadow-lg p-4 flex flex-col items-center animate-fade-in">
-      <div className="flex items-center gap-4 mb-2">
-        <span className="font-bold text-blue-700">Selected Key:</span>
-        <span className="bg-blue-100 px-3 py-1 rounded text-blue-900 font-mono text-lg">
-          {selectedKey}
-        </span>
-        <button className="ml-4 text-gray-500 hover:text-red-500" onClick={onClose}>
+    <div className="vk-footer">
+      <div className="vk-footer-row">
+        <span className="vk-footer-selected-label">Selected Key:</span>
+        <span className="vk-footer-selected-key">{selectedKey}</span>
+        <button className="vk-footer-close" onClick={onClose}>
           Close
         </button>
       </div>
-      <div className="flex items-center gap-2 mb-2">
-        <span className="font-semibold">Macro:</span>
+      <div className="vk-footer-row">
+        <span className="vk-footer-macro-label">Macro:</span>
         {macro.length === 0 ? (
-          <span className="text-gray-400">(Tap keys to add to macro)</span>
+          <span className="vk-footer-macro-empty">(Tap keys to add to macro)</span>
         ) : (
           macro.map((item, i) => (
-            <span key={i} className="relative inline-block">
+            <span key={i} style={{ position: 'relative', display: 'inline-block' }}>
               <button
-                className="px-2 py-1 rounded font-mono text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="vk-footer-macro-btn"
                 style={{
-                  background: `${bindTypeColors[item.bind_type as BindType]}80` // 50% opacity
+                  background: `${bindTypeColors[item.bind_type as BindType]}80`
                 }}
                 onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
                 tabIndex={0}
@@ -88,17 +81,16 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
                 {'value' in item ? (item as TapKey | PressKey | ReleaseKey).value : ''}
               </button>
               {openDropdown === i && (
-                <div
-                  className="absolute left-0 bottom-full mb-1 w-24 bg-white border border-gray-300 rounded shadow-lg z-50"
-                  style={{ minWidth: 80 }}
-                >
+                <div className="vk-footer-macro-dropdown">
                   {typeOptions.map((opt) => (
                     <button
                       key={opt.value}
-                      className={`w-full text-left px-3 py-1 hover:bg-blue-100 ${item.bind_type === opt.value ? 'font-bold text-blue-700' : ''}`}
+                      className={`vk-footer-macro-dropdown-btn${item.bind_type === opt.value ? ' selected' : ''}`}
                       style={{
                         background:
-                          item.bind_type === opt.value ? `${bindTypeColors[opt.value]}22` : undefined
+                          item.bind_type === opt.value
+                            ? `${bindTypeColors[opt.value]}22`
+                            : undefined
                       }}
                       onClick={() => handleTypeChange(i, opt.value)}
                     >

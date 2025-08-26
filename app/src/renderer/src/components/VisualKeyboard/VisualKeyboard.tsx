@@ -20,36 +20,27 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
   const [macro, setMacro] = useState<Bind[]>([])
 
   useEffect((): (() => void) => {
-    const handleDown = (e: KeyboardEvent): void => {
+    function handleKeyDown(e: KeyboardEvent): void {
       const norm = normalizeKey(e)
+      e.preventDefault()
+      e.stopPropagation()
       setPressedKeys((prev: string[]) => (prev.includes(norm) ? prev : [...prev, norm]))
+      if (selectedKey) setMacro((prev) => [...prev, new TapKey(norm)])
     }
-    const handleUp = (e: KeyboardEvent): void => {
+    function handleKeyUp(e: KeyboardEvent): void {
       const norm = normalizeKey(e)
       setPressedKeys((prev: string[]) => prev.filter((k) => k !== norm))
     }
-    const handleBlur = (): void => {
+    function handleBlur(): void {
       setPressedKeys((prev: string[]) => prev.filter((k) => k !== 'Win'))
     }
-    window.addEventListener('keydown', handleDown)
-    window.addEventListener('keyup', handleUp)
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
     window.addEventListener('blur', handleBlur)
     return (): void => {
-      window.removeEventListener('keydown', handleDown)
-      window.removeEventListener('keyup', handleUp)
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
       window.removeEventListener('blur', handleBlur)
-    }
-  }, [])
-
-  useEffect((): (() => void) => {
-    if (!selectedKey) return () => {}
-    const handleDown = (e: KeyboardEvent): void => {
-      const norm = normalizeKey(e)
-      setMacro((prev) => [...prev, new TapKey(norm)])
-    }
-    window.addEventListener('keydown', handleDown)
-    return (): void => {
-      window.removeEventListener('keydown', handleDown)
     }
   }, [selectedKey])
 
