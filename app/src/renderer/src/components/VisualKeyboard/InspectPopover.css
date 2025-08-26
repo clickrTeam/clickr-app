@@ -1,0 +1,23 @@
+.inspect-popover {
+  position: fixed;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.inspect-popover-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.inspect-popover-list {
+  font-size: 13px;
+  margin: 0;
+  padding: 0;
+}
+.inspect-popover-close {
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+}

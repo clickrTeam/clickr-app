@@ -2,6 +2,7 @@ import React from 'react'
 import { getShortLabel } from './Util'
 import { KeyTileModel } from './Model'
 import { getBindColor } from './Colors'
+import './KeyTile.css'
 
 interface KeyTileProps {
   keyModel: KeyTileModel
@@ -16,7 +17,7 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onContextMe
         <span
           className="inline-block"
           style={{
-            minWidth: keyModel.displayWidth,
+            minWidth: keyModel.displayWidth
           }}
         />
         {keyModel.gapAfter !== '0rem' && (
@@ -31,6 +32,10 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onContextMe
     )
   }
 
+  let btnClass = 'vk-key ' + keyModel.className
+  if (keyModel.isSelected) btnClass += ' selected'
+  if (keyModel.isDown) btnClass += ' down'
+
   return (
     <span className="flex items-center">
       <button
@@ -38,7 +43,7 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onContextMe
           keyModel.keyRef = el
         }}
         type="button"
-        className={keyModel.className}
+        className={btnClass}
         style={{
           minWidth: keyModel.displayWidth,
           background: getBindColor(keyModel.mapped)

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '../ui/card'
 import { Layer } from '../../../../models/Layer'
 import { mainRows, specialtyRows, numpadRows } from './Layout.const'
@@ -8,7 +8,6 @@ import { VisualKeyboardFooter } from './Footer'
 import { Bind, TapKey } from '../../../../models/Bind'
 import { KeyTile } from './KeyTile'
 import { buildVisualKeyboardModel, KeyTileModel, VisualKeyboardModel } from './Model'
-import { Trigger } from 'src/models/Trigger'
 
 interface VisualKeyboardProps {
   layer: Layer
@@ -43,15 +42,6 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
     }
   }, [])
 
-  // Remove inspect popover on any click
-  useEffect((): (() => void) => {
-    // const handleAnyClick = (): void => setInspectedKey(null)
-    // window.addEventListener('mousedown', handleAnyClick)
-    // return (): void => {
-    //   window.removeEventListener('mousedown', handleAnyClick)
-    // }
-  }, [])
-
   // Listen for keydown to build macro if a key is selected
   useEffect((): (() => void) => {
     if (!selectedKey) return () => {}
@@ -65,12 +55,17 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
     }
   }, [selectedKey])
 
-  // Build the keyboard model once for all keys
+  // Build the keyboard model once for all keys, and set isDown for each key
   const allKeys = [...mainRows.flat(), ...specialtyRows.flat(), ...numpadRows.flat()]
   const visualKeyboardModel: VisualKeyboardModel = buildVisualKeyboardModel(
     allKeys,
     layer.remappings
   )
+  // Set isDown and isSelected for each key in the model
+  for (const key of Object.keys(visualKeyboardModel.keyModels)) {
+    visualKeyboardModel.keyModels[key].isDown = pressedKeys.includes(key)
+    visualKeyboardModel.keyModels[key].isSelected = selectedKey === key
+  }
 
   // Context menu inspect
   const handleContextMenu =
@@ -97,7 +92,7 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
           const keyModel: KeyTileModel = visualKeyboardModel.keyModels[key]
           return (
             <KeyTile
-              key={keyModel.key}
+              key={keyModel.key === '' ? undefined : keyModel.key}
               keyModel={keyModel}
               onClick={(): void => {
                 handleKeyClick(key)
@@ -114,12 +109,7 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
   const renderInspectPopover = (): JSX.Element | null => {
     if (!inspectedKey) return null
     console.log('renderInspectPopover', inspectedKey)
-    return (
-      <InspectPopover
-        inspectedKey={inspectedKey}
-        onClose={handleCloseInspect}
-      />
-    )
+    return <InspectPopover inspectedKey={inspectedKey} onClose={handleCloseInspect} />
   }
 
   // Render footer

@@ -1,9 +1,9 @@
 import { Profile } from '../../../models/Profile'
 import { Layer } from '../../../models/Layer'
-import { LayerComponent } from './LayerComponent'
 import { Button } from './ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs'
 import { useState } from 'react'
+import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 
 interface ProfileEditorProps {
   profile: Profile
@@ -54,7 +54,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
 
         {localProfile.layers.map((layer, index) => (
           <TabsContent key={index} value={index.toString()}>
-            <LayerComponent
+            <VisualKeyboard
               layer={layer}
               maxLayer={profile.layers.length}
               onUpdate={(updatedLayer) => handleLayerUpdate(index, updatedLayer)}

@@ -10,6 +10,8 @@ export interface KeyTileModel {
   className: string
   mapped: Array<[Trigger, Bind]>
   keyRef?: HTMLButtonElement | null
+  isDown?: boolean // true if the key is currently pressed
+  isSelected?: boolean
 }
 
 export interface VisualKeyboardModel {
