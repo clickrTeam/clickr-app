@@ -15,7 +15,6 @@ interface VisualKeyboardProps {
 
 export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
   const [pressedKeys, setPressedKeys] = useState<string[]>([])
-  const [clickedKeys, setClickedKeys] = useState<string[]>([])
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [macro, setMacro] = useState<Bind[]>([])
@@ -42,7 +41,6 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
     }
   }, [])
 
-  // Listen for keydown to build macro if a key is selected
   useEffect((): (() => void) => {
     if (!selectedKey) return () => {}
     const handleDown = (e: KeyboardEvent): void => {
@@ -55,19 +53,14 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
     }
   }, [selectedKey])
 
-  // Build the keyboard model once for all keys, and set isDown for each key
   const allKeys = [...mainRows.flat(), ...specialtyRows.flat(), ...numpadRows.flat()]
   const visualKeyboardModel: VisualKeyboardModel = buildVisualKeyboardModel(
     allKeys,
-    layer.remappings
+    layer.remappings,
+    pressedKeys,
+    selectedKey
   )
-  // Set isDown and isSelected for each key in the model
-  for (const key of Object.keys(visualKeyboardModel.keyModels)) {
-    visualKeyboardModel.keyModels[key].isDown = pressedKeys.includes(key)
-    visualKeyboardModel.keyModels[key].isSelected = selectedKey === key
-  }
 
-  // Context menu inspect
   const handleContextMenu =
     (key: KeyTileModel) =>
     (e: React.MouseEvent): void => {
@@ -79,12 +72,10 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
   const handleCloseInspect = (): void => setInspectedKey(null)
 
   const handleKeyClick = (key: string): void => {
-    setClickedKeys([key])
     setSelectedKey(key)
     setMacro([])
   }
 
-  // Helper to render a row of keys
   const renderRow = (row: { key: string; width?: number; gapAfter?: boolean }[]): JSX.Element => {
     return (
       <div className="flex flex-row mb-1" style={{ gap: '0.25rem' }}>
@@ -105,14 +96,12 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
     )
   }
 
-  // Render inspect popover
   const renderInspectPopover = (): JSX.Element | null => {
     if (!inspectedKey) return null
     console.log('renderInspectPopover', inspectedKey)
     return <InspectPopover inspectedKey={inspectedKey} onClose={handleCloseInspect} />
   }
 
-  // Render footer
   const renderFooter = (): JSX.Element | null => {
     return (
       <VisualKeyboardFooter
@@ -121,7 +110,6 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
         onMacroChange={setMacro}
         onClose={() => {
           setSelectedKey(null)
-          setClickedKeys([])
           setMacro([])
         }}
       />

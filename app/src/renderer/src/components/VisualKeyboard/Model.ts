@@ -21,11 +21,12 @@ export interface VisualKeyboardModel {
 
 export function buildVisualKeyboardModel(
   allKeys: Array<{ key: string; width?: number; gapAfter?: boolean }>,
-  remappings: Map<Trigger, Bind>
+  remappings: Map<Trigger, Bind>,
+  pressedKeys: string[] = [],
+  selectedKey: string | null = null
 ): VisualKeyboardModel {
   const keyModels: Record<string, KeyTileModel> = {}
   const unmapped: Array<[Trigger, Bind]> = []
-  // Pre-index triggers by key
   const keyMap: Record<string, Array<[Trigger, Bind]>> = {}
   for (const [trigger, bind] of remappings.entries()) {
     const triggerKey = (trigger as { value?: string }).value
@@ -37,13 +38,20 @@ export function buildVisualKeyboardModel(
     }
   }
   for (const { key, width, gapAfter } of allKeys) {
+    const isDown = pressedKeys.includes(key)
+    const isSelected = selectedKey === key
+    let className = getKeyClass(key, [], [])
+    if (isSelected) className += ' selected'
+    if (isDown) className += ' down'
     keyModels[key] = {
       key,
       width: width ?? 2.5,
       gapAfter: gapAfter ? `${width || 0.25 + (2 * 2.25) / 3}rem` : '0rem',
-      className: getKeyClass(key, [], []),
+      className: 'vk-key ' + className,
       mapped: keyMap[key] || [],
-      displayWidth: `${width || 2.25}rem`
+      displayWidth: `${width || 2.25}rem`,
+      isDown,
+      isSelected
     }
   }
   return { keyModels, unmapped }
