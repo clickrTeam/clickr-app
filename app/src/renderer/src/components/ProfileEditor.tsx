@@ -4,6 +4,7 @@ import { Button } from './ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs'
 import { useState } from 'react'
 import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
+import { LayerComponent } from './LayerComponent'
 
 interface ProfileEditorProps {
   profile: Profile
@@ -13,6 +14,7 @@ interface ProfileEditorProps {
 
 export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): JSX.Element => {
   const [localProfile, setLocalProfile] = useState(profile)
+  const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer): void => {
     const next = Profile.fromJSON(localProfile.toJSON())
@@ -26,6 +28,8 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
     setLocalProfile(next)
   }
 
+  const toggleEditor = () => setUseVisualKeyboard((v) => !v)
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -33,6 +37,9 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
         <div className="space-x-2">
           <Button variant="outline" onClick={onBack}>
             Back
+          </Button>
+          <Button onClick={toggleEditor} className="mb-4">
+            {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
           </Button>
           <Button onClick={() => onSave(localProfile)}>Save Changes</Button>
         </div>
@@ -54,11 +61,15 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
 
         {localProfile.layers.map((layer, index) => (
           <TabsContent key={index} value={index.toString()}>
-            <VisualKeyboard
-              layer={layer}
-              maxLayer={profile.layers.length}
-              onUpdate={(updatedLayer) => handleLayerUpdate(index, updatedLayer)}
-            />
+            {useVisualKeyboard ? (
+              <VisualKeyboard layer={layer} />
+            ) : (
+              <LayerComponent
+                layer={layer}
+                maxLayer={profile.layers.length}
+                onUpdate={(updatedLayer) => handleLayerUpdate(index, updatedLayer)}
+              />
+            )}
           </TabsContent>
         ))}
       </Tabs>
