@@ -1,10 +1,12 @@
 import { Profile } from '../../../models/Profile'
 import { Layer } from '../../../models/Layer'
-import { LayerComponent } from './LayerComponent'
 import { Button } from './ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
+import { LayerComponent } from './LayerComponent'
+import log from 'electron-log'
 
 interface ProfileEditorProps {
   profile: Profile
@@ -15,6 +17,7 @@ interface ProfileEditorProps {
 export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): JSX.Element => {
   const [localProfile, setLocalProfile] = useState(profile)
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
+  const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer): void => {
     const next = Profile.fromJSON(localProfile.toJSON())
@@ -25,6 +28,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
   const handleAddLayer = (): void => {
     const next = Profile.fromJSON(localProfile.toJSON())
     next.addLayer('Layer ' + next.layer_count)
+
     setLocalProfile(next)
   }
 
@@ -38,6 +42,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
     }
     setLocalProfile(prof)
   }
+  const toggleEditor = () => setUseVisualKeyboard((v) => !v)
 
   return (
     <div className="space-y-6">
@@ -46,6 +51,9 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
         <div className="space-x-2">
           <Button variant="outline" onClick={onBack}>
             Back
+          </Button>
+          <Button onClick={toggleEditor} className="mb-4">
+            {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
           </Button>
           <Button onClick={() => onSave(localProfile)}>Save Changes</Button>
         </div>
@@ -76,11 +84,15 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
 
         {localProfile.layers.map((layer, index) => (
           <TabsContent key={index} value={index.toString()}>
-            <LayerComponent
-              layer={layer}
-              maxLayer={profile.layers.length}
-              onUpdate={(updatedLayer) => handleLayerUpdate(index, updatedLayer)}
-            />
+            {useVisualKeyboard ? (
+              <VisualKeyboard layer={layer} />
+            ) : (
+              <LayerComponent
+                layer={layer}
+                maxLayer={profile.layers.length}
+                onUpdate={(updatedLayer) => handleLayerUpdate(index, updatedLayer)}
+              />
+            )}
           </TabsContent>
         ))}
       </Tabs>
