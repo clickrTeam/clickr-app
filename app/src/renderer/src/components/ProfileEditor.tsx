@@ -3,8 +3,10 @@ import { Layer } from '../../../models/Layer'
 import { Button } from './ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 import { LayerComponent } from './LayerComponent'
+import log from 'electron-log'
 
 interface ProfileEditorProps {
   profile: Profile
@@ -14,6 +16,7 @@ interface ProfileEditorProps {
 
 export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): JSX.Element => {
   const [localProfile, setLocalProfile] = useState(profile)
+  const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer): void => {
@@ -24,10 +27,21 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
 
   const handleAddLayer = (): void => {
     const next = Profile.fromJSON(localProfile.toJSON())
-    next.layers.push(new Layer(`Layer ${next.layers.length}`, next.layers.length, new Map()))
+    next.addLayer('Layer ' + next.layer_count)
+
     setLocalProfile(next)
   }
 
+  const handleDeleteLayer = (layerNumber: number): void => {
+    const prof = Profile.fromJSON(localProfile.toJSON())
+    const was_successful = prof.removeLayer(layerNumber)
+
+    if (!was_successful) {
+      toast.error('Could not delete layer. Attempted to delete layer 0 or a non-existent layer.')
+      return
+    }
+    setLocalProfile(prof)
+  }
   const toggleEditor = () => setUseVisualKeyboard((v) => !v)
 
   return (
@@ -45,7 +59,11 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
         </div>
       </div>
 
-      <Tabs defaultValue="0">
+      <Tabs
+        defaultValue="0"
+        value={selectedLayerIndex.toString()}
+        onValueChange={(val) => setSelectedLayerIndex(Number(val))}
+      >
         <div className="flex items-center justify-between">
           <TabsList>
             {localProfile.layers.map((layer: Layer, index) => (
@@ -54,9 +72,14 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
               </TabsTrigger>
             ))}
           </TabsList>
-          <Button size="sm" onClick={handleAddLayer}>
-            Add Layer
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleAddLayer}>
+              Add Layer
+            </Button>
+            <Button size="sm" onClick={() => handleDeleteLayer(selectedLayerIndex)}>
+              Delete Layer
+            </Button>
+          </div>
         </div>
 
         {localProfile.layers.map((layer, index) => (
