@@ -113,7 +113,12 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         <span style={{ position: 'relative', display: 'inline-block' }}>
           <button
             className="vk-footer-macro-btn"
-            style={{ fontWeight: 'bold', fontSize: 18, padding: '0 0.7rem', marginLeft: macro.length > 0 ? 8 : 0 }}
+            style={{
+              fontWeight: 'bold',
+              fontSize: 18,
+              padding: '0 0.7rem',
+              marginLeft: macro.length > 0 ? 8 : 0
+            }}
             onClick={() => setShowKeySelector((v) => !v)}
           >
             +

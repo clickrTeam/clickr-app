@@ -8,3 +8,4 @@ Coding standards, domain knowledge, and preferences that AI should follow.
 - Avoid comments, names should explain functaionality.
 - Use Models as much as possible.
 - Names should avoid describing the type.
+- Ensure all functions and variables are typed

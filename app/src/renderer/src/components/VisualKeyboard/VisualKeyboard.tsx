@@ -54,14 +54,6 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
     selectedKey
   )
 
-  const handleContextMenu =
-    (key: KeyTileModel) =>
-    (e: React.MouseEvent): void => {
-      e.preventDefault()
-      e.stopPropagation()
-      setInspectedKey(key)
-    }
-
   const handleCloseInspect = (): void => setInspectedKey(null)
 
   const handleKeyClick = (key: string): void => {
@@ -87,7 +79,7 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
               onClick={(): void => {
                 handleKeyClick(key)
               }}
-              onContextMenu={handleContextMenu(keyModel)}
+              onInspect={setInspectedKey}
             />
           )
         })}

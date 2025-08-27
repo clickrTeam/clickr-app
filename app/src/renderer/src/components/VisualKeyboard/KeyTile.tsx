@@ -7,10 +7,10 @@ import './KeyTile.css'
 interface KeyTileProps {
   keyModel: KeyTileModel
   onClick: () => void
-  onContextMenu: (e: React.MouseEvent) => void
+  onInspect: (keyModel: KeyTileModel | null) => void
 }
 
-export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onContextMenu }) => {
+export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onInspect }) => {
   if (keyModel.key === '') {
     return (
       <span className="flex items-center">
@@ -45,7 +45,8 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onContextMe
           background: getBindColor(keyModel.mapped)
         }}
         onClick={onClick}
-        onContextMenu={onContextMenu}
+        onMouseEnter={() => onInspect(keyModel)}
+        onMouseLeave={() => onInspect(null)}
       >
         {getShortLabel(keyModel.key)}
       </button>
