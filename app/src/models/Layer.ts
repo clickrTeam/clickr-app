@@ -60,7 +60,19 @@ export class Layer {
    * @param bnd The desired bind
    */
   addRemapping(trig: T.Trigger, bnd: B.Bind): void {
+    for (const existing_trig of this.remappings.keys()) {
+      if (existing_trig.equals(trig)) {
+        this.remappings.set(existing_trig, bnd)
+        return
+      }
+    }
+    // TODO check if we are mapping a trigger to a bind that does what it would do with no remapping.
     this.remappings.set(trig, bnd)
+  }
+
+  equals(other: Layer): boolean {
+    if (JSON.stringify(this.toJSON()) === JSON.stringify(other.toJSON())) return true
+    return false
   }
 
   /**
