@@ -55,23 +55,29 @@ export class Profile {
    */
   removeLayer(layer_number: number): boolean {
     const index = this.layers.findIndex((layer) => layer.layer_number === layer_number)
-
+    let deletion_successful = false
+    // not found
     if (index === -1) {
       log.warn(`Attempted to remove layer ${layer_number} and that does not exist in layer array.`)
-      return false // not found
+    } else if (index === 0) {
+      log.warn(
+        'Attempted to remove layer 0, which is not allowed. User should delete profile instead.'
+      )
+    } else {
+      // Remove the layer
+      this.layers.splice(index, 1)
+
+      // Decrement layer_numbers for layers after the removed one
+      for (let i = index; i < this.layers.length; i++) {
+        this.layers[i].layer_number -= 1
+      }
+
+      this.layer_count -= 1
+      log.info(`Layer ${layer_number} removed successfully.`)
+      deletion_successful = true
     }
 
-    // Remove the layer
-    this.layers.splice(index, 1)
-
-    // Decrement layer_numbers for layers after the removed one
-    for (let i = index; i < this.layers.length; i++) {
-      this.layers[i].layer_number -= 1
-    }
-
-    this.layer_count -= 1
-    log.info(`Layer ${layer_number} removed successfully.`)
-    return true
+    return deletion_successful
   }
 
   /**
@@ -219,7 +225,9 @@ export class Profile {
     profile.layers = obj.layers.map((layerObj: any) => Layer.fromJSON(layerObj))
     profile.layer_count = profile.layers.length
 
-    log.info(`Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`)
+    log.info(
+      `Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
+    )
     return profile
   }
 }

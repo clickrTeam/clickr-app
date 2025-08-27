@@ -13,6 +13,7 @@ interface ProfileEditorProps {
 
 export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): JSX.Element => {
   const [localProfile, setLocalProfile] = useState(profile)
+  const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer): void => {
     const next = Profile.fromJSON(localProfile.toJSON())
@@ -22,8 +23,14 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
 
   const handleAddLayer = (): void => {
     const next = Profile.fromJSON(localProfile.toJSON())
-    next.layers.push(new Layer(`Layer ${next.layers.length}`, next.layers.length, new Map()))
+    next.addLayer('Layer ' + next.layer_count)
     setLocalProfile(next)
+  }
+
+  const handleDeleteLayer = (layerNumber: number): void => {
+    const prof = Profile.fromJSON(localProfile.toJSON())
+    prof.removeLayer(layerNumber)
+    setLocalProfile(prof)
   }
 
   return (
@@ -38,7 +45,11 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
         </div>
       </div>
 
-      <Tabs defaultValue="0">
+      <Tabs
+        defaultValue="0"
+        value={selectedLayerIndex.toString()}
+        onValueChange={(val) => setSelectedLayerIndex(Number(val))}
+      >
         <div className="flex items-center justify-between">
           <TabsList>
             {localProfile.layers.map((layer: Layer, index) => (
@@ -47,9 +58,14 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
               </TabsTrigger>
             ))}
           </TabsList>
-          <Button size="sm" onClick={handleAddLayer}>
-            Add Layer
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleAddLayer}>
+              Add Layer
+            </Button>
+            <Button size="sm" onClick={() => handleDeleteLayer(selectedLayerIndex)}>
+              Delete Layer
+            </Button>
+          </div>
         </div>
 
         {localProfile.layers.map((layer, index) => (
