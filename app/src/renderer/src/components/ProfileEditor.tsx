@@ -4,6 +4,7 @@ import { LayerComponent } from './LayerComponent'
 import { Button } from './ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 interface ProfileEditorProps {
   profile: Profile
@@ -29,7 +30,12 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
 
   const handleDeleteLayer = (layerNumber: number): void => {
     const prof = Profile.fromJSON(localProfile.toJSON())
-    prof.removeLayer(layerNumber)
+    const was_successful = prof.removeLayer(layerNumber)
+
+    if (!was_successful) {
+      toast.error('Could not delete layer. Attempted to delete layer 0 or a non-existent layer.')
+      return
+    }
     setLocalProfile(prof)
   }
 
