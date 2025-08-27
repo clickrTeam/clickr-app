@@ -77,36 +77,9 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       <div className="vk-footer-row">
         <span className="vk-footer-selected-label">Selected Key:</span>
         <span className="vk-footer-selected-key">{selectedKey}</span>
-        <button className="vk-footer-close" onClick={onClose}>
-          Close
-        </button>
       </div>
       <div className="vk-footer-row">
-        <span className="vk-footer-macro-label">Macro:</span>
-        <button
-          className="vk-footer-macro-btn"
-          style={{ fontWeight: 'bold', fontSize: 18, padding: '0 0.7rem', marginRight: 8 }}
-          onClick={() => setShowKeySelector((v) => !v)}
-        >
-          +
-        </button>
-        {showKeySelector && (
-          <div
-            className="vk-footer-macro-dropdown"
-            style={{ left: 0, minWidth: 160, maxHeight: 200, overflowY: 'auto' }}
-          >
-            {keys.map((key) => (
-              <button
-                key={key}
-                className="vk-footer-macro-dropdown-btn"
-                style={{ width: '100%' }}
-                onClick={() => handleAddKeyToMacro(key)}
-              >
-                {key}
-              </button>
-            ))}
-          </div>
-        )}
+        <span className="vk-footer-macro-label">New Mapping:</span>
         {macro.length === 0 ? (
           <span className="vk-footer-macro-empty">(Tap keys to add to macro)</span>
         ) : (
@@ -137,6 +110,40 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             </span>
           ))
         )}
+        <span style={{ position: 'relative', display: 'inline-block' }}>
+          <button
+            className="vk-footer-macro-btn"
+            style={{ fontWeight: 'bold', fontSize: 18, padding: '0 0.7rem', marginLeft: macro.length > 0 ? 8 : 0 }}
+            onClick={() => setShowKeySelector((v) => !v)}
+          >
+            +
+          </button>
+          {showKeySelector && (
+            <div
+              className="vk-footer-macro-dropdown"
+              style={{ left: 0, minWidth: 160, maxHeight: 200, overflowY: 'auto' }}
+            >
+              {keys.map((key) => (
+                <button
+                  key={key}
+                  className="vk-footer-macro-dropdown-btn"
+                  style={{ width: '100%' }}
+                  onClick={() => handleAddKeyToMacro(key)}
+                >
+                  {key}
+                </button>
+              ))}
+            </div>
+          )}
+        </span>
+      </div>
+      <div className="vk-footer-row">
+        <button className="vk-footer-close" onClick={onClose}>
+          Save
+        </button>
+        <button className="vk-footer-close" onClick={onClose} style={{ marginLeft: 'auto' }}>
+          Close
+        </button>
       </div>
     </div>
   )
