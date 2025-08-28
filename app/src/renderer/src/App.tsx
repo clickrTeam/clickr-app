@@ -10,6 +10,7 @@ import { Card } from './components/ui/card'
 import MappingDetails from './pages/mappingDetails'
 import { Toaster } from '@renderer/components/ui/sonner'
 import log from 'electron-log'
+import { toast } from 'sonner'
 
 // Enum to represent different views/screens
 export enum View {
@@ -53,6 +54,23 @@ function App(): JSX.Element {
   const logout = (): void => {
     setIsAuthenticated(false)
     setUsername('')
+  }
+
+  const confirmDeleteProfile = (profile_index: number) => {
+    toast('Are you sure you want to delete this profile?', {
+      action: {
+        label: 'Delete',
+        onClick: () => {
+          window.api.deleteProfile(profile_index)
+          updateProfiles()
+          log.info(`Profile at index ${profile_index} deleted.`)
+        }
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => {}
+      }
+    })
   }
 
   // Mock login function (replace with real implementation)
@@ -236,8 +254,7 @@ function App(): JSX.Element {
                               variant="destructive"
                               size="sm"
                               onClick={() => {
-                                window.api.deleteProfile(index)
-                                updateProfiles()
+                                confirmDeleteProfile(index)
                               }}
                             >
                               Delete
