@@ -15,7 +15,7 @@ import {
   Tag
 } from 'lucide-react'
 import { useEffect } from 'react'
-import { toast } from '@renderer/components/ui/sonner'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogClose,
@@ -29,7 +29,6 @@ import {
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
 import log from 'electron-log'
-
 
 type Trigger = {
   type: string
@@ -75,12 +74,12 @@ type MappingDetails = {
   tags: Array<string>
 }
 
-const MappingDetail = ({ 
-  mappingId, 
-  onBack 
-}: { 
-  mappingId: string; 
-  onBack: () => void; 
+const MappingDetail = ({
+  mappingId,
+  onBack
+}: {
+  mappingId: string
+  onBack: () => void
 }): JSX.Element => {
   const [mapping, setMapping] = useState<MappingDetails>()
   const [isLoading, setIsLoading] = useState(true)
@@ -279,7 +278,7 @@ const MappingDetail = ({
                       size="sm"
                       variant="outline"
                       className="gap-1"
-                      onClick={() => copyToClipboard(mapping.id)}
+                      onClick={() => mapping && copyToClipboard(mapping.id)}
                     >
                       <Share size={14} /> Share
                     </Button>
@@ -340,7 +339,9 @@ const MappingDetail = ({
                           </DialogClose>
                           <Button
                             onClick={() => {
-                              handleAddTags(mapping.id, newMappingTags)
+                              if (mapping) {
+                                handleAddTags(mapping.id, newMappingTags)
+                              }
                               setNewMappingTags([])
                               setIsCreating(false)
                             }}
@@ -362,11 +363,18 @@ const MappingDetail = ({
                       size="sm"
                       variant="outline"
                       className="gap-1"
-                      onClick={() => copyToClipboard(mapping.id)}
+                      onClick={() => mapping && copyToClipboard(mapping.id)}
                     >
                       <Share size={14} /> Share
                     </Button>
-                    <Button size="sm" className="gap-1" onClick={() => downloadMapping(mapping.id)}>
+                    <Button
+                      size="sm"
+                      className="gap-1"
+                      onClick={() => {
+                        if (mapping) downloadMapping(mapping.id)
+                      }}
+                      disabled={!mapping}
+                    >
                       <Download size={14} /> Download
                     </Button>
                   </>

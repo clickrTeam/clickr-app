@@ -6,7 +6,6 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 import { LayerComponent } from './LayerComponent'
-import log from 'electron-log'
 
 interface ProfileEditorProps {
   profile: Profile
@@ -42,7 +41,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
     }
     setLocalProfile(prof)
   }
-  const toggleEditor = () => setUseVisualKeyboard((v) => !v)
+  const toggleEditor = (): void => setUseVisualKeyboard((v) => !v)
 
   return (
     <div className="space-y-6">
