@@ -59,9 +59,9 @@ export class Profile {
     // not found
     if (index === -1) {
       log.warn(`Attempted to remove layer ${layer_number} and that does not exist in layer array.`)
-    } else if (index === 0) {
+    } else if (this.layers.length === 1) {
       log.warn(
-        'Attempted to remove layer 0, which is not allowed. User should delete profile instead.'
+        'Attempted to remove the only layer. User should delete profile instead.'
       )
     } else {
       // Remove the layer
