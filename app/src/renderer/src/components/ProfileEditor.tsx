@@ -6,7 +6,6 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 import { LayerComponent } from './LayerComponent'
-import log from 'electron-log'
 
 interface ProfileEditorProps {
   profile: Profile
@@ -30,6 +29,19 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
     next.addLayer('Layer ' + next.layer_count)
 
     setLocalProfile(next)
+  }
+
+  const confirmDeleteLayer = (layerNumber: number) => {
+    toast('Are you sure you want to delete this layer?', {
+      action: {
+        label: 'Delete',
+        onClick: () => handleDeleteLayer(layerNumber)
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => {}
+      }
+    })
   }
 
   const handleDeleteLayer = (layerNumber: number): void => {
@@ -76,7 +88,11 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
             <Button size="sm" onClick={handleAddLayer}>
               Add Layer
             </Button>
-            <Button size="sm" onClick={() => handleDeleteLayer(selectedLayerIndex)}>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => confirmDeleteLayer(selectedLayerIndex)}
+            >
               Delete Layer
             </Button>
           </div>
