@@ -37,7 +37,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
     const was_successful = prof.removeLayer(layerNumber)
 
     if (!was_successful) {
-      toast.error('Could not delete layer. Attempted to delete layer 0 or a non-existent layer.')
+      toast.error('Error deleting layer.')
       return
     }
     setLocalProfile(prof)
