@@ -1,5 +1,4 @@
 // Utility functions for VisualKeyboard
-import { Layer } from '../../../models/Layer'
 import { keyShortLabels } from './VisualKeyboard/Layout.const'
 
 // Helper to get short label or icon

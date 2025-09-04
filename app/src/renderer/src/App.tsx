@@ -7,7 +7,6 @@ import Community from './pages/community'
 import Daemon from './pages/deamon'
 import { ProfileEditor } from './components/ProfileEditor'
 import { Card } from './components/ui/card'
-import MappingDetails from './pages/mappingDetails'
 import { Toaster } from '@renderer/components/ui/sonner'
 import log from 'electron-log'
 import { toast } from 'sonner'
@@ -31,7 +30,7 @@ function App(): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
-  const [selectedMappingId, setSelectedMappingId] = useState<string | null>(null)
+  const [, setSelectedMappingId] = useState<string | null>(null)
 
   function updateProfiles(): void {
     window.api.getProfiles().then((profiles: object[]) => {
@@ -152,11 +151,6 @@ function App(): JSX.Element {
         {/* Community Screen Placeholder */}
         {currentView === View.COMMUNITY && (
           <Community
-            onDownload={async (newProfile: Profile) => {
-              const newProfileIndex = await window.api.createProfile(newProfile.profile_name)
-              window.api.updateProfile(newProfileIndex, newProfile)
-              updateProfiles()
-            }}
             onViewDetails={(mappingId: string) => {
               setSelectedMappingId(mappingId)
               setCurrentView(View.MAPPING_DETAILS)
@@ -166,7 +160,7 @@ function App(): JSX.Element {
 
         {/* Mapping Details Screen */}
         {/* {currentView === View.MAPPING_DETAILS && (
-          <MappingDetails 
+          <MappingDetails
             mappingId={selectedMappingId ?? ''}
             onBack={() => setCurrentView(View.COMMUNITY)}
           />

@@ -140,7 +140,7 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): J
                   width: '100%'
                 }}
               >
-                {macroBinds.map((bind, idx) => (
+                {macroBinds.map((_, idx) => (
                   <div key={idx} className="border rounded px-2 py-2 bg-gray-50 w-full">
                     <BindSelector
                       maxLayer={maxLayer}

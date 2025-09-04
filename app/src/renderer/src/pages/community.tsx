@@ -33,10 +33,8 @@ type Mapping = {
 const filters = ['All', 'Popular', 'Recent', 'Gaming', 'Productivity', 'Design', 'Development']
 
 const Community = ({
-  onDownload,
   onViewDetails
 }: {
-  onDownload: (arg: Profile) => void;
   onViewDetails: (mappingId: string) => void;
 }): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState('')

@@ -54,7 +54,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
     }
     setLocalProfile(prof)
   }
-  const toggleEditor = () => setUseVisualKeyboard((v) => !v)
+  const toggleEditor = (): void => setUseVisualKeyboard((v) => !v)
 
   return (
     <div className="space-y-6">
