@@ -4,6 +4,7 @@ import * as T from './Trigger'
 import * as B from './Bind'
 import { MacKey, WinKey, LinuxKey } from './Keys'
 import log from 'electron-log'
+import { AdvancedModificaiton } from './Modification'
 /**
  * Represents an entire profile that can contain many layers.
  */
@@ -18,10 +19,6 @@ export class Profile {
    */
   layers: Layer[]
 
-  /**
-   * Tracks the number of layers in the profile
-   */
-  layer_count: number
 
   /**
    * The operating system this profile was created on.
@@ -36,7 +33,6 @@ export class Profile {
   constructor(profile_name: string) {
     this.profile_name = profile_name
     this.layers = []
-    this.layer_count = 0
 
     this.addLayer('layer 0')
     this.addLayer('layer 0')
@@ -53,58 +49,46 @@ export class Profile {
    * @param layer_name: The name associated with the layer. "Photoshop"
    */
   addLayer(layer_name: string): void {
-    const lyr = new Layer(layer_name, this.layer_count)
+    const lyr = new Layer(layer_name)
     this.layers.push(lyr)
-    this.layer_count += 1
 
-    log.silly(`Layer ${layer_name} with number ${this.layer_count - 1} created.`)
+    log.info(`Layer ${layer_name} with number ${this.layers.length - 1} created.`)
     //TODO: Add support for cloning layer 0 when you want to create a new layer.
   }
 
   duplicateLayer(layerNumber: number) {
-    const index = this.layers.findIndex((layer) => layer.layer_number === layerNumber)
-    if (index === -1) {
-      log.warn(`Attempted to duplicate layer ${layerNumber}, but it does not exist.`)
-      throw new Error('Layer not found.')
-    }
-
-    const layerToDuplicate = this.layers[index]
-    const newLayer = new Layer(layerToDuplicate.layer_name + ' Copy', this.layer_count)
-    newLayer.remappings = new Map(layerToDuplicate.remappings)
-    this.layers.push(newLayer)
-    this.layer_count += 1
-
-    log.info(`Layer ${layerNumber} duplicated as ${newLayer.layer_name}.`)
+    // const index = this.layers.findindex((layer) => layer.layer_number === layernumber)
+    // if (index === -1) {
+    //   log.warn(`attempted to duplicate layer ${layernumber}, but it does not exist.`)
+    //   throw new error('layer not found.')
+    // }
+    //
+    // const layertoduplicate = this.layers[index]
+    // const newlayer = new layer(layertoduplicate.layer_name + ' copy', this.layer_count)
+    // newlayer.remappings = new map(layertoduplicate.remappings)
+    // this.layers.push(newlayer)
+    // this.layer_count += 1
+    //
+    // log.info(`Layer ${layerNumber} duplicated as ${newLayer.layer_name}.`)
+    //TODO:
   }
 
   /**
    * Removes a layer from the profile, effectively deleting it.
    * @param layer_number The number associated with the layer to be removed. layer_number is unique and as such is used instead of layer_name
-   * @returns True if the layer number was found and the layer removed, false otherwise
+   * @returns True if the layer was found and removed, false otherwise
    */
-  removeLayer(layer_number: number): boolean {
-    const index = this.layers.findIndex((layer) => layer.layer_number === layer_number)
-    let deletion_successful = false
-    // not found
-    if (index === -1) {
-      log.warn(`Attempted to remove layer ${layer_number} and that does not exist in layer array.`)
+  removeLayer(i: number): boolean {
+    if (i < this.layers.length) {
+      log.warn(`Attempted to remove layer ${i} and that does not exist in layer array.`)
     } else if (this.layers.length === 1) {
       log.warn('Attempted to remove the only layer. User should delete profile instead.')
     } else {
-      // Remove the layer
-      this.layers.splice(index, 1)
-
-      // Decrement layer_numbers for layers after the removed one
-      for (let i = index; i < this.layers.length; i++) {
-        this.layers[i].layer_number -= 1
-      }
-
-      this.layer_count -= 1
-      log.info(`Layer ${layer_number} removed successfully.`)
-      deletion_successful = true
+      this.layers.splice(i, 1)
+      log.info(`Layer ${i} removed successfully.`)
+      return true
     }
-
-    return deletion_successful
+    return false
   }
 
   /**
@@ -113,46 +97,22 @@ export class Profile {
    * @param num2 The layer_number of the second layer to be swapped
    * @returns True if the layers were able to be swapped, false otherwise
    */
-  swapLayers(num1: number, num2: number): boolean {
-    if (num1 === num2) return false // nothing to swap
+  swapLayers(i1: number, i2: number): boolean {
+    if (i1 === i2) return false // nothing to swap
 
-    const index1 = this.layers.findIndex((layer) => layer.layer_number === num1)
-    const index2 = this.layers.findIndex((layer) => layer.layer_number === num2)
-
-    if (index1 === -1 || index2 === -1) {
-      log.warn(`Attempted to swap layers ${num1} and ${num2}, but one or both do not exist.`)
-      return false // one or both layers not found
+    if (i1 < this.layers.length || i2 < this.layers.length) {
+      log.warn(`Attempted to swap layers ${i1} and ${i2}, but one or both do not exist.`)
+      return false
     }
 
     // Swap the positions in the array
-    const temp = this.layers[index1]
-    this.layers[index1] = this.layers[index2]
-    this.layers[index2] = temp
+    const temp = this.layers[i1]
+    this.layers[i1] = this.layers[i2]
+    this.layers[i2] = temp
 
-    // Also swap their layer_number fields to keep them correct
-    this.layers[index1].layer_number = num1
-    this.layers[index2].layer_number = num2
 
-    log.info(`Layers ${num1} and ${num2} swapped successfully.`)
+    log.info(`Layers ${i1} and ${i2} swapped successfully.`)
     return true
-  }
-
-  /**
-   * NOTE: Just for testing JSON structure.
-   */
-  ADD_TEST_LAYER(test_layer_name: string): void {
-    this.addLayer(test_layer_name)
-    // Map a to b
-    this.layers[1].addRemapping(new T.KeyPress('A'), new B.PressKey('B'))
-    this.layers[1].addRemapping(new T.KeyRelease('A'), new B.ReleaseKey('B'))
-
-    this.layers[1].addRemapping(
-      new T.TapSequence([
-        ['Q', 300],
-        ['Q', 300]
-      ]),
-      new B.TapKey('T')
-    )
   }
 
   /**
@@ -162,11 +122,11 @@ export class Profile {
     log.silly(`>>>>> Serialization of profile "${this.profile_name}" started.`)
     return {
       profile_name: this.profile_name,
-      layer_count: this.layer_count,
       OS: this.OS,
       layers: this.layers.map((layer: Layer) => layer.toJSON())
     }
   }
+
 
   /**
    * Deserializes a JSON-compatible object into a Profile instance.
@@ -194,7 +154,6 @@ export class Profile {
 
     // Deserialize the layers and override defaults if needed.
     profile.layers = obj.layers.map((layerObj: any) => Layer.fromJSON(layerObj))
-    profile.layer_count = profile.layers.length
 
     if (profile.OS !== obj.OS) {
       log.info(
@@ -205,8 +164,8 @@ export class Profile {
       log.silly(`Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`)
     }
 
-    log.silly(
-      `<<<<<< Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
+    log.info(
+      `Deserialization of profile "${profile.profile_name}" completed with ${profile.layers.length} layers.`
     )
     return profile
   }
@@ -246,7 +205,10 @@ export class Profile {
     log.debug(`Translating profile from ${incoming_OS} to ${target_OS}.`)
 
     for (const layer of this.layers) {
-      for (const [trigger, bind] of layer.remappings) {
+      for (const modification of layer.remappings) {
+        let advancedModificaiton = modification as AdvancedModificaiton;
+        let trigger = advancedModificaiton.trigger;
+        let bind = advancedModificaiton.bind;
         // Translate Trigger keys
         if (
           trigger instanceof T.KeyPress ||
