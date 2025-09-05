@@ -27,6 +27,7 @@ export abstract class Bind {
 
   abstract toString(): string
   abstract toJSON(): object
+  abstract toLL(): LLTo
   abstract equals(other: Bind): boolean
 }
 
@@ -34,6 +35,9 @@ export abstract class Bind {
  * Sends a key press event
  */
 export class PressKey extends Bind {
+  toLL(): LLTo {
+    throw new Error('Method not implemented.')
+  }
   value: string
 
   constructor(value: string) {
@@ -65,6 +69,9 @@ export class PressKey extends Bind {
  * Fires a key release when the trigger is released.
  */
 export class ReleaseKey extends Bind {
+  toLL(): LLTo {
+    throw new Error('Method not implemented.')
+  }
   value: string
 
   constructor(value: string) {
@@ -95,6 +102,9 @@ export class ReleaseKey extends Bind {
  * The simplest kind of bind, just activates one key.
  */
 export class TapKey extends Bind {
+  toLL(): LLTo {
+    throw new Error('Method not implemented.')
+  }
   value: string
 
   constructor(value: string) {
