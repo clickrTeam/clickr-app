@@ -29,6 +29,7 @@ export abstract class Trigger {
   }
 
   abstract toJSON(): object
+  abstract toLL(): LLFrom
   abstract equals(other: Trigger): boolean
   abstract toString(): string
 }
@@ -138,6 +139,10 @@ export class TapSequence extends Trigger {
     }
   }
 
+  toLL(): LLFrom {
+    throw new Error('Method not implemented.')
+  }
+
   static fromJSON(obj: { key_time_pairs: [string, number][]; behavior: string }): TapSequence {
     let behavior: TimedTriggerBehavior
 
@@ -194,6 +199,9 @@ export class Hold extends Trigger {
       wait: this.wait
     }
   }
+  toLL(): LLFrom {
+    throw new Error('Method not implemented.')
+  }
 
   static fromJSON(obj: { value: string; wait: number }): Hold {
     return new Hold(obj.value, obj.wait)
@@ -226,6 +234,10 @@ export class AppFocus extends Trigger {
       app_name: this.app_name,
       value: this.value
     }
+  }
+
+  toLL(): LLFrom {
+    throw new Error('Method not implemented.')
   }
 
   static fromJSON(obj: { app_name: string; value: string }): AppFocus {
