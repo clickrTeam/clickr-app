@@ -1,3 +1,4 @@
+import { AdvancedModificaiton, Modification } from 'src/models/Modification'
 import { Bind } from '../../../../models/Bind'
 import { Trigger } from '../../../../models/Trigger'
 import { getKeyClass } from './Colors'
