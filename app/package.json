@@ -73,5 +73,24 @@
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.2",
     "vite": "^6.2.3"
+  },
+  "build": {
+    "appId": "com.clickr.app",
+    "productName": "Clickr",
+    "files": [
+      "out",
+      "node_modules",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "asar": false,
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Utility",
+      "icon": "build/icon.png"
+    }
   }
 }
+  
