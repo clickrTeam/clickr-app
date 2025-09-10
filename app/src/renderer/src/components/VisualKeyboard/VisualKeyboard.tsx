@@ -12,9 +12,10 @@ import * as T from '../../../../models/Trigger'
 
 interface VisualKeyboardProps {
   layer: Layer
+  onSave: () => void
 }
 
-export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
+export const VisualKeyboard = ({ layer, onSave }: VisualKeyboardProps): JSX.Element => {
   const [pressedKeys, setPressedKeys] = useState<string[]>([])
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
@@ -98,10 +99,11 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
         selectedKey={selectedKey}
         macro={bind}
         onMacroChange={setBind}
-        onClose={() => {
-          if (trigger) {
+        onClose={(save: boolean) => {
+          if (save && trigger) {
             layer.addRemapping(trigger, new Macro_Bind(bind))
             setTrigger(null)
+            onSave()
           }
           setSelectedKey(null)
           setBind([])
