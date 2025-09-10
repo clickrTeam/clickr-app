@@ -46,16 +46,12 @@ export const runKeybinder = (): void => {
 
   log.info(`Command to run: ${command}`)
   const ls = spawn(command, {
-    shell: true
+    shell: true,
+    detached: true, // Key option for independent process
+    stdio: 'ignore' // Optional: prevents process from blocking
+    // windowsHide: true  // Optionally hide the console window on Windows
   })
-
-  ls.stdout.on('data', (data) => {
-    log.info('stdout: ', data)
-  })
-
-  ls.stderr.on('data', (data) => {
-    log.error('stderr: ', data)
-  })
+  ls.unref() // Ensures the child process can continue running independently
 
   ls.on('close', (code) => {
     log.info('child process exited with code: ', code)
