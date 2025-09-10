@@ -1,33 +1,23 @@
 import { LogIn, LogOut, Home, Users, Layers } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
-import { View } from '../App'
+import { Link, useLocation } from 'react-router-dom'
 
 interface NavbarProps {
-  currentView: View
-  setCurrentView: (view: View) => void
   isAuthenticated: boolean
   username?: string
   logout?: () => void
 }
 
-const Navbar = ({
-  currentView,
-  setCurrentView,
-  isAuthenticated,
-  username,
-  logout
-}: NavbarProps) => {
-  const navLinks = [
-    { name: 'Home', view: View.HOME, icon: Home },
-    { name: 'Community', view: View.COMMUNITY, icon: Users },
-    { name: 'DAEMON', view: View.DAEMON, icon: Layers },
-    { name: 'My Mappings', view: View.MY_MAPPINGS, icon: Layers }
-  ]
+const Navbar = ({ isAuthenticated, username, logout }: NavbarProps) => {
+  const location = useLocation()
 
-  const handleViewChange = (view: View): void => {
-    setCurrentView(view)
-  }
+  const navLinks = [
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Community', path: '/community', icon: Users },
+    { name: 'DAEMON', path: '/daemon', icon: Layers },
+    { name: 'My Mappings', path: '/my-mappings', icon: Layers }
+  ]
 
   return (
     <header className="bg-cyan-400 py-2 shadow-md w-full">
@@ -39,28 +29,27 @@ const Navbar = ({
         <nav className="hidden md:flex items-center space-x-24">
           <div className="flex space-x-24">
             {navLinks.map((link) => (
-              <button
+              <Link
                 key={link.name}
-                onClick={() => handleViewChange(link.view)}
+                to={link.path}
                 className={cn(
                   'font-medium transition-colors hover:text-cyan-600 flex items-center gap-2',
-                  currentView === link.view ? 'text-white' : 'text-foreground/80'
+                  location.pathname === link.path ? 'text-white' : 'text-foreground/80'
                 )}
               >
                 <link.icon size={18} />
                 {link.name}
-              </button>
+              </Link>
             ))}
           </div>
 
           {!isAuthenticated ? (
             <div className="flex items-center space-x-24">
-              <Button
-                className="flex items-center gap-6"
-                onClick={() => handleViewChange(View.LOGIN)}
-              >
-                <LogIn size={18} />
-                <span>Login</span>
+              <Button className="flex items-center gap-6" asChild>
+                <Link to="/login">
+                  <LogIn size={18} />
+                  <span>Login</span>
+                </Link>
               </Button>
             </div>
           ) : (
