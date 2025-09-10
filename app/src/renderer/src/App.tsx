@@ -55,7 +55,7 @@ function App(): JSX.Element {
     setUsername('')
   }
 
-  const confirmDeleteProfile = (profile_index: number) => {
+  const confirmDeleteProfile = (profile_index: number): void => {
     toast('Are you sure you want to delete this profile?', {
       action: {
         label: 'Delete',
