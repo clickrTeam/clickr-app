@@ -61,6 +61,7 @@
     "autoprefixer": "^10.4.21",
     "electron": "^35.0.3",
     "electron-builder": "^25.1.8",
+    "electron-builder-sandbox-fix": "^1.1.1",
     "electron-vite": "^3.1.0",
     "eslint": "^9.23.0",
     "eslint-plugin-react": "^7.37.4",
@@ -86,11 +87,13 @@
       "buildResources": "build"
     },
     "asar": false,
+    "afterPack": "./build-hooks-linux.js",
     "linux": {
-      "target": ["AppImage"],
+      "target": [
+        "AppImage"
+      ],
       "category": "Utility",
       "icon": "build/icon.png"
     }
   }
 }
-  
