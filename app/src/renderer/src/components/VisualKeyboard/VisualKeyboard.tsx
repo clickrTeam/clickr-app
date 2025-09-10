@@ -89,7 +89,6 @@ export const VisualKeyboard = ({ layer }: VisualKeyboardProps): JSX.Element => {
 
   const renderInspectPopover = (): JSX.Element | null => {
     if (!inspectedKey) return null
-    console.log('renderInspectPopover', inspectedKey)
     return <InspectPopover inspectedKey={inspectedKey} onClose={handleCloseInspect} />
   }
 
