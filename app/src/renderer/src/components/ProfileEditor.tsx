@@ -31,7 +31,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
     setLocalProfile(next)
   }
 
-  const confirmDeleteLayer = (layerNumber: number) => {
+  const confirmDeleteLayer = (layerNumber: number): void => {
     toast('Are you sure you want to delete this layer?', {
       action: {
         label: 'Delete',
@@ -101,7 +101,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
         {localProfile.layers.map((layer, index) => (
           <TabsContent key={index} value={index.toString()}>
             {useVisualKeyboard ? (
-              <VisualKeyboard layer={layer} />
+              <VisualKeyboard layer={layer} onSave={() => onSave(localProfile)} />
             ) : (
               <LayerComponent
                 layer={layer}
