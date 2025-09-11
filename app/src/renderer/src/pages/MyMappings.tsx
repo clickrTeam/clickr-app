@@ -396,19 +396,17 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="flex-grow">
+        <CardContent className="flex-grow relative">
           {item.isActive && (
-            <Badge variant="default" className="mb-2">
+            <Badge variant="default" className="mb-2 bg-green-200 hover:bg-green-300 text-gray-800">
               Currently Active
             </Badge>
           )}
-        </CardContent>
-
-        <CardFooter className="border-t pt-4 flex flex-wrap gap-2">
           {!item.isActive && (
             <Button
               variant="outline"
               size="sm"
+              className="absolute bottom-0 right-3"
               onClick={() => {
                 window.api.setActiveProfile(item.index)
                 updateProfiles()
@@ -417,6 +415,9 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
               Set Active
             </Button>
           )}
+        </CardContent>
+
+        <CardFooter className="border-t pt-4 flex justify-end gap-2 px-4">
           <Button
             variant="secondary"
             size="sm"
@@ -451,7 +452,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     const { mapping } = item
     
     return (
-      <Card className="h-full flex flex-col hover:shadow-lg transition-shadow ring-2 ring-blue-200 bg-blue-50/30">
+      <Card className="h-full flex flex-col hover:shadow-lg transition-shadow ring-2 ring-blue-200">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">{mapping.name}</CardTitle>
@@ -490,7 +491,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
           </div>
         </CardContent>
 
-        <CardFooter className="border-t pt-4 flex flex-wrap gap-2">
+        <CardFooter className="border-t pt-4 flex justify-end gap-2 px-4">
           <Button
             variant="secondary"
             size="sm"
@@ -502,17 +503,39 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
             variant="secondary"
             size="sm"
             onClick={() => handleDownloadMapping(mapping)}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 text-xs px-2"
           >
-            <Download size={14} />
+            <Download size={12} />
             Download to Local
           </Button>
           <Button
             variant="destructive"
             size="sm"
             onClick={() => {
-              // TODO: Add delete uploaded mapping functionality
-              toast.error('Delete uploaded mapping not yet implemented')
+              if (!isAuthenticated || !username) {
+                toast.error('Please log in to delete mappings')
+                return
+              }
+              
+              toast('Are you sure you want to delete this uploaded mapping?', {
+                action: {
+                  label: 'Delete',
+                  onClick: async () => {
+                    try {
+                      await window.api.deleteMapping(username, mapping.id)
+                      toast.success('Uploaded mapping deleted successfully!')
+                      fetchUploadedMappings() // Refresh the uploaded mappings
+                    } catch (error) {
+                      toast.error('Failed to delete uploaded mapping')
+                      log.error('Delete uploaded mapping error:', error)
+                    }
+                  }
+                },
+                cancel: {
+                  label: 'Cancel',
+                  onClick: () => {}
+                }
+              })
             }}
           >
             Delete
