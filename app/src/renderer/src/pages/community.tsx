@@ -14,6 +14,7 @@ import { Search, Heart, ArrowUpRight, User, Clock, Download } from 'lucide-react
 import { cn } from '@renderer/lib/utils'
 import { Profile } from '../../../models/Profile'
 import log from 'electron-log'
+import { useNavigate } from 'react-router-dom'
 
 type Mapping = {
   id: string
@@ -32,16 +33,13 @@ type Mapping = {
 }
 const filters = ['All', 'Popular', 'Recent', 'Gaming', 'Productivity', 'Design', 'Development']
 
-const Community = ({
-  onViewDetails
-}: {
-  onViewDetails: (mappingId: string) => void;
-}): JSX.Element => {
+const Community = (): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('All')
   const [mappings, setMappings] = useState<Mapping[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   const fetchCommunityMappings = async (): Promise<void> => {
     try {
@@ -218,7 +216,7 @@ const Community = ({
                   <Button
                     size="sm"
                     className="flex items-center gap-1"
-                    onClick={() => onViewDetails(mapping.id)}
+                    onClick={() => navigate(`/mapping/${mapping.id}`)}
                   >
                     Details
                     <ArrowUpRight size={14} />

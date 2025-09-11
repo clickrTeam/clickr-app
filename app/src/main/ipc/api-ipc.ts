@@ -1,13 +1,79 @@
 import { ipcMain } from 'electron'
 import axios from 'axios'
 import log from 'electron-log'
+import { tokenStorage } from '../services/token-storage'
 
 const BASE_URL = 'https://clickr-backend-production.up.railway.app/api/'
 
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: false
+  withCredentials: false,
+  headers: {
+    'User-Agent': 'Electron Clickr App'
+  }
 })
+
+// Add request interceptor to include auth token
+api.interceptors.request.use(async (config) => {
+  const tokenData = await tokenStorage.getTokens()
+  if (tokenData?.access_token) {
+    config.headers.Authorization = `Bearer ${tokenData.access_token}`
+  }
+  return config
+})
+
+// Add response interceptor to handle token refresh
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+      
+      const tokenData = await tokenStorage.getTokens()
+      if (tokenData?.refresh_token) {
+        try {
+          log.info('Attempting token refresh with electron endpoint')
+          // Try to refresh the token using Electron-specific endpoint
+          const refreshResponse = await axios.post(`${BASE_URL}electron/token/refresh/`, {
+            refresh: tokenData.refresh_token,
+            client_type: 'electron'
+          }, {
+            headers: {
+              'User-Agent': 'Electron Clickr App'
+            }
+          })
+          
+          if (refreshResponse.data.success && refreshResponse.data.access_token) {
+            // Update stored tokens (both access and refresh for extended lifetime)
+            const newTokenData = {
+              access_token: refreshResponse.data.access_token,
+              refresh_token: refreshResponse.data.refresh_token || tokenData.refresh_token,
+              username: tokenData.username,
+              expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days from now
+            }
+            await tokenStorage.storeTokens(newTokenData)
+            
+            log.info('Token refresh successful')
+            
+            // Retry original request with new token
+            originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.access_token}`
+            return api(originalRequest)
+          } else {
+            throw new Error('Invalid refresh response')
+          }
+        } catch (refreshError) {
+          log.error('Token refresh failed:', refreshError)
+          // Clear invalid tokens
+          await tokenStorage.clearTokens()
+          throw new Error('Session expired. Please log in again.')
+        }
+      }
+    }
+    return Promise.reject(error)
+  }
+)
 
 export function registerApiHandlers(): void {
   // Community mappings
@@ -98,9 +164,27 @@ export function registerApiHandlers(): void {
   // Login
   ipcMain.handle('login', async (_, username: string, password: string) => {
     try {
-      const response = await api.post('token/', { username, password })
-      log.info(`User ${username} logged in successfully`)
-      return response.data
+      // Use Electron-specific endpoint for extended refresh tokens
+      const response = await axios.post(`${BASE_URL}electron/token/`, { 
+        username, 
+        password,
+        client_type: 'electron'
+      }, {
+        headers: {
+          'User-Agent': 'Electron Clickr App'
+        }
+      })
+      
+      // Store tokens securely with extended expiry
+      await tokenStorage.storeTokens({
+        access_token: response.data.access_token,
+        refresh_token: response.data.refresh_token,
+        username: response.data.user?.username || username,
+        expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days from now
+      })
+      
+      log.info(`User ${username} logged in successfully with extended tokens`)
+      return { ...response.data, username: response.data.user?.username || username }
     } catch (error) {
       log.error('Login failed:', error)
       throw new Error('Login Failed')
@@ -116,6 +200,62 @@ export function registerApiHandlers(): void {
     } catch (error) {
       log.error('Registration failed:', error)
       throw new Error(error instanceof Error ? error.message : 'Registration Failed')
+    }
+  })
+
+  // Check authentication status
+  ipcMain.handle('check-auth', async () => {
+    try {
+      const tokenData = await tokenStorage.getTokens()
+      if (!tokenData) {
+        return { isAuthenticated: false }
+      }
+
+      // Try to verify token with backend
+      try {
+        await api.get('authenticated/')
+        return { 
+          isAuthenticated: true, 
+          username: tokenData.username 
+        }
+      } catch (error) {
+        // If 401, try to refresh token before giving up
+        if (error.response?.status === 401 && tokenData.refresh_token) {
+          try {
+            log.info('Access token expired, attempting refresh during auth check')
+            // The axios interceptor will handle the refresh automatically
+            await api.get('authenticated/')
+            return { 
+              isAuthenticated: true, 
+              username: tokenData.username 
+            }
+          } catch (refreshError: unknown) {
+            log.error('Token refresh failed during auth check:', refreshError)
+            tokenStorage.clearTokens()
+            return { isAuthenticated: false }
+          }
+        } else {
+          // Token might be invalid, clear it
+          log.warn('Auth check failed, clearing tokens:', error)
+          tokenStorage.clearTokens()
+          return { isAuthenticated: false }
+        }
+      }
+    } catch (error) {
+      log.error('Error checking authentication:', error)
+      return { isAuthenticated: false }
+    }
+  })
+
+  // Logout
+  ipcMain.handle('logout', async () => {
+    try {
+      tokenStorage.clearTokens()
+      log.info('User logged out and tokens cleared')
+      return { success: true }
+    } catch (error) {
+      log.error('Error during logout:', error)
+      throw new Error('Logout failed')
     }
   })
 }

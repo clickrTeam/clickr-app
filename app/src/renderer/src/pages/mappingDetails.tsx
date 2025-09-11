@@ -29,6 +29,7 @@ import {
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
 import log from 'electron-log'
+import { useParams, useNavigate } from 'react-router-dom'
 
 type Trigger = {
   type: string
@@ -74,13 +75,9 @@ type MappingDetails = {
   tags: Array<string>
 }
 
-const MappingDetail = ({
-  mappingId,
-  onBack
-}: {
-  mappingId: string
-  onBack: () => void
-}): JSX.Element => {
+const MappingDetail = (): JSX.Element => {
+  const { mappingId } = useParams<{ mappingId: string }>()
+  const navigate = useNavigate()
   const [mapping, setMapping] = useState<MappingDetails>()
   const [isLoading, setIsLoading] = useState(true)
   const [remappings, setRemappings] = useState<Layer[]>([])
@@ -91,7 +88,7 @@ const MappingDetail = ({
     const fetchMapping = async (): Promise<void> => {
       try {
         setIsLoading(true)
-        const mapping = await window.api.fetchSpecificMapping(mappingId)
+        const mapping = await window.api.fetchSpecificMapping(mappingId!)
         setMapping(mapping)
         setRemappings(mapping?.mappings?.layers || [])
       } catch (error) {
@@ -250,7 +247,7 @@ const MappingDetail = ({
         >
           <div className="mb-8">
             <button
-              onClick={onBack}
+              onClick={() => navigate('/community')}
               className="text-muted-foreground hover:text-foreground flex items-center mb-4"
             >
               <ArrowLeft size={16} className="mr-2" />
