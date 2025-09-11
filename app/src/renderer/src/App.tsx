@@ -4,15 +4,11 @@ import Navbar from './components/Navbar'
 import { Toaster } from '@renderer/components/ui/sonner'
 
 // Pages
-import Home from './pages/Home'
 import Login from './pages/Login'
 import Community from './pages/community'
 import Daemon from './pages/deamon'
 import MyMappings from './pages/MyMappings'
 import MappingDetail from './pages/mappingDetails'
-
-// Components
-import ProtectedRoute from './components/ProtectedRoute'
 
 function App(): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
@@ -57,7 +53,7 @@ function App(): JSX.Element {
   const login = (userData: { username: string }): void => {
     setIsAuthenticated(true)
     setUsername(userData.username)
-    navigate('/my-mappings')
+    navigate('/')
   }
 
   // Show loading spinner while checking authentication
@@ -75,16 +71,12 @@ function App(): JSX.Element {
 
       <div className="w-full px-4 flex-grow py-8">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<MyMappings isAuthenticated={isAuthenticated} username={username} />} />
           <Route path="/login" element={<Login login={login} />} />
           <Route path="/community" element={<Community />} />
           <Route path="/mapping/:mappingId" element={<MappingDetail />} />
           <Route path="/daemon" element={<Daemon />} />
-
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
-            <Route path="/my-mappings" element={<MyMappings />} />
-          </Route>
+          <Route path="/mappings" element={<MyMappings isAuthenticated={isAuthenticated} username={username} />} />
         </Routes>
       </div>
 

@@ -13,10 +13,10 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps) => {
   const location = useLocation()
 
   const navLinks = [
-    { name: 'Home', path: '/', icon: Home },
+
+    { name: 'Mappings', path: '/', icon: Layers },
     { name: 'Community', path: '/community', icon: Users },
-    { name: 'DAEMON', path: '/daemon', icon: Layers },
-    { name: 'My Mappings', path: '/my-mappings', icon: Layers }
+    { name: 'DAEMON', path: '/daemon', icon: Home }
   ]
 
   return (
