@@ -6,12 +6,12 @@ import log from 'electron-log'
 
 export function registerProfileHandlers(): void {
   ipcMain.handle('get-profiles', () => {
-    log.info('IPC: Getting all profiles')
+    log.debug('IPC: Getting all profiles')
     return profileStore.getProfiles().map((p) => p.toJSON())
   })
 
   ipcMain.handle('get-active-profile', () => {
-    log.info('IPC: Getting active profile')
+    log.debug('IPC: Getting active profile')
     return profileStore.getActive()
   })
 
