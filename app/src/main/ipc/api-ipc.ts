@@ -7,7 +7,10 @@ const BASE_URL = 'https://clickr-backend-production.up.railway.app/api/'
 
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: false
+  withCredentials: false,
+  headers: {
+    'User-Agent': 'Electron Clickr App'
+  }
 })
 
 // Add request interceptor to include auth token
@@ -31,13 +34,24 @@ api.interceptors.response.use(
       const tokenData = await tokenStorage.getTokens()
       if (tokenData?.refresh_token) {
         try {
-          // Try to refresh the token
-          const refreshResponse = await axios.post(`${BASE_URL}token/refresh/`, {
-            refresh: tokenData.refresh_token
+          // Try to refresh the token using Electron-specific endpoint
+          const refreshResponse = await axios.post(`${BASE_URL}electron/token/refresh/`, {
+            refresh: tokenData.refresh_token,
+            client_type: 'electron'
+          }, {
+            headers: {
+              'User-Agent': 'Electron Clickr App'
+            }
           })
           
-          // Update stored access token
-          await tokenStorage.updateAccessToken(refreshResponse.data.access_token)
+          // Update stored tokens (both access and refresh for extended lifetime)
+          const newTokenData = {
+            access_token: refreshResponse.data.access_token,
+            refresh_token: refreshResponse.data.refresh_token || tokenData.refresh_token,
+            username: tokenData.username,
+            expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days from now
+          }
+          await tokenStorage.storeTokens(newTokenData)
           
           // Retry original request with new token
           originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.access_token}`
@@ -143,18 +157,27 @@ export function registerApiHandlers(): void {
   // Login
   ipcMain.handle('login', async (_, username: string, password: string) => {
     try {
-      const response = await api.post('token/', { username, password })
+      // Use Electron-specific endpoint for extended refresh tokens
+      const response = await axios.post(`${BASE_URL}electron/token/`, { 
+        username, 
+        password,
+        client_type: 'electron'
+      }, {
+        headers: {
+          'User-Agent': 'Electron Clickr App'
+        }
+      })
       
-      // Store tokens securely
+      // Store tokens securely with extended expiry
       await tokenStorage.storeTokens({
         access_token: response.data.access_token,
         refresh_token: response.data.refresh_token,
-        username: username,
-        expires_at: Date.now() + (24 * 60 * 60 * 1000) // 24 hours from now
+        username: response.data.user?.username || username,
+        expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days from now
       })
       
-      log.info(`User ${username} logged in successfully and tokens stored`)
-      return { ...response.data, username }
+      log.info(`User ${username} logged in successfully with extended tokens`)
+      return { ...response.data, username: response.data.user?.username || username }
     } catch (error) {
       log.error('Login failed:', error)
       throw new Error('Login Failed')

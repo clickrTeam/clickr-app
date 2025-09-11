@@ -66,7 +66,10 @@ class TokenStorage {
         return null
       }
 
-      log.info('Tokens retrieved successfully')
+      const daysUntilExpiry = tokenData.expires_at ? 
+        Math.ceil((tokenData.expires_at - Date.now()) / (24 * 60 * 60 * 1000)) : 
+        'unknown'
+      log.info(`Tokens retrieved successfully. Days until expiry: ${daysUntilExpiry}`)
       return tokenData
     } catch (error) {
       log.error('Failed to retrieve tokens:', error)
@@ -104,6 +107,22 @@ class TokenStorage {
     const existingTokens = await this.getTokens()
     if (existingTokens) {
       existingTokens.access_token = accessToken
+      await this.storeTokens(existingTokens)
+    }
+  }
+
+  /**
+   * Update both access and refresh tokens (for extended token refresh)
+   */
+  async updateTokens(accessToken: string, refreshToken?: string): Promise<void> {
+    const existingTokens = await this.getTokens()
+    if (existingTokens) {
+      existingTokens.access_token = accessToken
+      if (refreshToken) {
+        existingTokens.refresh_token = refreshToken
+        // Reset expiry to 30 days for extended tokens
+        existingTokens.expires_at = Date.now() + (30 * 24 * 60 * 60 * 1000)
+      }
       await this.storeTokens(existingTokens)
     }
   }
