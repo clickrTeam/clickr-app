@@ -55,7 +55,7 @@ function App(): JSX.Element {
     setUsername('')
   }
 
-  const confirmDeleteProfile = (profile_index: number) => {
+  const confirmDeleteProfile = (profile_index: number): void => {
     toast('Are you sure you want to delete this profile?', {
       action: {
         label: 'Delete',
@@ -186,8 +186,10 @@ function App(): JSX.Element {
                 onSave={(updatedProfile: Profile) => {
                   log.info(`Profile has been updated and saved. Updated profile: ${updatedProfile}`)
                   window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON())
+                  if (activeProfile == editedProfileIndex) {
+                    window.api.setActiveProfile(editedProfileIndex)
+                  }
                   updateProfiles()
-                  setEditedProfileIndex(null)
                 }}
                 onBack={() => setEditedProfileIndex(null)}
               />

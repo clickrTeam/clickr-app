@@ -60,9 +60,7 @@ export class Profile {
     if (index === -1) {
       log.warn(`Attempted to remove layer ${layer_number} and that does not exist in layer array.`)
     } else if (this.layers.length === 1) {
-      log.warn(
-        'Attempted to remove the only layer. User should delete profile instead.'
-      )
+      log.warn('Attempted to remove the only layer. User should delete profile instead.')
     } else {
       // Remove the layer
       this.layers.splice(index, 1)
