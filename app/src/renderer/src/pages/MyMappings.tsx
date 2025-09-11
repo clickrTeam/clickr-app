@@ -10,8 +10,7 @@ import { Button } from '@renderer/components/ui/button'
 import { Badge } from '@renderer/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Input } from '@renderer/components/ui/input'
-import { Search, Heart, Download, User, Clock, Plus, Upload, Cloud } from 'lucide-react'
-import { cn } from '@renderer/lib/utils'
+import { Search, Download, User, Clock, Plus, Upload, Cloud } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 type UploadedMapping = {
@@ -44,8 +43,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
   const [editedProfileIndex, setEditedProfileIndex] = useState<number | null>(null)
   const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false)
   
-  // Uploaded mappings state
-  const [uploadedMappings, setUploadedMappings] = useState<UploadedMapping[]>([])
+  // User's uploaded mappings state
   const [userMappings, setUserMappings] = useState<UploadedMapping[]>([])
   const [isLoadingUploaded, setIsLoadingUploaded] = useState(false)
   const [uploadedError, setUploadedError] = useState<string | null>(null)
@@ -66,20 +64,13 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     })
   }
 
-  // Fetch uploaded mappings
+  // Fetch user's uploaded mappings only
   const fetchUploadedMappings = async (): Promise<void> => {
     try {
       setIsLoadingUploaded(true)
       setUploadedError(null)
       
-      // Fetch community mappings (always available)
-      const communityData = await window.api.fetchCommunityMappings()
-      setUploadedMappings(communityData.map((mapping: any) => ({
-        ...mapping,
-        lastEdited: formatLastEdited(mapping.updated_at)
-      })))
-      
-      // Fetch user's own mappings if authenticated
+      // Only fetch user's own mappings if authenticated
       if (isAuthenticated && username) {
         try {
           const userData = await window.api.fetchUserMappings(username)
@@ -89,7 +80,10 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
           })))
         } catch (userError) {
           log.warn('Could not fetch user mappings:', userError)
+          setUploadedError('Failed to fetch your uploaded mappings')
         }
+      } else {
+        setUserMappings([])
       }
     } catch (err) {
       setUploadedError(err instanceof Error ? err.message : 'Failed to fetch mappings')
@@ -183,11 +177,11 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
       isActive: activeProfile === index
     })) || []
 
-    const allUploadedMappings = [...uploadedMappings, ...userMappings]
-    const uploadedMappingsWithType = allUploadedMappings.map(mapping => ({
+    // Only handle local and user's uploaded mappings
+    const userUploadedMappingsWithType = userMappings.map(mapping => ({
       type: 'uploaded' as const,
       mapping,
-      isUserOwned: isAuthenticated && mapping.user === username
+      isUserOwned: true
     }))
 
     let filteredMappings: any[] = []
@@ -197,11 +191,13 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
         filteredMappings = localMappings
         break
       case 'uploaded':
-        filteredMappings = uploadedMappingsWithType
+        // Only show user's own uploaded mappings
+        filteredMappings = userUploadedMappingsWithType
         break
       case 'all':
       default:
-        filteredMappings = [...localMappings, ...uploadedMappingsWithType]
+        // Show local and user uploaded mappings only
+        filteredMappings = [...localMappings, ...userUploadedMappingsWithType]
         break
     }
 
@@ -294,7 +290,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
               <TabsTrigger value="all">All Mappings</TabsTrigger>
               <TabsTrigger value="local">Local ({profiles?.length || 0})</TabsTrigger>
               <TabsTrigger value="uploaded">
-                Uploaded ({uploadedMappings.length + userMappings.length})
+                Uploaded ({userMappings.length})
               </TabsTrigger>
             </TabsList>
 
@@ -367,7 +363,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
       >
         {mappings.map((item, index) => (
           <motion.div
-            key={item.type === 'local' ? `local-${item.index}` : `uploaded-${item.mapping.id}`}
+            key={item.type === 'local' ? `local-${item.index}` : `${item.type}-${item.mapping.id}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -375,7 +371,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
             {item.type === 'local' ? (
               <LocalMappingCard item={item} />
             ) : (
-              <UploadedMappingCard item={item} />
+              <UserUploadedMappingCard item={item} />
             )}
           </motion.div>
         ))}
@@ -450,31 +446,19 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     )
   }
 
-  // Uploaded Mapping Card Component  
-  function UploadedMappingCard({ item }: { item: any }) {
-    const { mapping, isUserOwned } = item
+  // User's Uploaded Mapping Card Component (blue border like community)
+  function UserUploadedMappingCard({ item }: { item: any }) {
+    const { mapping } = item
     
     return (
-      <Card className={cn(
-        "h-full flex flex-col hover:shadow-lg transition-shadow",
-        isUserOwned ? "ring-2 ring-primary/20 bg-primary/5" : "ring-2 ring-blue-200 bg-blue-50/30"
-      )}>
+      <Card className="h-full flex flex-col hover:shadow-lg transition-shadow ring-2 ring-blue-200 bg-blue-50/30">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">{mapping.name}</CardTitle>
-            <div className="flex items-center gap-2">
-              {isUserOwned ? (
-                <Badge variant="default" className="flex items-center gap-1">
-                  <User size={12} />
-                  Your Upload
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="flex items-center gap-1 bg-blue-100 text-blue-700 border-blue-300">
-                  <Cloud size={12} />
-                  Community
-                </Badge>
-              )}
-            </div>
+            <Badge variant="default" className="flex items-center gap-1">
+              <Cloud size={12} />
+              Your Upload
+            </Badge>
           </div>
           <CardDescription>
             <div className="space-y-2">
@@ -506,39 +490,38 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
           </div>
         </CardContent>
 
-        <CardFooter className="border-t pt-4 flex justify-between">
-          <div className="flex gap-2">
-            <Button size="sm" variant="ghost" className="flex items-center gap-1">
-              <Heart size={16} />
-              <span>{mapping.numLikes ?? 0}</span>
-            </Button>
-            <Button size="sm" variant="ghost" className="flex items-center gap-1">
-              <Download size={16} />
-              <span>{mapping.numDownloads ?? 0}</span>
-            </Button>
-          </div>
-
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleDownloadMapping(mapping)}
-              className="flex items-center gap-1"
-            >
-              <Download size={14} />
-              Download
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => navigate(`/mapping/${mapping.id}`)}
-            >
-              Details
-            </Button>
-          </div>
+        <CardFooter className="border-t pt-4 flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => navigate(`/mapping/${mapping.id}`)}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => handleDownloadMapping(mapping)}
+            className="flex items-center gap-1"
+          >
+            <Download size={14} />
+            Download to Local
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => {
+              // TODO: Add delete uploaded mapping functionality
+              toast.error('Delete uploaded mapping not yet implemented')
+            }}
+          >
+            Delete
+          </Button>
         </CardFooter>
       </Card>
     )
   }
+
 }
 
 export default MyMappings

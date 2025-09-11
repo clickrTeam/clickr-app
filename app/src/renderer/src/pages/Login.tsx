@@ -50,8 +50,8 @@ const Login = ({ login: handleLogin }: LoginProps): JSX.Element => {
       handleLogin({ username: response.username || values.username })
       toast.success('Login successful!')
 
-      // Navigate to the user's mappings page
-      navigate('/my-mappings')
+      // Navigate to the mappings page (home page)
+      navigate('/')
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
       toast.error('Login Failed', {
