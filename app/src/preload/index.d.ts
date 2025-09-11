@@ -20,6 +20,8 @@ export interface API {
   addTags(mappingId: string, tags: string[]): Promise<any>
   login(username: string, password: string): Promise<any>
   register(username: string, email: string, password: string): Promise<any>
+  checkAuth(): Promise<{ isAuthenticated: boolean; username?: string }>
+  logout(): Promise<{ success: boolean }>
 
   // Daemon Manager methods
   isKeybinderRunning(): Promise<boolean>

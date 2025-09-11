@@ -1,281 +1,78 @@
-import { Profile } from '../../models/Profile'
-import React, { useState } from 'react'
-import { Button } from './components/ui/button'
+import { useState, useEffect } from 'react'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
-import NewProfileDialog from './components/NewProfileDialog'
+import { Toaster } from '@renderer/components/ui/sonner'
+
+// Pages
+import Login from './pages/Login'
 import Community from './pages/community'
 import Daemon from './pages/deamon'
-import { ProfileEditor } from './components/ProfileEditor'
-import { Card } from './components/ui/card'
-import { Toaster } from '@renderer/components/ui/sonner'
-import log from 'electron-log'
-import { toast } from 'sonner'
-
-// Enum to represent different views/screens
-export enum View {
-  HOME = 'HOME',
-  DAEMON = 'DAEMON',
-  COMMUNITY = 'COMMUNITY',
-  MY_MAPPINGS = 'MY_MAPPINGS',
-  LOGIN = 'LOGIN',
-  MAPPING_DETAILS = 'MAPPING_DETAILS'
-}
+import MyMappings from './pages/MyMappings'
+import MappingDetail from './pages/mappingDetails'
 
 function App(): JSX.Element {
-  // State to manage which view to show
-  const [currentView, setCurrentView] = useState<View>(View.HOME)
-  const [profiles, setProfiles] = useState<Profile[] | null>(null)
-  const [activeProfile, setActiveProfile] = useState<number | null>(null)
-  const [editedProfileIndex, setEditedProfileIndex] = useState<number | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
-  const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
-  const [, setSelectedMappingId] = useState<string | null>(null)
+  const navigate = useNavigate()
 
-  function updateProfiles(): void {
-    window.api.getProfiles().then((profiles: object[]) => {
-      log.info('Got profiles:', profiles)
-      setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
-    })
+  // Check authentication status in background - don't block UI
+  useEffect(() => {
+    const checkAuthStatus = async (): Promise<void> => {
+      try {
+        const authStatus = await window.api.checkAuth()
+        if (authStatus.isAuthenticated && authStatus.username) {
+          setIsAuthenticated(true)
+          setUsername(authStatus.username)
+        }
+      } catch (error) {
+        console.error('Failed to check auth status:', error)
+        // Don't block UI on auth failure
+        setIsAuthenticated(false)
+        setUsername('')
+      }
+    }
 
-    window.api.getActiveProfile().then((activeProfile: number | null) => {
-      log.info('Active profile is index: ', activeProfile)
-      setActiveProfile(activeProfile)
-    })
-  }
-
-  // Get the profile from the main process when the component mounts
-  React.useEffect(() => {
-    log.info('[App] useEffect running')
-    updateProfiles()
+    // Small delay to let UI render first, then check auth
+    setTimeout(checkAuthStatus, 100)
   }, [])
 
-  const logout = (): void => {
-    setIsAuthenticated(false)
-    setUsername('')
+  const logout = async (): Promise<void> => {
+    try {
+      await window.api.logout()
+      setIsAuthenticated(false)
+      setUsername('')
+      navigate('/')
+    } catch (error) {
+      console.error('Logout failed:', error)
+      // Still clear local state even if logout fails
+      setIsAuthenticated(false)
+      setUsername('')
+      navigate('/')
+    }
   }
 
-  const confirmDeleteProfile = (profile_index: number): void => {
-    toast('Are you sure you want to delete this profile?', {
-      action: {
-        label: 'Delete',
-        onClick: () => {
-          window.api.deleteProfile(profile_index)
-          updateProfiles()
-          log.info(`Profile at index ${profile_index} deleted.`)
-        }
-      },
-      cancel: {
-        label: 'Cancel',
-        onClick: () => {}
-      }
-    })
-  }
-
-  // Mock login function (replace with real implementation)
-  const login = (): void => {
+  const login = (userData: { username: string }): void => {
     setIsAuthenticated(true)
-    setUsername('TestUser')
+    setUsername(userData.username)
+    navigate('/')
   }
+
 
   return (
     <div className="flex flex-col min-h-screen bg-white w-full h-full">
-      <Navbar
-        currentView={currentView}
-        setCurrentView={setCurrentView}
-        isAuthenticated={isAuthenticated}
-        username={username}
-        logout={logout}
-      />
+      <Navbar isAuthenticated={isAuthenticated} username={username} logout={logout} />
 
       <div className="w-full px-4 flex-grow py-8">
-        {/* Home/Welcome Screen */}
-        {currentView === View.HOME && (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h1 className="text-3xl font-bold text-cyan-600 mb-24">Welcome to Clickr</h1>
-
-            <div className="flex space-x-12 mt-10">
-              <Button
-                size="lg"
-                className="bg-cyan-600 hover:bg-cyan-700 text-black px-8"
-                onClick={() => setCurrentView(View.LOGIN)}
-              >
-                Login
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-cyan-600 text-black hover:bg-cyan-700 px-8"
-                onClick={() => setCurrentView(View.MY_MAPPINGS)}
-              >
-                My Mappings
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* DAEMON Screen Placeholder */}
-        {currentView === View.DAEMON && <Daemon />}
-
-        {/* Login Screen */}
-        {currentView === View.LOGIN && (
-          <div className="flex flex-col items-center justify-center">
-            <h1 className="text-2xl font-bold mb-6 text-black">Login</h1>
-            <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md ">
-              {/* Simple mock login form */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1 text-black">Username</label>
-                  <input
-                    type="text"
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Enter your username"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1 text-black">Password</label>
-                  <input
-                    type="password"
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Enter your password"
-                  />
-                </div>
-                <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white" onClick={login}>
-                  Login
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Community Screen Placeholder */}
-        {currentView === View.COMMUNITY && (
-          <Community
-            onViewDetails={(mappingId: string) => {
-              setSelectedMappingId(mappingId)
-              setCurrentView(View.MAPPING_DETAILS)
-            }}
-          />
-        )}
-
-        {/* Mapping Details Screen */}
-        {/* {currentView === View.MAPPING_DETAILS && (
-          <MappingDetails
-            mappingId={selectedMappingId ?? ''}
-            onBack={() => setCurrentView(View.COMMUNITY)}
-          />
-        )} */}
-
-        {/* My Mappings Screen Placeholder */}
-        {/* Test Page (Original functionality) */}
-        {currentView === View.MY_MAPPINGS && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold">Local Profiles</h1>
-              <div className="space-x-2">
-                <Button variant="outline" onClick={() => setCurrentView(View.HOME)}>
-                  Back to Home
-                </Button>
-                <Button onClick={() => setIsCreatingProfile(true)}>New Profile</Button>
-              </div>
-            </div>
-
-            {editedProfileIndex !== null && profiles != null ? (
-              <ProfileEditor
-                profile={profiles[editedProfileIndex]}
-                onSave={(updatedProfile: Profile) => {
-                  log.info(`Profile has been updated and saved. Updated profile: ${updatedProfile}`)
-                  window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON())
-                  if (activeProfile == editedProfileIndex) {
-                    window.api.setActiveProfile(editedProfileIndex)
-                  }
-                  updateProfiles()
-                }}
-                onBack={() => setEditedProfileIndex(null)}
-              />
-            ) : (
-              <>
-                {!profiles || profiles.length === 0 ? (
-                  <div className="text-center p-8">
-                    <p className="text-muted-foreground">No profiles found</p>
-                  </div>
-                ) : (
-                  <div className="grid gap-4">
-                    {profiles.map((profile, index) => (
-                      <Card key={index}>
-                        <div className="flex items-center justify-between p-4">
-                          <div className="space-y-1">
-                            <h3 className="text-lg font-semibold">{profile.profile_name}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {profile.layer_count} layers
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            {activeProfile === index ? (
-                              <span className="px-2 py-1 text-sm bg-primary/10 text-primary rounded-full">
-                                Active
-                              </span>
-                            ) : (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  window.api.setActiveProfile(index)
-                                  updateProfiles()
-                                }}
-                              >
-                                Set Active
-                              </Button>
-                            )}
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => setEditedProfileIndex(index)}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => {
-                                window.api.createMapping('TEST_USER', profile.toJSON())
-                                updateProfiles()
-                              }}
-                            >
-                              Upload
-                            </Button>
-
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => {
-                                confirmDeleteProfile(index)
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-
-            <NewProfileDialog
-              isOpen={isCreatingProfile}
-              onCancel={() => setIsCreatingProfile(false)}
-              onCreate={(name) => {
-                window.api.createProfile(name)
-                updateProfiles()
-                setIsCreatingProfile(false)
-              }}
-            />
-          </div>
-        )}
+        <Routes>
+          <Route path="/" element={<MyMappings isAuthenticated={isAuthenticated} username={username} />} />
+          <Route path="/login" element={<Login login={login} />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/mapping/:mappingId" element={<MappingDetail />} />
+          <Route path="/daemon" element={<Daemon />} />
+          <Route path="/mappings" element={<MyMappings isAuthenticated={isAuthenticated} username={username} />} />
+        </Routes>
       </div>
+
       {/* Toaster for notifications */}
       <Toaster />
     </div>

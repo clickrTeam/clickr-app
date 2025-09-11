@@ -54,6 +54,12 @@ const api: API = {
   register: function (username: string, email: string, password: string): Promise<any> {
     return ipcRenderer.invoke('register', username, email, password)
   },
+  checkAuth: function (): Promise<{ isAuthenticated: boolean; username?: string }> {
+    return ipcRenderer.invoke('check-auth')
+  },
+  logout: function (): Promise<{ success: boolean }> {
+    return ipcRenderer.invoke('logout')
+  },
 
   // Deamon Manager methods
   isKeybinderRunning: function (): Promise<boolean> {
