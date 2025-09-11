@@ -52,8 +52,8 @@ const Navbar = () => {
   // TODO: Change these to the actual download files
   const WIN_DOWNLOAD: string = "clickr-1.0.0-setup.exe";
   const MAC_DOWNLOAD: string = "clickr-app-mac.txt";
-  const LINUX_DOWNLOAD: string = "clickr-app-linux.txt";
-  
+  const LINUX_DOWNLOAD: string = "clickr.tar.gz";
+
   const getDownloadLink = () => {
     const baseUrl = "https://pub-88623f5677af473299bdb0e0cb10017e.r2.dev";
     switch (detectedOS) {
@@ -67,7 +67,7 @@ const Navbar = () => {
         return `${baseUrl}/${MAC_DOWNLOAD}`;
     }
   };
-  
+
   const getDownloadFilename = () => {
     switch (detectedOS) {
       case "windows":

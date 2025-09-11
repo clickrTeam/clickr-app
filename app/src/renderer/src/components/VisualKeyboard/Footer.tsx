@@ -27,7 +27,7 @@ export interface VisualKeyboardFooterProps {
   selectedKey: string | null
   macro: Bind[]
   onMacroChange: (macro: Bind[]) => void
-  onClose: () => void
+  onClose: (save: boolean) => void
 }
 
 export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
@@ -143,10 +143,14 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         </span>
       </div>
       <div className="vk-footer-row">
-        <button className="vk-footer-close" onClick={onClose}>
+        <button className="vk-footer-close" onClick={() => onClose(true)}>
           Save
         </button>
-        <button className="vk-footer-close" onClick={onClose} style={{ marginLeft: 'auto' }}>
+        <button
+          className="vk-footer-close"
+          onClick={() => onClose(false)}
+          style={{ marginLeft: 'auto' }}
+        >
           Close
         </button>
       </div>
