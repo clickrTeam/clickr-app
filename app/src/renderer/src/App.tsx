@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import { Toaster } from '@renderer/components/ui/sonner'
@@ -17,19 +17,56 @@ import ProtectedRoute from './components/ProtectedRoute'
 function App(): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const navigate = useNavigate()
 
-  const logout = (): void => {
-    setIsAuthenticated(false)
-    setUsername('')
-    navigate('/')
+  // Check authentication status on app load
+  useEffect(() => {
+    const checkAuthStatus = async (): Promise<void> => {
+      try {
+        const authStatus = await window.api.checkAuth()
+        if (authStatus.isAuthenticated && authStatus.username) {
+          setIsAuthenticated(true)
+          setUsername(authStatus.username)
+        }
+      } catch (error) {
+        console.error('Failed to check auth status:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    checkAuthStatus()
+  }, [])
+
+  const logout = async (): Promise<void> => {
+    try {
+      await window.api.logout()
+      setIsAuthenticated(false)
+      setUsername('')
+      navigate('/')
+    } catch (error) {
+      console.error('Logout failed:', error)
+      // Still clear local state even if logout fails
+      setIsAuthenticated(false)
+      setUsername('')
+      navigate('/')
+    }
   }
 
-  // Mock login function
-  const login = (): void => {
+  const login = (userData: { username: string }): void => {
     setIsAuthenticated(true)
-    setUsername('TestUser')
+    setUsername(userData.username)
     navigate('/my-mappings')
+  }
+
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="text-lg">Loading...</div>
+      </div>
+    )
   }
 
   return (

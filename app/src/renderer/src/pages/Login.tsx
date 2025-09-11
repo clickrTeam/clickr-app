@@ -25,7 +25,7 @@ const formSchema = z.object({
 })
 
 interface LoginProps {
-  login: () => void
+  login: (userData: { username: string }) => void
 }
 
 const Login = ({ login: handleLogin }: LoginProps): JSX.Element => {
@@ -40,14 +40,14 @@ const Login = ({ login: handleLogin }: LoginProps): JSX.Element => {
     }
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>): Promise<void> {
     setIsLoading(true)
     try {
       // Use the exposed Electron API to call the login logic in the main process
-      await window.api.login(values.username, values.password)
+      const response = await window.api.login(values.username, values.password)
 
       // On success, call the login function passed from App.tsx to update the auth state
-      handleLogin()
+      handleLogin({ username: response.username || values.username })
       toast.success('Login successful!')
 
       // Navigate to the user's mappings page
@@ -109,7 +109,11 @@ const Login = ({ login: handleLogin }: LoginProps): JSX.Element => {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-700 text-white" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
+              disabled={isLoading}
+            >
               {isLoading ? 'Logging in...' : 'Login'}
             </Button>
           </form>

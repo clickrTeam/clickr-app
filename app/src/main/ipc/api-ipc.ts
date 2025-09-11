@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron'
 import axios from 'axios'
 import log from 'electron-log'
+import { tokenStorage } from '../services/token-storage'
 
 const BASE_URL = 'https://clickr-backend-production.up.railway.app/api/'
 
@@ -8,6 +9,50 @@ const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: false
 })
+
+// Add request interceptor to include auth token
+api.interceptors.request.use(async (config) => {
+  const tokenData = await tokenStorage.getTokens()
+  if (tokenData?.access_token) {
+    config.headers.Authorization = `Bearer ${tokenData.access_token}`
+  }
+  return config
+})
+
+// Add response interceptor to handle token refresh
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+      
+      const tokenData = await tokenStorage.getTokens()
+      if (tokenData?.refresh_token) {
+        try {
+          // Try to refresh the token
+          const refreshResponse = await axios.post(`${BASE_URL}token/refresh/`, {
+            refresh: tokenData.refresh_token
+          })
+          
+          // Update stored access token
+          await tokenStorage.updateAccessToken(refreshResponse.data.access_token)
+          
+          // Retry original request with new token
+          originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.access_token}`
+          return api(originalRequest)
+        } catch (refreshError) {
+          log.error('Token refresh failed:', refreshError)
+          // Clear invalid tokens
+          tokenStorage.clearTokens()
+          throw new Error('Session expired. Please log in again.')
+        }
+      }
+    }
+    return Promise.reject(error)
+  }
+)
 
 export function registerApiHandlers(): void {
   // Community mappings
@@ -99,8 +144,17 @@ export function registerApiHandlers(): void {
   ipcMain.handle('login', async (_, username: string, password: string) => {
     try {
       const response = await api.post('token/', { username, password })
-      log.info(`User ${username} logged in successfully`)
-      return response.data
+      
+      // Store tokens securely
+      await tokenStorage.storeTokens({
+        access_token: response.data.access_token,
+        refresh_token: response.data.refresh_token,
+        username: username,
+        expires_at: Date.now() + (24 * 60 * 60 * 1000) // 24 hours from now
+      })
+      
+      log.info(`User ${username} logged in successfully and tokens stored`)
+      return { ...response.data, username }
     } catch (error) {
       log.error('Login failed:', error)
       throw new Error('Login Failed')
@@ -116,6 +170,44 @@ export function registerApiHandlers(): void {
     } catch (error) {
       log.error('Registration failed:', error)
       throw new Error(error instanceof Error ? error.message : 'Registration Failed')
+    }
+  })
+
+  // Check authentication status
+  ipcMain.handle('check-auth', async () => {
+    try {
+      const tokenData = await tokenStorage.getTokens()
+      if (!tokenData) {
+        return { isAuthenticated: false }
+      }
+
+      // Verify token with backend
+      try {
+        await api.get('authenticated/')
+        return { 
+          isAuthenticated: true, 
+          username: tokenData.username 
+        }
+      } catch (error) {
+        // Token might be invalid, clear it
+        tokenStorage.clearTokens()
+        return { isAuthenticated: false }
+      }
+    } catch (error) {
+      log.error('Error checking authentication:', error)
+      return { isAuthenticated: false }
+    }
+  })
+
+  // Logout
+  ipcMain.handle('logout', async () => {
+    try {
+      tokenStorage.clearTokens()
+      log.info('User logged out and tokens cleared')
+      return { success: true }
+    } catch (error) {
+      log.error('Error during logout:', error)
+      throw new Error('Logout failed')
     }
   })
 }

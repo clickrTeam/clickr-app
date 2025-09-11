@@ -88,7 +88,7 @@ const MappingDetail = (): JSX.Element => {
     const fetchMapping = async (): Promise<void> => {
       try {
         setIsLoading(true)
-        const mapping = await window.api.fetchSpecificMapping(mappingId)
+        const mapping = await window.api.fetchSpecificMapping(mappingId!)
         setMapping(mapping)
         setRemappings(mapping?.mappings?.layers || [])
       } catch (error) {
