@@ -34,6 +34,7 @@ api.interceptors.response.use(
       const tokenData = await tokenStorage.getTokens()
       if (tokenData?.refresh_token) {
         try {
+          log.info('Attempting token refresh with electron endpoint')
           // Try to refresh the token using Electron-specific endpoint
           const refreshResponse = await axios.post(`${BASE_URL}electron/token/refresh/`, {
             refresh: tokenData.refresh_token,
@@ -44,22 +45,28 @@ api.interceptors.response.use(
             }
           })
           
-          // Update stored tokens (both access and refresh for extended lifetime)
-          const newTokenData = {
-            access_token: refreshResponse.data.access_token,
-            refresh_token: refreshResponse.data.refresh_token || tokenData.refresh_token,
-            username: tokenData.username,
-            expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days from now
+          if (refreshResponse.data.success && refreshResponse.data.access_token) {
+            // Update stored tokens (both access and refresh for extended lifetime)
+            const newTokenData = {
+              access_token: refreshResponse.data.access_token,
+              refresh_token: refreshResponse.data.refresh_token || tokenData.refresh_token,
+              username: tokenData.username,
+              expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days from now
+            }
+            await tokenStorage.storeTokens(newTokenData)
+            
+            log.info('Token refresh successful')
+            
+            // Retry original request with new token
+            originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.access_token}`
+            return api(originalRequest)
+          } else {
+            throw new Error('Invalid refresh response')
           }
-          await tokenStorage.storeTokens(newTokenData)
-          
-          // Retry original request with new token
-          originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.access_token}`
-          return api(originalRequest)
         } catch (refreshError) {
           log.error('Token refresh failed:', refreshError)
           // Clear invalid tokens
-          tokenStorage.clearTokens()
+          await tokenStorage.clearTokens()
           throw new Error('Session expired. Please log in again.')
         }
       }
@@ -204,7 +211,7 @@ export function registerApiHandlers(): void {
         return { isAuthenticated: false }
       }
 
-      // Verify token with backend
+      // Try to verify token with backend
       try {
         await api.get('authenticated/')
         return { 
@@ -212,9 +219,27 @@ export function registerApiHandlers(): void {
           username: tokenData.username 
         }
       } catch (error) {
-        // Token might be invalid, clear it
-        tokenStorage.clearTokens()
-        return { isAuthenticated: false }
+        // If 401, try to refresh token before giving up
+        if (error.response?.status === 401 && tokenData.refresh_token) {
+          try {
+            log.info('Access token expired, attempting refresh during auth check')
+            // The axios interceptor will handle the refresh automatically
+            await api.get('authenticated/')
+            return { 
+              isAuthenticated: true, 
+              username: tokenData.username 
+            }
+          } catch (refreshError: unknown) {
+            log.error('Token refresh failed during auth check:', refreshError)
+            tokenStorage.clearTokens()
+            return { isAuthenticated: false }
+          }
+        } else {
+          // Token might be invalid, clear it
+          log.warn('Auth check failed, clearing tokens:', error)
+          tokenStorage.clearTokens()
+          return { isAuthenticated: false }
+        }
       }
     } catch (error) {
       log.error('Error checking authentication:', error)

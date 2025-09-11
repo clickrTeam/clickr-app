@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Profile } from '../../../models/Profile'
 import log from 'electron-log'
 import { toast } from 'sonner'
@@ -103,10 +103,18 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`
   }
 
-  React.useEffect(() => {
-    log.info('[MyMappings] useEffect running')
+  // Load local profiles immediately on mount
+  useEffect(() => {
     updateProfiles()
-    fetchUploadedMappings()
+  }, [])
+
+  // Load uploaded mappings only when auth status changes
+  useEffect(() => {
+    if (isAuthenticated && username) {
+      fetchUploadedMappings()
+    } else {
+      setUserMappings([])
+    }
   }, [isAuthenticated, username])
 
   const confirmDeleteProfile = (profile_index: number): void => {

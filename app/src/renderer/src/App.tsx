@@ -13,10 +13,9 @@ import MappingDetail from './pages/mappingDetails'
 function App(): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
-  const [isLoading, setIsLoading] = useState<boolean>(true)
   const navigate = useNavigate()
 
-  // Check authentication status on app load
+  // Check authentication status in background - don't block UI
   useEffect(() => {
     const checkAuthStatus = async (): Promise<void> => {
       try {
@@ -27,12 +26,14 @@ function App(): JSX.Element {
         }
       } catch (error) {
         console.error('Failed to check auth status:', error)
-      } finally {
-        setIsLoading(false)
+        // Don't block UI on auth failure
+        setIsAuthenticated(false)
+        setUsername('')
       }
     }
 
-    checkAuthStatus()
+    // Small delay to let UI render first, then check auth
+    setTimeout(checkAuthStatus, 100)
   }, [])
 
   const logout = async (): Promise<void> => {
@@ -56,14 +57,6 @@ function App(): JSX.Element {
     navigate('/')
   }
 
-  // Show loading spinner while checking authentication
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="text-lg">Loading...</div>
-      </div>
-    )
-  }
 
   return (
     <div className="flex flex-col min-h-screen bg-white w-full h-full">
