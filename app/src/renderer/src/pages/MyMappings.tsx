@@ -36,18 +36,18 @@ interface MyMappingsProps {
 
 function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element {
   const navigate = useNavigate()
-  
+
   // Local mappings state
   const [profiles, setProfiles] = useState<Profile[] | null>(null)
   const [activeProfile, setActiveProfile] = useState<number | null>(null)
   const [editedProfileIndex, setEditedProfileIndex] = useState<number | null>(null)
   const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false)
-  
+
   // User's uploaded mappings state
   const [userMappings, setUserMappings] = useState<UploadedMapping[]>([])
   const [isLoadingUploaded, setIsLoadingUploaded] = useState(false)
   const [uploadedError, setUploadedError] = useState<string | null>(null)
-  
+
   // UI state
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -69,7 +69,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     try {
       setIsLoadingUploaded(true)
       setUploadedError(null)
-      
+
       // Only fetch user's own mappings if authenticated
       if (isAuthenticated && username) {
         try {
@@ -154,20 +154,20 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     try {
       const profileData = mapping.mappings
       const profileName = `${mapping.name} (Downloaded)`
-      
+
       // Create a new local profile from the downloaded mapping
       await window.api.createProfile(profileName)
-      
+
       // Get the newly created profile index
       const profiles = await window.api.getProfiles()
       const newProfileIndex = profiles.length - 1
-      
+
       // Update the profile with the downloaded data
       const downloadedProfile = Profile.fromJSON(profileData)
       downloadedProfile.profile_name = profileName
-      
+
       await window.api.updateProfile(newProfileIndex, downloadedProfile.toJSON())
-      
+
       toast.success(`Downloaded "${mapping.name}" to local mappings!`)
       updateProfiles() // Refresh local profiles
     } catch (error) {
@@ -235,8 +235,10 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
           onSave={(updatedProfile: Profile) => {
             log.info(`Profile has been updated and saved. Updated profile: ${updatedProfile}`)
             window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON())
+            if (activeProfile == editedProfileIndex) {
+              window.api.setActiveProfile(editedProfileIndex)
+            }
             updateProfiles()
-            setEditedProfileIndex(null)
           }}
           onBack={() => setEditedProfileIndex(null)}
         />
@@ -259,7 +261,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
               {isAuthenticated ? `Welcome back, ${username}!` : 'Keyboard Mappings'}
             </h1>
             <p className="text-xl text-muted-foreground mb-6">
-              {isAuthenticated 
+              {isAuthenticated
                 ? 'Manage your local mappings and discover community creations'
                 : 'Create local mappings and explore community creations'
               }
@@ -350,8 +352,8 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
         <div className="text-center p-12">
           <p className="text-muted-foreground text-lg">No mappings found</p>
           {activeTab === 'local' && (
-            <Button 
-              onClick={() => setIsCreatingProfile(true)} 
+            <Button
+              onClick={() => setIsCreatingProfile(true)}
               className="mt-4 flex items-center gap-2 mx-auto"
             >
               <Plus size={16} />
@@ -458,7 +460,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
   // User's Uploaded Mapping Card Component (blue border like community)
   function UserUploadedMappingCard({ item }: { item: any }) {
     const { mapping } = item
-    
+
     return (
       <Card className="h-full flex flex-col hover:shadow-lg transition-shadow ring-2 ring-blue-200">
         <CardHeader>
@@ -524,7 +526,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
                 toast.error('Please log in to delete mappings')
                 return
               }
-              
+
               toast('Are you sure you want to delete this uploaded mapping?', {
                 action: {
                   label: 'Delete',
