@@ -1,0 +1,56 @@
+# This workflow builds an Electron application for Windows, macOS, and Linux
+# using electron-builder. It then uploads the build output for each OS
+# as a separate zipped artifact.
+
+name: Build Electron App
+
+on:
+  push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
+
+jobs:
+  build:
+    # Use a matrix strategy to build on all three major platforms
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      # This action sets up a Node.js environment for use in actions
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18' # Use a long-term support (LTS) version of Node.js
+        cache: 'npm' # Cache npm dependencies for faster builds
+
+    - name: Install Dependencies
+      # Install the project dependencies defined in package.json
+      run: npm install
+
+    - name: Build the Application
+      # This command runs the 'build' script from your package.json
+      # Make sure your package.json has a build script that calls electron-builder.
+      # Example package.json script:
+      # "scripts": {
+      #   "build": "electron-builder"
+      # }
+      run: npm run build
+      
+    - name: Upload Build Artifact
+      # This action archives and uploads the build output.
+      # electron-builder typically outputs to a 'dist' or 'release' folder.
+      # The action will zip the contents of the specified path.
+      uses: actions/upload-artifact@v3
+      with:
+        # The name of the artifact will include the OS for clarity.
+        # e.g., "electron-app-windows-latest"
+        name: electron-app-${{ matrix.os }}
+        # Adjust the path if your electron-builder output directory is different.
+        path: dist/
