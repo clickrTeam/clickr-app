@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Profile } from '../../../models/Profile'
 import log from 'electron-log'
 import { toast } from 'sonner'
