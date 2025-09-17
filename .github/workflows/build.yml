@@ -25,9 +25,9 @@ jobs:
 
     - name: Set up Node.js
       # This action sets up a Node.js environment for use in actions
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v5
       with:
-        node-version: '18' # Use a long-term support (LTS) version of Node.js
+        node-version: '22' # Use a long-term support (LTS) version of Node.js
         cache: 'npm' # Cache npm dependencies for faster builds
 
     - name: Install Dependencies
