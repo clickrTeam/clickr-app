@@ -59,20 +59,22 @@ jobs:
         echo "workdir=$WORKDIR" >> $GITHUB_OUTPUT
 
     - name: Install Dependencies (Unix/mac)
-      if: runner.os != 'Windows'
+      # if: runner.os != 'Windows'
       working-directory: ${{ steps.find_pkg.outputs.workdir }}
       run: |
+        cd app
         if [ -f package-lock.json ]; then
           npm ci
         else
           npm install
         fi
-    - name: Install Dependencies (Windows)
-      if: runner.os == 'Windows'
-      working-directory: ${{ steps.find_pkg.outputs.workdir }}
-      shell: powershell
-      run: |
-        if (Test-Path package-lock.json) { npm ci } else { npm install }
+    # - name: Install Dependencies (Windows)
+    #   if: runner.os == 'Windows'
+    #   working-directory: ${{ steps.find_pkg.outputs.workdir }}
+    #   shell: powershell
+    #   run: |
+    #     cd app
+    #     if (Test-Path package-lock.json) { npm ci } else { npm install }
 
     - name: Build the Application
       # This command runs the 'build' script from your package.json
