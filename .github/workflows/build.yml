@@ -84,7 +84,9 @@ jobs:
       #   "build": "electron-builder"
       # }
       working-directory: ${{ steps.find_pkg.outputs.workdir }}
-      run: npm run build
+      run: |
+        cd app
+        npm run build
       
     - name: Upload Build Artifact
       # This action archives and uploads the build output.
