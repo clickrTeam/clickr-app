@@ -1,6 +1,6 @@
 {
   "name": "clickr",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Cross-platform input remapper",
   "main": "./out/main/index.js",
   "author": "TODO",
