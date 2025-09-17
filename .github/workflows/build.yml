@@ -47,7 +47,7 @@ jobs:
       # This action archives and uploads the build output.
       # electron-builder typically outputs to a 'dist' or 'release' folder.
       # The action will zip the contents of the specified path.
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         # The name of the artifact will include the OS for clarity.
         # e.g., "electron-app-windows-latest"
