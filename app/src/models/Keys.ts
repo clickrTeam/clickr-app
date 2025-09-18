@@ -297,3 +297,43 @@ export enum LinuxKey {
   XF86Search = 'XF86Search'
   // You can add any XF86* keys supported by your environment
 }
+
+// These are higher level actions that are mapped to different key combos on different OSes
+// We will add these to the UI for users to configure shortcuts, and map them to actual key combinations per OS
+export enum ShortcutAction {
+  // Clipboard
+  Copy = 'Copy',
+  Paste = 'Paste',
+  Cut = 'Cut',
+  Undo = 'Undo',
+  Redo = 'Redo',
+  SelectAll = 'SelectAll',
+  DeleteLine = 'DeleteLine',
+
+  // Navigation
+  Find = 'Find',
+  FindNext = 'FindNext',
+  Replace = 'Replace',
+  GoToLine = 'GoToLine',
+  MoveToLineStart = 'MoveToLineStart',
+  MoveToLineEnd = 'MoveToLineEnd',
+  MoveWordLeft = 'MoveWordLeft',
+  MoveWordRight = 'MoveWordRight',
+
+  // File & App Control
+  NewFile = 'NewFile',
+  OpenFile = 'OpenFile',
+  Save = 'Save',
+  SaveAs = 'SaveAs',
+  Print = 'Print',
+  CloseWindow = 'CloseWindow',
+  QuitApp = 'QuitApp',
+
+  // Browser & Tabs
+  NewTab = 'NewTab',
+  CloseTab = 'CloseTab',
+  ReopenTab = 'ReopenTab',
+  Refresh = 'Refresh',
+  OpenDevTools = 'OpenDevTools',
+  FocusAddressBar = 'FocusAddressBar'
+}
