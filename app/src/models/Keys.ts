@@ -96,6 +96,8 @@
 //   'PageDown',
 //   'Cmd'
 // ]
+
+/// @todo Make this a class instead of enum and then have child classes for generic keys, modifiers, and OS specific keys
 export enum Key {
   // Letters
   A = 'A',
@@ -337,4 +339,3 @@ export enum ShortcutAction {
   OpenDevTools = 'OpenDevTools', // mac: ⌘+Option+I, win/linux: Ctrl+Shift+I
   FocusAddressBar = 'FocusAddressBar' // mac: ⌘+L, win/linux: Ctrl+L
 }
-
