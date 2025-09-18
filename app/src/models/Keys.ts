@@ -302,38 +302,39 @@ export enum LinuxKey {
 // We will add these to the UI for users to configure shortcuts, and map them to actual key combinations per OS
 export enum ShortcutAction {
   // Clipboard
-  Copy = 'Copy',
-  Paste = 'Paste',
-  Cut = 'Cut',
-  Undo = 'Undo',
-  Redo = 'Redo',
-  SelectAll = 'SelectAll',
-  DeleteLine = 'DeleteLine',
+  Copy = 'Copy', // mac: ⌘+C, win/linux: Ctrl+C
+  Paste = 'Paste', // mac: ⌘+V, win/linux: Ctrl+V
+  Cut = 'Cut', // mac: ⌘+X, win/linux: Ctrl+X
+  Undo = 'Undo', // mac: ⌘+Z, win/linux: Ctrl+Z
+  Redo = 'Redo', // mac: ⌘+Shift+Z, win/linux: Ctrl+Y or Ctrl+Shift+Z
+  SelectAll = 'SelectAll', // mac: ⌘+A, win/linux: Ctrl+A
+  DeleteLine = 'DeleteLine', // mac: ⌘+Shift+K, win/linux: Ctrl+Shift+K
 
   // Navigation
-  Find = 'Find',
-  FindNext = 'FindNext',
-  Replace = 'Replace',
-  GoToLine = 'GoToLine',
-  MoveToLineStart = 'MoveToLineStart',
-  MoveToLineEnd = 'MoveToLineEnd',
-  MoveWordLeft = 'MoveWordLeft',
-  MoveWordRight = 'MoveWordRight',
+  Find = 'Find', // mac: ⌘+F, win/linux: Ctrl+F
+  FindNext = 'FindNext', // mac: ⌘+G, win/linux: F3 or Ctrl+G
+  Replace = 'Replace', // mac: ⌘+Shift+H, win/linux: Ctrl+H
+  GoToLine = 'GoToLine', // mac: ⌘+L, win/linux: Ctrl+G
+  MoveToLineStart = 'MoveToLineStart', // mac: ⌘+←, win/linux: Home
+  MoveToLineEnd = 'MoveToLineEnd', // mac: ⌘+→, win/linux: End
+  MoveWordLeft = 'MoveWordLeft', // mac: Option+←, win/linux: Ctrl+←
+  MoveWordRight = 'MoveWordRight', // mac: Option+→, win/linux: Ctrl+→
 
   // File & App Control
-  NewFile = 'NewFile',
-  OpenFile = 'OpenFile',
-  Save = 'Save',
-  SaveAs = 'SaveAs',
-  Print = 'Print',
-  CloseWindow = 'CloseWindow',
-  QuitApp = 'QuitApp',
+  NewFile = 'NewFile', // mac: ⌘+N, win/linux: Ctrl+N
+  OpenFile = 'OpenFile', // mac: ⌘+O, win/linux: Ctrl+O
+  Save = 'Save', // mac: ⌘+S, win/linux: Ctrl+S
+  SaveAs = 'SaveAs', // mac: ⌘+Shift+S, win/linux: Ctrl+Shift+S
+  Print = 'Print', // mac: ⌘+P, win/linux: Ctrl+P
+  CloseWindow = 'CloseWindow', // mac: ⌘+W, win/linux: Alt+F4 or Ctrl+W
+  QuitApp = 'QuitApp', // mac: ⌘+Q, win/linux: Ctrl+Q
 
   // Browser & Tabs
-  NewTab = 'NewTab',
-  CloseTab = 'CloseTab',
-  ReopenTab = 'ReopenTab',
-  Refresh = 'Refresh',
-  OpenDevTools = 'OpenDevTools',
-  FocusAddressBar = 'FocusAddressBar'
+  NewTab = 'NewTab', // mac: ⌘+T, win/linux: Ctrl+T
+  CloseTab = 'CloseTab', // mac: ⌘+W, win/linux: Ctrl+W
+  ReopenTab = 'ReopenTab', // mac: ⌘+Shift+T, win/linux: Ctrl+Shift+T
+  Refresh = 'Refresh', // mac: ⌘+R, win/linux: Ctrl+R or F5
+  OpenDevTools = 'OpenDevTools', // mac: ⌘+Option+I, win/linux: Ctrl+Shift+I
+  FocusAddressBar = 'FocusAddressBar' // mac: ⌘+L, win/linux: Ctrl+L
 }
+
