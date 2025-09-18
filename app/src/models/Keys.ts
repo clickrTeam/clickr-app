@@ -1,3 +1,4 @@
+import log from 'electron-log'
 // export const keys: string[] = [
 //   // Letters
 //   'A',
@@ -97,7 +98,6 @@
 //   'Cmd'
 // ]
 
-/// @todo Make this a class instead of enum and then have child classes for generic keys, modifiers, and OS specific keys
 export enum Key {
   // Letters
   A = 'A',
@@ -339,3 +339,20 @@ export enum ShortcutAction {
   OpenDevTools = 'OpenDevTools', // mac: ⌘+Option+I, win/linux: Ctrl+Shift+I
   FocusAddressBar = 'FocusAddressBar' // mac: ⌘+L, win/linux: Ctrl+L
 }
+const os = process.platform
+let os_keys: string[] = []
+
+if (os === 'darwin') {
+  // macOS specific settings or exports can go here
+  os_keys = Object.values(MacKey)
+} else if (os === 'win32') {
+  // Windows specific settings or exports can go here
+  os_keys = Object.values(WinKey)
+} else if (os === 'linux') {
+  // Linux specific settings or exports can go here
+  os_keys = Object.values(LinuxKey)
+} else {
+  // Other OSes
+  log.warn('Unsupported OS for specific key mappings')
+}
+export const keys: string[] = [Object.values(Key), Object.values(Modifier), os_keys].flat()
