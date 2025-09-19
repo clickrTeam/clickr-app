@@ -1,102 +1,4 @@
 import log from 'electron-log'
-// export const keys: string[] = [
-//   // Letters
-//   'A',
-//   'B',
-//   'C',
-//   'D',
-//   'E',
-//   'F',
-//   'G',
-//   'H',
-//   'I',
-//   'J',
-//   'K',
-//   'L',
-//   'M',
-//   'N',
-//   'O',
-//   'P',
-//   'Q',
-//   'R',
-//   'S',
-//   'T',
-//   'U',
-//   'V',
-//   'W',
-//   'X',
-//   'Y',
-//   'Z',
-//   // Digits
-//   '0',
-//   '1',
-//   '2',
-//   '3',
-//   '4',
-//   '5',
-//   '6',
-//   '7',
-//   '8',
-//   '9',
-//   // Special Characters
-//   'Space',
-//   'Enter',
-//   'Esc',
-//   'Escape',
-//   'Tab',
-//   'Backspace',
-//   'Pause',
-//   'CapsLock',
-//   // Special Characters with directions.
-//   'Shift',
-//   'ShiftLeft',
-//   'ShiftRight',
-//   'Ctrl',
-//   'CtrlLeft',
-//   'CtrlRight',
-//   'Alt',
-//   'AltLeft',
-//   'AltRight',
-//   // Function Keys
-//   'F1',
-//   'F2',
-//   'F3',
-//   'F4',
-//   'F5',
-//   'F6',
-//   'F7',
-//   'F8',
-//   'F9',
-//   'F10',
-//   'F11',
-//   'F12',
-//   // Special Symbols
-//   '~',
-//   '`',
-//   '-',
-//   '=',
-//   '[',
-//   ']',
-//   '\\',
-//   ';',
-//   "'",
-//   ',',
-//   '.',
-//   '/',
-//   // Arrow Keys
-//   'Up',
-//   'Down',
-//   'Left',
-//   'Right',
-//   // Other special keys
-//   'Insert',
-//   'Delete',
-//   'Home',
-//   'End',
-//   'PageUp',
-//   'PageDown',
-//   'Cmd'
-// ]
 
 export enum Key {
   // Letters
@@ -227,26 +129,17 @@ export enum Key {
 }
 
 export enum Modifier {
-  Shift = 'Shift',
-  Control = 'Control', // Ctrl on Windows/Linux, Control on macOS (separate key exists)
-  Alt = 'Alt', // Alt on Windows/Linux, Option on macOS (mapping layer)
-  Meta = 'Meta', // Windows key or Command key; platform dependent
   ShiftLeft = 'ShiftLeft',
   ShiftRight = 'ShiftRight',
-  ControlLeft = 'ControlLeft',
-  ControlRight = 'ControlRight',
-  AltLeft = 'AltLeft',
-  AltRight = 'AltRight',
-  MetaLeft = 'MetaLeft',
-  MetaRight = 'MetaRight',
   Fn = 'Fn' // hardware function modifier (macbooks, many laptops)
 }
 
 export enum MacKey {
-  Command = 'Command', // ⌘ (maps to Meta)
-  Option = 'Option', // ⌥ (maps to Alt)
+  CommandLeft = 'CommandLeft', // ⌘ (maps to Meta)
+  CommandRight = 'CommandRight', 
+  OptionLeft = 'OptionLeft', // ⌥ (maps to Alt)
+  OptionRight = 'OptionRight',
   Control = 'Control', // ^ (mac Control key exists)
-  Fn = 'Fn',
   Eject = 'Eject',
   Spotlight = 'Spotlight', // (if keyboard has a key)
   Launchpad = 'Launchpad', // (if present)
@@ -260,7 +153,12 @@ export enum MacKey {
 }
 
 export enum WinKey {
-  Win = 'Win', // Windows / Super / Meta
+  WinLeft = 'WinLeft', // Windows / Super / Meta
+  WinRight = 'WinRight',
+  CtrlLeft = 'CtrlLeft',
+  CtrlRight = 'CtrlRight',
+  AltLeft = 'AltLeft',
+  AltRight = 'AltRight',
   Menu = 'Menu', // Application key (context menu)
   PrintScreen = 'PrintScreen',
   PauseBreak = 'PauseBreak',
@@ -285,7 +183,12 @@ export enum WinKey {
 }
 
 export enum LinuxKey {
-  Super = 'Super', // often the Windows key
+  SuperLeft = 'SuperLeft', // often the Windows key
+  SuperRight = 'SuperRight',
+  CtrlLeft = 'CtrlLeft',
+  CtrlRight = 'CtrlRight',
+  AltLeft = 'AltLeft',
+  AltRight = 'AltRight',
   Compose = 'Compose',
   SysReq = 'SysReq', // may overlap with PrintScreen
   // Common X11 extras

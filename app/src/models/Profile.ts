@@ -23,6 +23,12 @@ export class Profile {
   layer_count: number
 
   /**
+   * The operating system this profile was created on.
+   * This is used for translating keys between OSes.
+   */
+  OS: string
+
+  /**
    * Creates an instance of a profile
    * @param profile_name: The name associated with the profile
    */
@@ -32,7 +38,19 @@ export class Profile {
     this.layer_count = 0
 
     this.addLayer('layer 0')
-    log.info(`Profile "${this.profile_name}" created with initial layer "layer 0".`)
+    const ua = navigator.userAgent.toLowerCase()
+    if (ua.includes('mac')) {
+      this.OS = 'macOS'
+    } else if (ua.includes('win')) {
+      this.OS = 'Windows'
+    } else if (ua.includes('linux')) {
+      this.OS = 'Linux'
+    } else {
+      // Other OSes
+      this.OS = 'Error: Unknown OS'
+      log.warn(`Unknown OS when creating profile ${this.profile_name}`)
+    }
+    log.info(`Profile "${this.profile_name}" created with initial layer "layer 0". OS: ${this.OS}`)
   }
 
   /**
@@ -191,6 +209,7 @@ export class Profile {
     return {
       profile_name: this.profile_name,
       layer_count: this.layer_count,
+      OS: this.OS,
       layers: this.layers.map((layer: Layer) => layer.toJSON())
     }
   }
@@ -223,9 +242,52 @@ export class Profile {
     profile.layers = obj.layers.map((layerObj: any) => Layer.fromJSON(layerObj))
     profile.layer_count = profile.layers.length
 
+    if (profile.OS !== obj.OS) {
+      log.info(
+        `Profile OS "${obj.OS}" does not match current OS "${profile.OS}". Tranlating keys to current OS.`
+      )
+      profile.translateToCurrentOS(obj.OS)
+    }
+
     log.info(
       `Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
     )
     return profile
+  }
+
+  /**
+   * Wrapper function that contains the logic to call the correct OS translation function.
+   * @param incoming_OS The OS the read profile was created on.
+   */
+  translateToCurrentOS(incoming_OS: string): void {
+    if (this.OS === 'Linux') {
+      if (incoming_OS === 'Windows') {
+      } else if (incoming_OS === 'macOS') {
+      } else {
+        log.warn(
+          `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
+        )
+      }
+    } else if (this.OS === 'Windows') {
+      if (incoming_OS === 'Linux') {
+      } else if (incoming_OS === 'macOS') {
+      } else {
+        log.warn(
+          `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
+        )
+      }
+    } else if (this.OS === 'macOS') {
+      if (incoming_OS === 'Linux') {
+      } else if (incoming_OS === 'Windows') {
+      } else {
+        log.warn(
+          `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
+        )
+      }
+    } else {
+      log.warn(
+        `Current profile object has unknown OS: "${this.OS}", cannot translate to current OS.`
+      )
+    }
   }
 }
