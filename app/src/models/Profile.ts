@@ -255,41 +255,54 @@ export class Profile {
    * @param incoming_OS The OS the read profile was created on.
    */
   translateToCurrentOS(incoming_OS: string): void {
-    if (this.OS === 'Linux') {
-      if (incoming_OS === 'Windows') {
-        this.windowsToLinux()
-      } else if (incoming_OS === 'macOS') {
-        this.macToLinux()
-      } else {
-        log.warn(
-          `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
-        )
-      }
-    } else if (this.OS === 'Windows') {
-      if (incoming_OS === 'Linux') {
-        this.linuxToWindows()
-      } else if (incoming_OS === 'macOS') {
-        this.macToWindows()
-      } else {
-        log.warn(
-          `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
-        )
-      }
-    } else if (this.OS === 'macOS') {
-      if (incoming_OS === 'Linux') {
-        this.linuxToMac()
-      } else if (incoming_OS === 'Windows') {
-        this.windowsToMac()
-      } else {
-        log.warn(
-          `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
-        )
-      }
-    } else {
-      log.warn(
-        `Current profile object has unknown OS: "${this.OS}", cannot translate to current OS.`
-      )
+    let valid_incoming_OS = false
+    if (incoming_OS === 'Linux' || incoming_OS === 'Windows' || incoming_OS === 'macOS') {
+      valid_incoming_OS = true
     }
+    if (valid_incoming_OS) {
+      // Iterate through layers and remappings to translate keys
+    }
+    else {
+      log.warn(`Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`)
+    }
+
+
+
+    // if (this.OS === 'Linux') {
+    //   if (incoming_OS === 'Windows') {
+    //     this.windowsToLinux()
+    //   } else if (incoming_OS === 'macOS') {
+    //     this.macToLinux()
+    //   } else {
+    //     log.warn(
+    //       `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
+    //     )
+    //   }
+    // } else if (this.OS === 'Windows') {
+    //   if (incoming_OS === 'Linux') {
+    //     this.linuxToWindows()
+    //   } else if (incoming_OS === 'macOS') {
+    //     this.macToWindows()
+    //   } else {
+    //     log.warn(
+    //       `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
+    //     )
+    //   }
+    // } else if (this.OS === 'macOS') {
+    //   if (incoming_OS === 'Linux') {
+    //     this.linuxToMac()
+    //   } else if (incoming_OS === 'Windows') {
+    //     this.windowsToMac()
+    //   } else {
+    //     log.warn(
+    //       `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
+    //     )
+    //   }
+    // } else {
+    //   log.warn(
+    //     `Current profile object has unknown OS: "${this.OS}", cannot translate to current OS.`
+    //   )
+    // }
   }
 
   /**
@@ -370,6 +383,47 @@ export class Profile {
   macToWindows(): void {
     log.info('Translating profile from macOS to Windows.')
   }
+
+  iterateForTranslation(incoming_OS: string): void {
+    log.info(`Translating profile from ${incoming_OS} to ${this.OS}.`)
+
+    for (const layer of this.layers) {
+      for (const [trigger, bind] of layer.remappings) {
+        // Translate Trigger keys
+        if (trigger instanceof T.KeyPress) {
+        } else if (trigger instanceof T.KeyRelease) {
+        } else if (trigger instanceof T.TapSequence) {
+          for (const [val, num] of trigger.key_time_pairs) {
+
+          }
+        } else if (trigger instanceof T.Hold) {
+        } else if (trigger instanceof T.AppFocus) {
+        } else {
+          log.warn(`Unknown trigger type during ${incoming_OS} to ${this.OS} translation.`)
+        }
+
+        // Translate Bind keys
+        if (bind instanceof B.PressKey) {
+        } else if (bind instanceof B.ReleaseKey) {
+        } else if (bind instanceof B.TapKey) {
+        } else if (bind instanceof B.Macro_Bind) {
+          for (const single_bind of bind.binds) {
+            // Need recursive call here for nested macros
+          }
+        } else if (bind instanceof B.TimedMacro_Bind) {
+          for (const single_bind of bind.binds) {
+            // Need recursive call here for nested macros
+          }
+        } else if (bind instanceof B.Repeat_Bind) {
+          for (const single_bind of bind.binds) {
+            // Need recursive call here for nested macros
+          }
+        } else {
+          log.warn(`Unknown trigger type during ${incoming_OS} to ${this.OS} translation.`)
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -391,30 +445,3 @@ function detectOS(): 'macOS' | 'Windows' | 'Linux' | 'Unknown' {
 
   return 'Unknown'
 }
-
-// for (const layer of this.layers) {
-//       for (const [trigger, bind] of layer.remappings) {
-//         // Translate Trigger keys
-//         if (trigger instanceof T.KeyPress) {
-//         } else if (trigger instanceof T.KeyRelease) {
-//         } else if (trigger instanceof T.TapSequence) {
-//         } else if (trigger instanceof T.Hold) {
-//         } else if (trigger instanceof T.AppFocus) {
-//         } else {
-//           log.warn('Unknown trigger type during Linux to Windows translation.')
-//         }
-
-//         // Translate Bind keys
-//         if (bind instanceof B.PressKey) {
-//         } else if (bind instanceof B.ReleaseKey) {
-//         } else if (bind instanceof B.TapKey) {
-//         } else if (bind instanceof B.Macro_Bind) {
-//         } else if (bind instanceof B.TimedMacro_Bind) {
-//         } else if (bind instanceof B.Repeat_Bind) {
-//         } else if (bind instanceof B.SwapLayer) {
-//         } else if (bind instanceof B.AppOpen_Bind) {
-//         } else {
-//           log.warn('Unknown bind type during Linux to Windows translation.')
-//         }
-//       }
-//     }
