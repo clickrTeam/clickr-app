@@ -2,6 +2,7 @@
 import { Layer } from './Layer'
 import * as T from './Trigger'
 import * as B from './Bind'
+import { MacKey, WinKey, LinuxKey, ShortcutAction } from './Keys'
 import log from 'electron-log'
 /**
  * Represents an entire profile that can contain many layers.
@@ -38,15 +39,9 @@ export class Profile {
     this.layer_count = 0
 
     this.addLayer('layer 0')
-    const ua = navigator.userAgent.toLowerCase()
-    if (ua.includes('mac')) {
-      this.OS = 'macOS'
-    } else if (ua.includes('win')) {
-      this.OS = 'Windows'
-    } else if (ua.includes('linux')) {
-      this.OS = 'Linux'
-    } else {
-      // Other OSes
+    this.addLayer('layer 0')
+    this.OS = detectOS()
+    if (this.OS === 'Unknown') {
       this.OS = 'Error: Unknown OS'
       log.warn(`Unknown OS when creating profile ${this.profile_name}`)
     }
@@ -244,7 +239,7 @@ export class Profile {
 
     if (profile.OS !== obj.OS) {
       log.info(
-        `Profile OS "${obj.OS}" does not match current OS "${profile.OS}". Tranlating keys to current OS.`
+        `Profile OS "${obj.OS}" does not match current OS "${profile.OS}". Translating keys to current OS.`
       )
       profile.translateToCurrentOS(obj.OS)
     }
@@ -262,7 +257,9 @@ export class Profile {
   translateToCurrentOS(incoming_OS: string): void {
     if (this.OS === 'Linux') {
       if (incoming_OS === 'Windows') {
+        this.windowsToLinux()
       } else if (incoming_OS === 'macOS') {
+        this.macToLinux()
       } else {
         log.warn(
           `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
@@ -270,7 +267,9 @@ export class Profile {
       }
     } else if (this.OS === 'Windows') {
       if (incoming_OS === 'Linux') {
+        this.linuxToWindows()
       } else if (incoming_OS === 'macOS') {
+        this.macToWindows()
       } else {
         log.warn(
           `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
@@ -278,7 +277,9 @@ export class Profile {
       }
     } else if (this.OS === 'macOS') {
       if (incoming_OS === 'Linux') {
+        this.linuxToMac()
       } else if (incoming_OS === 'Windows') {
+        this.windowsToMac()
       } else {
         log.warn(
           `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
@@ -290,4 +291,130 @@ export class Profile {
       )
     }
   }
+
+  /**
+   * Iterates through all layers and remappings to translate keys from Linux to Windows.
+   */
+  linuxToWindows(): void {
+    log.info('Translating profile from Linux to Windows.')
+
+    for (const layer of this.layers) {
+      for (const [trigger, bind] of layer.remappings) {
+        // Translate Trigger keys
+        if (trigger instanceof T.KeyPress) {
+        } else if (trigger instanceof T.KeyRelease) {
+        } else if (trigger instanceof T.TapSequence) {
+          for (const [val, num] of trigger.key_time_pairs) {
+
+          }
+        } else if (trigger instanceof T.Hold) {
+        } else if (trigger instanceof T.AppFocus) {
+        } else {
+          log.warn('Unknown trigger type during Linux to Windows translation.')
+        }
+
+        // Translate Bind keys
+        if (bind instanceof B.PressKey) {
+        } else if (bind instanceof B.ReleaseKey) {
+        } else if (bind instanceof B.TapKey) {
+        } else if (bind instanceof B.Macro_Bind) {
+          for (const single_bind of bind.binds) {
+            // Need recursive call here for nested macros
+          }
+        } else if (bind instanceof B.TimedMacro_Bind) {
+          for (const single_bind of bind.binds) {
+            // Need recursive call here for nested macros
+          }
+        } else if (bind instanceof B.Repeat_Bind) {
+          for (const single_bind of bind.binds) {
+            // Need recursive call here for nested macros
+          }
+        } else {
+          log.warn('Unknown bind type during Linux to Windows translation.')
+        }
+      }
+    }
+  }
+
+  /**
+   * Iterates through all layers and remappings to translate keys from Linux to macOS.
+   */
+  linuxToMac(): void {
+    log.info('Translating profile from Linux to macOS.')
+  }
+
+  /**
+   * Iterates through all layers and remappings to translate keys from Windows to Linux.
+   */
+  windowsToLinux(): void {
+    log.info('Translating profile from Windows to Linux.')
+  }
+
+  /**
+   * Iterates through all layers and remappings to translate keys from Windows to macOS.
+   */
+  windowsToMac(): void {
+    log.info('Translating profile from Windows to macOS.')
+  }
+
+  /**
+   * Iterates through all layers and remappings to translate keys from macOS to Linux.
+   */
+  macToLinux(): void {
+    log.info('Translating profile from macOS to Linux.')
+  }
+
+  /**
+   * Iterates through all layers and remappings to translate keys from macOS to Windows.
+   */
+  macToWindows(): void {
+    log.info('Translating profile from macOS to Windows.')
+  }
 }
+
+/**
+ * Detects the operating system the code is running on.
+ * @returns 'macOS', 'Windows', 'Linux', or 'Unknown'
+ */
+function detectOS(): 'macOS' | 'Windows' | 'Linux' | 'Unknown' {
+  if (typeof process !== 'undefined' && process.platform) {
+    const platform = process.platform
+    if (platform === 'darwin') return 'macOS'
+    if (platform === 'win32') return 'Windows'
+    if (platform === 'linux') return 'Linux'
+  } else if (typeof navigator !== 'undefined') {
+    const ua = navigator.userAgent.toLowerCase()
+    if (ua.includes('mac')) return 'macOS'
+    if (ua.includes('win')) return 'Windows'
+    if (ua.includes('linux')) return 'Linux'
+  }
+
+  return 'Unknown'
+}
+
+// for (const layer of this.layers) {
+//       for (const [trigger, bind] of layer.remappings) {
+//         // Translate Trigger keys
+//         if (trigger instanceof T.KeyPress) {
+//         } else if (trigger instanceof T.KeyRelease) {
+//         } else if (trigger instanceof T.TapSequence) {
+//         } else if (trigger instanceof T.Hold) {
+//         } else if (trigger instanceof T.AppFocus) {
+//         } else {
+//           log.warn('Unknown trigger type during Linux to Windows translation.')
+//         }
+
+//         // Translate Bind keys
+//         if (bind instanceof B.PressKey) {
+//         } else if (bind instanceof B.ReleaseKey) {
+//         } else if (bind instanceof B.TapKey) {
+//         } else if (bind instanceof B.Macro_Bind) {
+//         } else if (bind instanceof B.TimedMacro_Bind) {
+//         } else if (bind instanceof B.Repeat_Bind) {
+//         } else if (bind instanceof B.SwapLayer) {
+//         } else if (bind instanceof B.AppOpen_Bind) {
+//         } else {
+//           log.warn('Unknown bind type during Linux to Windows translation.')
+//         }
+//       }
+//     }
