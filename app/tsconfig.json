@@ -25,7 +25,7 @@
     "sourceMap": true, // Enable source maps for debugging
     "resolveJsonModule": true, // Allow importing JSON modules
     "composite": true,
-    "types": ["electron-vite/node"],
+    "types": ["electron-vite/node", "jest"],
     "baseUrl": ".",
     "paths": {
       "@renderer/*": ["./src/renderer/src/*"],
