@@ -251,177 +251,194 @@ export class Profile {
   }
 
   /**
-   * Wrapper function that contains the logic to call the correct OS translation function.
+   * Checks whether the incoming OS is valid, and if so begins the translation process.
    * @param incoming_OS The OS the read profile was created on.
    */
-  translateToCurrentOS(incoming_OS: string): void {
+  private translateToCurrentOS(incoming_OS: string): void {
     let valid_incoming_OS = false
     if (incoming_OS === 'Linux' || incoming_OS === 'Windows' || incoming_OS === 'macOS') {
       valid_incoming_OS = true
     }
     if (valid_incoming_OS) {
       // Iterate through layers and remappings to translate keys
-    }
-    else {
+      this.iterateForTranslation(incoming_OS)
+    } else {
       log.warn(`Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`)
     }
-
-
-
-    // if (this.OS === 'Linux') {
-    //   if (incoming_OS === 'Windows') {
-    //     this.windowsToLinux()
-    //   } else if (incoming_OS === 'macOS') {
-    //     this.macToLinux()
-    //   } else {
-    //     log.warn(
-    //       `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
-    //     )
-    //   }
-    // } else if (this.OS === 'Windows') {
-    //   if (incoming_OS === 'Linux') {
-    //     this.linuxToWindows()
-    //   } else if (incoming_OS === 'macOS') {
-    //     this.macToWindows()
-    //   } else {
-    //     log.warn(
-    //       `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
-    //     )
-    //   }
-    // } else if (this.OS === 'macOS') {
-    //   if (incoming_OS === 'Linux') {
-    //     this.linuxToMac()
-    //   } else if (incoming_OS === 'Windows') {
-    //     this.windowsToMac()
-    //   } else {
-    //     log.warn(
-    //       `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
-    //     )
-    //   }
-    // } else {
-    //   log.warn(
-    //     `Current profile object has unknown OS: "${this.OS}", cannot translate to current OS.`
-    //   )
-    // }
   }
 
-  /**
-   * Iterates through all layers and remappings to translate keys from Linux to Windows.
-   */
-  linuxToWindows(): void {
-    log.info('Translating profile from Linux to Windows.')
-
-    for (const layer of this.layers) {
-      for (const [trigger, bind] of layer.remappings) {
-        // Translate Trigger keys
-        if (trigger instanceof T.KeyPress) {
-        } else if (trigger instanceof T.KeyRelease) {
-        } else if (trigger instanceof T.TapSequence) {
-          for (const [val, num] of trigger.key_time_pairs) {
-
-          }
-        } else if (trigger instanceof T.Hold) {
-        } else if (trigger instanceof T.AppFocus) {
-        } else {
-          log.warn('Unknown trigger type during Linux to Windows translation.')
-        }
-
-        // Translate Bind keys
-        if (bind instanceof B.PressKey) {
-        } else if (bind instanceof B.ReleaseKey) {
-        } else if (bind instanceof B.TapKey) {
-        } else if (bind instanceof B.Macro_Bind) {
-          for (const single_bind of bind.binds) {
-            // Need recursive call here for nested macros
-          }
-        } else if (bind instanceof B.TimedMacro_Bind) {
-          for (const single_bind of bind.binds) {
-            // Need recursive call here for nested macros
-          }
-        } else if (bind instanceof B.Repeat_Bind) {
-          for (const single_bind of bind.binds) {
-            // Need recursive call here for nested macros
-          }
-        } else {
-          log.warn('Unknown bind type during Linux to Windows translation.')
-        }
-      }
-    }
-  }
-
-  /**
-   * Iterates through all layers and remappings to translate keys from Linux to macOS.
-   */
-  linuxToMac(): void {
-    log.info('Translating profile from Linux to macOS.')
-  }
-
-  /**
-   * Iterates through all layers and remappings to translate keys from Windows to Linux.
-   */
-  windowsToLinux(): void {
-    log.info('Translating profile from Windows to Linux.')
-  }
-
-  /**
-   * Iterates through all layers and remappings to translate keys from Windows to macOS.
-   */
-  windowsToMac(): void {
-    log.info('Translating profile from Windows to macOS.')
-  }
-
-  /**
-   * Iterates through all layers and remappings to translate keys from macOS to Linux.
-   */
-  macToLinux(): void {
-    log.info('Translating profile from macOS to Linux.')
-  }
-
-  /**
-   * Iterates through all layers and remappings to translate keys from macOS to Windows.
-   */
-  macToWindows(): void {
-    log.info('Translating profile from macOS to Windows.')
-  }
-
-  iterateForTranslation(incoming_OS: string): void {
+  private iterateForTranslation(incoming_OS: string): void {
     log.info(`Translating profile from ${incoming_OS} to ${this.OS}.`)
 
     for (const layer of this.layers) {
       for (const [trigger, bind] of layer.remappings) {
         // Translate Trigger keys
-        if (trigger instanceof T.KeyPress) {
-        } else if (trigger instanceof T.KeyRelease) {
+        if (
+          trigger instanceof T.KeyPress ||
+          trigger instanceof T.KeyRelease ||
+          trigger instanceof T.Hold ||
+          trigger instanceof T.AppFocus
+        ) {
+          trigger.value = this.processRemapValue(trigger.value, incoming_OS)
         } else if (trigger instanceof T.TapSequence) {
-          for (const [val, num] of trigger.key_time_pairs) {
-
+          for (const pair of trigger.key_time_pairs) {
+            pair[0] = this.processRemapValue(pair[0], incoming_OS)
           }
-        } else if (trigger instanceof T.Hold) {
-        } else if (trigger instanceof T.AppFocus) {
         } else {
-          log.warn(`Unknown trigger type during ${incoming_OS} to ${this.OS} translation.`)
+          log.warn(
+            `Unknown trigger type during ${incoming_OS} to ${this.OS} translation. Trigger: ${trigger.toString()}`
+          )
         }
 
         // Translate Bind keys
-        if (bind instanceof B.PressKey) {
-        } else if (bind instanceof B.ReleaseKey) {
-        } else if (bind instanceof B.TapKey) {
-        } else if (bind instanceof B.Macro_Bind) {
+        if (
+          bind instanceof B.PressKey ||
+          bind instanceof B.ReleaseKey ||
+          bind instanceof B.TapKey
+        ) {
+          bind.value = this.processRemapValue(bind.value, incoming_OS)
+        }
+        // Need recursive call here for array of nested binds
+        else if (bind instanceof B.Macro_Bind || bind instanceof B.TimedMacro_Bind) {
           for (const single_bind of bind.binds) {
-            // Need recursive call here for nested macros
+            this.processBindRecursive(single_bind, incoming_OS)
           }
-        } else if (bind instanceof B.TimedMacro_Bind) {
-          for (const single_bind of bind.binds) {
-            // Need recursive call here for nested macros
-          }
-        } else if (bind instanceof B.Repeat_Bind) {
-          for (const single_bind of bind.binds) {
-            // Need recursive call here for nested macros
-          }
+        }
+        // Need recursive call here for nested bind
+        else if (bind instanceof B.Repeat_Bind) {
+          this.processBindRecursive(bind.value, incoming_OS)
         } else {
-          log.warn(`Unknown trigger type during ${incoming_OS} to ${this.OS} translation.`)
+          log.warn(
+            `Unknown bind type during ${incoming_OS} to ${this.OS} translation. Bind: ${bind.toString()}`
+          )
         }
       }
+    }
+  }
+
+  private processRemapValue(val: string, incoming_OS: string): string {
+    let new_trigger_value = ''
+    if (this.OS === 'Linux') {
+      if (incoming_OS === 'Windows') {
+        new_trigger_value = this.windowsToLinux(val)
+      } else if (incoming_OS === 'macOS') {
+        new_trigger_value = this.macToLinux(val)
+      } else {
+        log.warn(
+          `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
+        )
+      }
+    } else if (this.OS === 'Windows') {
+      if (incoming_OS === 'Linux') {
+        new_trigger_value = this.linuxToWindows(val)
+      } else if (incoming_OS === 'macOS') {
+        new_trigger_value = this.macToWindows(val)
+      } else {
+        log.warn(
+          `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
+        )
+      }
+    } else if (this.OS === 'macOS') {
+      if (incoming_OS === 'Linux') {
+        new_trigger_value = this.linuxToMac(val)
+      } else if (incoming_OS === 'Windows') {
+        new_trigger_value = this.windowsToMac(val)
+      } else {
+        log.warn(
+          `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
+        )
+      }
+    }
+    return new_trigger_value
+  }
+
+  /**
+   * Returns the value of a trigger or bind translated from Linux to Windows.
+   * @param old_value The trigger / bind value to be translated.
+   * @returns The translated value for the current OS.
+   */
+  private linuxToWindows(old_value: string): string {
+    let new_value = ''
+    return new_value
+  }
+
+  /**
+   * Returns the value of a trigger or bind translated from Linux to macOS.
+   * @param old_value The trigger / bind value to be translated.
+   * @returns The translated value for the current OS.
+   */
+  private linuxToMac(old_value: string): string {
+    let new_value = ''
+    return new_value
+  }
+
+  /**
+   * Returns the value of a trigger or bind translated from Windows to Linux.
+   * @param old_value The trigger / bind value to be translated.
+   * @returns The translated value for the current OS.
+   */
+  private windowsToLinux(old_value: string): string {
+    let new_value = ''
+    return new_value
+  }
+
+  /**
+   * Returns the value of a trigger or bind translated from Windows to macOS.
+   * @param old_value The trigger / bind value to be translated.
+   * @returns The translated value for the current OS.
+   */
+  private windowsToMac(old_value: string): string {
+    let new_value = ''
+    return new_value
+  }
+
+  /**
+   * Returns the value of a trigger or bind translated from macOS to Linux.
+   * @param old_value The trigger / bind value to be translated.
+   * @returns The translated value for the current OS.
+   */
+  private macToLinux(old_value: string): string {
+    let new_value = ''
+    return new_value
+  }
+
+  /**
+   * Returns the value of a trigger or bind translated from macOS to Windows.
+   * @param old_value The trigger / bind value to be translated.
+   * @returns The translated value for the current OS.
+   */
+  private macToWindows(old_value: string): string {
+    let new_value = ''
+    return new_value
+  }
+
+  /**
+   * Because some binds have multiple nested binds, we need to recursively process them all.
+   * This will drill down until it finds a bind with a single value string, then translate that.
+   * @param bind The bind to be processed.
+   * @param incoming_OS The operating system the profile was created on.
+   */
+  private processBindRecursive(bind: B.Bind, incoming_OS: string): void {
+    if (bind instanceof B.Macro_Bind || bind instanceof B.TimedMacro_Bind) {
+      for (const single_bind of bind.binds) {
+        this.processBindRecursive(single_bind, incoming_OS)
+      }
+    }
+    // Repeat bind contains a single bind called value, not an array
+    else if (bind instanceof B.Repeat_Bind) {
+      this.processBindRecursive(bind.value, incoming_OS)
+    }
+    // All other bind types have a single value string. BASE CASE
+    else if (
+      bind instanceof B.PressKey ||
+      bind instanceof B.ReleaseKey ||
+      bind instanceof B.TapKey
+    ) {
+      bind.value = this.processRemapValue(bind.value, incoming_OS)
+    } else {
+      log.warn(
+        `Unknown bind type during ${incoming_OS} to ${this.OS} translation. Bind: ${bind.toString()}`
+      )
     }
   }
 }
