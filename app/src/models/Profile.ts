@@ -207,6 +207,7 @@ export class Profile {
     if (valid_incoming_OS) {
       // Iterate through layers and remappings to translate keys
       this.iterateForTranslation(incoming_OS)
+      log.info(`Translation from ${incoming_OS} to ${this.OS} completed.`)
     } else {
       log.warn(`Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`)
     }
