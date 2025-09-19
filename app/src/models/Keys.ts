@@ -339,16 +339,16 @@ export enum ShortcutAction {
   OpenDevTools = 'OpenDevTools', // mac: ⌘+Option+I, win/linux: Ctrl+Shift+I
   FocusAddressBar = 'FocusAddressBar' // mac: ⌘+L, win/linux: Ctrl+L
 }
-const os = process.platform
+const ua = navigator.userAgent.toLowerCase()
 let os_keys: string[] = []
 
-if (os === 'darwin') {
+if (ua.includes('mac')) {
   // macOS specific settings or exports can go here
   os_keys = Object.values(MacKey)
-} else if (os === 'win32') {
+} else if (ua.includes('win')) {
   // Windows specific settings or exports can go here
   os_keys = Object.values(WinKey)
-} else if (os === 'linux') {
+} else if (ua.includes('linux')) {
   // Linux specific settings or exports can go here
   os_keys = Object.values(LinuxKey)
 } else {
