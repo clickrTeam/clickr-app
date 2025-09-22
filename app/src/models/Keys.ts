@@ -200,7 +200,6 @@ export enum LinuxKey {
   XF86AudioLowerVolume = 'XF86AudioLowerVolume',
   XF86HomePage = 'XF86HomePage',
   XF86Search = 'XF86Search'
-  // You can add any XF86* keys supported by your environment
 }
 
 // These are higher level actions that are mapped to different key combos on different OSes

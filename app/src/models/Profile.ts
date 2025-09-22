@@ -184,7 +184,7 @@ export class Profile {
       log.info(
         `Profile OS "${obj.OS}" does not match current OS "${profile.OS}". Translating keys to current OS.`
       )
-      profile.translateToCurrentOS(obj.OS)
+      profile.translateToTargetOS(obj.OS, detectOS())
     } else {
       log.info(`Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`)
     }
@@ -199,17 +199,22 @@ export class Profile {
    * Checks whether the incoming OS is valid, and if so begins the translation process.
    * @param incoming_OS The OS the read profile was created on.
    */
-  private translateToCurrentOS(incoming_OS: string): void {
+  translateToTargetOS(incoming_OS: string, target_OS: string): void {
     let valid_incoming_OS = false
+    let valid_target_OS = false
     if (incoming_OS === 'Linux' || incoming_OS === 'Windows' || incoming_OS === 'macOS') {
       valid_incoming_OS = true
     }
-    if (valid_incoming_OS) {
+    if (target_OS === 'Linux' || target_OS === 'Windows' || target_OS === 'macOS') {
+      valid_target_OS = true
+    }
+    if (valid_incoming_OS && valid_target_OS) {
       // Iterate through layers and remappings to translate keys
-      this.iterateForTranslation(incoming_OS)
-      log.info(`Translation from ${incoming_OS} to ${this.OS} completed.`)
+      this.iterateForTranslation(incoming_OS, target_OS)
+      log.info(`Translation from ${incoming_OS} to ${target_OS} completed.`)
+      this.OS = target_OS
     } else {
-      log.warn(`Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`)
+      log.warn(`Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${target_OS}.`)
     }
   }
 
@@ -217,8 +222,8 @@ export class Profile {
    * Iterates through all layers, remappings, triggers, and binds to translate keys from the incoming OS to the current OS.
    * @param incoming_OS The operating system the profile was created on.
    */
-  private iterateForTranslation(incoming_OS: string): void {
-    log.info(`Translating profile from ${incoming_OS} to ${this.OS}.`)
+  private iterateForTranslation(incoming_OS: string, target_OS: string): void {
+    log.info(`Translating profile from ${incoming_OS} to ${target_OS}.`)
 
     for (const layer of this.layers) {
       for (const [trigger, bind] of layer.remappings) {
@@ -229,10 +234,10 @@ export class Profile {
           trigger instanceof T.Hold ||
           trigger instanceof T.AppFocus
         ) {
-          trigger.value = this.processRemapValue(trigger.value, incoming_OS)
+          trigger.value = this.processRemapValue(trigger.value, incoming_OS, target_OS)
         } else if (trigger instanceof T.TapSequence) {
           for (const pair of trigger.key_time_pairs) {
-            pair[0] = this.processRemapValue(pair[0], incoming_OS)
+            pair[0] = this.processRemapValue(pair[0], incoming_OS, target_OS)
           }
         } else {
           log.warn(
@@ -246,17 +251,17 @@ export class Profile {
           bind instanceof B.ReleaseKey ||
           bind instanceof B.TapKey
         ) {
-          bind.value = this.processRemapValue(bind.value, incoming_OS)
+          bind.value = this.processRemapValue(bind.value, incoming_OS, target_OS)
         }
         // Need recursive call here for array of nested binds
         else if (bind instanceof B.Macro_Bind || bind instanceof B.TimedMacro_Bind) {
           for (const single_bind of bind.binds) {
-            this.processBindRecursive(single_bind, incoming_OS)
+            this.processBindRecursive(single_bind, incoming_OS, target_OS)
           }
         }
         // Need recursive call here for nested bind
         else if (bind instanceof B.Repeat_Bind) {
-          this.processBindRecursive(bind.value, incoming_OS)
+          this.processBindRecursive(bind.value, incoming_OS, target_OS)
         } else {
           log.warn(
             `Unknown bind type during ${incoming_OS} to ${this.OS} translation. Bind: ${bind.toString()}`
@@ -272,9 +277,9 @@ export class Profile {
    * @param incoming_OS The operating system the profile was created on.
    * @returns The translated value for the current OS.
    */
-  private processRemapValue(val: string, incoming_OS: string): string {
+  private processRemapValue(val: string, incoming_OS: string, target_OS: string): string {
     let new_remap_value = ''
-    if (this.OS === 'Linux') {
+    if (target_OS === 'Linux') {
       if (incoming_OS === 'Windows') {
         new_remap_value = this.windowsToLinux(val)
       } else if (incoming_OS === 'macOS') {
@@ -284,7 +289,7 @@ export class Profile {
           `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
         )
       }
-    } else if (this.OS === 'Windows') {
+    } else if (target_OS === 'Windows') {
       if (incoming_OS === 'Linux') {
         new_remap_value = this.linuxToWindows(val)
       } else if (incoming_OS === 'macOS') {
@@ -294,7 +299,7 @@ export class Profile {
           `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${this.OS}.`
         )
       }
-    } else if (this.OS === 'macOS') {
+    } else if (target_OS === 'macOS') {
       if (incoming_OS === 'Linux') {
         new_remap_value = this.linuxToMac(val)
       } else if (incoming_OS === 'Windows') {
@@ -470,15 +475,15 @@ export class Profile {
    * @param bind The bind to be processed.
    * @param incoming_OS The operating system the profile was created on.
    */
-  private processBindRecursive(bind: B.Bind, incoming_OS: string): void {
+  private processBindRecursive(bind: B.Bind, incoming_OS: string, target_OS: string): void {
     if (bind instanceof B.Macro_Bind || bind instanceof B.TimedMacro_Bind) {
       for (const single_bind of bind.binds) {
-        this.processBindRecursive(single_bind, incoming_OS)
+        this.processBindRecursive(single_bind, incoming_OS, target_OS)
       }
     }
     // Repeat bind contains a single bind called value, not an array
     else if (bind instanceof B.Repeat_Bind) {
-      this.processBindRecursive(bind.value, incoming_OS)
+      this.processBindRecursive(bind.value, incoming_OS, target_OS)
     }
     // All other bind types have a single value string. BASE CASE
     else if (
@@ -486,7 +491,7 @@ export class Profile {
       bind instanceof B.ReleaseKey ||
       bind instanceof B.TapKey
     ) {
-      bind.value = this.processRemapValue(bind.value, incoming_OS)
+      bind.value = this.processRemapValue(bind.value, incoming_OS, target_OS)
     } else {
       log.warn(
         `Unknown bind type during ${incoming_OS} to ${this.OS} translation. Bind: ${bind.toString()}`
