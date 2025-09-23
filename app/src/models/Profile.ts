@@ -2,7 +2,7 @@
 import { Layer } from './Layer'
 import * as T from './Trigger'
 import * as B from './Bind'
-import { MacKey, WinKey, LinuxKey } from './Keys'
+import { MacKey, WinKey, LinuxKey, ShortcutAction } from './Keys'
 import log from 'electron-log'
 /**
  * Represents an entire profile that can contain many layers.
@@ -198,6 +198,7 @@ export class Profile {
   /**
    * Checks whether the incoming OS is valid, and if so begins the translation process.
    * @param incoming_OS The OS the read profile was created on.
+   * @param target_OS The OS to translate the profile to, usually the current OS.
    */
   translateToTargetOS(incoming_OS: string, target_OS: string): void {
     let valid_incoming_OS = false
@@ -221,8 +222,142 @@ export class Profile {
   }
 
   /**
+   * Translates a profile to its lower level equivalent.
+   * This will be sent to the keybinder daemon for execution.
+   * This also translates shortcuts to their OS specific key combinations.
+   * @todo Implement this
+   */
+  translateToLowerLevel(): void {
+    log.warn('translateToLowerLevel not implemented yet.')
+  }
+
+  /**
+   * Translates a shortcut action to the appropriate key combination for macOS.
+   * @param shortcut The shortcut action to be translated.
+   */
+  private translateShortcutMac(shortcut: string): void {
+    switch (shortcut) {
+      case ShortcutAction.Copy:
+      case ShortcutAction.Paste:
+      case ShortcutAction.Cut:
+      case ShortcutAction.Undo:
+      case ShortcutAction.Redo:
+      case ShortcutAction.SelectAll:
+      case ShortcutAction.DeleteLine:
+      case ShortcutAction.Find:
+      case ShortcutAction.FindNext:
+      case ShortcutAction.Replace:
+      case ShortcutAction.GoToLine:
+      case ShortcutAction.MoveToLineStart:
+      case ShortcutAction.MoveToLineEnd:
+      case ShortcutAction.MoveWordLeft:
+      case ShortcutAction.MoveWordRight:
+      case ShortcutAction.NewFile:
+      case ShortcutAction.OpenFile:
+      case ShortcutAction.Save:
+      case ShortcutAction.SaveAs:
+      case ShortcutAction.Print:
+      case ShortcutAction.CloseWindow:
+      case ShortcutAction.QuitApp:
+      case ShortcutAction.PrintScreen:
+      case ShortcutAction.NewTab:
+      case ShortcutAction.CloseTab:
+      case ShortcutAction.ReopenTab:
+      case ShortcutAction.Refresh:
+      case ShortcutAction.OpenDevTools:
+      case ShortcutAction.FocusAddressBar:
+        throw new Error('Method not implemented.')
+      default:
+        throw new Error(`Unknown shortcut action: ${shortcut}`)
+    }
+  }
+
+  /**
+   * Translates a shortcut action to the appropriate key combination for Windows.
+   * @param shortcut The shortcut action to be translated.
+   */
+  private translateShortcutWin(shortcut: string): void {
+    switch (shortcut) {
+      case ShortcutAction.Copy:
+      case ShortcutAction.Paste:
+      case ShortcutAction.Cut:
+      case ShortcutAction.Undo:
+      case ShortcutAction.Redo:
+      case ShortcutAction.SelectAll:
+      case ShortcutAction.DeleteLine:
+      case ShortcutAction.Find:
+      case ShortcutAction.FindNext:
+      case ShortcutAction.Replace:
+      case ShortcutAction.GoToLine:
+      case ShortcutAction.MoveToLineStart:
+      case ShortcutAction.MoveToLineEnd:
+      case ShortcutAction.MoveWordLeft:
+      case ShortcutAction.MoveWordRight:
+      case ShortcutAction.NewFile:
+      case ShortcutAction.OpenFile:
+      case ShortcutAction.Save:
+      case ShortcutAction.SaveAs:
+      case ShortcutAction.Print:
+      case ShortcutAction.CloseWindow:
+      case ShortcutAction.QuitApp:
+      case ShortcutAction.PrintScreen:
+      case ShortcutAction.NewTab:
+      case ShortcutAction.CloseTab:
+      case ShortcutAction.ReopenTab:
+      case ShortcutAction.Refresh:
+      case ShortcutAction.OpenDevTools:
+      case ShortcutAction.FocusAddressBar:
+        throw new Error('Method not implemented.')
+      default:
+        throw new Error(`Unknown shortcut action: ${shortcut}`)
+    }
+  }
+
+  /**
+   * Translates a shortcut action to the appropriate key combination for Linux.
+   * @param shortcut The shortcut action to be translated.
+   */
+  private translateShortcutLinux(shortcut: string): void {
+    switch (shortcut) {
+      case ShortcutAction.Copy:
+      case ShortcutAction.Paste:
+      case ShortcutAction.Cut:
+      case ShortcutAction.Undo:
+      case ShortcutAction.Redo:
+      case ShortcutAction.SelectAll:
+      case ShortcutAction.DeleteLine:
+      case ShortcutAction.Find:
+      case ShortcutAction.FindNext:
+      case ShortcutAction.Replace:
+      case ShortcutAction.GoToLine:
+      case ShortcutAction.MoveToLineStart:
+      case ShortcutAction.MoveToLineEnd:
+      case ShortcutAction.MoveWordLeft:
+      case ShortcutAction.MoveWordRight:
+      case ShortcutAction.NewFile:
+      case ShortcutAction.OpenFile:
+      case ShortcutAction.Save:
+      case ShortcutAction.SaveAs:
+      case ShortcutAction.Print:
+      case ShortcutAction.CloseWindow:
+      case ShortcutAction.QuitApp:
+      case ShortcutAction.PrintScreen:
+      case ShortcutAction.NewTab:
+      case ShortcutAction.CloseTab:
+      case ShortcutAction.ReopenTab:
+      case ShortcutAction.Refresh:
+      case ShortcutAction.OpenDevTools:
+      case ShortcutAction.FocusAddressBar:
+        throw new Error('Method not implemented.')
+      default:
+        throw new Error(`Unknown shortcut action: ${shortcut}`)
+    }
+  }
+
+  /**
    * Iterates through all layers, remappings, triggers, and binds to translate keys from the incoming OS to the current OS.
    * @param incoming_OS The operating system the profile was created on.
+   * @param target_OS The OS to translate the profile to, usually the current OS.
    */
   private iterateForTranslation(incoming_OS: string, target_OS: string): void {
     log.info(`Translating profile from ${incoming_OS} to ${target_OS}.`)
@@ -280,6 +415,7 @@ export class Profile {
    * Determines which translation function to call based on the current and incoming OS.
    * @param val The value of the trigger or bind to be translated.
    * @param incoming_OS The operating system the profile was created on.
+   * @param target_OS The OS to translate the profile to, usually the current OS.
    * @returns The translated value for the current OS.
    */
   private processRemapValue(val: string, incoming_OS: string, target_OS: string): string {
@@ -479,6 +615,7 @@ export class Profile {
    * This will drill down until it finds a bind with a single value string, then translate that.
    * @param bind The bind to be processed.
    * @param incoming_OS The operating system the profile was created on.
+   * @param target_OS The OS to translate the profile to, usually the current OS.
    */
   private processBindRecursive(bind: B.Bind, incoming_OS: string, target_OS: string): void {
     if (bind instanceof B.Macro_Bind || bind instanceof B.TimedMacro_Bind) {
