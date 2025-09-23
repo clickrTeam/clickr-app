@@ -214,7 +214,9 @@ export class Profile {
       log.info(`Translation from ${incoming_OS} to ${target_OS} completed.`)
       this.OS = target_OS
     } else {
-      log.warn(`Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${target_OS}.`)
+      log.warn(
+        `Incoming profile has unknown OS "${incoming_OS}", cannot translate to ${target_OS}.`
+      )
     }
   }
 
@@ -241,7 +243,7 @@ export class Profile {
           }
         } else {
           log.warn(
-            `Unknown trigger type during ${incoming_OS} to ${this.OS} translation. Trigger: ${trigger.toString()}`
+            `Unknown trigger type during ${incoming_OS} to ${target_OS} translation. Trigger: ${trigger.toString()}`
           )
         }
 
@@ -252,6 +254,9 @@ export class Profile {
           bind instanceof B.TapKey
         ) {
           bind.value = this.processRemapValue(bind.value, incoming_OS, target_OS)
+        } else if (bind instanceof B.SwapLayer) {
+          // Do nothing, layer numbers are OS-independent
+          continue
         }
         // Need recursive call here for array of nested binds
         else if (bind instanceof B.Macro_Bind || bind instanceof B.TimedMacro_Bind) {
@@ -264,7 +269,7 @@ export class Profile {
           this.processBindRecursive(bind.value, incoming_OS, target_OS)
         } else {
           log.warn(
-            `Unknown bind type during ${incoming_OS} to ${this.OS} translation. Bind: ${bind.toString()}`
+            `Unknown bind type during ${incoming_OS} to ${target_OS} translation. Bind: ${bind.toString()}`
           )
         }
       }
@@ -494,7 +499,7 @@ export class Profile {
       bind.value = this.processRemapValue(bind.value, incoming_OS, target_OS)
     } else {
       log.warn(
-        `Unknown bind type during ${incoming_OS} to ${this.OS} translation. Bind: ${bind.toString()}`
+        `Unknown bind type during ${incoming_OS} to ${target_OS} translation. Bind: ${bind.toString()}`
       )
     }
   }

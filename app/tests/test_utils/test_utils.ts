@@ -39,6 +39,7 @@ export function generateMacProfile(): Profile {
   mac_profile.layers[1].addRemapping(new T.KeyPress(Key.Digit5), new B.TapKey(MacKey.Control))
   mac_profile.layers[1].addRemapping(new T.KeyPress(Key.Digit6), new B.TapKey(MacKey.Eject))
   mac_profile.layers[1].addRemapping(new T.KeyPress(Key.Digit7), new B.TapKey(MacKey.Spotlight))
+  mac_profile.layers[1].addRemapping(new T.KeyPress(MacKey.CommandLeft), new B.TapKey(Key.A))
 
   return mac_profile
 }
@@ -56,9 +57,8 @@ export function generateWindowsProfile(): Profile {
   win_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit5), new B.TapKey(WinKey.AltLeft))
   win_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit6), new B.TapKey(WinKey.AltRight))
   win_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit7), new B.TapKey(WinKey.Menu))
-  win_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit8), new B.TapKey(WinKey.PrintScreen))
-  win_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit9), new B.TapKey(WinKey.PauseBreak))
-  win_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit0), new B.TapKey(WinKey.Insert))
+  win_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit8), new B.TapKey(WinKey.PauseBreak))
+  win_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit9), new B.TapKey(WinKey.Insert))
 
   // WinKey as triggers (input)
   win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.OEM1), new B.TapKey(Key.A))
@@ -87,6 +87,7 @@ export function generateWindowsProfile(): Profile {
   win_profile.layers[1].addRemapping(new T.KeyPress(Key.Digit5), new B.TapKey(WinKey.AltLeft))
   win_profile.layers[1].addRemapping(new T.KeyPress(Key.Digit6), new B.TapKey(WinKey.AltRight))
   win_profile.layers[1].addRemapping(new T.KeyPress(Key.Digit7), new B.TapKey(WinKey.Menu))
+  win_profile.layers[1].addRemapping(new T.KeyPress(WinKey.WinLeft), new B.TapKey(Key.A))
 
   return win_profile
 }
@@ -107,7 +108,6 @@ export function generateLinuxProfile(): Profile {
   linux_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit5), new B.TapKey(LinuxKey.AltLeft))
   linux_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit6), new B.TapKey(LinuxKey.AltRight))
   linux_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit7), new B.TapKey(LinuxKey.Compose))
-  linux_profile.layers[0].addRemapping(new T.KeyPress(Key.Digit8), new B.TapKey(LinuxKey.SysReq))
 
   // LinuxKey as triggers (input)
   linux_profile.layers[0].addRemapping(new T.KeyPress(LinuxKey.XF86AudioPlay), new B.TapKey(Key.A))
@@ -137,8 +137,22 @@ export function generateLinuxProfile(): Profile {
   linux_profile.layers[1].addRemapping(new T.KeyPress(Key.Digit5), new B.TapKey(LinuxKey.AltLeft))
   linux_profile.layers[1].addRemapping(new T.KeyPress(Key.Digit6), new B.TapKey(LinuxKey.AltRight))
   linux_profile.layers[1].addRemapping(new T.KeyPress(Key.Digit7), new B.TapKey(LinuxKey.Compose))
+  linux_profile.layers[1].addRemapping(new T.KeyPress(LinuxKey.SuperLeft), new B.TapKey(Key.A))
 
   return linux_profile
 }
 
 /// @todo Generate tests for recursive bind translation
+export function generateRecursiveBindProfile(): Profile {
+  const profile = new Profile('Recursive Binds')
+  profile.OS = 'macOS'
+
+  const t1 = new T.KeyPress(Key.A)
+  const b1 = new B.Macro_Bind([
+    new B.Macro_Bind([new B.TapKey(MacKey.CommandLeft), new B.TapKey(MacKey.CommandRight)]),
+    new B.TapKey(MacKey.OptionLeft)
+  ])
+  profile.layers[0].addRemapping(t1, b1)
+
+  return profile
+}

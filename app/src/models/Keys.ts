@@ -160,7 +160,6 @@ export enum WinKey {
   AltLeft = 'AltLeft',
   AltRight = 'AltRight',
   Menu = 'Menu', // Application key (context menu)
-  PrintScreen = 'PrintScreen',
   PauseBreak = 'PauseBreak',
   Insert = 'Insert',
   // OEM keys and extras (naming varies by layout)
@@ -190,7 +189,6 @@ export enum LinuxKey {
   AltLeft = 'AltLeft',
   AltRight = 'AltRight',
   Compose = 'Compose',
-  SysReq = 'SysReq', // may overlap with PrintScreen
   // Common X11 extras
   XF86AudioPlay = 'XF86AudioPlay',
   XF86AudioNext = 'XF86AudioNext',
@@ -232,6 +230,7 @@ export enum ShortcutAction {
   Print = 'Print', // mac: ⌘+P, win/linux: Ctrl+P
   CloseWindow = 'CloseWindow', // mac: ⌘+W, win/linux: Alt+F4 or Ctrl+W
   QuitApp = 'QuitApp', // mac: ⌘+Q, win/linux: Ctrl+Q
+  PrintScreen = 'PrintScreen', // mac: Shift+⌘+3, win: PrintScreen, linux: PrintScreen (sysreq)
 
   // Browser & Tabs
   NewTab = 'NewTab', // mac: ⌘+T, win/linux: Ctrl+T
