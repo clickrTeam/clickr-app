@@ -14,9 +14,9 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             zip-file: keybinder-linux.zip
           - os: macos-latest
             zip-file: keybinder-macos.zip
