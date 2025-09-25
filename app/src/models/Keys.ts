@@ -41,6 +41,18 @@ export enum Key {
   Digit8 = '8',
   Digit9 = '9',
 
+  // Shifted digits
+  Exclamation = '!',
+  At = '@',
+  Hash = '#',
+  Dollar = '$',
+  Percent = '%',
+  Caret = '^',
+  Ampersand = '&',
+  Asterisk = '*',
+  ParenLeft = '(',
+  ParenRight = ')',
+
   // Whitespace / editing
   Enter = 'Enter',
   Tab = 'Tab',
@@ -107,25 +119,37 @@ export enum Key {
   NumpadParenLeft = 'NumpadParenLeft', // ( (rare)
   NumpadParenRight = 'NumpadParenRight', // ) (rare)
 
-  // Symbols / punctuation (common set)
-  Minus = 'Minus',
-  Equal = 'Equal',
-  Backquote = 'Backquote',
-  BracketLeft = 'BracketLeft',
-  BracketRight = 'BracketRight',
-  Backslash = 'Backslash',
-  Semicolon = 'Semicolon',
-  Quote = 'Quote',
-  Comma = 'Comma',
-  Period = 'Period',
-  Slash = 'Slash',
+  // Symbols / punctuation (unshifted)
+  Dash = '-',
+  Equal = '=',
+  Backtick = '`',
+  BracketLeft = '[',
+  BracketRight = ']',
+  Backslash = '\\',
+  Semicolon = ';',
+  Quote = "'",
+  Comma = ',',
+  Period = '.',
+  Slash = '/',
+
+  // Shifted symbols
+  Underscore = '_',
+  Plus = '+',
+  Tilde = '~',
+  BraceLeft = '{',
+  BraceRight = '}',
+  Pipe = '|',
+  Colon = ':',
+  DoubleQuote = '"',
+  LessThan = '<',
+  GreaterThan = '>',
+  Question = '?',
 
   // Misc
   CapsLock = 'CapsLock',
   NumLock = 'NumLock',
   ScrollLock = 'ScrollLock',
-  Pause = 'Pause',
-  PrintScreen = 'PrintScreen'
+  Pause = 'Pause'
 }
 
 export enum Modifier {
