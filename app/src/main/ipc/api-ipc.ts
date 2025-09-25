@@ -27,10 +27,10 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
-    
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-      
+
       const tokenData = await tokenStorage.getTokens()
       if (tokenData?.refresh_token) {
         try {
@@ -44,7 +44,7 @@ api.interceptors.response.use(
               'User-Agent': 'Electron Clickr App'
             }
           })
-          
+
           if (refreshResponse.data.success && refreshResponse.data.access_token) {
             // Update stored tokens (both access and refresh for extended lifetime)
             const newTokenData = {
@@ -54,9 +54,9 @@ api.interceptors.response.use(
               expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days from now
             }
             await tokenStorage.storeTokens(newTokenData)
-            
+
             log.info('Token refresh successful')
-            
+
             // Retry original request with new token
             originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.access_token}`
             return api(originalRequest)
@@ -165,8 +165,8 @@ export function registerApiHandlers(): void {
   ipcMain.handle('login', async (_, username: string, password: string) => {
     try {
       // Use Electron-specific endpoint for extended refresh tokens
-      const response = await axios.post(`${BASE_URL}electron/token/`, { 
-        username, 
+      const response = await axios.post(`${BASE_URL}electron/token/`, {
+        username,
         password,
         client_type: 'electron'
       }, {
@@ -174,7 +174,7 @@ export function registerApiHandlers(): void {
           'User-Agent': 'Electron Clickr App'
         }
       })
-      
+
       // Store tokens securely with extended expiry
       await tokenStorage.storeTokens({
         access_token: response.data.access_token,
@@ -182,7 +182,7 @@ export function registerApiHandlers(): void {
         username: response.data.user?.username || username,
         expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days from now
       })
-      
+
       log.info(`User ${username} logged in successfully with extended tokens`)
       return { ...response.data, username: response.data.user?.username || username }
     } catch (error) {
@@ -214,20 +214,20 @@ export function registerApiHandlers(): void {
       // Try to verify token with backend
       try {
         await api.get('authenticated/')
-        return { 
-          isAuthenticated: true, 
-          username: tokenData.username 
+        return {
+          isAuthenticated: true,
+          username: tokenData.username
         }
-      } catch (error) {
+      } catch (error: any) {
         // If 401, try to refresh token before giving up
         if (error.response?.status === 401 && tokenData.refresh_token) {
           try {
             log.info('Access token expired, attempting refresh during auth check')
             // The axios interceptor will handle the refresh automatically
             await api.get('authenticated/')
-            return { 
-              isAuthenticated: true, 
-              username: tokenData.username 
+            return {
+              isAuthenticated: true,
+              username: tokenData.username
             }
           } catch (refreshError: unknown) {
             log.error('Token refresh failed during auth check:', refreshError)
