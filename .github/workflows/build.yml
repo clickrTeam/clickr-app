@@ -1,0 +1,198 @@
+# This workflow builds an Electron application for Windows, macOS, and Linux
+# using electron-builder. It then uploads the build output for each OS
+# as a separate zipped artifact.
+
+name: Build Electron App
+
+on:
+  push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ] # a
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            zip-file: keybinder-linux.zip
+          - os: macos-latest
+            zip-file: keybinder-macos.zip
+          - os: windows-latest
+            zip-file: keybinder-windows.zip
+      fail-fast: false
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      # This action sets up a Node.js environment for use in actions
+      uses: actions/setup-node@v5
+      with:
+        node-version: '22' # Use a long-term support (LTS) version of Node.js
+
+    - name: Cache npm
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/package.json') }}
+
+
+    - name: Download external artifacts from Keybinder
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        curl -L \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/octet-stream" \
+          -o "${{ matrix.zip-file }}" \
+          "https://github.com/clickrTeam/Keybinder/releases/latest/download/${{ matrix.zip-file }}"
+      shell: bash
+
+    - name: Unzip File
+      run: |
+        mkdir -p app/keybinder
+        unzip ${{ matrix.zip-file }} -d app/keybinder
+        
+    - name: Verify directory structure
+      run: |
+        echo "Listing app directory:"
+        ls -R app
+
+    - name: Dependancies
+      run: |
+        cd app
+        npm i
+    - name: Build
+      run: |
+        cd app
+        npm run build
+    - name: Build OS
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        cd app
+        # OS-specific build commands
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          npm run build:win
+        elif [ "${{ runner.os }}" == "macOS" ]; then
+          npm run build:mac
+        elif [ "${{ runner.os }}" == "Linux" ]; then
+          npm run build:linux
+        else
+          echo "Unsupported operating system: ${{ runner.os }}"
+          exit 1
+        fi
+
+
+    - name: Read app metadata
+      id: meta
+      run: |
+        # Read product name and version from app/package.json and export to env
+        PRODUCT_NAME=$(node -p "require('./app/package.json').productName || require('./app/package.json').name")
+        VERSION=$(node -p "require('./app/package.json').version")
+        echo "PRODUCT_NAME=$PRODUCT_NAME" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Locate generated installer
+      id: find_installer
+      run: |
+        set -e
+        # Look for a file in app/dist (or subdirs) that contains both product name and version
+        product="$PRODUCT_NAME"
+        version="$VERSION"
+        base_dir="app/dist"
+        if [ ! -d "$base_dir" ]; then
+          echo "Directory $base_dir not found"
+          exit 1
+        fi
+        match=$(find "$base_dir" -type f -iname "*${product}*${version}*" | head -n 1 || true)
+        if [ -z "$match" ]; then
+          # Try a looser match (either product or version)
+          match=$(find "$base_dir" -type f \( -iname "*${product}*" -o -iname "*${version}*" \) | head -n 1 || true)
+        fi
+        if [ -z "$match" ]; then
+          echo "No installer matching ${product} and ${version} found in $base_dir"
+          exit 1
+        fi
+        echo "Found installer: $match"
+        echo "installer=$match" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Upload single installer artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.os }}-installer
+        path: ${{ steps.find_installer.outputs.installer }}
+
+
+  #   - name: Locate Electron app directory
+  #     id: find_pkg
+  #     run: |
+  #       set -e
+  #       # Prefer ./app/package.json (common Electron structure)
+  #       if [ -f ./app/package.json ]; then
+  #         WORKDIR="app"
+  #       else
+  #         # Search for package.json within top 4 levels, excluding node_modules
+  #         WORKDIR=$(find . -maxdepth 4 -type f -name package.json -not -path "*/node_modules/*" | head -n1 || true)
+  #         if [ -n "$WORKDIR" ]; then
+  #           WORKDIR=$(dirname "$WORKDIR")
+  #           WORKDIR=${WORKDIR#./}
+  #         fi
+  #       fi
+  #       if [ -z "$WORKDIR" ]; then
+  #         echo "::error::Could not find package.json (tried ./app and searched tree)"
+  #         exit 1
+  #       fi
+  #       echo "Found package.json in: $WORKDIR"
+  #       echo "workdir=$WORKDIR" >> $GITHUB_OUTPUT
+
+  #   - name: Install Dependencies (Unix/mac)
+  #     # if: runner.os != 'Windows'
+  #     working-directory: ${{ steps.find_pkg.outputs.workdir }}
+  #     run: |
+  #       cd app
+  #       if [ -f package-lock.json ]; then
+  #         npm ci
+  #       else
+  #         npm install
+  #       fi
+  #   # - name: Install Dependencies (Windows)
+  #   #   if: runner.os == 'Windows'
+  #   #   working-directory: ${{ steps.find_pkg.outputs.workdir }}
+  #   #   shell: powershell
+  #   #   run: |
+  #   #     cd app
+  #   #     if (Test-Path package-lock.json) { npm ci } else { npm install }
+
+  #   - name: Build the Application
+  #     # This command runs the 'build' script from your package.json
+  #     # Make sure your package.json has a build script that calls electron-builder.
+  #     # Example package.json script:
+  #     # "scripts": {
+  #     #   "build": "electron-builder"
+  #     # }
+  #     working-directory: ${{ steps.find_pkg.outputs.workdir }}
+  #     run: |
+  #       cd app
+  #       npm run build
+      
+  #   - name: Upload Build Artifact
+  #     # This action archives and uploads the build output.
+  #     # electron-builder typically outputs to a 'dist' or 'release' folder.
+  #     # The action will zip the contents of the specified path.
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       # The name of the artifact will include the OS for clarity.
+  #       # e.g., "electron-app-windows-latest"
+  #       name: electron-app-${{ matrix.os }}
+  # # Adjust the path if your electron-builder output directory is different.
+  # # path: ${{ steps.find_pkg.outputs.workdir }}/dist/
