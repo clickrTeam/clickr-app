@@ -2,7 +2,7 @@
 import { Layer } from './Layer'
 import * as T from './Trigger'
 import * as B from './Bind'
-import { MacKey, WinKey, LinuxKey, ShortcutAction } from './Keys'
+import { MacKey, WinKey, LinuxKey } from './Keys'
 import log from 'electron-log'
 /**
  * Represents an entire profile that can contain many layers.
