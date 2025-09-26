@@ -130,10 +130,68 @@ jobs:
         name: ${{ matrix.os }}-installer
         path: ${{ steps.find_installer.outputs.installer }}
 
-    - name: Upload to cloudflare
-      uses: cloudflare/wrangler-action@1.0.0
+    - name: Configure AWS credentials for R2
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        project: ${{ secrets.CLOUDFLARE_PROJECT }}
-        path: ${{ steps.find_installer.outputs.installer }}
+        aws-access-key-id: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+        aws-region: auto
+
+    - name: Upload installer to Cloudflare R2
+      run: |
+        # Get the installer file path and name
+        INSTALLER_PATH="${{ steps.find_installer.outputs.installer }}"
+        INSTALLER_NAME=$(basename "$INSTALLER_PATH")
+        
+        # Verify the installer file exists
+        if [ ! -f "$INSTALLER_PATH" ]; then
+          echo "Error: Installer file not found at $INSTALLER_PATH"
+          exit 1
+        fi
+        
+        # Get file size for logging
+        FILE_SIZE=$(du -h "$INSTALLER_PATH" | cut -f1)
+        echo "Found installer: $INSTALLER_NAME ($FILE_SIZE)"
+        
+        # Create a versioned path in R2
+        VERSION="${{ env.VERSION }}"
+        OS_SUFFIX=""
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          OS_SUFFIX="windows"
+        elif [ "${{ runner.os }}" == "macOS" ]; then
+          OS_SUFFIX="macos"
+        elif [ "${{ runner.os }}" == "Linux" ]; then
+          OS_SUFFIX="linux"
+        fi
+        
+        R2_KEY="releases/v${VERSION}/${OS_SUFFIX}/${INSTALLER_NAME}"
+        
+        # Upload to R2 with error handling
+        echo "Uploading to R2..."
+        if aws s3 cp "$INSTALLER_PATH" "s3://${{ secrets.CLOUDFLARE_R2_BUCKET_NAME }}/${R2_KEY}" \
+          --endpoint-url "https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" \
+          --region auto; then
+          echo "Uploaded $INSTALLER_NAME to R2 at: $R2_KEY"
+        else
+          echo "Failed to upload to R2"
+          exit 1
+        fi
+        
+        # Also upload to latest folder for easy access
+        LATEST_KEY="releases/latest/${OS_SUFFIX}/${INSTALLER_NAME}"
+        echo "Uploading to latest..."
+        if aws s3 cp "$INSTALLER_PATH" "s3://${{ secrets.CLOUDFLARE_R2_BUCKET_NAME }}/${LATEST_KEY}" \
+          --endpoint-url "https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" \
+          --region auto; then
+          echo "Also uploaded to latest: $LATEST_KEY"
+        else
+          echo "Failed to upload to latest folder"
+          exit 1
+        fi
+        
+        # Output download URLs for reference
+        echo ""
+        echo "Download URLs:"
+        echo "Versioned: https://r2.your-domain.com/$R2_KEY"
+        echo "Latest: https://r2.your-domain.com/$LATEST_KEY"
+      shell: bash
