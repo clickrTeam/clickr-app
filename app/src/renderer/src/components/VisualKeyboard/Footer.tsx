@@ -3,7 +3,6 @@ import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models
 import { keys } from '../../../../models/Keys'
 import { KeyPressInfo } from './Model'
 import { bindTypeColors } from './Colors'
-import { ConditionalArrowBackground } from './icons'
 import './Footer.css'
 
 const typeOptions: { value: BindType; label: string }[] = [
@@ -98,22 +97,17 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         ) : (
           macro.map((item, i) => (
             <span key={i} style={{ position: 'relative', display: 'inline-block' }}>
-              <ConditionalArrowBackground
-                bindType={item.bind_type}
-                className="absolute inset-0"
+              <button
+                className="vk-footer-macro-btn relative z-10"
+                style={{
+                  background: getMacroButtonBg(item),
+                  position: 'relative'
+                }}
+                onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
+                tabIndex={0}
               >
-                <button
-                  className="vk-footer-macro-btn relative z-10"
-                  style={{
-                    background: getMacroButtonBg(item),
-                    position: 'relative'
-                  }}
-                  onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
-                  tabIndex={0}
-                >
-                  {getMacroValue(item)}
-                </button>
-              </ConditionalArrowBackground>
+                {getMacroValue(item)}
+              </button>
               {openDropdown === i && (
                 <div className="vk-footer-macro-dropdown">
                   {typeOptions.map((opt) => (

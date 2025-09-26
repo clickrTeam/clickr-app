@@ -1,4 +1,5 @@
 // Utility functions for VisualKeyboard
+import log from 'electron-log'
 import { keyShortLabels } from './Layout.const'
 
 // Helper to get short label or icon
@@ -37,5 +38,15 @@ export const normalizeKey = (event: KeyboardEvent): string => {
   if (key === 'PrintScreen') return 'PrintScreen'
   if (key === 'ScrollLock') return 'ScrollLock'
   if (key === 'Pause') return 'Pause'
+
+  if (key === '') {
+    log.error('Received empty key from KeyboardEvent')
+    return 'UNDEFINED'
+  }
+  if (key.trim() === '') {
+    log.error('Received trimmed empty key from KeyboardEvent')
+    return 'UNDEFINED-WHITESPACE'
+  }
+
   return key.length === 1 ? key.toUpperCase() : key
 }

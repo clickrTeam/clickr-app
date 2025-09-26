@@ -36,6 +36,8 @@ export const VisualKeyboard = ({ layer, onSave }: VisualKeyboardProps): JSX.Elem
 
     if (currentKey.key === '') {
       setShowPressedKeys([]);
+      setKeyQueue(prev => prev.slice(1));
+      return;
     } else if (currentKey.isDown) {
       setShowPressedKeys((prev: string[]) =>
         prev.includes(currentKey.key)
