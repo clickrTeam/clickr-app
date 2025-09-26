@@ -9,7 +9,7 @@ on:
     tags: ['v*']
 
 jobs:
-  release:
+  build:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
