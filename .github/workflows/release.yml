@@ -6,10 +6,7 @@ name: Build Electron App
 
 on:
   push:
-    branches:
-      - '*'
-    tags-ignore:
-      - 'v*'
+    tags: ['v*']
 
 jobs:
   build:
@@ -133,67 +130,10 @@ jobs:
         name: ${{ matrix.os }}-installer
         path: ${{ steps.find_installer.outputs.installer }}
 
-
-  #   - name: Locate Electron app directory
-  #     id: find_pkg
-  #     run: |
-  #       set -e
-  #       # Prefer ./app/package.json (common Electron structure)
-  #       if [ -f ./app/package.json ]; then
-  #         WORKDIR="app"
-  #       else
-  #         # Search for package.json within top 4 levels, excluding node_modules
-  #         WORKDIR=$(find . -maxdepth 4 -type f -name package.json -not -path "*/node_modules/*" | head -n1 || true)
-  #         if [ -n "$WORKDIR" ]; then
-  #           WORKDIR=$(dirname "$WORKDIR")
-  #           WORKDIR=${WORKDIR#./}
-  #         fi
-  #       fi
-  #       if [ -z "$WORKDIR" ]; then
-  #         echo "::error::Could not find package.json (tried ./app and searched tree)"
-  #         exit 1
-  #       fi
-  #       echo "Found package.json in: $WORKDIR"
-  #       echo "workdir=$WORKDIR" >> $GITHUB_OUTPUT
-
-  #   - name: Install Dependencies (Unix/mac)
-  #     # if: runner.os != 'Windows'
-  #     working-directory: ${{ steps.find_pkg.outputs.workdir }}
-  #     run: |
-  #       cd app
-  #       if [ -f package-lock.json ]; then
-  #         npm ci
-  #       else
-  #         npm install
-  #       fi
-  #   # - name: Install Dependencies (Windows)
-  #   #   if: runner.os == 'Windows'
-  #   #   working-directory: ${{ steps.find_pkg.outputs.workdir }}
-  #   #   shell: powershell
-  #   #   run: |
-  #   #     cd app
-  #   #     if (Test-Path package-lock.json) { npm ci } else { npm install }
-
-  #   - name: Build the Application
-  #     # This command runs the 'build' script from your package.json
-  #     # Make sure your package.json has a build script that calls electron-builder.
-  #     # Example package.json script:
-  #     # "scripts": {
-  #     #   "build": "electron-builder"
-  #     # }
-  #     working-directory: ${{ steps.find_pkg.outputs.workdir }}
-  #     run: |
-  #       cd app
-  #       npm run build
-      
-  #   - name: Upload Build Artifact
-  #     # This action archives and uploads the build output.
-  #     # electron-builder typically outputs to a 'dist' or 'release' folder.
-  #     # The action will zip the contents of the specified path.
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       # The name of the artifact will include the OS for clarity.
-  #       # e.g., "electron-app-windows-latest"
-  #       name: electron-app-${{ matrix.os }}
-  # # Adjust the path if your electron-builder output directory is different.
-  # # path: ${{ steps.find_pkg.outputs.workdir }}/dist/
+    - name: Upload to cloudflare
+      uses: cloudflare/wrangler-action@1.0.0
+      with:
+        api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        project: ${{ secrets.CLOUDFLARE_PROJECT }}
+        path: ${{ steps.find_installer.outputs.installer }}
