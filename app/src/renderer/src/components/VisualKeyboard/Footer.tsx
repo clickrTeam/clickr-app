@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { keys } from '../../../../models/Keys'
+import { KeyPressInfo } from './Model'
 import { bindTypeColors } from './Colors'
 import './Footer.css'
 
@@ -67,7 +68,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     setOpenDropdown(null)
   }
 
-  function handleAddKeyToMacro(key: string): void {
+  function handleAddKeyToMacro(key: KeyPressInfo): void {
     onMacroChange([...macro, new TapKey(key)])
     setShowKeySelector(false)
   }

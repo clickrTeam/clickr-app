@@ -2,6 +2,11 @@ import { Bind } from '../../../../models/Bind'
 import { Trigger } from '../../../../models/Trigger'
 import { getKeyClass } from './Colors'
 
+export interface KeyPressInfo {
+  key: string
+  isDown: boolean
+}
+
 export interface KeyTileModel {
   key: string
   width: number
