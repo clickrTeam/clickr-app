@@ -153,45 +153,28 @@ jobs:
         FILE_SIZE=$(du -h "$INSTALLER_PATH" | cut -f1)
         echo "Found installer: $INSTALLER_NAME ($FILE_SIZE)"
         
-        # Create a versioned path in R2
-        VERSION="${{ env.VERSION }}"
-        OS_SUFFIX=""
+        # Create simple filename based on OS
+        SIMPLE_FILENAME=""
         if [ "${{ runner.os }}" == "Windows" ]; then
-          OS_SUFFIX="windows"
+          SIMPLE_FILENAME="clickr-windows.exe"
         elif [ "${{ runner.os }}" == "macOS" ]; then
-          OS_SUFFIX="macos"
+          SIMPLE_FILENAME="clickr-macos.dmg"
         elif [ "${{ runner.os }}" == "Linux" ]; then
-          OS_SUFFIX="linux"
+          SIMPLE_FILENAME="clickr-linux.AppImage"
         fi
         
-        R2_KEY="releases/v${VERSION}/${OS_SUFFIX}/${INSTALLER_NAME}"
-        
-        # Upload to R2 with error handling
-        echo "Uploading to R2..."
-        if aws s3 cp "$INSTALLER_PATH" "s3://${{ secrets.CLOUDFLARE_R2_BUCKET_NAME }}/${R2_KEY}" \
+        # Upload to R2 with simple structure (always replaces the old file)
+        echo "Uploading $SIMPLE_FILENAME to R2..."
+        if aws s3 cp "$INSTALLER_PATH" "s3://${{ secrets.CLOUDFLARE_R2_BUCKET_NAME }}/${SIMPLE_FILENAME}" \
           --endpoint-url "https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" \
           --region auto; then
-          echo "Uploaded $INSTALLER_NAME to R2 at: $R2_KEY"
+          echo "Successfully uploaded $SIMPLE_FILENAME (replaced previous version)"
         else
           echo "Failed to upload to R2"
           exit 1
         fi
         
-        # Also upload to latest folder for easy access
-        LATEST_KEY="releases/latest/${OS_SUFFIX}/${INSTALLER_NAME}"
-        echo "Uploading to latest..."
-        if aws s3 cp "$INSTALLER_PATH" "s3://${{ secrets.CLOUDFLARE_R2_BUCKET_NAME }}/${LATEST_KEY}" \
-          --endpoint-url "https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" \
-          --region auto; then
-          echo "Also uploaded to latest: $LATEST_KEY"
-        else
-          echo "Failed to upload to latest folder"
-          exit 1
-        fi
-        
-        # Output download URLs for reference
+        # Output download URL for reference
         echo ""
-        echo "Download URLs:"
-        echo "Versioned: https://r2.your-domain.com/$R2_KEY"
-        echo "Latest: https://r2.your-domain.com/$LATEST_KEY"
+        echo "Download URL: https://your-r2-domain.com/$SIMPLE_FILENAME"
       shell: bash
