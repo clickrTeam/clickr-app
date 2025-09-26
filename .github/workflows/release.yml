@@ -2,14 +2,14 @@
 # using electron-builder. It then uploads the build output for each OS
 # as a separate zipped artifact.
 
-name: Build Electron App
+name: Release Clickr App
 
 on:
   push:
     tags: ['v*']
 
 jobs:
-  build:
+  release:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
