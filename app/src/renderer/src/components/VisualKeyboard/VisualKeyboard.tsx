@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Card } from '../ui/card'
 import { Layer } from '../../../../models/Layer'
-import { mainRows, specialtyRows, numpadRows } from './Layout.const'
+import { mainRows, specialtyRows, numpadRows, KEYBOARD_100 as KEYBOARD_100 } from './Layout.const'
 import { normalizeKey } from './Util'
 import { InspectPopover } from './InspectPopover'
 import { VisualKeyboardFooter } from './Footer'
-import { Bind, Macro_Bind, TapKey } from '../../../../models/Bind'
+import { Bind, Macro_Bind, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyTile } from './KeyTile'
-import { buildVisualKeyboardModel, KeyTileModel, VisualKeyboardModel } from './Model'
-import * as T from '../../../../models/Trigger'
+import { buildVisualKeyboardModel, KeyPressInfo, KeyTileModel, VisualKeyboardModel } from './Model'
+import { KeyPress, Trigger } from '../../../../models/Trigger'
+import { useKeyboardController } from './controler'
 
 interface VisualKeyboardProps {
   layer: Layer
@@ -16,54 +17,77 @@ interface VisualKeyboardProps {
 }
 
 export const VisualKeyboard = ({ layer, onSave }: VisualKeyboardProps): JSX.Element => {
-  const [pressedKeys, setPressedKeys] = useState<string[]>([])
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
-  const [bind, setBind] = useState<Bind[]>([])
-  const [trigger, setTrigger] = useState<T.Trigger | null>(null)
+  const [binds, setBind] = useState<Bind[]>([])
+  const [trigger, setTrigger] = useState<Trigger[]>([])
 
-  useEffect((): (() => void) => {
-    function handleKeyDown(e: KeyboardEvent): void {
-      const norm = normalizeKey(e)
-      e.preventDefault()
-      e.stopPropagation()
-      setPressedKeys((prev: string[]) => (prev.includes(norm) ? prev : [...prev, norm]))
-      if (selectedKey) setBind((prev) => [...prev, new TapKey(norm)])
-    }
-    function handleKeyUp(e: KeyboardEvent): void {
-      const norm = normalizeKey(e)
-      setPressedKeys((prev: string[]) => prev.filter((k) => k !== norm))
-    }
-    function handleBlur(): void {
-      setPressedKeys((prev: string[]) => prev.filter((k) => k !== 'Win'))
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
-    window.addEventListener('blur', handleBlur)
-    return (): void => {
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('keyup', handleKeyUp)
-      window.removeEventListener('blur', handleBlur)
-    }
-  }, [selectedKey])
+  const onKey: KeyPressInfo = useKeyboardController();
+  const [keyQueue, setKeyQueue] = useState<KeyPressInfo[]>([]);
 
-  const allKeys = [...mainRows.flat(), ...specialtyRows.flat(), ...numpadRows.flat()]
+  useEffect(() => {
+    setKeyQueue(prev => [...prev, onKey]);
+  }, [onKey]);
+
+  useEffect(() => {
+    if (keyQueue.length === 0) return;
+
+    const currentKey = keyQueue[0];
+
+    if (currentKey.key === '') {
+      setShowPressedKeys([]);
+    } else if (currentKey.isDown) {
+      setShowPressedKeys((prev: string[]) =>
+        prev.includes(currentKey.key)
+          ? prev
+          : [...prev, currentKey.key]
+      );
+    } else {
+      setShowPressedKeys((prev: string[]) =>
+        prev.filter((k) => k !== currentKey.key)
+      );
+    }
+
+    if (selectedKey) {
+      if (currentKey.isDown) {
+        setBind((prevBinds) => [...prevBinds, new PressKey(currentKey.key)]);
+      } else {
+        setBind((prevBinds) => {
+          const newBinds = [...prevBinds];
+
+          if (
+            newBinds.length !== 0 &&
+            newBinds[newBinds.length - 1] instanceof PressKey &&
+            (newBinds[newBinds.length - 1] as PressKey).value === currentKey.key
+          ) {
+            newBinds[newBinds.length - 1] = new TapKey(currentKey.key);
+            return newBinds;
+          }
+
+          return [...newBinds, new ReleaseKey(currentKey.key)];
+        });
+      }
+    }
+
+    setKeyQueue(prev => prev.slice(1));
+  }, [keyQueue, selectedKey]);
+
+  const [showPressedKeys, setShowPressedKeys] = useState<string[]>([])
+
   const visualKeyboardModel: VisualKeyboardModel = buildVisualKeyboardModel(
-    allKeys,
+    KEYBOARD_100,
     layer.remappings,
-    pressedKeys,
+    showPressedKeys,
     selectedKey
   )
 
-  const handleCloseInspect = (): void => setInspectedKey(null)
-
   const handleKeyClick = (key: string): void => {
-    if (selectedKey === key) {
+    if (!!selectedKey) {
       setSelectedKey(null)
-      setTrigger(null)
+      setTrigger([])
     } else {
       setSelectedKey(key)
-      setTrigger(new T.KeyPress(key))
+      setTrigger([new KeyPress(key)])
     }
     setBind([])
   }
@@ -90,19 +114,19 @@ export const VisualKeyboard = ({ layer, onSave }: VisualKeyboardProps): JSX.Elem
 
   const renderInspectPopover = (): JSX.Element | null => {
     if (!inspectedKey) return null
-    return <InspectPopover inspectedKey={inspectedKey} onClose={handleCloseInspect} />
+    return <InspectPopover inspectedKey={inspectedKey} onClose={() => setInspectedKey(null)} />
   }
 
   const renderFooter = (): JSX.Element | null => {
     return (
       <VisualKeyboardFooter
         selectedKey={selectedKey}
-        macro={bind}
+        macro={binds}
         onMacroChange={setBind}
         onClose={(save: boolean) => {
           if (save && trigger) {
-            layer.addRemapping(trigger, new Macro_Bind(bind))
-            setTrigger(null)
+            layer.addRemapping(trigger[0], new Macro_Bind(binds)) // TODO support multiple triggers
+            setTrigger([])
             onSave()
           }
           setSelectedKey(null)

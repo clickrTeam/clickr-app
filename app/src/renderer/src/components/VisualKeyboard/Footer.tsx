@@ -3,6 +3,7 @@ import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models
 import { keys } from '../../../../models/Keys'
 import { KeyPressInfo } from './Model'
 import { bindTypeColors } from './Colors'
+import { ConditionalArrowBackground } from './icons'
 import './Footer.css'
 
 const typeOptions: { value: BindType; label: string }[] = [
@@ -69,7 +70,18 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   }
 
   function handleAddKeyToMacro(key: KeyPressInfo): void {
-    onMacroChange([...macro, new TapKey(key)])
+    console.log('Adding key to macro:', key)
+    if (key.isDown) {
+      onMacroChange([...macro, new PressKey(key.key)])
+    } else {
+      if (macro[macro.length - 1] instanceof PressKey) {
+        var macros = [...macro]
+        macros[macros.length - 1] = new TapKey(key.key)
+        onMacroChange(macros)
+      } else {
+        onMacroChange([...macro, new ReleaseKey(key.key)])
+      }
+    }
     setShowKeySelector(false)
   }
 
@@ -86,14 +98,22 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         ) : (
           macro.map((item, i) => (
             <span key={i} style={{ position: 'relative', display: 'inline-block' }}>
-              <button
-                className="vk-footer-macro-btn"
-                style={{ background: getMacroButtonBg(item) }}
-                onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
-                tabIndex={0}
+              <ConditionalArrowBackground
+                bindType={item.bind_type}
+                className="absolute inset-0"
               >
-                {getMacroValue(item)}
-              </button>
+                <button
+                  className="vk-footer-macro-btn relative z-10"
+                  style={{
+                    background: getMacroButtonBg(item),
+                    position: 'relative'
+                  }}
+                  onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
+                  tabIndex={0}
+                >
+                  {getMacroValue(item)}
+                </button>
+              </ConditionalArrowBackground>
               {openDropdown === i && (
                 <div className="vk-footer-macro-dropdown">
                   {typeOptions.map((opt) => (
@@ -134,7 +154,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
                   key={key}
                   className="vk-footer-macro-dropdown-btn"
                   style={{ width: '100%' }}
-                  onClick={() => handleAddKeyToMacro(key)}
+                  onClick={() => handleAddKeyToMacro({ key, isDown: true })}
                 >
                   {key}
                 </button>
