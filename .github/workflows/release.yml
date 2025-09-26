@@ -175,6 +175,6 @@ jobs:
         fi
         
         # Output download URL for reference
-        echo ""
+        echo "" 
         echo "Download URL: https://your-r2-domain.com/$SIMPLE_FILENAME"
       shell: bash
