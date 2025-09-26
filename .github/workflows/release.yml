@@ -169,7 +169,7 @@ jobs:
         # Upload to R2 with simple structure (always replaces the old file)
         echo "Uploading $SIMPLE_FILENAME to R2..."
         if aws s3 cp "$INSTALLER_PATH" "s3://${{ secrets.CLOUDFLARE_R2_BUCKET_NAME }}/${SIMPLE_FILENAME}" \
-          --endpoint-url "https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com"; then
+          --endpoint-url "https://e35a31a8c778c47d320a81d62a0869aa.r2.cloudflarestorage.com"; then
           echo "Successfully uploaded $SIMPLE_FILENAME (replaced previous version)"
         else
           echo "Failed to upload to R2"
@@ -178,5 +178,5 @@ jobs:
         
         # Output download URL for reference
         echo ""
-        echo "Download URL: https://your-r2-domain.com/$SIMPLE_FILENAME"
+        echo "Download URL: https://e35a31a8c778c47d320a81d62a0869aa.r2.cloudflarestorage.com/$SIMPLE_FILENAME"
       shell: bash
