@@ -1,4 +1,4 @@
-import { LogIn, LogOut, Home, Users, Layers } from 'lucide-react'
+import { LogIn, LogOut, Home, Users, Layers, Settings } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
 import { Link, useLocation } from 'react-router-dom'
@@ -41,7 +41,7 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps) => {
         ))}
 
         {/* Auth section */}
-        <div>
+        <div className="flex items-center space-x-3">
           {!isAuthenticated ? (
             <Button className="flex items-center gap-2" asChild>
               <Link to="/login">
@@ -60,6 +60,11 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps) => {
               )}
             </div>
           )}
+          <Button variant="outline" size="icon" className="p-2" asChild>
+            <Link to="/settings">
+              <Settings size={20} />
+            </Link>
+          </Button>
         </div>
       </div>
     </header>

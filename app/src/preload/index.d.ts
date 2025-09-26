@@ -27,6 +27,17 @@ export interface API {
   isKeybinderRunning(): Promise<boolean>
   runKeybinder(): Promise<void>
   stopKeybinder(): Promise<void>
+
+  // Settings methods
+  getLocalSettings(): Promise<{ success: boolean; data?: any; message?: string }>
+  updateLocalSettings(updates: any): Promise<{ success: boolean; data?: any; message?: string }>
+  resetLocalSettings(): Promise<{ success: boolean; data?: any; message?: string }>
+  getUserProfile(): Promise<{ success: boolean; data?: any; message?: string }>
+  updateUserProfile(updates: any): Promise<{ success: boolean; data?: any; message?: string }>
+  getCloudSettings(): Promise<{ success: boolean; data?: any; message?: string }>
+  updateCloudSettings(updates: any): Promise<{ success: boolean; data?: any; message?: string }>
+  changePassword(data: { currentPassword: string; newPassword: string }): Promise<{ success: boolean; message?: string }>
+  getAllSettings(): Promise<{ success: boolean; data?: any; message?: string }
 }
 
 declare global {

@@ -70,6 +70,35 @@ const api: API = {
   },
   stopKeybinder: function (): Promise<void> {
     return ipcRenderer.invoke('stop-keybinder')
+  },
+
+  // Settings methods
+  getLocalSettings: function (): Promise<{ success: boolean; data?: any; message?: string }> {
+    return ipcRenderer.invoke('get-local-settings')
+  },
+  updateLocalSettings: function (updates: any): Promise<{ success: boolean; data?: any; message?: string }> {
+    return ipcRenderer.invoke('update-local-settings', updates)
+  },
+  resetLocalSettings: function (): Promise<{ success: boolean; data?: any; message?: string }> {
+    return ipcRenderer.invoke('reset-local-settings')
+  },
+  getUserProfile: function (): Promise<{ success: boolean; data?: any; message?: string }> {
+    return ipcRenderer.invoke('get-user-profile')
+  },
+  updateUserProfile: function (updates: any): Promise<{ success: boolean; data?: any; message?: string }> {
+    return ipcRenderer.invoke('update-user-profile', updates)
+  },
+  getCloudSettings: function (): Promise<{ success: boolean; data?: any; message?: string }> {
+    return ipcRenderer.invoke('get-cloud-settings')
+  },
+  updateCloudSettings: function (updates: any): Promise<{ success: boolean; data?: any; message?: string }> {
+    return ipcRenderer.invoke('update-cloud-settings', updates)
+  },
+  changePassword: function (data: { currentPassword: string; newPassword: string }): Promise<{ success: boolean; message?: string }> {
+    return ipcRenderer.invoke('change-password', data)
+  },
+  getAllSettings: function (): Promise<{ success: boolean; data?: any; message?: string }> {
+    return ipcRenderer.invoke('get-all-settings')
   }
 }
 

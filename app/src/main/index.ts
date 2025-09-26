@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerProfileHandlers } from './ipc/profile-ipc'
 import { registerApiHandlers } from './ipc/api-ipc'
 import { registerDeamonManagerHandlers } from './services/daemon-manager'
+import { registerSettingsHandlers } from './ipc/settings-ipc'
 import log from 'electron-log'
 
 function createWindow(): void {
@@ -55,6 +56,7 @@ app.whenReady().then(() => {
   registerProfileHandlers()
   registerDeamonManagerHandlers() // Register daemon manager handlers
   registerApiHandlers() // Register our new API handlers
+  registerSettingsHandlers() // Register settings handlers
   createWindow()
 
   app.on('activate', function () {
