@@ -2,14 +2,14 @@
 # using electron-builder. It then uploads the build output for each OS
 # as a separate zipped artifact.
 
-name: Build Electron App
+name: Release Clickr App
 
 on:
   push:
-    branches:
-      - '*'
-    tags-ignore:
-      - 'v*'
+    tags: ['v*']
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -133,67 +133,49 @@ jobs:
         name: ${{ matrix.os }}-installer
         path: ${{ steps.find_installer.outputs.installer }}
 
+    - name: Configure AWS credentials for R2
+      run: |
+        aws configure set aws_access_key_id ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+        aws configure set region us-east-1
 
-  #   - name: Locate Electron app directory
-  #     id: find_pkg
-  #     run: |
-  #       set -e
-  #       # Prefer ./app/package.json (common Electron structure)
-  #       if [ -f ./app/package.json ]; then
-  #         WORKDIR="app"
-  #       else
-  #         # Search for package.json within top 4 levels, excluding node_modules
-  #         WORKDIR=$(find . -maxdepth 4 -type f -name package.json -not -path "*/node_modules/*" | head -n1 || true)
-  #         if [ -n "$WORKDIR" ]; then
-  #           WORKDIR=$(dirname "$WORKDIR")
-  #           WORKDIR=${WORKDIR#./}
-  #         fi
-  #       fi
-  #       if [ -z "$WORKDIR" ]; then
-  #         echo "::error::Could not find package.json (tried ./app and searched tree)"
-  #         exit 1
-  #       fi
-  #       echo "Found package.json in: $WORKDIR"
-  #       echo "workdir=$WORKDIR" >> $GITHUB_OUTPUT
-
-  #   - name: Install Dependencies (Unix/mac)
-  #     # if: runner.os != 'Windows'
-  #     working-directory: ${{ steps.find_pkg.outputs.workdir }}
-  #     run: |
-  #       cd app
-  #       if [ -f package-lock.json ]; then
-  #         npm ci
-  #       else
-  #         npm install
-  #       fi
-  #   # - name: Install Dependencies (Windows)
-  #   #   if: runner.os == 'Windows'
-  #   #   working-directory: ${{ steps.find_pkg.outputs.workdir }}
-  #   #   shell: powershell
-  #   #   run: |
-  #   #     cd app
-  #   #     if (Test-Path package-lock.json) { npm ci } else { npm install }
-
-  #   - name: Build the Application
-  #     # This command runs the 'build' script from your package.json
-  #     # Make sure your package.json has a build script that calls electron-builder.
-  #     # Example package.json script:
-  #     # "scripts": {
-  #     #   "build": "electron-builder"
-  #     # }
-  #     working-directory: ${{ steps.find_pkg.outputs.workdir }}
-  #     run: |
-  #       cd app
-  #       npm run build
-      
-  #   - name: Upload Build Artifact
-  #     # This action archives and uploads the build output.
-  #     # electron-builder typically outputs to a 'dist' or 'release' folder.
-  #     # The action will zip the contents of the specified path.
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       # The name of the artifact will include the OS for clarity.
-  #       # e.g., "electron-app-windows-latest"
-  #       name: electron-app-${{ matrix.os }}
-  # # Adjust the path if your electron-builder output directory is different.
-  # # path: ${{ steps.find_pkg.outputs.workdir }}/dist/
+    - name: Upload installer to Cloudflare R2
+      run: |
+        # Get the installer file path and name
+        INSTALLER_PATH="${{ steps.find_installer.outputs.installer }}"
+        INSTALLER_NAME=$(basename "$INSTALLER_PATH")
+        
+        # Verify the installer file exists
+        if [ ! -f "$INSTALLER_PATH" ]; then
+          echo "Error: Installer file not found at $INSTALLER_PATH"
+          exit 1
+        fi
+        
+        # Get file size for logging
+        FILE_SIZE=$(du -h "$INSTALLER_PATH" | cut -f1)
+        echo "Found installer: $INSTALLER_NAME ($FILE_SIZE)"
+        
+        # Create simple filename based on OS
+        SIMPLE_FILENAME=""
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          SIMPLE_FILENAME="clickr-windows.exe"
+        elif [ "${{ runner.os }}" == "macOS" ]; then
+          SIMPLE_FILENAME="clickr-macos.dmg"
+        elif [ "${{ runner.os }}" == "Linux" ]; then
+          SIMPLE_FILENAME="clickr-linux.AppImage"
+        fi
+        
+        # Upload to R2 with simple structure (always replaces the old file)
+        echo "Uploading $SIMPLE_FILENAME to R2..."
+        if aws s3 cp "$INSTALLER_PATH" "s3://${{ secrets.CLOUDFLARE_R2_BUCKET_NAME }}/${SIMPLE_FILENAME}" \
+          --endpoint-url "https://e35a31a8c778c47d320a81d62a0869aa.r2.cloudflarestorage.com"; then
+          echo "Successfully uploaded $SIMPLE_FILENAME (replaced previous version)"
+        else
+          echo "Failed to upload to R2"
+          exit 1
+        fi
+        
+        # Output download URL for reference
+        echo "" 
+        echo "Download URL: https://e35a31a8c778c47d320a81d62a0869aa.r2.cloudflarestorage.com/$SIMPLE_FILENAME"
+      shell: bash
