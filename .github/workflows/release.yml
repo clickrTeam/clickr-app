@@ -177,6 +177,6 @@ jobs:
         fi
         
         # Output download URL for reference
-        echo ""
+        echo "" 
         echo "Download URL: https://e35a31a8c778c47d320a81d62a0869aa.r2.cloudflarestorage.com/$SIMPLE_FILENAME"
       shell: bash
