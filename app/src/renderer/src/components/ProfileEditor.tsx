@@ -74,13 +74,11 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
         </div>
       </div>
 
-      {/* Tabs for Layers */}
       <Tabs
         defaultValue="0"
         value={selectedLayerIndex.toString()}
         onValueChange={(val) => setSelectedLayerIndex(Number(val))}
       >
-        {/* Tabs List and Layer Controls */}
         <div className="flex items-center justify-between">
           <TabsList>
             {localProfile.layers.map((layer: Layer, index) => (
@@ -103,7 +101,6 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
           </div>
         </div>
 
-        {/* Layer Content */}
         {localProfile.layers.map((layer, index) => (
           <TabsContent key={index} value={index.toString()}>
             {useVisualKeyboard ? (
@@ -119,7 +116,6 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
         ))}
       </Tabs>
 
-      {/* Start Training Button */}
       <div className="flex justify-end mt-4">
         <Button
           size="sm"
