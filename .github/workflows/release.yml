@@ -134,11 +134,10 @@ jobs:
         path: ${{ steps.find_installer.outputs.installer }}
 
     - name: Configure AWS credentials for R2
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+      run: |
+        aws configure set aws_access_key_id ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+        aws configure set region us-east-1
 
     - name: Upload installer to Cloudflare R2
       run: |
