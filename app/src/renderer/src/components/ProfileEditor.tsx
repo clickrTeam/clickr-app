@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 import { LayerComponent } from './LayerComponent'
+import { useNavigate } from 'react-router-dom'
 
 interface ProfileEditorProps {
   profile: Profile
@@ -17,6 +18,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
   const [localProfile, setLocalProfile] = useState(profile)
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
+  const navigate = useNavigate()
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer): void => {
     const next = Profile.fromJSON(localProfile.toJSON())
@@ -58,6 +60,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{localProfile.profile_name}</h2>
         <div className="space-x-2">
@@ -71,11 +74,13 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
         </div>
       </div>
 
+      {/* Tabs for Layers */}
       <Tabs
         defaultValue="0"
         value={selectedLayerIndex.toString()}
         onValueChange={(val) => setSelectedLayerIndex(Number(val))}
       >
+        {/* Tabs List and Layer Controls */}
         <div className="flex items-center justify-between">
           <TabsList>
             {localProfile.layers.map((layer: Layer, index) => (
@@ -98,6 +103,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
           </div>
         </div>
 
+        {/* Layer Content */}
         {localProfile.layers.map((layer, index) => (
           <TabsContent key={index} value={index.toString()}>
             {useVisualKeyboard ? (
@@ -112,6 +118,23 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* Start Training Button */}
+      <div className="flex justify-end mt-4">
+        <Button
+          size="sm"
+          onClick={() =>
+            navigate('/training', {
+              state: {
+                profile: localProfile,
+                layer_index: selectedLayerIndex
+              }
+            })
+          }
+        >
+          Start Training
+        </Button>
+      </div>
     </div>
   )
 }
