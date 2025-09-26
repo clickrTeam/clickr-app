@@ -5,7 +5,7 @@ export enum TriggerType {
   KeyRelease = 'key_release',
   TapSequence = 'tap_sequence',
 
-  // not sure if differnt from tap tap_sequence
+  // not sure if different from tap tap_sequence
   // Timed = 'timed_trigger',
 
   // Not implemented in daemon
