@@ -81,7 +81,12 @@ export class Layer {
    * @returns The bind associated with that key
    */
   getRemapping(trig: T.Trigger): B.Bind | undefined {
-    return this.remappings.get(trig)
+    for (const existing_trig of this.remappings.keys()) {
+      if (existing_trig.equals(trig)) {
+        return this.remappings.get(existing_trig)
+      }
+    }
+    return undefined
   }
 
   /**
