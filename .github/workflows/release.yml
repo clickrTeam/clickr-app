@@ -138,7 +138,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
-        aws-region: auto
+        aws-region: us-east-1
 
     - name: Upload installer to Cloudflare R2
       run: |
@@ -169,8 +169,7 @@ jobs:
         # Upload to R2 with simple structure (always replaces the old file)
         echo "Uploading $SIMPLE_FILENAME to R2..."
         if aws s3 cp "$INSTALLER_PATH" "s3://${{ secrets.CLOUDFLARE_R2_BUCKET_NAME }}/${SIMPLE_FILENAME}" \
-          --endpoint-url "https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" \
-          --region auto; then
+          --endpoint-url "https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com"; then
           echo "Successfully uploaded $SIMPLE_FILENAME (replaced previous version)"
         else
           echo "Failed to upload to R2"
