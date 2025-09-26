@@ -132,7 +132,7 @@ jobs:
 
     - name: Upload to cloudflare
       uses: cloudflare/wrangler-action@1.0.0
-      with:
+      with: # see
         api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         project: ${{ secrets.CLOUDFLARE_PROJECT }}
