@@ -59,20 +59,36 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
   const toggleEditor = (): void => setUseVisualKeyboard((v) => !v)
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">{localProfile.profile_name}</h2>
-        <div className="space-x-2">
-          <Button variant="outline" onClick={onBack}>
-            Back
-          </Button>
-          <Button onClick={toggleEditor} className="mb-4">
-            {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
-          </Button>
-          <Button onClick={() => onSave(localProfile)}>Save Changes</Button>
-        </div>
-      </div>
+<div className="space-y-6">
+  {/* Header */}
+  <div className="flex items-center justify-between">
+    <h2 className="text-2xl font-bold">{localProfile.profile_name}</h2>
+
+    {/* Button Group */}
+    <div className="space-x-2 flex items-center">
+      <Button variant="outline" onClick={onBack}>
+        Back
+      </Button>
+      <Button onClick={toggleEditor} className="mb-4">
+        {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
+      </Button>
+      <Button
+        size="sm"
+        onClick={() =>
+          navigate('/training', {
+            state: {
+              profile: localProfile,
+              layer_index: selectedLayerIndex
+            }
+          })
+        }
+      >
+        Start Training
+      </Button>
+      <Button onClick={() => onSave(localProfile)}>Save Changes</Button>
+    </div>
+  </div>
+
 
       <Tabs
         defaultValue="0"
@@ -115,22 +131,6 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
           </TabsContent>
         ))}
       </Tabs>
-
-      <div className="flex justify-end mt-4">
-        <Button
-          size="sm"
-          onClick={() =>
-            navigate('/training', {
-              state: {
-                profile: localProfile,
-                layer_index: selectedLayerIndex
-              }
-            })
-          }
-        >
-          Start Training
-        </Button>
-      </div>
     </div>
   )
 }
