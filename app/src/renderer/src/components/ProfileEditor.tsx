@@ -2,19 +2,19 @@ import { Profile } from '../../../models/Profile'
 import { Layer } from '../../../models/Layer'
 import { Button } from './ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 import { LayerComponent } from './LayerComponent'
+import { ProfileController } from './VisualKeyboard/ProfileControler'
 
 interface ProfileEditorProps {
-  profile: Profile
-  onSave: (updatedProfile: Profile) => void
+  profileControler: ProfileController
   onBack: () => void
 }
 
-export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): JSX.Element => {
-  const [localProfile, setLocalProfile] = useState(profile)
+export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps): JSX.Element => {
+  const [localProfile, setLocalProfile] = useState(profileControler.getProfile())
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
 
@@ -30,6 +30,11 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
 
     setLocalProfile(next)
   }
+
+  useEffect(() => {
+    profileControler.profile = localProfile
+    profileControler.setLayer(selectedLayerIndex)
+  }, [localProfile, selectedLayerIndex])
 
   const confirmDeleteLayer = (layerNumber: number): void => {
     toast('Are you sure you want to delete this layer?', {
@@ -67,7 +72,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
           <Button onClick={toggleEditor} className="mb-4">
             {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
           </Button>
-          <Button onClick={() => onSave(localProfile)}>Save Changes</Button>
+          <Button onClick={profileControler.onSave}>Save Changes</Button>
         </div>
       </div>
 
@@ -79,7 +84,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
         <div className="flex items-center justify-between">
           <TabsList>
             {localProfile.layers.map((layer: Layer, index) => (
-              <TabsTrigger key={index} value={index.toString()}>
+              <TabsTrigger key={index} value={index.toString()} onClick={() => profileControler.setLayer(index)}>
                 {layer.layer_name}
               </TabsTrigger>
             ))}
@@ -97,20 +102,20 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
             </Button>
           </div>
         </div>
-
-        {localProfile.layers.map((layer, index) => (
-          <TabsContent key={index} value={index.toString()}>
-            {useVisualKeyboard ? (
-              <VisualKeyboard layer={layer} onSave={() => onSave(localProfile)} />
-            ) : (
+        {useVisualKeyboard ? (
+          <VisualKeyboard profileControler={profileControler} />
+        ) : (
+          <div>
+          {localProfile.layers.map((layer, index) => (
+            <TabsContent key={index} value={index.toString()}>
               <LayerComponent
                 layer={layer}
-                maxLayer={profile.layers.length}
+                maxLayer={profileControler.getProfile().layers.length}
                 onUpdate={(updatedLayer) => handleLayerUpdate(index, updatedLayer)}
               />
-            )}
-          </TabsContent>
-        ))}
+            </TabsContent>
+          ))}</div>
+        )}
       </Tabs>
     </div>
   )

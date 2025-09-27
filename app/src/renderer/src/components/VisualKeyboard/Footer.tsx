@@ -4,6 +4,9 @@ import { keys } from '../../../../models/Keys'
 import { KeyPressInfo } from './Model'
 import { bindTypeColors } from './Colors'
 import './Footer.css'
+import { ProfileController } from './ProfileControler'
+import { Trigger } from '../../../../models/Trigger'
+import log from 'electron-log'
 
 const typeOptions: { value: BindType; label: string }[] = [
   { value: BindType.TapKey, label: 'Tap' },
@@ -40,21 +43,29 @@ function getMacroValue(item: Bind): string {
 }
 
 export interface VisualKeyboardFooterProps {
+  profileControler: ProfileController
   selectedKey: string | null
   macro: Bind[]
+  trigger: Trigger | null
   onMacroChange: (macro: Bind[]) => void
   onClose: (save: boolean) => void
 }
 
 export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
+  profileControler,
   selectedKey,
   macro,
+  trigger,
   onMacroChange,
   onClose
 }): JSX.Element | null => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
   const [showKeySelector, setShowKeySelector] = useState(false)
   if (!selectedKey) return null
+  if (!trigger) {
+    log.warn('No trigger provided to VisualKeyboardFooter. Aborting.');
+    return null
+  }
 
   function handleTypeChange(idx: number, type: BindType): void {
     const existing = macro[idx]
@@ -104,6 +115,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       <div className="vk-footer-row">
         <span className="vk-footer-selected-label">Selected Key:</span>
         <span className="vk-footer-selected-key">{selectedKey}</span>
+        <button className="vk-footer-clear" onClick={() => profileControler.removeBind(trigger, onMacroChange)}>Clear</button>
       </div>
       <div className="vk-footer-row">
         <span className="vk-footer-macro-label">New Mapping:</span>

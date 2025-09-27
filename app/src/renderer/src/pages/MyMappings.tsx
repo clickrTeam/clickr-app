@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Profile } from '../../../models/Profile'
 import log from 'electron-log'
 import { toast } from 'sonner'
@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/u
 import { Input } from '@renderer/components/ui/input'
 import { Search, Download, User, Clock, Plus, Upload, Cloud } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { ProfileController } from '@renderer/components/VisualKeyboard/ProfileControler'
 
 type UploadedMapping = {
   id: string
@@ -39,7 +40,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
 
   // Local mappings state
   const [profiles, setProfiles] = useState<Profile[] | null>(null)
-  const [activeProfile, setActiveProfile] = useState<number | null>(null)
+  const [activeProfileIndex, setActiveProfileIndex] = useState<number | null>(null)
   const [editedProfileIndex, setEditedProfileIndex] = useState<number | null>(null)
   const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false)
 
@@ -60,7 +61,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
 
     window.api.getActiveProfile().then((activeProfile: number | null) => {
       log.info('Active profile is index: ', activeProfile)
-      setActiveProfile(activeProfile)
+      setActiveProfileIndex(activeProfile)
     })
   }
 
@@ -182,7 +183,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
       type: 'local' as const,
       profile,
       index,
-      isActive: activeProfile === index
+      isActive: activeProfileIndex === index
     })) || []
 
     // Only handle local and user's uploaded mappings
@@ -226,20 +227,21 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     return filteredMappings
   }
 
+  const onSave = (profileControler: ProfileController): void => {
+    if (!editedProfileIndex) return
+    if (activeProfileIndex == editedProfileIndex) {
+      window.api.setActiveProfile(editedProfileIndex)
+    }
+    updateProfiles()
+  }
+
   // If editing a profile, show the editor
   if (editedProfileIndex !== null && profiles != null) {
+    const profileControler = new ProfileController(profiles[editedProfileIndex], editedProfileIndex, onSave)
     return (
       <div className="space-y-6">
         <ProfileEditor
-          profile={profiles[editedProfileIndex]}
-          onSave={(updatedProfile: Profile) => {
-            log.info(`Profile has been updated and saved. Updated profile: ${updatedProfile}`)
-            window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON())
-            if (activeProfile == editedProfileIndex) {
-              window.api.setActiveProfile(editedProfileIndex)
-            }
-            updateProfiles()
-          }}
+          profileControler={profileControler}
           onBack={() => setEditedProfileIndex(null)}
         />
       </div>

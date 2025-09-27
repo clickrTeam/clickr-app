@@ -1,26 +1,24 @@
 import { useState, useEffect } from 'react'
 import { Card } from '../ui/card'
-import { Layer } from '../../../../models/Layer'
 import { mainRows, specialtyRows, numpadRows, KEYBOARD_100 as KEYBOARD_100 } from './Layout.const'
-import { normalizeKey } from './Util'
 import { InspectPopover } from './InspectPopover'
 import { VisualKeyboardFooter } from './Footer'
-import { Bind, Macro_Bind, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
+import { Bind, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyTile } from './KeyTile'
 import { buildVisualKeyboardModel, KeyPressInfo, KeyTileModel, VisualKeyboardModel } from './Model'
 import { KeyPress, Trigger } from '../../../../models/Trigger'
 import { useKeyboardController } from './controler'
+import { ProfileController } from './ProfileControler'
 
 interface VisualKeyboardProps {
-  layer: Layer
-  onSave: () => void
+  profileControler: ProfileController
 }
 
-export const VisualKeyboard = ({ layer, onSave }: VisualKeyboardProps): JSX.Element => {
+export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [binds, setBind] = useState<Bind[]>([])
-  const [trigger, setTrigger] = useState<Trigger[]>([])
+  const [trigger, setTrigger] = useState<Trigger | null>(null)
 
   const onKey: KeyPressInfo = useKeyboardController();
   const [keyQueue, setKeyQueue] = useState<KeyPressInfo[]>([]);
@@ -72,27 +70,20 @@ export const VisualKeyboard = ({ layer, onSave }: VisualKeyboardProps): JSX.Elem
     }
 
     setKeyQueue(prev => prev.slice(1));
-  }, [keyQueue, selectedKey]);
+  }, [keyQueue]);
+
+  useEffect(() => {
+    profileControler.setSelectedKey(selectedKey, setBind, setTrigger);
+  }, [selectedKey]);
 
   const [showPressedKeys, setShowPressedKeys] = useState<string[]>([])
 
   const visualKeyboardModel: VisualKeyboardModel = buildVisualKeyboardModel(
     KEYBOARD_100,
-    layer.remappings,
+    profileControler,
     showPressedKeys,
     selectedKey
   )
-
-  const handleKeyClick = (key: string): void => {
-    if (!!selectedKey) {
-      setSelectedKey(null)
-      setTrigger([])
-    } else {
-      setSelectedKey(key)
-      setTrigger([new KeyPress(key)])
-    }
-    setBind([])
-  }
 
   const renderRow = (row: { key: string; width?: number; gapAfter?: boolean }[]): JSX.Element => {
     return (
@@ -103,9 +94,7 @@ export const VisualKeyboard = ({ layer, onSave }: VisualKeyboardProps): JSX.Elem
             <KeyTile
               key={keyModel.key === '' ? undefined : keyModel.key}
               keyModel={keyModel}
-              onClick={(): void => {
-                handleKeyClick(key)
-              }}
+              onClick={(): void => setSelectedKey(key)}
               onInspect={setInspectedKey}
             />
           )
@@ -119,25 +108,6 @@ export const VisualKeyboard = ({ layer, onSave }: VisualKeyboardProps): JSX.Elem
     return <InspectPopover inspectedKey={inspectedKey} onClose={() => setInspectedKey(null)} />
   }
 
-  const renderFooter = (): JSX.Element | null => {
-    return (
-      <VisualKeyboardFooter
-        selectedKey={selectedKey}
-        macro={binds}
-        onMacroChange={setBind}
-        onClose={(save: boolean) => {
-          if (save && trigger) {
-            layer.addRemapping(trigger[0], new Macro_Bind(binds)) // TODO support multiple triggers
-            setTrigger([])
-            onSave()
-          }
-          setSelectedKey(null)
-          setBind([])
-        }}
-      />
-    )
-  }
-
   return (
     <Card
       className="p-4 bg-neutral-100 overflow-auto flex flex-row items-start"
@@ -147,7 +117,22 @@ export const VisualKeyboard = ({ layer, onSave }: VisualKeyboardProps): JSX.Elem
       <div className="flex flex-col">{mainRows.map(renderRow)}</div>
       <div className="flex flex-col">{specialtyRows.map(renderRow)}</div>
       <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
-      {renderFooter()}
+
+      <VisualKeyboardFooter
+        profileControler={profileControler}
+        selectedKey={selectedKey}
+        macro={binds}
+        trigger={trigger}
+        onMacroChange={setBind}
+        onClose={(save: boolean) => {
+          if (save) {
+            profileControler.addBind(trigger, binds);
+          }
+          setSelectedKey(null)
+          setTrigger(null)
+          setBind([])
+        }}
+      />
     </Card>
   )
 }
