@@ -13,6 +13,7 @@ export class ProfileController {
 
   constructor(public profile: Profile, public editedProfileIndex: number, public onUpSave: (profileControler: ProfileController) => void) {
     this.activeLayer = this.profile.layers[0];
+    log.info(`ProfileController initialized for profile: ${this.profile.profile_name}`);
   }
 
   onSave(): void {
@@ -42,13 +43,14 @@ export class ProfileController {
       return;
     }
     log.debug('Removing bind from trigger:', trigger);
-    
+
     setBind([]);
     this.activeLayer.deleteRemapping(trigger);
     this.onSave();
   }
 
   setLayer(index: number): void {
+    log.verbose('Setting active layer to index:', index);
     this.activeLayer = this.profile.layers[index];
   }
 

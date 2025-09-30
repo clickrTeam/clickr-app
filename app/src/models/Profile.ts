@@ -143,7 +143,7 @@ export class Profile {
    * Serializes the Profile instance to a JSON-compatible object.
    */
   toJSON(): object {
-    log.info(`Serialization of profile "${this.profile_name}" started.`)
+    log.verbose(`>>>>> Serialization of profile "${this.profile_name}" started.`)
     return {
       profile_name: this.profile_name,
       layer_count: this.layer_count,
@@ -186,11 +186,11 @@ export class Profile {
       )
       profile.translateToTargetOS(obj.OS, detectOS())
     } else {
-      log.info(`Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`)
+      log.silly(`Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`)
     }
 
-    log.info(
-      `Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
+    log.verbose(
+      `<<<<<< Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
     )
     return profile
   }
@@ -212,7 +212,7 @@ export class Profile {
     if (valid_incoming_OS && valid_target_OS) {
       // Iterate through layers and remappings to translate keys
       this.iterateForTranslation(incoming_OS, target_OS)
-      log.info(`Translation from ${incoming_OS} to ${target_OS} completed.`)
+      log.debug(`Translation from ${incoming_OS} to ${target_OS} completed.`)
       this.OS = target_OS
     } else {
       log.warn(
@@ -227,7 +227,7 @@ export class Profile {
    * @param target_OS The OS to translate the profile to, usually the current OS.
    */
   private iterateForTranslation(incoming_OS: string, target_OS: string): void {
-    log.info(`Translating profile from ${incoming_OS} to ${target_OS}.`)
+    log.debug(`Translating profile from ${incoming_OS} to ${target_OS}.`)
 
     for (const layer of this.layers) {
       for (const [trigger, bind] of layer.remappings) {

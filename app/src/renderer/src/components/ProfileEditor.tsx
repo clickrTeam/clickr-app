@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 import { LayerComponent } from './LayerComponent'
 import { ProfileController } from './VisualKeyboard/ProfileControler'
+import log from 'electron-log'
 
 interface ProfileEditorProps {
   profileControler: ProfileController
@@ -18,16 +19,21 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
 
+  profileControler.setLayer(selectedLayerIndex) // Hack to keep the active layer on construct
+
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer): void => {
+    log.debug('Updating layer at index:', layerIndex)
     const next = Profile.fromJSON(localProfile.toJSON())
     next.layers[layerIndex] = updatedLayer
     setLocalProfile(next)
   }
 
   const handleAddLayer = (): void => {
+    log.debug('Adding new layer')
     const next = Profile.fromJSON(localProfile.toJSON())
     next.addLayer('Layer ' + next.layer_count)
 
+    setSelectedLayerIndex(next.layers.length - 1)
     setLocalProfile(next)
   }
 
@@ -50,6 +56,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   }
 
   const handleDeleteLayer = (layerNumber: number): void => {
+    log.debug('Deleting layer at index:', layerNumber)
     const prof = Profile.fromJSON(localProfile.toJSON())
     const was_successful = prof.removeLayer(layerNumber)
 
@@ -57,8 +64,27 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
       toast.error('Error deleting layer.')
       return
     }
+    setSelectedLayerIndex(prof.layers.length - 1)
     setLocalProfile(prof)
   }
+
+  const handleDuplicateLayer = (layerNumber: number): void => {
+    log.debug('Duplicating layer at index:', layerNumber)
+    const prof = Profile.fromJSON(localProfile.toJSON())
+    const layerToDuplicate = prof.layers[layerNumber]
+    if (!layerToDuplicate) {
+      log.error('Layer to duplicate not found at index:', layerNumber)
+      toast.error('Layer not found.')
+      return
+    }
+
+    prof.addLayer(layerToDuplicate.layer_name + ' Copy')
+    const newLayer = prof.layers[prof.layers.length - 1]
+    newLayer.remappings = new Map(layerToDuplicate.remappings)
+    setSelectedLayerIndex(prof.layers.length - 1)
+    setLocalProfile(prof)
+  }
+
   const toggleEditor = (): void => setUseVisualKeyboard((v) => !v)
 
   return (
@@ -77,7 +103,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
       </div>
 
       <Tabs
-        defaultValue="0"
+        // defaultValue="0"
         value={selectedLayerIndex.toString()}
         onValueChange={(val) => setSelectedLayerIndex(Number(val))}
       >
@@ -103,7 +129,10 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
           </div>
         </div>
         {useVisualKeyboard ? (
-          <VisualKeyboard profileControler={profileControler} />
+          <VisualKeyboard
+            key={`${localProfile.profile_name}-${selectedLayerIndex}`}
+            profileControler={profileControler}
+          />
         ) : (
           <div>
           {localProfile.layers.map((layer, index) => (
