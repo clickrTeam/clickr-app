@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 import { LayerComponent } from './LayerComponent'
+import { useNavigate } from 'react-router-dom'
 
 interface ProfileEditorProps {
   profile: Profile
@@ -17,6 +18,7 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
   const [localProfile, setLocalProfile] = useState(profile)
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
+  const navigate = useNavigate()
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer): void => {
     const next = Profile.fromJSON(localProfile.toJSON())
@@ -58,14 +60,29 @@ export const ProfileEditor = ({ profile, onSave, onBack }: ProfileEditorProps): 
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{localProfile.profile_name}</h2>
-        <div className="space-x-2">
+
+        {/* Button Group */}
+        <div className="space-x-2 flex items-center">
           <Button variant="outline" onClick={onBack}>
             Back
           </Button>
-          <Button onClick={toggleEditor} className="mb-4">
+          <Button onClick={toggleEditor}>
             {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
+          </Button>
+          <Button
+            onClick={() =>
+              navigate('/training', {
+                state: {
+                  profile: localProfile,
+                  layer_index: selectedLayerIndex
+                }
+              })
+            }
+          >
+            Start Training
           </Button>
           <Button onClick={() => onSave(localProfile)}>Save Changes</Button>
         </div>
