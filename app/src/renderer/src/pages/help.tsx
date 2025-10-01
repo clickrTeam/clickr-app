@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
-type TopicKey = 'general' | 'profile' | 'layer' | 'trigger' | 'bind'
+type TopicKey = 'general' | 'profile' | 'layer' | 'trigger' | 'bind' | 'tips'
 
 type HelpSection = {
   id: string
@@ -79,35 +79,45 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       },
       {
         id: 'edit-profile',
-        heading: 'How do I edit a Profile',
+        heading: 'How do I edit a Profile?',
         body: (
-          <p>
-            Select a profile from the list and click Edit. Change the metadata, attached layers,
-            or default options and then Save.
-          </p>
+          <>
+            <p>To edit a profile:</p>
+            <ol className="list-decimal ml-6">
+              <li>Click on the "Mappings" button on the top of the application.</li>
+              <li>Click the "Edit" button on the Profile you want to edit.</li>
+              <li>You are now editing your Profile! See the Layers help page for more details.</li>
+            </ol>
+          </>
         ),
       },
     ],
   },
 
   layer: {
-    title: 'Editing a Layer',
+    title: 'Layer',
     sections: [
       {
         id: 'what-is-layer',
-        heading: 'What is a Layer',
-        body: <p>Layers let you stack mappings; top layers override lower ones.</p>,
+        heading: 'What is a Layer?',
+        body: (<p>A Layer is a customizable keyboard layout made up of the key bindings
+            that you create. Each layer is associated with the Profile that creates it.
+            A common use of a Layer is to be task specific. For example, you could create
+            a Layer for when you use a Web Browser, and map buttons to "Forward", "Back", etc.
+            Another common use is to have a Layer dedicated to a specific keyboard layout, like
+            DVORAK or COLEMAK.
+        </p>),
       },
       {
         id: 'manage-layers',
         heading: 'Managing Layers',
-        body: (
-          <ul className="list-disc ml-6">
-            <li>Reorder layers to change precedence.</li>
-            <li>Enable or disable layers to toggle groups of binds.</li>
-            <li>Rename or delete layers as needed.</li>
-          </ul>
-        ),
+        body: (<p>Each Profile can have as many Layers as you want, but always must have
+            at least one. You can switch between Layers whenever you want by setting a bind
+            to "Switch Layer" and activating that bind. It is important to consider how you will
+            navigate your Layers. If you have a button to switch from Layer 1 to Layer 2, but don't
+            have a button to get back, you will be stuck on Layer 2. Make sure you consider navigation
+            when creating your setup.
+        </p>),
       },
     ],
   },
@@ -154,6 +164,17 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       },
     ],
   },
+
+  tips: {
+    title: 'Tips',
+    sections: [
+      {
+        id: 'layer-navigation',
+        heading: 'Layer Navigation',
+        body: <p>create layer hub</p>,
+      }
+    ],
+  },
 }
 
 const sidebarButtons: { key: TopicKey; label: string }[] = [
@@ -162,6 +183,7 @@ const sidebarButtons: { key: TopicKey; label: string }[] = [
   { key: 'layer', label: 'Layer' },
   { key: 'trigger', label: 'Trigger' },
   { key: 'bind', label: 'Bind' },
+  { key: 'tips', label: 'Tips'}
 ]
 
 const pageMotion = {
@@ -176,7 +198,7 @@ const Help: React.FC = () => {
   const topic = useMemo((): TopicKey => {
     const parts = location.pathname.split('/').filter(Boolean)
     const last = (parts[parts.length - 1] || '').toLowerCase()
-    return ['general', 'profile', 'layer', 'trigger', 'bind'].includes(last)
+    return ['general', 'profile', 'layer', 'trigger', 'bind', 'tips'].includes(last)
       ? (last as TopicKey)
       : 'general'
   }, [location.pathname])
