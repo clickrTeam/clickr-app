@@ -1,4 +1,4 @@
-import { LogIn, LogOut, Home, Users, Layers } from 'lucide-react'
+import { LogIn, LogOut, Home, Users, Layers, HelpCircle } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
 import { Link, useLocation } from 'react-router-dom'
@@ -16,7 +16,8 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps) => {
 
     { name: 'Mappings', path: '/', icon: Layers },
     { name: 'Community', path: '/community', icon: Users },
-    { name: 'DAEMON', path: '/daemon', icon: Home }
+    { name: 'DAEMON', path: '/daemon', icon: Home },
+    { name: 'Help', path: '/help', icon: HelpCircle }
   ]
 
   return (
