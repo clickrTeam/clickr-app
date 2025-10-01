@@ -73,7 +73,7 @@ function App(): JSX.Element {
           <Route path="/daemon" element={<Daemon />} />
           <Route path="/mappings" element={<MyMappings isAuthenticated={isAuthenticated} username={username} />} />
           <Route path="/training" element={<Training />} />
-          <Route path="/help" element={<Help />} />
+          <Route path="/help/*" element={<Help />} />
         </Routes>
       </div>
 
