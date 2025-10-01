@@ -44,6 +44,23 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
           </p>
         ),
       },
+      {
+        id: 'getting-started',
+        heading: 'Getting Started',
+        body: (
+          <>
+          <p>
+            You can get stared with Clickr by following these steps:
+          </p>
+          <ol className="list-decimal ml-6">
+              <li>Create a new Profile or download one from the website.</li>
+              <li>Edit the Profile and change the Layer(s)</li>
+              <li>Save your changes.</li>
+              <li>Activate your Profile!</li>
+            </ol>
+          </>
+        ),
+      },
     ],
   },
 
@@ -79,7 +96,7 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       },
       {
         id: 'edit-profile',
-        heading: 'How do I edit a Profile?',
+        heading: 'Editing a Profile',
         body: (
           <>
             <p>To edit a profile:</p>
@@ -119,6 +136,20 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
             when creating your setup.
         </p>),
       },
+      {
+        id: 'edit-layers',
+        heading: 'Editing a Layer',
+        body: (<>
+            <p>To edit a layer:</p>
+            <ol className="list-decimal ml-6">
+              <li>Click on the "Mappings" button on the top of the application.</li>
+              <li>Click the "Edit" button on the Profile you want to edit.</li>
+              <li>Here are your layers are listed. You can create or delete layers using the provided buttons.</li>
+              <li>Click on a key to edit the bindings. You can read more about these in the Trigger and Bind section.</li>
+              <li>When you are done editing, save your changes.</li>
+            </ol>
+          </>),
+      },
     ],
   },
 
@@ -128,15 +159,37 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       {
         id: 'what-is-trigger',
         heading: 'What is a Trigger',
-        body: <p>Triggers are device events (key press, mouse button, etc.) that fire binds.</p>,
+        body: <p>Triggers are device events (usually a key press) that activate binds.
+          You can think of this as what you need to do to activate your bind.
+          There are several kinds of triggers that you can choose from.
+          You can even have multiple triggers per key!
+        </p>,
+      },
+      {
+        id: 'types-of-triggers',
+        heading: 'Types of Triggers',
+        body: (
+          <>
+          <p>
+            There are several types of triggers that you can choose from.
+            Using multiple kinds of triggers really expands the customization options.
+            Here are the types of triggers that you can choose from:
+          </p>
+          <ol className="list-decimal ml-6">
+              <li>Tap: This is the most basic trigger. Tap this key once and it will activate your bind is.</li>
+              <li>Double Tap: Tapping this key twice will activate your bind. These are on a timer, if you are too slow the bind you want won't activate.</li>
+              <li>Hold: Hold this key down to activate your bind. These are on a timer, if you are too slow the bind you want won't activate.</li>
+              <li>TODO: Finish this section</li>
+            </ol>
+            </>
+        ),
       },
       {
         id: 'config-trigger',
         heading: 'Configuring a Trigger',
         body: (
           <p>
-            When creating a bind, pick the trigger type, set modifiers and optional conditions,
-            then test it in the preview area.
+            TODO: Finish this section
           </p>
         ),
       },
@@ -149,16 +202,14 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       {
         id: 'what-is-bind',
         heading: 'What is a Bind',
-        body: <p>Binds connect a trigger to an action (command, macro, sequence).</p>,
+        body: <p>TODO: Finish this section</p>,
       },
       {
         id: 'create-bind',
         heading: 'Creating a Bind',
         body: (
           <ol className="list-decimal ml-6">
-            <li>Select a trigger.</li>
-            <li>Choose an action.</li>
-            <li>Adjust parameters and save.</li>
+            <li>TODO: Finish this section</li>
           </ol>
         ),
       },
@@ -171,7 +222,7 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       {
         id: 'layer-navigation',
         heading: 'Layer Navigation',
-        body: <p>create layer hub</p>,
+        body: <p>create layer hub. TODO: Finish this section</p>,
       }
     ],
   },
