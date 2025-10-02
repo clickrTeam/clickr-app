@@ -27,19 +27,25 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps) => {
         <div className="text-foreground font-bold text-xl">Clickr</div>
 
         {/* Navigation Links */}
-        {navLinks.map((link) => (
-          <Link
-            key={link.name}
-            to={link.path}
-            className={cn(
-              'font-medium transition-colors hover:text-cyan-600 flex items-center gap-2',
-              location.pathname === link.path ? 'text-white' : 'text-foreground/80'
-            )}
-          >
-            <link.icon size={18} />
-            {link.name}
-          </Link>
-        ))}
+        {navLinks.map((link) => {
+          const isActive = link.name === 'Help' 
+            ? location.pathname.startsWith('/help')
+            : location.pathname === link.path
+          
+          return (
+            <Link
+              key={link.name}
+              to={link.path}
+              className={cn(
+                'font-medium transition-colors hover:text-cyan-600 flex items-center gap-2',
+                isActive ? 'text-white' : 'text-foreground/80'
+              )}
+            >
+              <link.icon size={18} />
+              {link.name}
+            </Link>
+          )
+        })}
 
         {/* Auth section */}
         <div>

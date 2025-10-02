@@ -49,19 +49,17 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
         heading: 'Getting Started',
         body: (
           <>
-          <p>
-            You can get stared with Clickr by following these steps:
-          </p>
-          <ol className="list-decimal ml-6">
+            <p>You can get stared with Clickr by following these steps:</p>
+            <ol className="list-decimal ml-6">
               <li>Create a new Profile or download one from the website.</li>
               <li>Edit the Profile and change the Layer(s)</li>
               <li>Save your changes.</li>
               <li>Activate your Profile!</li>
             </ol>
           </>
-        ),
-      },
-    ],
+        )
+      }
+    ]
   },
 
   profile: {
@@ -72,10 +70,10 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
         heading: 'What is a Profile?',
         body: (
           <p>
-            A Profile is a collection of Layers. The simplest way to think of a Profile is that it is
-            person-specific. For example, if John and Jane both used the same computer, there would be
-            a profile for John, and one for Jane. In the profile, each person will customize their keyboard
-            experience to best suit them.
+            A Profile is a collection of Layers. The simplest way to think of a Profile is that it
+            is person-specific. For example, if John and Jane both used the same computer, there
+            would be a profile for John, and one for Jane. In the profile, each person will
+            customize their keyboard experience to best suit them.
           </p>
         ),
       },
@@ -117,24 +115,29 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       {
         id: 'what-is-layer',
         heading: 'What is a Layer?',
-        body: (<p>A Layer is a customizable keyboard layout made up of the key bindings
-            that you create. Each layer is associated with the Profile that creates it.
-            A common use of a Layer is to be task specific. For example, you could create
-            a Layer for when you use a Web Browser, and map buttons to "Forward", "Back", etc.
-            Another common use is to have a Layer dedicated to a specific keyboard layout, like
-            DVORAK or COLEMAK.
-        </p>),
+        body: (
+          <p>
+            A Layer is a customizable keyboard layout made up of the key bindings that you create.
+            Each layer is associated with the Profile that creates it. A common use of a Layer is to
+            be task specific. For example, you could create a Layer for when you use a Web Browser,
+            and map buttons to "Forward", "Back", etc. Another common use is to have a Layer
+            dedicated to a specific keyboard layout, like DVORAK or COLEMAK.
+          </p>
+        )
       },
       {
         id: 'manage-layers',
         heading: 'Managing Layers',
-        body: (<p>Each Profile can have as many Layers as you want, but always must have
-            at least one. You can switch between Layers whenever you want by setting a bind
-            to "Switch Layer" and activating that bind. It is important to consider how you will
-            navigate your Layers. If you have a button to switch from Layer 1 to Layer 2, but don't
-            have a button to get back, you will be stuck on Layer 2. Make sure you consider navigation
-            when creating your setup.
-        </p>),
+        body: (
+          <p>
+            Each Profile can have as many Layers as you want, but always must have at least one. You
+            can switch between Layers whenever you want by setting a bind to "Switch Layer" and
+            activating that bind. It is important to consider how you will navigate your Layers. If
+            you have a button to switch from Layer 1 to Layer 2, but don't have a button to get
+            back, you will be stuck on Layer 2. Make sure you consider navigation when creating your
+            setup.
+          </p>
+        )
       },
       {
         id: 'edit-layers',
@@ -144,8 +147,14 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
             <ol className="list-decimal ml-6">
               <li>Click on the "Mappings" button on the top of the application.</li>
               <li>Click the "Edit" button on the Profile you want to edit.</li>
-              <li>Here are your layers are listed. You can create or delete layers using the provided buttons.</li>
-              <li>Click on a key to edit the bindings. You can read more about these in the Trigger and Bind section.</li>
+              <li>
+                Here are your layers are listed. You can create or delete layers using the provided
+                buttons.
+              </li>
+              <li>
+                Click on a key to edit the bindings. You can read more about these in the Trigger
+                and Bind section.
+              </li>
               <li>When you are done editing, save your changes.</li>
             </ol>
           </>),
@@ -171,14 +180,23 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
         body: (
           <>
           <p>
-            There are several types of triggers that you can choose from.
-            Using multiple kinds of triggers really expands the customization options.
-            Here are the types of triggers that you can choose from:
+              There are several types of triggers that you can choose from. Using multiple kinds of
+              triggers really expands the customization options. Here are the types of triggers that
+              you can choose from:
           </p>
           <ol className="list-decimal ml-6">
-              <li>Tap: This is the most basic trigger. Tap this key once and it will activate your bind is.</li>
-              <li>Double Tap: Tapping this key twice will activate your bind. These are on a timer, if you are too slow the bind you want won't activate.</li>
-              <li>Hold: Hold this key down to activate your bind. These are on a timer, if you are too slow the bind you want won't activate.</li>
+              <li>
+                Tap: This is the most basic trigger. Tap this key once and it will activate your
+                bind is.
+              </li>
+              <li>
+                Double Tap: Tapping this key twice will activate your bind. These are on a timer, if
+                you are too slow the bind you want won't activate.
+              </li>
+              <li>
+                Hold: Hold this key down to activate your bind. These are on a timer, if you are too
+                slow the bind you want won't activate.
+              </li>
               <li>TODO: Finish this section</li>
             </ol>
             </>
@@ -257,6 +275,9 @@ const Help: React.FC = () => {
   return (
     <div className="h-full w-full flex bg-neutral-50">
       <aside className="w-64 min-w-[200px] border-r border-neutral-200 bg-white p-4 flex flex-col gap-3">
+        <Link to="/" className="block text-sm text-neutral-600 hover:underline pb-2">
+          ← Return to Home
+        </Link>
         <h3 className="text-lg font-semibold">Help</h3>
 
         <nav className="flex flex-col gap-2">
@@ -277,12 +298,6 @@ const Help: React.FC = () => {
             )
           })}
         </nav>
-
-        <div className="mt-auto">
-          <Link to="/" className="block text-sm text-neutral-600 hover:underline">
-            ← Return to Home
-          </Link>
-        </div>
       </aside>
 
       <motion.main
