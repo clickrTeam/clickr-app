@@ -171,15 +171,16 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
         body: (
           <>
           <p>
-            There are several types of triggers that you can choose from.
-            Using multiple kinds of triggers really expands the customization options.
-            Here are the types of triggers that you can choose from:
+            There are several types of Triggers that you can choose from.
+            Using multiple kinds of Triggers really expands the customization options.
+            Here are the types of Triggers that you can choose from:
           </p>
           <ol className="list-decimal ml-6">
               <li>Tap: This is the most basic trigger. Tap this key once and it will activate your bind is.</li>
-              <li>Double Tap: Tapping this key twice will activate your bind. These are on a timer, if you are too slow the bind you want won't activate.</li>
+              <li>Tap Sequence: This is a series of taps that will activate a bind. These are on a timer, if you are too slow the bind you want won't activate.
+                A common use case would be a double or triple tap. For example, you could double tap '1' for '!'.
+              </li>
               <li>Hold: Hold this key down to activate your bind. These are on a timer, if you are too slow the bind you want won't activate.</li>
-              <li>TODO: Finish this section</li>
             </ol>
             </>
         ),
@@ -189,7 +190,9 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
         heading: 'Configuring a Trigger',
         body: (
           <p>
-            TODO: Finish this section
+            To configure a trigger, first navigate to the Profile you want to edit, select edit,
+            then click on the layer you want to modify. Click on the key you want to be your Trigger,
+            and then TODO: FINISH THIS WHEN DIFFERENT TRIGGER LOGIC IS IMPLEMENTED
           </p>
         ),
       },
@@ -202,15 +205,52 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       {
         id: 'what-is-bind',
         heading: 'What is a Bind',
-        body: <p>TODO: Finish this section</p>,
+        body: <p>A Bind is what is activated when you press the key associated with a Trigger.
+          A Bind is always tied to a Trigger. This is what allows full customization of the keyboard.
+          Binds can be as simple as changing one key to another, like Caps Lock to Ctrl for example.
+          They can also be quite complicated.
+        </p>,
+      },
+      {
+        id: 'types-of-binds',
+        heading: 'Types of Binds',
+        body: (
+          <>
+          <p>
+            There are several types of Binds that you can choose from.
+            This is where things can be as simple or complicated as you want.
+            It is recommended to do simpler Binds when you are just starting out.
+            Here are the types of Binds that you can choose from:
+          </p>
+          <ol className="list-decimal ml-6">
+              <li>Tap: This the simplest kind of bind. It will change one key to another.</li>
+              <li>Press: This is specifically a key down. This should be paired with a Release Bind.</li>
+              <li>Release: This is specifically a key up. When paired with a Press you are able to do 2 actions off one 
+                physical key press.
+              </li>
+              <li>Macro: These are Binds that contain other Binds. For example, you could bind a key to
+                be three Taps corresponding to Ctrl + Alt + Del if you were on Windows. 
+                Macro Binds can be quite complicated.
+              </li>
+              <li>Timed Macro: These are Macros with a time delay between each Bind.
+                For example, you could have a one second delay between 'Copy' and 'Paste'.
+              </li>
+              <li>Repeat: This will repeat a single Bind however many times you want with
+                (or without) a time delay between them.
+              </li>
+            </ol>
+            </>
+        ),
       },
       {
         id: 'create-bind',
         heading: 'Creating a Bind',
         body: (
-          <ol className="list-decimal ml-6">
-            <li>TODO: Finish this section</li>
-          </ol>
+          <p>To configure a Bind, first navigate to the Profile you want to edit, select edit,
+            then click on the layer you want to modify. Click on the key you want to be your Trigger,
+            and then type what button you want the Bind to correspond to. You can also use the menu
+            to select an action if it is not a key (for example 'Copy). You can then click on the 
+            Binds at the bottom of the app and change the type of Bind that it is.</p>
         ),
       },
     ],
