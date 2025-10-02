@@ -1,4 +1,4 @@
-import { LogIn, LogOut, Home, Users, Layers } from 'lucide-react'
+import { LogIn, LogOut, Home, Users, Layers, HelpCircle } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
 import { Link, useLocation } from 'react-router-dom'
@@ -16,7 +16,8 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps) => {
 
     { name: 'Mappings', path: '/', icon: Layers },
     { name: 'Community', path: '/community', icon: Users },
-    { name: 'DAEMON', path: '/daemon', icon: Home }
+    { name: 'DAEMON', path: '/daemon', icon: Home },
+    { name: 'Help', path: '/help', icon: HelpCircle }
   ]
 
   return (
@@ -26,19 +27,25 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps) => {
         <div className="text-foreground font-bold text-xl">Clickr</div>
 
         {/* Navigation Links */}
-        {navLinks.map((link) => (
-          <Link
-            key={link.name}
-            to={link.path}
-            className={cn(
-              'font-medium transition-colors hover:text-cyan-600 flex items-center gap-2',
-              location.pathname === link.path ? 'text-white' : 'text-foreground/80'
-            )}
-          >
-            <link.icon size={18} />
-            {link.name}
-          </Link>
-        ))}
+        {navLinks.map((link) => {
+          const isActive = link.name === 'Help' 
+            ? location.pathname.startsWith('/help')
+            : location.pathname === link.path
+          
+          return (
+            <Link
+              key={link.name}
+              to={link.path}
+              className={cn(
+                'font-medium transition-colors hover:text-cyan-600 flex items-center gap-2',
+                isActive ? 'text-white' : 'text-foreground/80'
+              )}
+            >
+              <link.icon size={18} />
+              {link.name}
+            </Link>
+          )
+        })}
 
         {/* Auth section */}
         <div>
