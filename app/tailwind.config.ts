@@ -59,6 +59,7 @@ export default {
         clickr: {
           blue: '#1EAEDB',
           'light-blue': '#33C3F0',
+          'light-blue-90': 'rgb(51 195 240 / 0.9)',
           red: '#FF5252',
           yellow: '#FFD740',
           green: '#4CAF50',
