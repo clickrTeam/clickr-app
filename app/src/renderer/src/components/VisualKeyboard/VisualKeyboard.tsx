@@ -111,7 +111,7 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
   return (
     <Card
       className="p-4 bg-neutral-100 overflow-auto flex flex-row items-start"
-      style={{ position: 'relative' }}
+      style={{ position: 'relative', width: 'fit-content', alignSelf: 'center' }}
     >
       {renderInspectPopover()}
       <div className="flex flex-col">{mainRows.map(renderRow)}</div>
