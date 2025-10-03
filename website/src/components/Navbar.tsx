@@ -50,7 +50,7 @@ const Navbar = () => {
   }, [location.pathname]);
 
   // TODO: Change these to the actual download files
-  const WIN_DOWNLOAD: string = "clickr-1.0.0-setup.exe";
+  const WIN_DOWNLOAD: string = "clickr-windows.exe";
   const MAC_DOWNLOAD: string = "clickr-app-mac.txt";
   const LINUX_DOWNLOAD: string = "clickr.tar.gz";
 
