@@ -21,7 +21,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
   const navigate = useNavigate()
 
-  profileControler.setLayer(selectedLayerIndex) // Hack to keep the active layer on construct
+  profileControler.setLayer(selectedLayerIndex) // Hack to keep the active layer on construct.
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer): void => {
     log.debug('Updating layer at index:', layerIndex)
