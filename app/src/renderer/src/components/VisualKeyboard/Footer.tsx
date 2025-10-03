@@ -23,9 +23,9 @@ function getMacroButtonBg(item: Bind): string {
 
   const downArrow = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' fill-opacity='${arrowOpacity}' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M10 17a1 1 0 01-.707-.293l-5-5a1 1 0 111.414-1.414L9 13.586V4a1 1 0 112 0v9.586l3.293-3.293a1 1 0 111.414 1.414l-5 5A1 1 0 0110 17z' clip-rule='evenodd'/%3E%3C/svg%3E") no-repeat center / contain`;
 
-  if (item.bind_type === BindType.ReleaseKey) {
+  if (item.bind_type === BindType.PressKey) {
     BackgroundImage = downArrow;
-  } else if (item.bind_type === BindType.PressKey) {
+  } else if (item.bind_type === BindType.ReleaseKey) {
     BackgroundImage = upArrow;
   }
 

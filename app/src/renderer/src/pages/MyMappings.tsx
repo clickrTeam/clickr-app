@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Profile } from '../../../models/Profile'
 import log from 'electron-log'
 import { toast } from 'sonner'
@@ -227,8 +227,8 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     return filteredMappings
   }
 
-  const onSave = (profileControler: ProfileController): void => {
-    if (!editedProfileIndex) return
+  const onSave = (_profileControler: ProfileController): void => {
+    if (editedProfileIndex === null) return
     if (activeProfileIndex == editedProfileIndex) {
       window.api.setActiveProfile(editedProfileIndex)
     }

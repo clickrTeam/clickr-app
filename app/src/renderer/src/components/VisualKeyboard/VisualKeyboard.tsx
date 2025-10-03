@@ -6,7 +6,7 @@ import { VisualKeyboardFooter } from './Footer'
 import { Bind, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyTile } from './KeyTile'
 import { buildVisualKeyboardModel, KeyPressInfo, KeyTileModel, VisualKeyboardModel } from './Model'
-import { KeyPress, Trigger } from '../../../../models/Trigger'
+import { Trigger } from '../../../../models/Trigger'
 import { useKeyboardController } from './controler'
 import { ProfileController } from './ProfileControler'
 
