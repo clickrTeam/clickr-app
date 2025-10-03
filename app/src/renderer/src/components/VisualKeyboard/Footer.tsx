@@ -8,7 +8,8 @@ import { ProfileController } from './ProfileControler'
 import { Trigger } from '../../../../models/Trigger'
 import log from 'electron-log'
 
-const typeOptions: { value: BindType; label: string }[] = [
+const typeOptions: { value: BindType | undefined; label: string }[] = [
+  { value: undefined, label: 'X' },
   { value: BindType.TapKey, label: 'Tap' },
   { value: BindType.PressKey, label: 'Press' },
   { value: BindType.ReleaseKey, label: 'Release' }
@@ -33,7 +34,8 @@ function getMacroButtonBg(item: Bind): string {
 }
 
 
-function getDropdownBg(item: Bind, opt: { value: BindType }): string | undefined {
+function getDropdownBg(item: Bind, opt: { value: BindType | undefined }): string | undefined {
+  if (!opt.value) return ''
   return item.bind_type === opt.value ? `${bindTypeColors[opt.value]}22` : undefined
 }
 
@@ -67,7 +69,15 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     return null
   }
 
-  function handleTypeChange(idx: number, type: BindType): void {
+  function handleTypeChange(idx: number, type: BindType | undefined): void {
+    if (type === undefined) {
+      // If type is undefined, we can remove the macro item
+      const newMacro = macro.filter((_, i) => i !== idx)
+      onMacroChange(newMacro)
+      setOpenDropdown(null)
+      return
+    }
+
     const existing = macro[idx]
     let value: string
     if (
