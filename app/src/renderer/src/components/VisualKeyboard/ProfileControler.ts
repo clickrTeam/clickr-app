@@ -80,6 +80,10 @@ export class ProfileController {
   }
 
   getActiveRemappings(): Map<Trigger, Bind> {
+    if (!this.activeLayer) {
+      log.warn('No active layer found. Returning empty remappings.');
+      return new Map();
+    }
     return this.activeLayer.remappings;
   }
 

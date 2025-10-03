@@ -119,6 +119,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
             <Button size="sm" onClick={handleAddLayer}>
               Add Layer
             </Button>
+            <Button size="sm" onClick={() => handleDuplicateLayer(selectedLayerIndex)}>Duplicate Layer</Button>
             <Button
               variant="destructive"
               size="sm"
