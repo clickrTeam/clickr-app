@@ -61,6 +61,22 @@ export class Profile {
     //TODO: Add support for cloning layer 0 when you want to create a new layer.
   }
 
+  duplicateLayer(layerNumber: number) {
+    const index = this.layers.findIndex((layer) => layer.layer_number === layerNumber)
+    if (index === -1) {
+      log.warn(`Attempted to duplicate layer ${layerNumber}, but it does not exist.`)
+      throw new Error('Layer not found.')
+    }
+
+    const layerToDuplicate = this.layers[index]
+    const newLayer = new Layer(layerToDuplicate.layer_name + ' Copy', this.layer_count)
+    newLayer.remappings = new Map(layerToDuplicate.remappings)
+    this.layers.push(newLayer)
+    this.layer_count += 1
+
+    log.info(`Layer ${layerNumber} duplicated as ${newLayer.layer_name}.`)
+  }
+
   /**
    * Removes a layer from the profile, effectively deleting it.
    * @param layer_number The number associated with the layer to be removed. layer_number is unique and as such is used instead of layer_name

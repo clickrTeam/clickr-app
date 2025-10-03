@@ -40,6 +40,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   useEffect(() => {
     profileControler.profile = localProfile
     profileControler.setLayer(selectedLayerIndex)
+    profileControler.onSave()
   }, [localProfile, selectedLayerIndex])
 
   const confirmDeleteLayer = (layerNumber: number): void => {
@@ -71,16 +72,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   const handleDuplicateLayer = (layerNumber: number): void => {
     log.debug('Duplicating layer at index:', layerNumber)
     const prof = Profile.fromJSON(localProfile.toJSON())
-    const layerToDuplicate = prof.layers[layerNumber]
-    if (!layerToDuplicate) {
-      log.error('Layer to duplicate not found at index:', layerNumber)
-      toast.error('Layer not found.')
-      return
-    }
-
-    prof.addLayer(layerToDuplicate.layer_name + ' Copy')
-    const newLayer = prof.layers[prof.layers.length - 1]
-    newLayer.remappings = new Map(layerToDuplicate.remappings)
+    prof.duplicateLayer(layerNumber)
     setSelectedLayerIndex(prof.layers.length - 1)
     setLocalProfile(prof)
   }
@@ -92,18 +84,16 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{localProfile.profile_name}</h2>
         <div className="space-x-2">
-          <Button variant="outline" onClick={onBack}>
+          <Button variant="outline" onClick={() => { profileControler.onSave(); onBack(); }}>
             Back
           </Button>
           <Button onClick={toggleEditor} className="mb-4">
             {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
           </Button>
-          <Button onClick={profileControler.onSave}>Save Changes</Button>
         </div>
       </div>
 
       <Tabs
-        // defaultValue="0"
         value={selectedLayerIndex.toString()}
         onValueChange={(val) => setSelectedLayerIndex(Number(val))}
       >
