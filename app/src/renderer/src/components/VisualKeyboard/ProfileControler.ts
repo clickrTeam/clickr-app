@@ -3,7 +3,6 @@ import { Bind, Macro_Bind } from '../../../../models/Bind';
 import { Layer } from '../../../../models/Layer';
 import { Profile } from '../../../../models/Profile';
 import { Trigger, KeyPress } from '../../../../models/Trigger';
-import { c } from 'framer-motion/dist/types.d-Cjd591yU';
 
 
 
@@ -13,11 +12,11 @@ export class ProfileController {
 
   constructor(public profile: Profile, public editedProfileIndex: number, public onUpSave: (profileControler: ProfileController) => void) {
     this.activeLayer = this.profile.layers[0];
-    log.info(`ProfileController initialized for profile: ${this.profile.profile_name}`);
+    log.debug(`ProfileController initialized for profile: ${this.profile.profile_name}`);
   }
 
   onSave(): void {
-    log.info(`Profile has been updated and saved. Updated profile: ${this.profile.profile_name}`)
+    log.verbose(`Profile has been updated and saved. Updated profile: ${this.profile.profile_name}`)
     window.api.updateProfile(this.editedProfileIndex, this.profile.toJSON())
     this.onUpSave(this);
   }
@@ -50,15 +49,15 @@ export class ProfileController {
   }
 
   setLayer(index: number): void {
-    log.verbose('Setting active layer to index:', index);
+    log.debug('Setting active layer to index:', index);
     this.activeLayer = this.profile.layers[index];
   }
 
   setSelectedKey(selectedKey: string | null, setBind: (bind: Bind[]) => void, setTrigger: (trigger: Trigger | null) => void): void {
-    log.verbose('Setting selected key:', selectedKey);
+    log.silly('Setting selected key:', selectedKey);
 
     if (!selectedKey) {
-      log.verbose('No key selected, clearing binds and trigger.');
+      log.silly('No key selected, clearing binds and trigger.');
       setTrigger(null);
       setBind([]);
       return;

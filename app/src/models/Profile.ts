@@ -45,7 +45,7 @@ export class Profile {
       this.OS = 'Error: Unknown OS'
       log.warn(`Unknown OS when creating profile ${this.profile_name}`)
     }
-    log.info(`Profile "${this.profile_name}" created with initial layer "layer 0". OS: ${this.OS}`)
+    log.silly(`Profile "${this.profile_name}" created with initial layer "layer 0". OS: ${this.OS}`)
   }
 
   /**
@@ -57,7 +57,7 @@ export class Profile {
     this.layers.push(lyr)
     this.layer_count += 1
 
-    log.info(`Layer ${layer_name} with number ${this.layer_count - 1} created.`)
+    log.silly(`Layer ${layer_name} with number ${this.layer_count - 1} created.`)
     //TODO: Add support for cloning layer 0 when you want to create a new layer.
   }
 
@@ -159,7 +159,7 @@ export class Profile {
    * Serializes the Profile instance to a JSON-compatible object.
    */
   toJSON(): object {
-    log.verbose(`>>>>> Serialization of profile "${this.profile_name}" started.`)
+    log.silly(`>>>>> Serialization of profile "${this.profile_name}" started.`)
     return {
       profile_name: this.profile_name,
       layer_count: this.layer_count,
@@ -205,7 +205,7 @@ export class Profile {
       log.silly(`Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`)
     }
 
-    log.verbose(
+    log.silly(
       `<<<<<< Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
     )
     return profile

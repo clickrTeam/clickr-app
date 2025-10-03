@@ -214,6 +214,7 @@ export function registerApiHandlers(): void {
       // Try to verify token with backend
       try {
         await api.get('authenticated/')
+        log.debug('User is authenticated')
         return {
           isAuthenticated: true,
           username: tokenData.username

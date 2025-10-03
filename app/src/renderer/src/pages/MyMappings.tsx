@@ -55,7 +55,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
 
   function updateProfiles(): void {
     window.api.getProfiles().then((profiles: object[]) => {
-      log.info('Got profiles:', profiles)
+      log.silly('Got profiles:', profiles)
       setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
     })
 
