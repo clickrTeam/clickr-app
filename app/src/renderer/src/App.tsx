@@ -9,6 +9,8 @@ import Community from './pages/community'
 import Daemon from './pages/deamon'
 import MyMappings from './pages/MyMappings'
 import MappingDetail from './pages/mappingDetails'
+import Training from './pages/Training'
+import Help from './pages/help'
 
 function App(): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
@@ -70,6 +72,8 @@ function App(): JSX.Element {
           <Route path="/mapping/:mappingId" element={<MappingDetail />} />
           <Route path="/daemon" element={<Daemon />} />
           <Route path="/mappings" element={<MyMappings isAuthenticated={isAuthenticated} username={username} />} />
+          <Route path="/training" element={<Training />} />
+          <Route path="/help/*" element={<Help />} />
         </Routes>
       </div>
 

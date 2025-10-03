@@ -8,6 +8,7 @@ import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 import { LayerComponent } from './LayerComponent'
 import { ProfileController } from './VisualKeyboard/ProfileControler'
 import log from 'electron-log'
+import { useNavigate } from 'react-router-dom'
 
 interface ProfileEditorProps {
   profileControler: ProfileController
@@ -18,6 +19,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   const [localProfile, setLocalProfile] = useState(profileControler.getProfile())
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
+  const navigate = useNavigate()
 
   profileControler.setLayer(selectedLayerIndex) // Hack to keep the active layer on construct
 
@@ -81,14 +83,27 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{localProfile.profile_name}</h2>
         <div className="space-x-2">
           <Button variant="outline" onClick={() => { profileControler.onSave(); onBack(); }}>
             Back
           </Button>
-          <Button onClick={toggleEditor} className="mb-4">
+          <Button onClick={toggleEditor}>
             {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
+          </Button>
+          <Button
+            onClick={() =>
+              navigate('/training', {
+                state: {
+                  profile: localProfile,
+                  layer_index: selectedLayerIndex
+                }
+              })
+            }
+          >
+            Start Training
           </Button>
         </div>
       </div>
