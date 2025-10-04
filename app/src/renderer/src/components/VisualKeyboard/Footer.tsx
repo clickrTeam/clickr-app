@@ -1,8 +1,32 @@
 import React, { useState } from 'react'
 import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { keys } from '../../../../models/Keys'
+import { detectOS } from '../../../../models/Profile'
 import { bindTypeColors } from './Colors'
 import './Footer.css'
+
+import {
+  Letters,
+  Digits,
+  Symbols,
+  Navigation,
+  Function,
+  ShortcutAction,
+  os_keys
+} from '../../../../models/Keys'
+
+let current_OS = detectOS()
+
+const keyGroups: Record<string, string[]> = {
+  Letters: Object.values(Letters),
+  Digits: Object.values(Digits),
+  Symbols: Object.values(Symbols),
+  Navigation: Object.values(Navigation),
+  Function: Object.values(Function),
+  Shortcuts: Object.values(ShortcutAction),
+  [current_OS + ' Keys']: Object.values(os_keys)
+}
+
 
 const typeOptions: { value: BindType; label: string }[] = [
   { value: BindType.TapKey, label: 'Tap' },
@@ -38,6 +62,8 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
 }): JSX.Element | null => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
   const [showKeySelector, setShowKeySelector] = useState(false)
+  const [showKeyModal, setShowKeyModal] = useState(false)
+const [activeCategory, setActiveCategory] = useState<string | null>(null)
   if (!selectedKey) return null
 
   function handleTypeChange(idx: number, type: BindType): void {
@@ -112,34 +138,18 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         )}
         <span style={{ position: 'relative', display: 'inline-block' }}>
           <button
-            className="vk-footer-macro-btn"
-            style={{
-              fontWeight: 'bold',
-              fontSize: 18,
-              padding: '0 0.7rem',
-              marginLeft: macro.length > 0 ? 8 : 0
-            }}
-            onClick={() => setShowKeySelector((v) => !v)}
-          >
-            +
-          </button>
-          {showKeySelector && (
-            <div
-              className="vk-footer-macro-dropdown"
-              style={{ left: 0, minWidth: 160, maxHeight: 200, overflowY: 'auto' }}
-            >
-              {keys.map((key) => (
-                <button
-                  key={key}
-                  className="vk-footer-macro-dropdown-btn"
-                  style={{ width: '100%' }}
-                  onClick={() => handleAddKeyToMacro(key)}
-                >
-                  {key}
-                </button>
-              ))}
-            </div>
-          )}
+  className="vk-footer-macro-btn"
+  style={{
+    fontWeight: 'bold',
+    fontSize: 18,
+    padding: '0 0.7rem',
+    marginLeft: macro.length > 0 ? 8 : 0
+  }}
+  onClick={() => setShowKeyModal(true)}
+>
+  +
+</button>
+
         </span>
       </div>
       <div className="vk-footer-row">
@@ -154,6 +164,44 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
           Close
         </button>
       </div>
+      {showKeyModal && (
+  <div className="vk-key-modal">
+    <div className="vk-key-modal-overlay" onClick={() => setShowKeyModal(false)} />
+    <div className="vk-key-modal-content">
+      <h3>Select Key Category</h3>
+      <div className="vk-key-modal-categories">
+        {Object.keys(keyGroups).map((cat) => (
+          <button
+            key={cat}
+            className={`vk-key-modal-category-btn${activeCategory === cat ? ' active' : ''}`}
+            onClick={() => setActiveCategory(cat)}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {activeCategory && (
+        <div className="vk-key-modal-dropdown">
+          {keyGroups[activeCategory].map((key) => (
+            <button
+              key={key}
+              className="vk-footer-macro-dropdown-btn"
+              style={{ width: '100%' }}
+              onClick={() => {
+                handleAddKeyToMacro(key)
+                setShowKeyModal(false)
+                setActiveCategory(null)
+              }}
+            >
+              {key}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
     </div>
   )
 }
