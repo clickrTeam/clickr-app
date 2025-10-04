@@ -33,13 +33,13 @@ class TokenStorage {
 
       const tokenJson = JSON.stringify(tokenData)
       const encryptedData = safeStorage.encryptString(tokenJson)
-      
+
       writeFileSync(this.tokenFilePath, encryptedData)
-      
+
       // Update cache
       this.tokenCache = tokenData
       this.cacheExpiry = Date.now() + this.CACHE_DURATION
-      
+
       log.info('Tokens stored securely')
     } catch (error) {
       log.error('Failed to store tokens:', error)
@@ -84,9 +84,9 @@ class TokenStorage {
       this.tokenCache = tokenData
       this.cacheExpiry = Date.now() + this.CACHE_DURATION
 
-      const daysUntilExpiry = tokenData.expires_at ? 
-        Math.ceil((tokenData.expires_at - Date.now()) / (24 * 60 * 60 * 1000)) : 
-        'unknown'
+      const daysUntilExpiry = tokenData.expires_at
+        ? Math.ceil((tokenData.expires_at - Date.now()) / (24 * 60 * 60 * 1000))
+        : 'unknown'
       log.info(`Tokens retrieved successfully. Days until expiry: ${daysUntilExpiry}`)
       return tokenData
     } catch (error) {
@@ -142,7 +142,7 @@ class TokenStorage {
       if (refreshToken) {
         existingTokens.refresh_token = refreshToken
         // Reset expiry to 30 days for extended tokens
-        existingTokens.expires_at = Date.now() + (30 * 24 * 60 * 60 * 1000)
+        existingTokens.expires_at = Date.now() + 30 * 24 * 60 * 60 * 1000
       }
       await this.storeTokens(existingTokens)
     }

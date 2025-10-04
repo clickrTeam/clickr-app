@@ -23,18 +23,20 @@ export function registerProfileHandlers(): void {
   ipcMain.handle('set-active-profile', (_event, index: number) => {
     log.info(`IPC: Setting active profile to index: ${index}`)
     const response = sendActiveProfile(profileStore.getProfiles()[index])
-    response.then((res) => {
-      if (res.error !== undefined) {
+    response
+      .then((res) => {
+        if (res.error !== undefined) {
+          profileStore.setActiveByIndex(undefined)
+          log.error('IPC: Failed to set active profile in daemon:', res.error)
+        } else {
+          profileStore.setActiveByIndex(index)
+          log.info('IPC: Active profile set in daemon successfully')
+        }
+      })
+      .catch((err) => {
         profileStore.setActiveByIndex(undefined)
-        log.error('IPC: Failed to set active profile in daemon:', res.error)
-      } else {
-        profileStore.setActiveByIndex(index)
-        log.info('IPC: Active profile set in daemon successfully')
-      }
-    }).catch((err) => {
-      profileStore.setActiveByIndex(undefined)
-      log.error('IPC: Error communicating with daemon to set active profile:', err)
-    })
+        log.error('IPC: Error communicating with daemon to set active profile:', err)
+      })
   })
 
   ipcMain.handle('update-profile', (_event, index: number, profileData) => {
