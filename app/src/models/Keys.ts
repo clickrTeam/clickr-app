@@ -1,6 +1,5 @@
 import log from 'electron-log'
 import { detectOS } from './Profile'
-import { datetimeRegex } from 'zod'
 export enum Letters {
   A = 'A',
   B = 'B',

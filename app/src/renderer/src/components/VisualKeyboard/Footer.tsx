@@ -66,7 +66,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   onClose
 }): JSX.Element | null => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
-  const [showKeySelector, setShowKeySelector] = useState(false)
   const [showKeyModal, setShowKeyModal] = useState(false)
 const [activeCategory, setActiveCategory] = useState<string | null>(null)
   if (!selectedKey) return null
@@ -100,7 +99,6 @@ const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
   function handleAddKeyToMacro(key: string): void {
     onMacroChange([...macro, new TapKey(key)])
-    setShowKeySelector(false)
   }
 
   return (
