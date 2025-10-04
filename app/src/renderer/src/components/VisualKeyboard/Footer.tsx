@@ -16,21 +16,7 @@ const typeOptions: { value: BindType | undefined; label: string }[] = [
 ]
 
 function getMacroButtonBg(item: Bind): string {
-  let BackgroundImage = '';
-
-  const arrowOpacity = '12%';
-  const upArrow = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' fill-opacity='${arrowOpacity}' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M10 3a1 1 0 01.707.293l5 5a1 1 0 01-1.414 1.414L11 6.414V16a1 1 0 11-2 0V6.414L5.707 9.707A1 1 0 114.293 8.293l5-5A1 1 0 0110 3z' clip-rule='evenodd'/%3E%3C/svg%3E") no-repeat center / contain`;
-
-  const downArrow = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' fill-opacity='${arrowOpacity}' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M10 17a1 1 0 01-.707-.293l-5-5a1 1 0 111.414-1.414L9 13.586V4a1 1 0 112 0v9.586l3.293-3.293a1 1 0 111.414 1.414l-5 5A1 1 0 0110 17z' clip-rule='evenodd'/%3E%3C/svg%3E") no-repeat center / contain`;
-
-  if (item.bind_type === BindType.PressKey) {
-    BackgroundImage = downArrow;
-  } else if (item.bind_type === BindType.ReleaseKey) {
-    BackgroundImage = upArrow;
-  }
-
-  // Combine background color (with alpha) and image
-  return `${bindTypeColors[item.bind_type as BindType]}80 ${BackgroundImage}`;
+  return `${bindTypeColors[item.bind_type as BindType]}80`
 }
 
 
