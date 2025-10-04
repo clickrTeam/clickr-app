@@ -82,7 +82,10 @@ export const profileStore = {
 
   setProfileByIndex(index: number, newProfile: Profile): void {
     const data = getProfiles()
-    if (index < 0 || index >= data.profiles.length) return
+    if (index < 0 || index >= data.profiles.length) {
+      log.error(`Attempted to update profile at invalid index: ${index} on length: ${data.profiles.length}`)
+      return
+    }
 
     data.profiles[index] = newProfile
     writeProfiles()

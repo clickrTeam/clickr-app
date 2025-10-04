@@ -16,7 +16,7 @@ export class ProfileController {
   }
 
   onSave(): void {
-    log.verbose(`Profile has been updated and saved. Updated profile: ${this.profile.profile_name}`)
+    log.debug(`Profile is being updated and saved. Updated profile: ${this.profile.profile_name}`)
     window.api.updateProfile(this.editedProfileIndex, this.profile.toJSON())
     this.onUpSave(this);
   }
@@ -49,7 +49,7 @@ export class ProfileController {
   }
 
   setLayer(index: number): void {
-    log.debug('Setting active layer to index:', index);
+    log.silly('Setting active layer to index:', index);
     this.activeLayer = this.profile.layers[index];
   }
 
