@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
-import { keys } from '../../../../models/Keys'
 import { detectOS } from '../../../../models/Profile'
 import { bindTypeColors } from './Colors'
 import './Footer.css'
@@ -12,6 +11,7 @@ import {
   Navigation,
   Function,
   ShortcutAction,
+  Numpad,
   os_keys
 } from '../../../../models/Keys'
 
@@ -24,6 +24,7 @@ const keyGroups: Record<string, string[]> = {
   Navigation: Object.values(Navigation),
   Function: Object.values(Function),
   Shortcuts: Object.values(ShortcutAction),
+  Numpad: Object.values(Numpad),
   [current_OS + ' Keys']: Object.values(os_keys)
 }
 
@@ -187,7 +188,6 @@ const [activeCategory, setActiveCategory] = useState<string | null>(null)
             <button
               key={key}
               className="vk-footer-macro-dropdown-btn"
-              style={{ width: '100%' }}
               onClick={() => {
                 handleAddKeyToMacro(key)
                 setShowKeyModal(false)
