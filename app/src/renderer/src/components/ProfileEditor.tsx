@@ -42,7 +42,6 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   useEffect(() => {
     profileControler.profile = localProfile
     profileControler.setLayer(selectedLayerIndex)
-    profileControler.onSave()
   }, [localProfile, selectedLayerIndex])
 
   const confirmDeleteLayer = (layerNumber: number): void => {
