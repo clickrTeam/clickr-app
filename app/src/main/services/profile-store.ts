@@ -76,7 +76,9 @@ export const profileStore = {
       data.activeProfileIndex = index
       writeProfiles()
     } else {
-      log.error(`Attempted to set active profile to invalid index: ${index} on length: ${data.profiles.length}`)
+      log.error(
+        `Attempted to set active profile to invalid index: ${index} on length: ${data.profiles.length}`
+      )
     }
   },
 

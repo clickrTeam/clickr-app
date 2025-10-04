@@ -59,19 +59,24 @@ function App(): JSX.Element {
     navigate('/')
   }
 
-
   return (
     <div className="flex flex-col min-h-screen bg-white w-full h-full">
       <Navbar isAuthenticated={isAuthenticated} username={username} logout={logout} />
 
       <div className="w-full px-4 flex-grow py-8">
         <Routes>
-          <Route path="/" element={<MyMappings isAuthenticated={isAuthenticated} username={username} />} />
+          <Route
+            path="/"
+            element={<MyMappings isAuthenticated={isAuthenticated} username={username} />}
+          />
           <Route path="/login" element={<Login login={login} />} />
           <Route path="/community" element={<Community />} />
           <Route path="/mapping/:mappingId" element={<MappingDetail />} />
           <Route path="/daemon" element={<Daemon />} />
-          <Route path="/mappings" element={<MyMappings isAuthenticated={isAuthenticated} username={username} />} />
+          <Route
+            path="/mappings"
+            element={<MyMappings isAuthenticated={isAuthenticated} username={username} />}
+          />
           <Route path="/training" element={<Training />} />
           <Route path="/help/*" element={<Help />} />
         </Routes>
