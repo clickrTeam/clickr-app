@@ -7,11 +7,13 @@ import './Footer.css'
 import {
   Letters,
   Digits,
+  Modifier,
   Symbols,
   Navigation,
   Function,
   ShortcutAction,
   Numpad,
+  Misc,
   os_keys
 } from '../../../../models/Keys'
 
@@ -20,11 +22,13 @@ let current_OS = detectOS()
 const keyGroups: Record<string, string[]> = {
   Letters: Object.values(Letters),
   Digits: Object.values(Digits),
+  Modifier: Object.values(Modifier),
   Symbols: Object.values(Symbols),
   Navigation: Object.values(Navigation),
   Function: Object.values(Function),
   Shortcuts: Object.values(ShortcutAction),
   Numpad: Object.values(Numpad),
+  Misc: Object.values(Misc),
   [current_OS + ' Keys']: Object.values(os_keys)
 }
 
