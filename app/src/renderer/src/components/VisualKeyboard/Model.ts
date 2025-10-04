@@ -1,6 +1,12 @@
 import { Bind } from '../../../../models/Bind'
 import { Trigger } from '../../../../models/Trigger'
 import { getKeyClass } from './Colors'
+import { ProfileController } from './ProfileControler'
+
+export interface KeyPressInfo {
+  key: string
+  isDown: boolean
+}
 
 export interface KeyTileModel {
   key: string
@@ -21,14 +27,14 @@ export interface VisualKeyboardModel {
 
 export function buildVisualKeyboardModel(
   allKeys: Array<{ key: string; width?: number; gapAfter?: boolean }>,
-  remappings: Map<Trigger, Bind>,
+  profileController: ProfileController,
   pressedKeys: string[] = [],
   selectedKey: string | null = null
 ): VisualKeyboardModel {
   const keyModels: Record<string, KeyTileModel> = {}
   const unmapped: Array<[Trigger, Bind]> = []
   const keyMap: Record<string, Array<[Trigger, Bind]>> = {}
-  for (const [trigger, bind] of remappings.entries()) {
+  for (const [trigger, bind] of profileController.getActiveRemappings().entries()) {
     const triggerKey = (trigger as { value?: string }).value
     if (typeof triggerKey === 'string') {
       if (!keyMap[triggerKey]) keyMap[triggerKey] = []

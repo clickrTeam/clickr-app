@@ -24,25 +24,26 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
         heading: 'What is Clickr',
         body: (
           <p>
-            Clickr is a cross platform keyboard remapper. With Clickr, you can change any key on your keyboard
-            to another key, shortcut, or combination of keys. You can do this whether you're on Windows, Mac,
-            or Linux. Clickr is designed to be simple to use, so anyone can have the freedom to use their keyboard
-            in a way that works best for them.
+            Clickr is a cross platform keyboard remapper. With Clickr, you can change any key on
+            your keyboard to another key, shortcut, or combination of keys. You can do this whether
+            you're on Windows, Mac, or Linux. Clickr is designed to be simple to use, so anyone can
+            have the freedom to use their keyboard in a way that works best for them.
           </p>
-        ),
+        )
       },
       {
         id: 'key-features',
         heading: 'Key Features',
         body: (
           <p>
-            Clickr is fully cross platform compatible, this means that you can create a profile on your Mac and
-            load it on your Windows PC, and it will just work! You can also download other Profiles from our website
-            and modify those to your liking. The actual remapping process is done through another application called 
-            'Keybinder'. The Keybinder runs silently in the background, so you won't have to have the Clickr application
-            open in order to remap your keys.
+            Clickr is fully cross platform compatible, this means that you can create a profile on
+            your Mac and load it on your Windows PC, and it will just work! You can also download
+            other Profiles from our website and modify those to your liking. The actual remapping
+            process is done through another application called 'Keybinder'. The Keybinder runs
+            silently in the background, so you won't have to have the Clickr application open in
+            order to remap your keys.
           </p>
-        ),
+        )
       },
       {
         id: 'getting-started',
@@ -75,7 +76,7 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
             would be a profile for John, and one for Jane. In the profile, each person will
             customize their keyboard experience to best suit them.
           </p>
-        ),
+        )
       },
       {
         id: 'create-profile',
@@ -90,7 +91,7 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
               <li>Your new Profile has been created!</li>
             </ol>
           </>
-        ),
+        )
       },
       {
         id: 'edit-profile',
@@ -104,9 +105,9 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
               <li>You are now editing your Profile! See the Layers help page for more details.</li>
             </ol>
           </>
-        ),
-      },
-    ],
+        )
+      }
+    ]
   },
 
   layer: {
@@ -142,7 +143,8 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       {
         id: 'edit-layers',
         heading: 'Editing a Layer',
-        body: (<>
+        body: (
+          <>
             <p>To edit a layer:</p>
             <ol className="list-decimal ml-6">
               <li>Click on the "Mappings" button on the top of the application.</li>
@@ -157,9 +159,10 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
               </li>
               <li>When you are done editing, save your changes.</li>
             </ol>
-          </>),
-      },
-    ],
+          </>
+        )
+      }
+    ]
   },
 
   trigger: {
@@ -168,31 +171,41 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       {
         id: 'what-is-trigger',
         heading: 'What is a Trigger',
-        body: <p>Triggers are device events (usually a key press) that activate binds.
-          You can think of this as what you need to do to activate your bind.
-          There are several kinds of triggers that you can choose from.
-          You can even have multiple triggers per key!
-        </p>,
+        body: (
+          <p>
+            Triggers are device events (usually a key press) that activate binds. You can think of
+            this as what you need to do to activate your bind. There are several kinds of triggers
+            that you can choose from. You can even have multiple triggers per key!
+          </p>
+        )
       },
       {
         id: 'types-of-triggers',
         heading: 'Types of Triggers',
         body: (
           <>
-          <p>
-            There are several types of Triggers that you can choose from.
-            Using multiple kinds of Triggers really expands the customization options.
-            Here are the types of Triggers that you can choose from:
-          </p>
-          <ol className="list-decimal ml-6">
-              <li>Tap: This is the most basic trigger. Tap this key once and it will activate your bind is.</li>
-              <li>Tap Sequence: This is a series of taps that will activate a bind. These are on a timer, if you are too slow the bind you want won't activate.
-                A common use case would be a double or triple tap. For example, you could double tap '1' for '!'.
+            <p>
+              There are several types of Triggers that you can choose from. Using multiple kinds of
+              Triggers really expands the customization options. Here are the types of Triggers that
+              you can choose from:
+            </p>
+            <ol className="list-decimal ml-6">
+              <li>
+                Tap: This is the most basic trigger. Tap this key once and it will activate your
+                bind is.
               </li>
-              <li>Hold: Hold this key down to activate your bind. These are on a timer, if you are too slow the bind you want won't activate.</li>
+              <li>
+                Tap Sequence: This is a series of taps that will activate a bind. These are on a
+                timer, if you are too slow the bind you want won't activate. A common use case would
+                be a double or triple tap. For example, you could double tap '1' for '!'.
+              </li>
+              <li>
+                Hold: Hold this key down to activate your bind. These are on a timer, if you are too
+                slow the bind you want won't activate.
+              </li>
             </ol>
-            </>
-        ),
+          </>
+        )
       },
       {
         id: 'config-trigger',
@@ -200,12 +213,12 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
         body: (
           <p>
             To configure a trigger, first navigate to the Profile you want to edit, select edit,
-            then click on the layer you want to modify. Click on the key you want to be your Trigger,
-            and then TODO: FINISH THIS WHEN DIFFERENT TRIGGER LOGIC IS IMPLEMENTED
+            then click on the layer you want to modify. Click on the key you want to be your
+            Trigger, and then TODO: FINISH THIS WHEN DIFFERENT TRIGGER LOGIC IS IMPLEMENTED
           </p>
-        ),
-      },
-    ],
+        )
+      }
+    ]
   },
 
   bind: {
@@ -214,55 +227,65 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       {
         id: 'what-is-bind',
         heading: 'What is a Bind',
-        body: <p>A Bind is what is activated when you press the key associated with a Trigger.
-          A Bind is always tied to a Trigger. This is what allows full customization of the keyboard.
-          Binds can be as simple as changing one key to another, like Caps Lock to Ctrl for example.
-          They can also be quite complicated.
-        </p>,
+        body: (
+          <p>
+            A Bind is what is activated when you press the key associated with a Trigger. A Bind is
+            always tied to a Trigger. This is what allows full customization of the keyboard. Binds
+            can be as simple as changing one key to another, like Caps Lock to Ctrl for example.
+            They can also be quite complicated.
+          </p>
+        )
       },
       {
         id: 'types-of-binds',
         heading: 'Types of Binds',
         body: (
           <>
-          <p>
-            There are several types of Binds that you can choose from.
-            This is where things can be as simple or complicated as you want.
-            It is recommended to do simpler Binds when you are just starting out.
-            Here are the types of Binds that you can choose from:
-          </p>
-          <ol className="list-decimal ml-6">
+            <p>
+              There are several types of Binds that you can choose from. This is where things can be
+              as simple or complicated as you want. It is recommended to do simpler Binds when you
+              are just starting out. Here are the types of Binds that you can choose from:
+            </p>
+            <ol className="list-decimal ml-6">
               <li>Tap: This the simplest kind of bind. It will change one key to another.</li>
-              <li>Press: This is specifically a key down. This should be paired with a Release Bind.</li>
-              <li>Release: This is specifically a key up. When paired with a Press you are able to do 2 actions off one 
-                physical key press.
+              <li>
+                Press: This is specifically a key down. This should be paired with a Release Bind.
               </li>
-              <li>Macro: These are Binds that contain other Binds. For example, you could bind a key to
-                be three Taps corresponding to Ctrl + Alt + Del if you were on Windows. 
-                Macro Binds can be quite complicated.
+              <li>
+                Release: This is specifically a key up. When paired with a Press you are able to do
+                2 actions off one physical key press.
               </li>
-              <li>Timed Macro: These are Macros with a time delay between each Bind.
-                For example, you could have a one second delay between 'Copy' and 'Paste'.
+              <li>
+                Macro: These are Binds that contain other Binds. For example, you could bind a key
+                to be three Taps corresponding to Ctrl + Alt + Del if you were on Windows. Macro
+                Binds can be quite complicated.
               </li>
-              <li>Repeat: This will repeat a single Bind however many times you want with
-                (or without) a time delay between them.
+              <li>
+                Timed Macro: These are Macros with a time delay between each Bind. For example, you
+                could have a one second delay between 'Copy' and 'Paste'.
+              </li>
+              <li>
+                Repeat: This will repeat a single Bind however many times you want with (or without)
+                a time delay between them.
               </li>
             </ol>
-            </>
-        ),
+          </>
+        )
       },
       {
         id: 'create-bind',
         heading: 'Creating a Bind',
         body: (
-          <p>To configure a Bind, first navigate to the Profile you want to edit, select edit,
-            then click on the layer you want to modify. Click on the key you want to be your Trigger,
-            and then type what button you want the Bind to correspond to. You can also use the menu
-            to select an action if it is not a key (for example 'Copy). You can then click on the 
-            Binds at the bottom of the app and change the type of Bind that it is.</p>
-        ),
-      },
-    ],
+          <p>
+            To configure a Bind, first navigate to the Profile you want to edit, select edit, then
+            click on the layer you want to modify. Click on the key you want to be your Trigger, and
+            then type what button you want the Bind to correspond to. You can also use the menu to
+            select an action if it is not a key (for example 'Copy). You can then click on the Binds
+            at the bottom of the app and change the type of Bind that it is.
+          </p>
+        )
+      }
+    ]
   },
 
   tips: {
@@ -271,10 +294,10 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       {
         id: 'layer-navigation',
         heading: 'Layer Navigation',
-        body: <p>create layer hub. TODO: Finish this section</p>,
+        body: <p>create layer hub. TODO: Finish this section</p>
       }
-    ],
-  },
+    ]
+  }
 }
 
 const sidebarButtons: { key: TopicKey; label: string }[] = [
@@ -283,13 +306,13 @@ const sidebarButtons: { key: TopicKey; label: string }[] = [
   { key: 'layer', label: 'Layer' },
   { key: 'trigger', label: 'Trigger' },
   { key: 'bind', label: 'Bind' },
-  { key: 'tips', label: 'Tips'}
+  { key: 'tips', label: 'Tips' }
 ]
 
 const pageMotion = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  exit: { opacity: 0, y: -8, transition: { duration: 0.18 } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.18 } }
 }
 
 const Help: React.FC = () => {

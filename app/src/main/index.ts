@@ -7,6 +7,11 @@ import { registerDeamonManagerHandlers } from './services/daemon-manager'
 import log from 'electron-log'
 
 function createWindow(): void {
+  log.initialize()
+  // error, warn, info, verbose, debug, and silly.
+  log.transports.file.level = 'debug' // TODO at final set to 'info' or 'verbose'
+  log.transports.console.level = 'debug'
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1200,

@@ -5,13 +5,21 @@ import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 import NewProfileDialog from '@renderer/components/NewProfileDialog'
 import { ProfileEditor } from '@renderer/components/ProfileEditor'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@renderer/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@renderer/components/ui/card'
 import { Button } from '@renderer/components/ui/button'
 import { Badge } from '@renderer/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Input } from '@renderer/components/ui/input'
 import { Search, Download, User, Clock, Plus, Upload, Cloud } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { ProfileController } from '@renderer/components/VisualKeyboard/ProfileControler'
 
 type UploadedMapping = {
   id: string
@@ -39,7 +47,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
 
   // Local mappings state
   const [profiles, setProfiles] = useState<Profile[] | null>(null)
-  const [activeProfile, setActiveProfile] = useState<number | null>(null)
+  const [activeProfileIndex, setActiveProfileIndex] = useState<number | null>(null)
   const [editedProfileIndex, setEditedProfileIndex] = useState<number | null>(null)
   const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false)
 
@@ -54,13 +62,13 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
 
   function updateProfiles(): void {
     window.api.getProfiles().then((profiles: object[]) => {
-      log.info('Got profiles:', profiles)
+      log.silly('Got profiles:', profiles)
       setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
     })
 
     window.api.getActiveProfile().then((activeProfile: number | null) => {
       log.info('Active profile is index: ', activeProfile)
-      setActiveProfile(activeProfile)
+      setActiveProfileIndex(activeProfile)
     })
   }
 
@@ -74,10 +82,12 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
       if (isAuthenticated && username) {
         try {
           const userData = await window.api.fetchUserMappings(username)
-          setUserMappings(userData.map((mapping: any) => ({
-            ...mapping,
-            lastEdited: formatLastEdited(mapping.updated_at)
-          })))
+          setUserMappings(
+            userData.map((mapping: any) => ({
+              ...mapping,
+              lastEdited: formatLastEdited(mapping.updated_at)
+            }))
+          )
         } catch (userError) {
           log.warn('Could not fetch user mappings:', userError)
           setUploadedError('Failed to fetch your uploaded mappings')
@@ -178,15 +188,16 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
 
   // Filter mappings based on search and tab
   const getFilteredMappings = (): any[] => {
-    const localMappings = profiles?.map((profile, index) => ({
-      type: 'local' as const,
-      profile,
-      index,
-      isActive: activeProfile === index
-    })) || []
+    const localMappings =
+      profiles?.map((profile, index) => ({
+        type: 'local' as const,
+        profile,
+        index,
+        isActive: activeProfileIndex === index
+      })) || []
 
     // Only handle local and user's uploaded mappings
-    const userUploadedMappingsWithType = userMappings.map(mapping => ({
+    const userUploadedMappingsWithType = userMappings.map((mapping) => ({
       type: 'uploaded' as const,
       mapping,
       isUserOwned: true
@@ -210,14 +221,16 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     }
 
     if (searchQuery) {
-      filteredMappings = filteredMappings.filter(item => {
+      filteredMappings = filteredMappings.filter((item) => {
         if (item.type === 'local') {
           return item.profile.profile_name.toLowerCase().includes(searchQuery.toLowerCase())
         } else {
           return (
             item.mapping.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.mapping.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.mapping.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+            item.mapping.tags.some((tag: string) =>
+              tag.toLowerCase().includes(searchQuery.toLowerCase())
+            )
           )
         }
       })
@@ -226,20 +239,25 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     return filteredMappings
   }
 
+  const onSave = (_profileControler: ProfileController): void => {
+    if (editedProfileIndex === null) return
+    if (activeProfileIndex == editedProfileIndex) {
+      window.api.setActiveProfile(editedProfileIndex)
+    }
+    updateProfiles()
+  }
+
   // If editing a profile, show the editor
   if (editedProfileIndex !== null && profiles != null) {
+    const profileControler = new ProfileController(
+      profiles[editedProfileIndex],
+      editedProfileIndex,
+      onSave
+    )
     return (
       <div className="space-y-6">
         <ProfileEditor
-          profile={profiles[editedProfileIndex]}
-          onSave={(updatedProfile: Profile) => {
-            log.info(`Profile has been updated and saved. Updated profile: ${updatedProfile}`)
-            window.api.updateProfile(editedProfileIndex, updatedProfile.toJSON())
-            if (activeProfile == editedProfileIndex) {
-              window.api.setActiveProfile(editedProfileIndex)
-            }
-            updateProfiles()
-          }}
+          profileControler={profileControler}
           onBack={() => setEditedProfileIndex(null)}
         />
       </div>
@@ -263,8 +281,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
             <p className="text-xl text-muted-foreground mb-6">
               {isAuthenticated
                 ? 'Manage your local mappings and discover community creations'
-                : 'Create local mappings and explore community creations'
-              }
+                : 'Create local mappings and explore community creations'}
             </p>
 
             {/* Search Bar */}
@@ -281,12 +298,19 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
 
             {/* Action Buttons */}
             <div className="flex gap-2 justify-center mb-8">
-              <Button onClick={() => setIsCreatingProfile(true)} className="flex items-center gap-2">
+              <Button
+                onClick={() => setIsCreatingProfile(true)}
+                className="flex items-center gap-2"
+              >
                 <Plus size={16} />
                 New Local Mapping
               </Button>
               {!isAuthenticated && (
-                <Button variant="outline" onClick={() => navigate('/login')} className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/login')}
+                  className="flex items-center gap-2"
+                >
                   <User size={16} />
                   Login to Upload
                 </Button>
@@ -299,9 +323,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
             <TabsList className="grid w-full grid-cols-3 mb-6">
               <TabsTrigger value="all">All Mappings</TabsTrigger>
               <TabsTrigger value="local">Local ({profiles?.length || 0})</TabsTrigger>
-              <TabsTrigger value="uploaded">
-                Uploaded ({userMappings.length})
-              </TabsTrigger>
+              <TabsTrigger value="uploaded">Uploaded ({userMappings.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="all" className="mt-6">
@@ -401,9 +423,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
               Local
             </Badge>
           </div>
-          <CardDescription>
-            {item.profile.layer_count} layers
-          </CardDescription>
+          <CardDescription>{item.profile.layer_count} layers</CardDescription>
         </CardHeader>
 
         <CardContent className="flex-grow relative">
@@ -428,11 +448,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
         </CardContent>
 
         <CardFooter className="border-t pt-4 flex justify-end gap-2 px-4">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setEditedProfileIndex(item.index)}
-          >
+          <Button variant="secondary" size="sm" onClick={() => setEditedProfileIndex(item.index)}>
             Edit
           </Button>
           <Button
@@ -445,11 +461,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
             <Upload size={14} />
             {isAuthenticated ? 'Upload' : 'Login to Upload'}
           </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => confirmDeleteProfile(item.index)}
-          >
+          <Button variant="destructive" size="sm" onClick={() => confirmDeleteProfile(item.index)}>
             Delete
           </Button>
         </CardFooter>
@@ -502,11 +514,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
         </CardContent>
 
         <CardFooter className="border-t pt-4 flex justify-end gap-2 px-4">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => navigate(`/mapping/${mapping.id}`)}
-          >
+          <Button variant="secondary" size="sm" onClick={() => navigate(`/mapping/${mapping.id}`)}>
             Edit
           </Button>
           <Button
@@ -554,7 +562,6 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
       </Card>
     )
   }
-
 }
 
 export default MyMappings

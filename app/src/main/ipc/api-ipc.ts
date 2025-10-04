@@ -36,14 +36,18 @@ api.interceptors.response.use(
         try {
           log.info('Attempting token refresh with electron endpoint')
           // Try to refresh the token using Electron-specific endpoint
-          const refreshResponse = await axios.post(`${BASE_URL}electron/token/refresh/`, {
-            refresh: tokenData.refresh_token,
-            client_type: 'electron'
-          }, {
-            headers: {
-              'User-Agent': 'Electron Clickr App'
+          const refreshResponse = await axios.post(
+            `${BASE_URL}electron/token/refresh/`,
+            {
+              refresh: tokenData.refresh_token,
+              client_type: 'electron'
+            },
+            {
+              headers: {
+                'User-Agent': 'Electron Clickr App'
+              }
             }
-          })
+          )
 
           if (refreshResponse.data.success && refreshResponse.data.access_token) {
             // Update stored tokens (both access and refresh for extended lifetime)
@@ -51,7 +55,7 @@ api.interceptors.response.use(
               access_token: refreshResponse.data.access_token,
               refresh_token: refreshResponse.data.refresh_token || tokenData.refresh_token,
               username: tokenData.username,
-              expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days from now
+              expires_at: Date.now() + 30 * 24 * 60 * 60 * 1000 // 30 days from now
             }
             await tokenStorage.storeTokens(newTokenData)
 
@@ -165,22 +169,26 @@ export function registerApiHandlers(): void {
   ipcMain.handle('login', async (_, username: string, password: string) => {
     try {
       // Use Electron-specific endpoint for extended refresh tokens
-      const response = await axios.post(`${BASE_URL}electron/token/`, {
-        username,
-        password,
-        client_type: 'electron'
-      }, {
-        headers: {
-          'User-Agent': 'Electron Clickr App'
+      const response = await axios.post(
+        `${BASE_URL}electron/token/`,
+        {
+          username,
+          password,
+          client_type: 'electron'
+        },
+        {
+          headers: {
+            'User-Agent': 'Electron Clickr App'
+          }
         }
-      })
+      )
 
       // Store tokens securely with extended expiry
       await tokenStorage.storeTokens({
         access_token: response.data.access_token,
         refresh_token: response.data.refresh_token,
         username: response.data.user?.username || username,
-        expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days from now
+        expires_at: Date.now() + 30 * 24 * 60 * 60 * 1000 // 30 days from now
       })
 
       log.info(`User ${username} logged in successfully with extended tokens`)
@@ -214,6 +222,7 @@ export function registerApiHandlers(): void {
       // Try to verify token with backend
       try {
         await api.get('authenticated/')
+        log.debug('User is authenticated')
         return {
           isAuthenticated: true,
           username: tokenData.username
@@ -291,7 +300,9 @@ ipcMain.handle('update-mapping-visibility', async (_, mappingId: string, isPubli
     const response = await api.patch(`users/mappings/${mappingId}/visibility`, {
       is_public: isPublic
     })
-    log.info(`Updating visibility of mapping with ID ${mappingId} to ${isPublic ? 'public' : 'private'}`)
+    log.info(
+      `Updating visibility of mapping with ID ${mappingId} to ${isPublic ? 'public' : 'private'}`
+    )
     return response.data
   } catch (error) {
     log.error('Error updating mapping visibility:', error)

@@ -149,7 +149,7 @@ export enum Modifier {
 
 export enum MacKey {
   CommandLeft = 'CommandLeft', // ⌘ (maps to Meta)
-  CommandRight = 'CommandRight', 
+  CommandRight = 'CommandRight',
   OptionLeft = 'OptionLeft', // ⌥ (maps to Alt)
   OptionRight = 'OptionRight',
   Control = 'Control', // ^ (mac Control key exists)
