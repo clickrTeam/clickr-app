@@ -3,7 +3,6 @@ import { motion } from 'framer-motion'
 import { Button } from '@renderer/components/ui/button'
 import log from 'electron-log'
 
-
 const Daemon = (): JSX.Element => {
   const [isRunning, setIsRunning] = useState<boolean>(false)
 

@@ -164,3 +164,5 @@ export const keyShortLabels: Record<string, string> = {
   Del: 'Del',
   Ins: 'Ins'
 }
+
+export const KEYBOARD_100 = [...mainRows.flat(), ...specialtyRows.flat(), ...numpadRows.flat()]

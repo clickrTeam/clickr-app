@@ -45,7 +45,7 @@ export class Profile {
       this.OS = 'Error: Unknown OS'
       log.warn(`Unknown OS when creating profile ${this.profile_name}`)
     }
-    log.info(`Profile "${this.profile_name}" created with initial layer "layer 0". OS: ${this.OS}`)
+    log.silly(`Profile "${this.profile_name}" created with initial layer "layer 0". OS: ${this.OS}`)
   }
 
   /**
@@ -57,8 +57,24 @@ export class Profile {
     this.layers.push(lyr)
     this.layer_count += 1
 
-    log.info(`Layer ${layer_name} with number ${this.layer_count - 1} created.`)
+    log.silly(`Layer ${layer_name} with number ${this.layer_count - 1} created.`)
     //TODO: Add support for cloning layer 0 when you want to create a new layer.
+  }
+
+  duplicateLayer(layerNumber: number) {
+    const index = this.layers.findIndex((layer) => layer.layer_number === layerNumber)
+    if (index === -1) {
+      log.warn(`Attempted to duplicate layer ${layerNumber}, but it does not exist.`)
+      throw new Error('Layer not found.')
+    }
+
+    const layerToDuplicate = this.layers[index]
+    const newLayer = new Layer(layerToDuplicate.layer_name + ' Copy', this.layer_count)
+    newLayer.remappings = new Map(layerToDuplicate.remappings)
+    this.layers.push(newLayer)
+    this.layer_count += 1
+
+    log.info(`Layer ${layerNumber} duplicated as ${newLayer.layer_name}.`)
   }
 
   /**
@@ -143,7 +159,7 @@ export class Profile {
    * Serializes the Profile instance to a JSON-compatible object.
    */
   toJSON(): object {
-    log.info(`Serialization of profile "${this.profile_name}" started.`)
+    log.silly(`>>>>> Serialization of profile "${this.profile_name}" started.`)
     return {
       profile_name: this.profile_name,
       layer_count: this.layer_count,
@@ -186,11 +202,11 @@ export class Profile {
       )
       profile.translateToTargetOS(obj.OS, detectOS())
     } else {
-      log.info(`Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`)
+      log.silly(`Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`)
     }
 
-    log.info(
-      `Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
+    log.silly(
+      `<<<<<< Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
     )
     return profile
   }
@@ -212,7 +228,7 @@ export class Profile {
     if (valid_incoming_OS && valid_target_OS) {
       // Iterate through layers and remappings to translate keys
       this.iterateForTranslation(incoming_OS, target_OS)
-      log.info(`Translation from ${incoming_OS} to ${target_OS} completed.`)
+      log.debug(`Translation from ${incoming_OS} to ${target_OS} completed.`)
       this.OS = target_OS
     } else {
       log.warn(
@@ -227,7 +243,7 @@ export class Profile {
    * @param target_OS The OS to translate the profile to, usually the current OS.
    */
   private iterateForTranslation(incoming_OS: string, target_OS: string): void {
-    log.info(`Translating profile from ${incoming_OS} to ${target_OS}.`)
+    log.debug(`Translating profile from ${incoming_OS} to ${target_OS}.`)
 
     for (const layer of this.layers) {
       for (const [trigger, bind] of layer.remappings) {

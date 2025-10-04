@@ -1,10 +1,15 @@
 import React, { useState } from 'react'
 import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { keys } from '../../../../models/Keys'
+import { KeyPressInfo } from './Model'
 import { bindTypeColors } from './Colors'
 import './Footer.css'
+import { ProfileController } from './ProfileControler'
+import { Trigger } from '../../../../models/Trigger'
+import log from 'electron-log'
 
-const typeOptions: { value: BindType; label: string }[] = [
+const typeOptions: { value: BindType | undefined; label: string }[] = [
+  { value: undefined, label: 'X' },
   { value: BindType.TapKey, label: 'Tap' },
   { value: BindType.PressKey, label: 'Press' },
   { value: BindType.ReleaseKey, label: 'Release' }
@@ -14,7 +19,9 @@ function getMacroButtonBg(item: Bind): string {
   return `${bindTypeColors[item.bind_type as BindType]}80`
 }
 
-function getDropdownBg(item: Bind, opt: { value: BindType }): string | undefined {
+
+function getDropdownBg(item: Bind, opt: { value: BindType | undefined }): string | undefined {
+  if (!opt.value) return ''
   return item.bind_type === opt.value ? `${bindTypeColors[opt.value]}22` : undefined
 }
 
@@ -24,23 +31,39 @@ function getMacroValue(item: Bind): string {
 }
 
 export interface VisualKeyboardFooterProps {
+  profileControler: ProfileController
   selectedKey: string | null
   macro: Bind[]
+  trigger: Trigger | null
   onMacroChange: (macro: Bind[]) => void
   onClose: (save: boolean) => void
 }
 
 export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
+  profileControler,
   selectedKey,
   macro,
+  trigger,
   onMacroChange,
   onClose
 }): JSX.Element | null => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
   const [showKeySelector, setShowKeySelector] = useState(false)
   if (!selectedKey) return null
+  if (!trigger) {
+    log.warn('No trigger provided to VisualKeyboardFooter. Aborting.');
+    return null
+  }
 
-  function handleTypeChange(idx: number, type: BindType): void {
+  function handleTypeChange(idx: number, type: BindType | undefined): void {
+    if (type === undefined) {
+      // If type is undefined, we can remove the macro item
+      const newMacro = macro.filter((_, i) => i !== idx)
+      onMacroChange(newMacro)
+      setOpenDropdown(null)
+      return
+    }
+
     const existing = macro[idx]
     let value: string
     if (
@@ -67,8 +90,19 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     setOpenDropdown(null)
   }
 
-  function handleAddKeyToMacro(key: string): void {
-    onMacroChange([...macro, new TapKey(key)])
+  function handleAddKeyToMacro(key: KeyPressInfo): void {
+    console.log('Adding key to macro:', key)
+    if (key.isDown) {
+      onMacroChange([...macro, new PressKey(key.key)])
+    } else {
+      if (macro[macro.length - 1] instanceof PressKey) {
+        var macros = [...macro]
+        macros[macros.length - 1] = new TapKey(key.key)
+        onMacroChange(macros)
+      } else {
+        onMacroChange([...macro, new ReleaseKey(key.key)])
+      }
+    }
     setShowKeySelector(false)
   }
 
@@ -77,6 +111,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       <div className="vk-footer-row">
         <span className="vk-footer-selected-label">Selected Key:</span>
         <span className="vk-footer-selected-key">{selectedKey}</span>
+        <button className="vk-footer-clear" onClick={() => profileControler.removeBind(trigger, onMacroChange)}>Clear</button>
       </div>
       <div className="vk-footer-row">
         <span className="vk-footer-macro-label">New Mapping:</span>
@@ -86,8 +121,11 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
           macro.map((item, i) => (
             <span key={i} style={{ position: 'relative', display: 'inline-block' }}>
               <button
-                className="vk-footer-macro-btn"
-                style={{ background: getMacroButtonBg(item) }}
+                className={`vk-footer-macro-btn relative z-10`}
+                style={{
+                  background: getMacroButtonBg(item),
+                  position: 'relative'
+                }}
                 onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
                 tabIndex={0}
               >
@@ -133,7 +171,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
                   key={key}
                   className="vk-footer-macro-dropdown-btn"
                   style={{ width: '100%' }}
-                  onClick={() => handleAddKeyToMacro(key)}
+                  onClick={() => handleAddKeyToMacro({ key, isDown: true })}
                 >
                   {key}
                 </button>
