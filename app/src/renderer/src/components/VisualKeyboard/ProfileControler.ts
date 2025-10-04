@@ -12,7 +12,7 @@ export class ProfileController {
 
   constructor(public profile: Profile, public editedProfileIndex: number, public onUpSave: (profileControler: ProfileController) => void) {
     this.activeLayer = this.profile.layers[0];
-    log.debug(`ProfileController initialized for profile: ${this.profile.profile_name}`);
+    log.silly(`ProfileController initialized for profile: ${this.profile.profile_name}`);
   }
 
   onSave(): void {
