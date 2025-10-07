@@ -1,7 +1,6 @@
 import log from 'electron-log'
-
-export enum Key {
-  // Letters
+import { detectOS } from './Profile'
+export enum Letters {
   A = 'A',
   B = 'B',
   C = 'C',
@@ -27,9 +26,10 @@ export enum Key {
   W = 'W',
   X = 'X',
   Y = 'Y',
-  Z = 'Z',
+  Z = 'Z'
+}
 
-  // Digits
+export enum Digits {
   Digit0 = '0',
   Digit1 = '1',
   Digit2 = '2',
@@ -40,8 +40,9 @@ export enum Key {
   Digit7 = '7',
   Digit8 = '8',
   Digit9 = '9',
+}
 
-  // Shifted digits
+export enum Symbols {
   Exclamation = '!',
   At = '@',
   Hash = '#',
@@ -52,27 +53,61 @@ export enum Key {
   Asterisk = '*',
   ParenLeft = '(',
   ParenRight = ')',
+  Dash = '-',
+  Equal = '=',
+  Backtick = '`',
+  BracketLeft = '[',
+  BracketRight = ']',
+  Backslash = '\\',
+  Semicolon = ';',
+  Quote = "'",
+  Comma = ',',
+  Period = '.',
+  Slash = '/',
+  Underscore = '_',
+  Plus = '+',
+  Tilde = '~',
+  BraceLeft = '{',
+  BraceRight = '}',
+  Pipe = '|',
+  Colon = ':',
+  DoubleQuote = '"',
+  LessThan = '<',
+  GreaterThan = '>',
+  Question = '?'
+}
 
-  // Whitespace / editing
-  Enter = 'Enter',
-  Tab = 'Tab',
-  Backspace = 'Backspace',
-  Escape = 'Escape',
-  Space = 'Space',
-  Delete = 'Delete',
-  Insert = 'Insert',
+export enum Numpad {
+  Numpad0 = 'Numpad0',
+  Numpad1 = 'Numpad1',
+  Numpad2 = 'Numpad2',
+  Numpad3 = 'Numpad3',
+  Numpad4 = 'Numpad4',
+  Numpad5 = 'Numpad5',
+  Numpad6 = 'Numpad6',
+  Numpad7 = 'Numpad7',
+  Numpad8 = 'Numpad8',
+  Numpad9 = 'Numpad9',
+  NumpadAdd = 'NumpadAdd',
+  NumpadSubtract = 'NumpadSubtract',
+  NumpadMultiply = 'NumpadMultiply',
+  NumpadDivide = 'NumpadDivide',
+  NumpadDecimal = 'NumpadDecimal',
+  NumpadEnter = 'NumpadEnter',
+  NumpadEqual = 'NumpadEqual',
+  NumpadComma = 'NumpadComma',
+  NumpadParenLeft = 'NumpadParenLeft',
+  NumpadParenRight = 'NumpadParenRight',
+}
 
-  // Navigation
-  ArrowUp = 'ArrowUp',
-  ArrowDown = 'ArrowDown',
-  ArrowLeft = 'ArrowLeft',
-  ArrowRight = 'ArrowRight',
-  Home = 'Home',
-  End = 'End',
-  PageUp = 'PageUp',
-  PageDown = 'PageDown',
+export enum Misc {
+  CapsLock = 'CapsLock',
+  NumLock = 'NumLock',
+  ScrollLock = 'ScrollLock',
+  Pause = 'Pause',
+}
 
-  // Function keys
+export enum Function {
   F1 = 'F1',
   F2 = 'F2',
   F3 = 'F3',
@@ -85,7 +120,6 @@ export enum Key {
   F10 = 'F10',
   F11 = 'F11',
   F12 = 'F12',
-  // extended function keys
   F13 = 'F13',
   F14 = 'F14',
   F15 = 'F15',
@@ -93,63 +127,18 @@ export enum Key {
   F17 = 'F17',
   F18 = 'F18',
   F19 = 'F19',
-  F20 = 'F20',
+  F20 = 'F20'
+}
 
-  // Numpad (logical names)
-  Numpad0 = 'Numpad0',
-  Numpad1 = 'Numpad1',
-  Numpad2 = 'Numpad2',
-  Numpad3 = 'Numpad3',
-  Numpad4 = 'Numpad4',
-  Numpad5 = 'Numpad5',
-  Numpad6 = 'Numpad6',
-  Numpad7 = 'Numpad7',
-  Numpad8 = 'Numpad8',
-  Numpad9 = 'Numpad9',
-
-  NumpadAdd = 'NumpadAdd', // +
-  NumpadSubtract = 'NumpadSubtract', // -
-  NumpadMultiply = 'NumpadMultiply', // *
-  NumpadDivide = 'NumpadDivide', // /
-  NumpadDecimal = 'NumpadDecimal', // .
-  NumpadEnter = 'NumpadEnter', // Enter key on numpad
-
-  NumpadEqual = 'NumpadEqual', // = (rare, some layouts)
-  NumpadComma = 'NumpadComma', // , (rare, some layouts)
-  NumpadParenLeft = 'NumpadParenLeft', // ( (rare)
-  NumpadParenRight = 'NumpadParenRight', // ) (rare)
-
-  // Symbols / punctuation (unshifted)
-  Dash = '-',
-  Equal = '=',
-  Backtick = '`',
-  BracketLeft = '[',
-  BracketRight = ']',
-  Backslash = '\\',
-  Semicolon = ';',
-  Quote = "'",
-  Comma = ',',
-  Period = '.',
-  Slash = '/',
-
-  // Shifted symbols
-  Underscore = '_',
-  Plus = '+',
-  Tilde = '~',
-  BraceLeft = '{',
-  BraceRight = '}',
-  Pipe = '|',
-  Colon = ':',
-  DoubleQuote = '"',
-  LessThan = '<',
-  GreaterThan = '>',
-  Question = '?',
-
-  // Misc
-  CapsLock = 'CapsLock',
-  NumLock = 'NumLock',
-  ScrollLock = 'ScrollLock',
-  Pause = 'Pause'
+export enum Navigation {
+  ArrowUp = 'ArrowUp',
+  ArrowDown = 'ArrowDown',
+  ArrowLeft = 'ArrowLeft',
+  ArrowRight = 'ArrowRight',
+  Home = 'Home',
+  End = 'End',
+  PageUp = 'PageUp',
+  PageDown = 'PageDown'
 }
 
 export enum Modifier {
@@ -264,20 +253,25 @@ export enum ShortcutAction {
   OpenDevTools = 'OpenDevTools', // mac: ⌘+Option+I, win/linux: Ctrl+Shift+I
   FocusAddressBar = 'FocusAddressBar' // mac: ⌘+L, win/linux: Ctrl+L
 }
-const ua = navigator.userAgent.toLowerCase()
-let os_keys: string[] = []
+let current_os = detectOS()
+export let os_keys: string[] = []
 
-if (ua.includes('mac')) {
+if (current_os === 'macOS') {
   // macOS specific settings or exports can go here
   os_keys = Object.values(MacKey)
-} else if (ua.includes('win')) {
+} else if (current_os === 'Windows') {
   // Windows specific settings or exports can go here
   os_keys = Object.values(WinKey)
-} else if (ua.includes('linux')) {
+} else if (current_os === 'Linux') {
   // Linux specific settings or exports can go here
   os_keys = Object.values(LinuxKey)
 } else {
   // Other OSes
   log.warn('Unsupported OS for specific key mappings')
 }
-export const keys: string[] = [Object.values(Key), Object.values(Modifier), os_keys].flat()
+
+export const keys: string[] = [Object.values(Letters), Object.values(Digits), 
+                               Object.values(Modifier), Object.values(Symbols),
+                               Object.values(Numpad), Object.values(Misc),
+                               Object.values(Function), Object.values(Navigation),
+                               Object.values(Modifier), os_keys].flat()
