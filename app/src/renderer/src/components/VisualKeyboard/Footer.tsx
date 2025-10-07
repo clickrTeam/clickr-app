@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
-import { detectOS } from '../../../../models/Profile'
 import { KeyPressInfo } from './Model'
 import { bindTypeColors } from './Colors'
 import './Footer.css'
@@ -49,7 +48,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
 }): JSX.Element | null => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
   const [showKeyModal, setShowKeyModal] = useState(false)
-const [activeCategory, setActiveCategory] = useState<string | null>(null)
   if (!selectedKey) return null
   if (!trigger) {
     log.warn('No trigger provided to VisualKeyboardFooter. Aborting.');
