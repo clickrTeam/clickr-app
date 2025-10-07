@@ -529,7 +529,7 @@ export class Profile {
  * Detects the operating system the code is running on.
  * @returns 'macOS', 'Windows', 'Linux', or 'Unknown'
  */
-function detectOS(): 'macOS' | 'Windows' | 'Linux' | 'Unknown' {
+export function detectOS(): 'macOS' | 'Windows' | 'Linux' | 'Unknown' {
   if (typeof process !== 'undefined' && process.platform) {
     const platform = process.platform
     if (platform === 'darwin') return 'macOS'
