@@ -6,36 +6,8 @@ import { bindTypeColors } from './Colors'
 import './Footer.css'
 import { ProfileController } from './ProfileControler'
 import { Trigger } from '../../../../models/Trigger'
+import { KeyModal } from './KeyModal'
 import log from 'electron-log'
-
-import {
-  Letters,
-  Digits,
-  Modifier,
-  Symbols,
-  Navigation,
-  Function,
-  ShortcutAction,
-  Numpad,
-  Misc,
-  os_keys
-} from '../../../../models/Keys'
-
-let current_OS = detectOS()
-
-const keyGroups: Record<string, string[]> = {
-  Letters: Object.values(Letters),
-  Digits: Object.values(Digits),
-  Modifier: Object.values(Modifier),
-  Symbols: Object.values(Symbols),
-  Navigation: Object.values(Navigation),
-  Function: Object.values(Function),
-  Shortcuts: Object.values(ShortcutAction),
-  Numpad: Object.values(Numpad),
-  Misc: Object.values(Misc),
-  [current_OS + ' Keys']: Object.values(os_keys)
-}
-
 
 const typeOptions: { value: BindType; label: string }[] = [
   { value: BindType.TapKey, label: 'Tap' },
@@ -142,8 +114,14 @@ const [activeCategory, setActiveCategory] = useState<string | null>(null)
     <div className="vk-footer-row">
       <span className="vk-footer-selected-label">Selected Key:</span>
       <span className="vk-footer-selected-key">{selectedKey}</span>
-      <button className="vk-footer-clear" onClick={() => profileControler.removeBind(trigger, onMacroChange)}>Clear</button>
+      <button
+        className="vk-footer-clear"
+        onClick={() => profileControler.removeBind(trigger, onMacroChange)}
+      >
+        Clear
+      </button>
     </div>
+
     <div className="vk-footer-row">
       <span className="vk-footer-macro-label">New Mapping:</span>
       {macro.length === 0 ? (
@@ -152,7 +130,7 @@ const [activeCategory, setActiveCategory] = useState<string | null>(null)
         macro.map((item, i) => (
           <span key={i} style={{ position: 'relative', display: 'inline-block' }}>
             <button
-              className={`vk-footer-macro-btn relative z-10`}
+              className="vk-footer-macro-btn relative z-10"
               style={{
                 background: getMacroButtonBg(item),
                 position: 'relative'
@@ -179,8 +157,8 @@ const [activeCategory, setActiveCategory] = useState<string | null>(null)
           </span>
         ))
       )}
-      <span style={{ position: 'relative', display: 'inline-block' }}>
 
+      <span style={{ position: 'relative', display: 'inline-block' }}>
         <button
           className="vk-footer-macro-btn"
           style={{
@@ -193,9 +171,16 @@ const [activeCategory, setActiveCategory] = useState<string | null>(null)
         >
           +
         </button>
-
       </span>
+
+      {showKeyModal && (
+        <KeyModal
+          onClose={() => setShowKeyModal(false)}
+          onAddKey={handleAddKeyToMacro}
+        />
+      )}
     </div>
+
     <div className="vk-footer-row">
       <button className="vk-footer-close" onClick={() => onClose(true)}>
         Save
@@ -208,43 +193,6 @@ const [activeCategory, setActiveCategory] = useState<string | null>(null)
         Close
       </button>
     </div>
-    {showKeyModal && (
-      <div className="vk-key-modal">
-        <div className="vk-key-modal-overlay" onClick={() => setShowKeyModal(false)} />
-        <div className="vk-key-modal-content">
-          <h3>Select Key Category</h3>
-          <div className="vk-key-modal-categories">
-            {Object.keys(keyGroups).map((cat) => (
-              <button
-                key={cat}
-                className={`vk-key-modal-category-btn${activeCategory === cat ? ' active' : ''}`}
-                onClick={() => setActiveCategory(cat)}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {activeCategory && (
-            <div className="vk-key-modal-dropdown">
-              {keyGroups[activeCategory].map((key) => (
-                <button
-                  key={key}
-                  className="vk-footer-macro-dropdown-btn"
-                  onClick={() => {
-                    handleAddKeyToMacro({ key, isDown: true })
-                    setShowKeyModal(false)
-                    setActiveCategory(null)
-                  }}
-                >
-                  {key}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    )}
   </div>
 )
 }

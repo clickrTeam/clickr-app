@@ -1,0 +1,81 @@
+.vk-key-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.vk-key-modal-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.vk-key-modal-content {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  z-index: 1001;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 720px;
+  max-width: 90vw;
+  min-height: 200px;
+  box-sizing: border-box;
+}
+
+.vk-key-modal-content h3 {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #333;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.vk-key-modal-categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.vk-key-modal-category-btn {
+  padding: 0.6rem 1rem;
+  margin: 0.3rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.vk-key-modal-category-btn:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-1px);
+}
+
+.vk-key-modal-category-btn.active {
+  background-color: #0078d4;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 120, 212, 0.3);
+}
+
+.vk-key-modal-dropdown {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
