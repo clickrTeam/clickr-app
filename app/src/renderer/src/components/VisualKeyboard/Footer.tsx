@@ -5,6 +5,8 @@ import { bindTypeColors } from './Colors'
 import './Footer.css'
 import { ProfileController } from './ProfileControler'
 import { Trigger } from '../../../../models/Trigger'
+import { Layer } from '../../../../models/Layer'
+import { SwapLayer } from '../../../../models/Bind'
 import { KeyModal } from './KeyModal'
 import log from 'electron-log'
 
@@ -25,7 +27,12 @@ function getDropdownBg(item: Bind, opt: { value: BindType | undefined }): string
 }
 
 function getMacroValue(item: Bind): string {
-  if ('value' in item) return (item as TapKey | PressKey | ReleaseKey).value
+  if ('value' in item) {
+    return (item as TapKey | PressKey | ReleaseKey).value
+  }
+  else if ('layer_number' in item) {
+    return "Swap to Layer " + item.layer_number
+  }
   return ''
 }
 
@@ -36,16 +43,20 @@ export interface VisualKeyboardFooterProps {
   trigger: Trigger | null
   onMacroChange: (macro: Bind[]) => void
   onClose: (save: boolean) => void
+  activeLayer?: Layer | null           // <- NEW optional prop
 }
+
 
 export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   profileControler,
   selectedKey,
   macro,
   trigger,
+  activeLayer,           
   onMacroChange,
   onClose
 }): JSX.Element | null => {
+
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
   const [showKeyModal, setShowKeyModal] = useState(false)
   if (!selectedKey) return null
@@ -104,6 +115,14 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       }
     }
   }
+
+  function handleAddLayerToMacro(layerIdx: number): void {
+  // Append a SwapLayer bind pointing to layerIdx
+  const newMacro = [...macro, new SwapLayer(layerIdx)]
+  onMacroChange(newMacro)
+  setShowKeyModal(false) // close modal after selection
+}
+
 
 
 
@@ -172,11 +191,17 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       </span>
 
       {showKeyModal && (
-        <KeyModal
-          onClose={() => setShowKeyModal(false)}
-          onAddKey={handleAddKeyToMacro}
-        />
-      )}
+      <KeyModal
+        onClose={() => setShowKeyModal(false)}
+        onAddKey={handleAddKeyToMacro}
+        onSelectLayer={handleAddLayerToMacro}
+        layers={profileControler.getProfile().layers}
+        activeLayer={activeLayer ?? profileControler.activeLayer}
+      />
+    )}
+
+
+
     </div>
 
     <div className="vk-footer-row">

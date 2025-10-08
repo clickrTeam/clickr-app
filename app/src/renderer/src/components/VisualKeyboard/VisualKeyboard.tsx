@@ -114,7 +114,7 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
       <div className="flex flex-col">{specialtyRows.map(renderRow)}</div>
       <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
 
-      <VisualKeyboardFooter
+            <VisualKeyboardFooter
         profileControler={profileControler}
         selectedKey={selectedKey}
         macro={binds}
@@ -128,6 +128,7 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
           setTrigger(null)
           setBind([])
         }}
+        activeLayer={profileControler.activeLayer}
       />
     </Card>
   )
