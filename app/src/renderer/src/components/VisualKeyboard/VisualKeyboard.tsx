@@ -6,7 +6,7 @@ import { VisualKeyboardFooter } from './Footer'
 import { Bind, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyTile } from './KeyTile'
 import { buildVisualKeyboardModel, KeyPressInfo, KeyTileModel, VisualKeyboardModel } from './Model'
-import { Trigger } from '../../../../models/Trigger'
+import { Trigger, KeyPress} from '../../../../models/Trigger'
 import { useKeyboardController } from './controler'
 import { ProfileController } from './ProfileControler'
 
@@ -85,16 +85,30 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
     return (
       <div className="flex flex-row mb-1" style={{ gap: '0.25rem' }}>
         {row.map(({ key }) => {
-          const keyModel: KeyTileModel = visualKeyboardModel.keyModels[key]
-          return (
-            <KeyTile
-              key={keyModel.key === '' ? undefined : keyModel.key}
-              keyModel={keyModel}
-              onClick={(): void => setSelectedKey(key)}
-              onInspect={setInspectedKey}
-            />
-          )
-        })}
+  const keyModel: KeyTileModel = visualKeyboardModel.keyModels[key]
+
+  // build a Trigger for this physical key
+  const triggerForKey = new KeyPress(keyModel.key)
+
+  // ask ProfileController for an override display string for this Trigger
+  const override = profileControler.getDisplayForTrigger(triggerForKey) // returns string | null
+
+  // shallow copy and inject displayKey (does not mutate original model)
+  const renderedKeyModel: KeyTileModel = {
+    ...keyModel,
+    displayKey: override ?? undefined
+  }
+
+  return (
+    <KeyTile
+      key={keyModel.key === '' ? undefined : keyModel.key}
+      keyModel={renderedKeyModel}
+      onClick={(): void => setSelectedKey(key)}
+      onInspect={setInspectedKey}
+    />
+  )
+})}
+
       </div>
     )
   }

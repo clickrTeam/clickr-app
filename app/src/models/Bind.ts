@@ -39,6 +39,7 @@ export class PressKey extends Bind {
   constructor(value: string) {
     super(BindType.PressKey)
     this.value = value
+    this.bind_type = BindType.PressKey
   }
 
   toJSON(): object {
@@ -70,6 +71,7 @@ export class ReleaseKey extends Bind {
   constructor(value: string) {
     super(BindType.ReleaseKey)
     this.value = value
+    this.bind_type = BindType.ReleaseKey
   }
 
   toJSON(): object {
@@ -100,6 +102,7 @@ export class TapKey extends Bind {
   constructor(value: string) {
     super(BindType.TapKey)
     this.value = value
+    this.bind_type = BindType.TapKey
   }
 
   toJSON(): object {
@@ -134,6 +137,7 @@ export class Macro_Bind extends Bind {
   constructor(binds: Bind[]) {
     super(BindType.Macro)
     this.binds = binds
+    this.bind_type = BindType.Macro
   }
 
   toJSON(): { type: BindType; binds: object[] } {
@@ -171,6 +175,7 @@ export class TimedMacro_Bind extends Bind {
     super(BindType.TimedMacro)
     this.binds = binds
     this.times = times
+    this.bind_type = BindType.TimedMacro
   }
 
   toJSON(): object {
@@ -226,6 +231,7 @@ export class Repeat_Bind extends Bind {
     this.time_delay = time_delay
     this.times_to_execute = times_to_execute
     this.cancel_trigger = cancel_trigger
+    this.bind_type = BindType.Repeat
   }
 
   toJSON(): object {
@@ -272,6 +278,7 @@ export class SwapLayer extends Bind {
   constructor(layer_num: number) {
     super(BindType.SwitchLayer)
     this.layer_number = layer_num
+    this.bind_type = BindType.SwitchLayer
   }
 
   toJSON(): object {
@@ -304,6 +311,7 @@ export class AppOpen_Bind extends Bind {
   constructor(app_name: string) {
     super(BindType.AppOpen)
     this.app_name = app_name
+    this.bind_type = BindType.AppOpen
   }
 
   toJSON(): object {

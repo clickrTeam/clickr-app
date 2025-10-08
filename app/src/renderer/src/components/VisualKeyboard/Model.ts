@@ -18,6 +18,7 @@ export interface KeyTileModel {
   keyRef?: HTMLButtonElement | null
   isDown?: boolean // true if the key is currently pressed
   isSelected?: boolean
+  displayKey?: string
 }
 
 export interface VisualKeyboardModel {
