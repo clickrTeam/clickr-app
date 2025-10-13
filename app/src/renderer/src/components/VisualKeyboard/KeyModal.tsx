@@ -34,45 +34,24 @@ const keyGroups: Record<string, string[]> = {
 interface KeyModalProps {
   onClose: () => void
   onAddKey: (key: KeyPressInfo) => void
-  onSelectLayer?: (layerIndex: number) => void   // <- NEW optional callback
+  onSelectLayer?: (layerIndex: number) => void
   layers: Layer[]
-  activeLayer?: Layer | null
-  currentLayerIndex?: number
+  activeLayer: Layer
+  currentLayerIndex: number
 }
-
 
 export const KeyModal: React.FC<KeyModalProps> = ({
   onClose,
   onAddKey,
   onSelectLayer,
   layers,
-  activeLayer,
   currentLayerIndex
 }) => {
-
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
-
-  // Resolve active layer index:
-  // 1) use explicit index if provided
-  // 2) try to match activeLayer by identity or layer_name
-  // 3) fallback to index 0
-  const resolvedActiveLayerIndex = (() => {
+  const resolvedActiveLayerIndex = ((): number => {
     if (typeof currentLayerIndex === 'number' && !Number.isNaN(currentLayerIndex)) {
       return currentLayerIndex
     }
-    if (activeLayer) {
-      const byIdentity = layers.findIndex((l) => l === activeLayer)
-      if (byIdentity >= 0) return byIdentity
-
-      // fallback to matching by layer_name if identity fails (useful with deserialized copies)
-      const activeName = (activeLayer as any).layer_name
-      if (typeof activeName === 'string') {
-        const byName = layers.findIndex((l) => (l as any).layer_name === activeName)
-        if (byName >= 0) return byName
-      }
-    }
-
-    // If nothing else, default to 0
     return 0
   })()
 
@@ -135,7 +114,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
               <div className="vk-key-modal-no-layers">No Layers to switch to.</div>
             ) : (
               otherLayers.map(({ layer, idx }) => {
-                const label = (layer as any).layer_name ?? `Layer ${idx}`
+                const label = (layer as Layer).layer_name ?? `Layer ${idx}`
                 return (
                   <button
                     key={idx}
