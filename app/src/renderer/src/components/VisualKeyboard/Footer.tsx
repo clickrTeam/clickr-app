@@ -31,6 +31,7 @@ function getMacroValue(item: Bind): string {
   } else if ('layer_number' in item) {
     return 'Swap to Layer ' + item.layer_number
   }
+  log.warn(`Macro value not applicable to add ${item.bind_type}`)
   return ''
 }
 
@@ -41,7 +42,7 @@ export interface VisualKeyboardFooterProps {
   trigger: Trigger | null
   onMacroChange: (macro: Bind[]) => void
   onClose: (save: boolean) => void
-  activeLayer?: Layer | null
+  activeLayer: Layer
 }
 
 export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
@@ -49,7 +50,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   selectedKey,
   macro,
   trigger,
-  activeLayer,
   onMacroChange,
   onClose
 }): JSX.Element | null => {
@@ -102,7 +102,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       onMacroChange([...macro, new PressKey(key.key)])
     } else {
       if (macro[macro.length - 1] instanceof PressKey) {
-        var macros = [...macro]
+        const macros = [...macro]
         macros[macros.length - 1] = new TapKey(key.key)
         onMacroChange(macros)
       } else {
@@ -187,7 +187,8 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             onAddKey={handleAddKeyToMacro}
             onSelectLayer={handleAddLayerToMacro}
             layers={profileControler.getProfile().layers}
-            activeLayer={activeLayer ?? profileControler.activeLayer}
+            activeLayer={profileControler.activeLayer}
+            currentLayerIndex={profileControler.activeLayer.layer_number}
           />
         )}
       </div>

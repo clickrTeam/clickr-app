@@ -34,7 +34,7 @@ const keyGroups: Record<string, string[]> = {
 interface KeyModalProps {
   onClose: () => void
   onAddKey: (key: KeyPressInfo) => void
-  onSelectLayer?: (layerIndex: number) => void
+  onSelectLayer: (layerIndex: number) => void
   layers: Layer[]
   activeLayer: Layer
   currentLayerIndex: number
@@ -120,11 +120,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
                     key={idx}
                     className="vk-footer-macro-dropdown-btn"
                     onClick={() => {
-                      if (typeof onSelectLayer === 'function') {
-                        onSelectLayer(idx)
-                      } else {
-                        onAddKey({ key: label, isDown: true })
-                      }
+                      onSelectLayer(idx)
                       onClose()
                       setActiveCategory(null)
                     }}

@@ -70,7 +70,7 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
 
   useEffect(() => {
     profileControler.setSelectedKey(selectedKey, setBind, setTrigger)
-  }, [selectedKey])
+  }, [selectedKey, profileControler])
 
   const [showPressedKeys, setShowPressedKeys] = useState<string[]>([])
 
@@ -114,7 +114,7 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
       <div className="flex flex-col">{specialtyRows.map(renderRow)}</div>
       <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
 
-            <VisualKeyboardFooter
+      <VisualKeyboardFooter
         profileControler={profileControler}
         selectedKey={selectedKey}
         macro={binds}
