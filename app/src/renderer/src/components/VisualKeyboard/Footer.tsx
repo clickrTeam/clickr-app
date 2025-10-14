@@ -5,6 +5,8 @@ import { bindTypeColors } from './Colors'
 import './Footer.css'
 import { ProfileController } from './ProfileControler'
 import { Trigger } from '../../../../models/Trigger'
+import { Layer } from '../../../../models/Layer'
+import { SwapLayer } from '../../../../models/Bind'
 import { KeyModal } from './KeyModal'
 import log from 'electron-log'
 
@@ -18,14 +20,18 @@ function getMacroButtonBg(item: Bind): string {
   return `${bindTypeColors[item.bind_type as BindType]}80`
 }
 
-
 function getDropdownBg(item: Bind, opt: { value: BindType | undefined }): string | undefined {
   if (!opt.value) return ''
   return item.bind_type === opt.value ? `${bindTypeColors[opt.value]}22` : undefined
 }
 
 function getMacroValue(item: Bind): string {
-  if ('value' in item) return (item as TapKey | PressKey | ReleaseKey).value
+  if ('value' in item) {
+    return (item as TapKey | PressKey | ReleaseKey).value
+  } else if ('layer_number' in item) {
+    return 'Swap to Layer ' + item.layer_number
+  }
+  log.warn(`Macro value not applicable to add ${item.bind_type}`)
   return ''
 }
 
@@ -36,6 +42,7 @@ export interface VisualKeyboardFooterProps {
   trigger: Trigger | null
   onMacroChange: (macro: Bind[]) => void
   onClose: (save: boolean) => void
+  activeLayer: Layer
 }
 
 export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
@@ -50,7 +57,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   const [showKeyModal, setShowKeyModal] = useState(false)
   if (!selectedKey) return null
   if (!trigger) {
-    log.warn('No trigger provided to VisualKeyboardFooter. Aborting.');
+    log.warn('No trigger provided to VisualKeyboardFooter. Aborting.')
     return null
   }
 
@@ -89,14 +96,13 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     setOpenDropdown(null)
   }
 
-
   function handleAddKeyToMacro(key: KeyPressInfo): void {
     console.log('Adding key to macro:', key)
     if (key.isDown) {
       onMacroChange([...macro, new PressKey(key.key)])
     } else {
       if (macro[macro.length - 1] instanceof PressKey) {
-        var macros = [...macro]
+        const macros = [...macro]
         macros[macros.length - 1] = new TapKey(key.key)
         onMacroChange(macros)
       } else {
@@ -105,92 +111,100 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     }
   }
 
-
+  function handleAddLayerToMacro(layerIdx: number): void {
+    const newMacro = [...macro, new SwapLayer(layerIdx)]
+    onMacroChange(newMacro)
+    setShowKeyModal(false)
+  }
 
   return (
-  <div className="vk-footer">
-    <div className="vk-footer-row">
-      <span className="vk-footer-selected-label">Selected Key:</span>
-      <span className="vk-footer-selected-key">{selectedKey}</span>
-      <button
-        className="vk-footer-clear"
-        onClick={() => profileControler.removeBind(trigger, onMacroChange)}
-      >
-        Clear
-      </button>
-    </div>
-
-    <div className="vk-footer-row">
-      <span className="vk-footer-macro-label">New Mapping:</span>
-      {macro.length === 0 ? (
-        <span className="vk-footer-macro-empty">(Tap keys to add to macro)</span>
-      ) : (
-        macro.map((item, i) => (
-          <span key={i} style={{ position: 'relative', display: 'inline-block' }}>
-            <button
-              className="vk-footer-macro-btn relative z-10"
-              style={{
-                background: getMacroButtonBg(item),
-                position: 'relative'
-              }}
-              onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
-              tabIndex={0}
-            >
-              {getMacroValue(item)}
-            </button>
-            {openDropdown === i && (
-              <div className="vk-footer-macro-dropdown">
-                {typeOptions.map((opt) => (
-                  <button
-                    key={opt.value}
-                    className={`vk-footer-macro-dropdown-btn${item.bind_type === opt.value ? ' selected' : ''}`}
-                    style={{ background: getDropdownBg(item, opt) }}
-                    onClick={() => handleTypeChange(i, opt.value)}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </span>
-        ))
-      )}
-
-      <span style={{ position: 'relative', display: 'inline-block' }}>
+    <div className="vk-footer">
+      <div className="vk-footer-row">
+        <span className="vk-footer-selected-label">Selected Key:</span>
+        <span className="vk-footer-selected-key">{selectedKey}</span>
         <button
-          className="vk-footer-macro-btn"
-          style={{
-            fontWeight: 'bold',
-            fontSize: 18,
-            padding: '0 0.7rem',
-            marginLeft: macro.length > 0 ? 8 : 0
-          }}
-          onClick={() => setShowKeyModal(true)}
+          className="vk-footer-clear"
+          onClick={() => profileControler.removeBind(trigger, onMacroChange)}
         >
-          +
+          Clear
         </button>
-      </span>
+      </div>
 
-      {showKeyModal && (
-        <KeyModal
-          onClose={() => setShowKeyModal(false)}
-          onAddKey={handleAddKeyToMacro}
-        />
-      )}
-    </div>
+      <div className="vk-footer-row">
+        <span className="vk-footer-macro-label">New Mapping:</span>
+        {macro.length === 0 ? (
+          <span className="vk-footer-macro-empty">(Tap keys to add to macro)</span>
+        ) : (
+          macro.map((item, i) => (
+            <span key={i} style={{ position: 'relative', display: 'inline-block' }}>
+              <button
+                className="vk-footer-macro-btn relative z-10"
+                style={{
+                  background: getMacroButtonBg(item),
+                  position: 'relative'
+                }}
+                onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
+                tabIndex={0}
+              >
+                {getMacroValue(item)}
+              </button>
+              {openDropdown === i && (
+                <div className="vk-footer-macro-dropdown">
+                  {typeOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      className={`vk-footer-macro-dropdown-btn${item.bind_type === opt.value ? ' selected' : ''}`}
+                      style={{ background: getDropdownBg(item, opt) }}
+                      onClick={() => handleTypeChange(i, opt.value)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </span>
+          ))
+        )}
 
-    <div className="vk-footer-row">
-      <button className="vk-footer-close" onClick={() => onClose(true)}>
-        Save
-      </button>
-      <button
-        className="vk-footer-close"
-        onClick={() => onClose(false)}
-        style={{ marginLeft: 'auto' }}
-      >
-        Close
-      </button>
+        <span style={{ position: 'relative', display: 'inline-block' }}>
+          <button
+            className="vk-footer-macro-btn"
+            style={{
+              fontWeight: 'bold',
+              fontSize: 18,
+              padding: '0 0.7rem',
+              marginLeft: macro.length > 0 ? 8 : 0
+            }}
+            onClick={() => setShowKeyModal(true)}
+          >
+            +
+          </button>
+        </span>
+
+        {showKeyModal && (
+          <KeyModal
+            onClose={() => setShowKeyModal(false)}
+            onAddKey={handleAddKeyToMacro}
+            onSelectLayer={handleAddLayerToMacro}
+            layers={profileControler.getProfile().layers}
+            activeLayer={profileControler.activeLayer}
+            currentLayerIndex={profileControler.activeLayer.layer_number}
+          />
+        )}
+      </div>
+
+      <div className="vk-footer-row">
+        <button className="vk-footer-close" onClick={() => onClose(true)}>
+          Save
+        </button>
+        <button
+          className="vk-footer-close"
+          onClick={() => onClose(false)}
+          style={{ marginLeft: 'auto' }}
+        >
+          Close
+        </button>
+      </div>
     </div>
-  </div>
-)
+  )
 }
