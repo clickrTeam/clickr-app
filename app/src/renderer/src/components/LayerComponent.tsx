@@ -12,8 +12,7 @@ import { useState } from 'react'
 import { Input } from './ui/input'
 import { Trigger } from '../../../models/Trigger'
 import { Bind } from '../../../models/Bind'
-import { Modification } from '../../../models/Modification'
-import { AdvancedModificaiton } from 'src/models/Modification'
+import { AdvancedModificaiton } from '../../../models/Modification'
 
 interface LayerComponentProps {
   layer: Layer
@@ -60,10 +59,10 @@ export const LayerComponent = ({ layer, maxLayer, onUpdate }: LayerComponentProp
       </CardHeader>
 
       <CardContent className="p-4 space-y-2">
-        {Array.from(layer.remappings.entries()).map(([trigger, bind], index) => (
+        {layer.remappings.map((mod, index) => (
           <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
             <span className="text-sm">
-              {trigger.toString()} → {bind.toString()}
+              {mod.toString()}
             </span>
 
             <DropdownMenu>
