@@ -4,7 +4,7 @@
  */
 import { Profile } from '../src/models/Profile'
 import * as utils from './test_utils/test_utils'
-import { MacKey, WinKey, LinuxKey, Key } from '../src/models/Keys'
+import { MacKey, WinKey, LinuxKey, Letters, Digits, Function } from '../src/models/Keys'
 import * as T from '../src/models/Trigger'
 import * as B from '../src/models/Bind'
 
@@ -20,48 +20,48 @@ describe('Basic profile translations between OS', () => {
     mac.translateToTargetOS('macOS', 'Windows')
 
     expect(mac.OS).toBe('Windows')
-    expect(mac.layers[0].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(mac.layers[0].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(WinKey.WinLeft)
     )
 
-    expect(mac.layers[0].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(mac.layers[0].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(WinKey.WinRight)
     )
 
-    expect(mac.layers[0].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(mac.layers[0].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(WinKey.AltLeft)
     )
 
-    expect(mac.layers[0].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(mac.layers[0].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(WinKey.AltRight)
     )
 
-    expect(mac.layers[0].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(mac.layers[0].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(WinKey.CtrlLeft)
     )
 
     // Verify layer 1 was also translated
-    expect(mac.layers[1].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(mac.layers[1].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(WinKey.WinLeft)
     )
 
-    expect(mac.layers[1].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(mac.layers[1].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(WinKey.WinRight)
     )
 
-    expect(mac.layers[1].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(mac.layers[1].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(WinKey.AltLeft)
     )
 
-    expect(mac.layers[1].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(mac.layers[1].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(WinKey.AltRight)
     )
 
-    expect(mac.layers[1].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(mac.layers[1].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(WinKey.CtrlLeft)
     )
 
-    expect(mac.layers[1].getRemapping(new T.KeyPress(WinKey.WinLeft))).toEqual(new B.TapKey(Key.A))
+    expect(mac.layers[1].getRemapping(new T.KeyPress(WinKey.WinLeft))).toEqual(new B.TapKey(Letters.A))
   })
 
   test('Basic macOS to Linux', () => {
@@ -71,49 +71,49 @@ describe('Basic profile translations between OS', () => {
     expect(mac.OS).toBe('Linux')
 
     // Layer 0 translated binds
-    expect(mac.layers[0].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(mac.layers[0].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(LinuxKey.SuperLeft)
     )
 
-    expect(mac.layers[0].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(mac.layers[0].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(LinuxKey.SuperRight)
     )
 
-    expect(mac.layers[0].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(mac.layers[0].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(LinuxKey.AltLeft)
     )
 
-    expect(mac.layers[0].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(mac.layers[0].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(LinuxKey.AltRight)
     )
 
-    expect(mac.layers[0].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(mac.layers[0].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(LinuxKey.CtrlLeft)
     )
 
     // Layer 1 translated binds
-    expect(mac.layers[1].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(mac.layers[1].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(LinuxKey.SuperLeft)
     )
 
-    expect(mac.layers[1].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(mac.layers[1].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(LinuxKey.SuperRight)
     )
 
-    expect(mac.layers[1].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(mac.layers[1].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(LinuxKey.AltLeft)
     )
 
-    expect(mac.layers[1].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(mac.layers[1].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(LinuxKey.AltRight)
     )
 
-    expect(mac.layers[1].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(mac.layers[1].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(LinuxKey.CtrlLeft)
     )
 
     expect(mac.layers[1].getRemapping(new T.KeyPress(LinuxKey.SuperLeft))).toEqual(
-      new B.TapKey(Key.A)
+      new B.TapKey(Letters.A)
     )
   })
 
@@ -124,58 +124,58 @@ describe('Basic profile translations between OS', () => {
     expect(win.OS).toBe('macOS')
 
     // Layer 0 translated binds
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(MacKey.CommandLeft)
     )
 
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(MacKey.CommandRight)
     )
 
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(MacKey.Control)
     )
 
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(MacKey.Control)
     )
 
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(MacKey.OptionLeft)
     )
 
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit6))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit6))).toEqual(
       new B.TapKey(MacKey.OptionRight)
     )
 
     // Layer 1 translated binds
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(MacKey.CommandLeft)
     )
 
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(MacKey.CommandRight)
     )
 
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(MacKey.Control)
     )
 
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(MacKey.Control)
     )
 
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(MacKey.OptionLeft)
     )
 
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit6))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit6))).toEqual(
       new B.TapKey(MacKey.OptionRight)
     )
 
     // Verify trigger translation
     expect(win.layers[1].getRemapping(new T.KeyPress(MacKey.CommandLeft))).toEqual(
-      new B.TapKey(Key.A)
+      new B.TapKey(Letters.A)
     )
   })
 
@@ -186,57 +186,57 @@ describe('Basic profile translations between OS', () => {
     expect(win.OS).toBe('Linux')
 
     // Layer 0 translated binds
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(LinuxKey.SuperLeft)
     )
 
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(LinuxKey.SuperRight)
     )
 
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(LinuxKey.CtrlLeft)
     )
 
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(LinuxKey.CtrlRight)
     )
 
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(LinuxKey.AltLeft)
     )
 
-    expect(win.layers[0].getRemapping(new T.KeyPress(Key.Digit6))).toEqual(
+    expect(win.layers[0].getRemapping(new T.KeyPress(Digits.Digit6))).toEqual(
       new B.TapKey(LinuxKey.AltRight)
     )
 
     // Layer 1 translated binds
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(LinuxKey.SuperLeft)
     )
 
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(LinuxKey.SuperRight)
     )
 
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(LinuxKey.CtrlLeft)
     )
 
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(LinuxKey.CtrlRight)
     )
 
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(LinuxKey.AltLeft)
     )
 
-    expect(win.layers[1].getRemapping(new T.KeyPress(Key.Digit6))).toEqual(
+    expect(win.layers[1].getRemapping(new T.KeyPress(Digits.Digit6))).toEqual(
       new B.TapKey(LinuxKey.AltRight)
     )
 
     expect(win.layers[1].getRemapping(new T.KeyPress(LinuxKey.SuperLeft))).toEqual(
-      new B.TapKey(Key.A)
+      new B.TapKey(Letters.A)
     )
   })
 
@@ -247,57 +247,57 @@ describe('Basic profile translations between OS', () => {
     expect(linux.OS).toBe('macOS')
 
     // Layer 0 translated binds
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(MacKey.CommandLeft)
     )
 
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(MacKey.CommandRight)
     )
 
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(MacKey.Control)
     )
 
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(MacKey.Control)
     )
 
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(MacKey.OptionLeft)
     )
 
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit6))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit6))).toEqual(
       new B.TapKey(MacKey.OptionRight)
     )
 
     // Layer 1 translated binds
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(MacKey.CommandLeft)
     )
 
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(MacKey.CommandRight)
     )
 
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(MacKey.Control)
     )
 
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(MacKey.Control)
     )
 
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(MacKey.OptionLeft)
     )
 
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit6))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit6))).toEqual(
       new B.TapKey(MacKey.OptionRight)
     )
 
     expect(linux.layers[1].getRemapping(new T.KeyPress(MacKey.CommandLeft))).toEqual(
-      new B.TapKey(Key.A)
+      new B.TapKey(Letters.A)
     )
   })
 
@@ -308,57 +308,57 @@ describe('Basic profile translations between OS', () => {
     expect(linux.OS).toBe('Windows')
 
     // Layer 0 translated binds
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(WinKey.WinLeft)
     )
 
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(WinKey.WinRight)
     )
 
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(WinKey.CtrlLeft)
     )
 
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(WinKey.CtrlRight)
     )
 
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(WinKey.AltLeft)
     )
 
-    expect(linux.layers[0].getRemapping(new T.KeyPress(Key.Digit6))).toEqual(
+    expect(linux.layers[0].getRemapping(new T.KeyPress(Digits.Digit6))).toEqual(
       new B.TapKey(WinKey.AltRight)
     )
 
     // Layer 1 translated binds
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit1))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit1))).toEqual(
       new B.TapKey(WinKey.WinLeft)
     )
 
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit2))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit2))).toEqual(
       new B.TapKey(WinKey.WinRight)
     )
 
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit3))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit3))).toEqual(
       new B.TapKey(WinKey.CtrlLeft)
     )
 
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit4))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit4))).toEqual(
       new B.TapKey(WinKey.CtrlRight)
     )
 
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit5))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit5))).toEqual(
       new B.TapKey(WinKey.AltLeft)
     )
 
-    expect(linux.layers[1].getRemapping(new T.KeyPress(Key.Digit6))).toEqual(
+    expect(linux.layers[1].getRemapping(new T.KeyPress(Digits.Digit6))).toEqual(
       new B.TapKey(WinKey.AltRight)
     )
 
     expect(linux.layers[1].getRemapping(new T.KeyPress(WinKey.WinLeft))).toEqual(
-      new B.TapKey(Key.A)
+      new B.TapKey(Letters.A)
     )
   })
 })
@@ -369,7 +369,7 @@ describe('Recursive binds translation between OS', () => {
     mac_recursive.translateToTargetOS('macOS', 'Windows')
 
     expect(mac_recursive.OS).toBe('Windows')
-    const b1 = mac_recursive.layers[0].getRemapping(new T.KeyPress(Key.A))
+    const b1 = mac_recursive.layers[0].getRemapping(new T.KeyPress(Letters.A))
     const macro = b1 as B.Macro_Bind
     expect(macro).toBeInstanceOf(B.Macro_Bind)
     expect(macro.binds[0]).toBeInstanceOf(B.Macro_Bind)

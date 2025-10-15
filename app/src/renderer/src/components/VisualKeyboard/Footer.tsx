@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
 import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
-import { keys } from '../../../../models/Keys'
 import { KeyPressInfo } from './Model'
 import { bindTypeColors } from './Colors'
 import './Footer.css'
 import { ProfileController } from './ProfileControler'
 import { Trigger } from '../../../../models/Trigger'
+import { Layer } from '../../../../models/Layer'
+import { SwapLayer } from '../../../../models/Bind'
+import { KeyModal } from './KeyModal'
 import log from 'electron-log'
 
-const typeOptions: { value: BindType | undefined; label: string }[] = [
-  { value: undefined, label: 'X' },
+const typeOptions: { value: BindType; label: string }[] = [
   { value: BindType.TapKey, label: 'Tap' },
   { value: BindType.PressKey, label: 'Press' },
   { value: BindType.ReleaseKey, label: 'Release' }
@@ -19,14 +20,18 @@ function getMacroButtonBg(item: Bind): string {
   return `${bindTypeColors[item.bind_type as BindType]}80`
 }
 
-
 function getDropdownBg(item: Bind, opt: { value: BindType | undefined }): string | undefined {
   if (!opt.value) return ''
   return item.bind_type === opt.value ? `${bindTypeColors[opt.value]}22` : undefined
 }
 
 function getMacroValue(item: Bind): string {
-  if ('value' in item) return (item as TapKey | PressKey | ReleaseKey).value
+  if ('value' in item) {
+    return (item as TapKey | PressKey | ReleaseKey).value
+  } else if ('layer_number' in item) {
+    return 'Swap to Layer ' + item.layer_number
+  }
+  log.warn(`Macro value not applicable to add ${item.bind_type}`)
   return ''
 }
 
@@ -37,6 +42,7 @@ export interface VisualKeyboardFooterProps {
   trigger: Trigger | null
   onMacroChange: (macro: Bind[]) => void
   onClose: (save: boolean) => void
+  activeLayer: Layer
 }
 
 export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
@@ -48,10 +54,10 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   onClose
 }): JSX.Element | null => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
-  const [showKeySelector, setShowKeySelector] = useState(false)
+  const [showKeyModal, setShowKeyModal] = useState(false)
   if (!selectedKey) return null
   if (!trigger) {
-    log.warn('No trigger provided to VisualKeyboardFooter. Aborting.');
+    log.warn('No trigger provided to VisualKeyboardFooter. Aborting.')
     return null
   }
 
@@ -96,14 +102,19 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       onMacroChange([...macro, new PressKey(key.key)])
     } else {
       if (macro[macro.length - 1] instanceof PressKey) {
-        var macros = [...macro]
+        const macros = [...macro]
         macros[macros.length - 1] = new TapKey(key.key)
         onMacroChange(macros)
       } else {
         onMacroChange([...macro, new ReleaseKey(key.key)])
       }
     }
-    setShowKeySelector(false)
+  }
+
+  function handleAddLayerToMacro(layerIdx: number): void {
+    const newMacro = [...macro, new SwapLayer(layerIdx)]
+    onMacroChange(newMacro)
+    setShowKeyModal(false)
   }
 
   return (
@@ -111,8 +122,14 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       <div className="vk-footer-row">
         <span className="vk-footer-selected-label">Selected Key:</span>
         <span className="vk-footer-selected-key">{selectedKey}</span>
-        <button className="vk-footer-clear" onClick={() => profileControler.removeBind(trigger, onMacroChange)}>Clear</button>
+        <button
+          className="vk-footer-clear"
+          onClick={() => profileControler.removeBind(trigger, onMacroChange)}
+        >
+          Clear
+        </button>
       </div>
+
       <div className="vk-footer-row">
         <span className="vk-footer-macro-label">New Mapping:</span>
         {macro.length === 0 ? (
@@ -121,7 +138,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
           macro.map((item, i) => (
             <span key={i} style={{ position: 'relative', display: 'inline-block' }}>
               <button
-                className={`vk-footer-macro-btn relative z-10`}
+                className="vk-footer-macro-btn relative z-10"
                 style={{
                   background: getMacroButtonBg(item),
                   position: 'relative'
@@ -148,6 +165,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             </span>
           ))
         )}
+
         <span style={{ position: 'relative', display: 'inline-block' }}>
           <button
             className="vk-footer-macro-btn"
@@ -157,29 +175,24 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
               padding: '0 0.7rem',
               marginLeft: macro.length > 0 ? 8 : 0
             }}
-            onClick={() => setShowKeySelector((v) => !v)}
+            onClick={() => setShowKeyModal(true)}
           >
             +
           </button>
-          {showKeySelector && (
-            <div
-              className="vk-footer-macro-dropdown"
-              style={{ left: 0, minWidth: 160, maxHeight: 200, overflowY: 'auto' }}
-            >
-              {keys.map((key) => (
-                <button
-                  key={key}
-                  className="vk-footer-macro-dropdown-btn"
-                  style={{ width: '100%' }}
-                  onClick={() => handleAddKeyToMacro({ key, isDown: true })}
-                >
-                  {key}
-                </button>
-              ))}
-            </div>
-          )}
         </span>
+
+        {showKeyModal && (
+          <KeyModal
+            onClose={() => setShowKeyModal(false)}
+            onAddKey={handleAddKeyToMacro}
+            onSelectLayer={handleAddLayerToMacro}
+            layers={profileControler.getProfile().layers}
+            activeLayer={profileControler.activeLayer}
+            currentLayerIndex={profileControler.activeLayer.layer_number}
+          />
+        )}
       </div>
+
       <div className="vk-footer-row">
         <button className="vk-footer-close" onClick={() => onClose(true)}>
           Save

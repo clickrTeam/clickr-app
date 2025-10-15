@@ -48,7 +48,7 @@ export function registerProfileHandlers(): void {
       }
     }
 
-    // Create a new lock so get-active-profile will wait until we finish sending
+    // Create a new lock so get-active-profile will wait until we finish sending.
     activeProfileLock = new Promise<void>((resolve) => {
       releaseActiveProfileLock = resolve
     })
