@@ -1,13 +1,14 @@
-import { Trigger } from "./Trigger"
-import { Bind } from "./Bind"
+import { deserializeTrigger, Trigger } from "./Trigger"
+import { Bind, deserializeBind } from "./Bind"
 import { LLRemapping } from "./LowLevelProfile";
 export enum ModType {
   Advanced = 'advanced'
 }
 
-//TOOD: Should this be an abstract class or just an interface
 export abstract class Modification {
   abstract toJSON(): object
+  abstract toLL(): LLRemapping
+  abstract toString(): string
 }
 
 export class AdvancedModificaiton extends Modification {
@@ -22,8 +23,8 @@ export class AdvancedModificaiton extends Modification {
   toJSON(): object {
     return {
       type: ModType.Advanced,
-      trigger: this.trigger,
-      bind: this.bind
+      trigger: this.trigger.toJSON(),
+      bind: this.bind.toJSON()
     }
   }
   toLL(): LLRemapping {
@@ -43,8 +44,13 @@ export class AdvancedModificaiton extends Modification {
     }
   }
 
+  toString(): string {
+    return `${this.trigger.toString()} → ${this.bind.toString()}`;
+  }
 
-  static fromJSON(o: object): AdvancedModificaiton {
-    throw new Error("")
+  static fromJSON(o: any): AdvancedModificaiton {
+    let trigger = deserializeTrigger(o["trigger"])
+    let bind = deserializeBind(o["bind"])
+    return new AdvancedModificaiton(trigger, bind);
   }
 }

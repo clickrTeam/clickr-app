@@ -1,3 +1,4 @@
+import { LLLayer } from './LowLevelProfile'
 import { AdvancedModificaiton, Modification } from './Modification'
 
 /**
@@ -76,8 +77,8 @@ export class Layer {
       remappings: this.remappings.map(mod => mod.toJSON())
     }
   }
-  toLL(): LLMod[] {
-    return this.remappings.map(mod => mod.toLL())
+  toLL(): LLLayer {
+    return { layer_name: this.layer_name, remappings: this.remappings.map((r) => r.toLL()) }
   }
 
   static fromJSON(obj: {

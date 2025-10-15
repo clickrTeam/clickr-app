@@ -30,7 +30,7 @@ export abstract class Trigger {
   }
 
   abstract toJSON(): object
-  abstract toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behaviour: LLBehavior }
+  abstract toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior }
   abstract equals(other: Trigger): boolean
   abstract toString(): string
 }
@@ -65,7 +65,7 @@ export class KeyPress extends Trigger {
     return `Press: ${this.value}`
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behaviour: LLBehavior } {
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
     return { "type": "key_press", "value": this.value };
   }
 }
@@ -100,7 +100,7 @@ export class KeyRelease extends Trigger {
     return `Release: ${this.value}`
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behaviour: LLBehavior } {
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
     return { "type": "key_release", "value": this.value };
   }
 }
@@ -180,7 +180,7 @@ export class TapSequence extends Trigger {
     return `Tap: ${this.key_time_pairs.map((key) => key[0]).join(' + ')}`
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behaviour: LLBehavior } {
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
     let triggers: LLAdvancedTrigger[] = [];
     for (const [key, time] of this.key_time_pairs) {
       triggers.push({
@@ -198,7 +198,7 @@ export class TapSequence extends Trigger {
     }
 
     return {
-      behaviour: this.behavior,
+      behavior: this.behavior,
       triggers: triggers,
     };
   }
@@ -236,7 +236,7 @@ export class Hold extends Trigger {
     return other instanceof Hold && this.value === other.value && this.wait === other.wait
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behaviour: LLBehavior } {
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
     throw new Error('Method not implemented.')
   }
 }
@@ -276,7 +276,7 @@ export class AppFocus extends Trigger {
     )
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behaviour: LLBehavior } {
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
     throw new Error('Method not implemented.')
   }
 }

@@ -1,5 +1,5 @@
 import { Trigger, deserializeTrigger } from './Trigger'
-import { LLAdvancedTrigger, LLBasicTrigger, LLBind, LLPressKey } from './LowLevelProfile'
+import { LLBind } from './LowLevelProfile'
 export enum BindType {
   PressKey = 'press_key',
   ReleaseKey = 'release_key',
