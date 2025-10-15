@@ -1,28 +1,71 @@
-type LLProfile = {
-  layers: LLMod[][]
-}
+export type LLProfile = {
+  profile_name: string;
+  default_layer?: number; // optional because your code defaults to 0
+  layers: LLLayer[];
+};
 
-type LLMod = {
-  from: LLFrom
-  to: LLTo
-  priority: number
-}
+export type LLLayer = {
+  layer_name: string;
+  remappings: LLRemapping[];
+};
 
-type LLFrom = {
-  type: "key_up" | "key_down",
-  key_code: string,
-} | {
-  type: "timeout" | "wait"
-  ms: number
-}
+export type LLRemapping = (LLBasicRemapping | LLSequenceRemapping);
 
-type LLTo = {
-  type: "press_key" | "release_key",
-  key_code: string,
-} | {
-  type: "swap_layer"
-  layer: number
-} | {
-  type: "wait"
-  ms: number
-}
+export type LLBasicRemapping = {
+  trigger: LLBasicTrigger;
+  binds: LLBind[];
+};
+
+export type LLBehavior = "capture" | "release" | "default";
+export type LLSequenceRemapping = {
+  triggers: LLAdvancedTrigger[];
+  binds: LLBind[];
+  behavior: LLBehavior;
+};
+
+
+export type LLBasicTrigger = LLKeyPress | LLKeyRelease;
+
+export type LLAdvancedTrigger = LLKeyPress | LLKeyRelease | LLMinimumWait | LLMaximumWait;
+
+export type LLKeyPress = {
+  type: "key_press";
+  value: string;
+};
+
+export type LLKeyRelease = {
+  type: "key_release";
+  value: string;
+};
+
+export type LLMinimumWait = {
+  type: "minimum_wait";
+  value: number;
+};
+
+export type LLMaximumWait = {
+  type: "maximum_wait";
+  value: number;
+};
+
+export type LLBind = LLPressKey | LLReleaseKey | LLSwapLayer | LLWait;
+
+export type LLPressKey = {
+  type: "press_key";
+  value: string;
+};
+
+export type LLReleaseKey = {
+  type: "release_key";
+  value: string;
+};
+
+export type LLSwapLayer = {
+  type: "switch_layer";
+  value: number;
+};
+
+export type LLWait = {
+  type: "wait";
+  value: number;
+};
