@@ -63,7 +63,8 @@ function App(): JSX.Element {
     <div className="flex flex-col min-h-screen bg-white w-full h-full">
       <Navbar isAuthenticated={isAuthenticated} username={username} logout={logout} />
 
-      <div className="w-full px-4 flex-grow py-8">
+      {/* Add padding-top to account for fixed navbar */}
+      <div className="w-full px-4 flex-grow py-8 pt-20">
         <Routes>
           <Route
             path="/"

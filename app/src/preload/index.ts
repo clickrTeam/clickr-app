@@ -37,7 +37,7 @@ const api: API = {
     return ipcRenderer.invoke('create-mapping', username, mappingData)
   },
   createNewMapping: function (username: string, mappingData: any): Promise<any> {
-    return ipcRenderer.invoke('create-mapping', username, mappingData)
+    return ipcRenderer.invoke('import-community-mapping', username, mappingData)
   },
   deleteMapping: function (username: string, mappingId: string): Promise<any> {
     return ipcRenderer.invoke('delete-mapping', username, mappingId)

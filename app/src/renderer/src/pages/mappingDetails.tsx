@@ -83,6 +83,7 @@ const MappingDetail = (): JSX.Element => {
   const [remappings, setRemappings] = useState<Layer[]>([])
   const [isCreating, setIsCreating] = useState(false)
   const [newMappingTags, setNewMappingTags] = useState<string[]>([])
+  const [currentUsername, setCurrentUsername] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchMapping = async (): Promise<void> => {
@@ -100,6 +101,21 @@ const MappingDetail = (): JSX.Element => {
 
     fetchMapping()
   }, [mappingId])
+
+  useEffect(() => {
+    const checkAuth = async (): Promise<void> => {
+      try {
+        const authStatus = await window.api.checkAuth()
+        if (authStatus.isAuthenticated && authStatus.username) {
+          setCurrentUsername(authStatus.username)
+        }
+      } catch (error) {
+        log.error('Error checking authentication:', error)
+      }
+    }
+
+    checkAuth()
+  }, [])
 
   useEffect(() => {
     if (mapping?.tags) {
@@ -188,6 +204,13 @@ const MappingDetail = (): JSX.Element => {
   }
 
   const duplicateMapping = async (): Promise<void> => {
+    if (!currentUsername) {
+      toast.error('Please log in to duplicate mappings', {
+        style: { background: '#ef4444', color: 'white' }
+      })
+      return
+    }
+
     try {
       const mappingData = {
         name: mapping.name + ' (Copy)',
@@ -200,8 +223,7 @@ const MappingDetail = (): JSX.Element => {
         tags: mapping.tags
       }
       log.info('Attempting to duplicate mapping data:', mappingData)
-      // TODO: Add current user and change from TEST_USER
-      await window.api.createNewMapping('TEST_USER', mappingData)
+      await window.api.createNewMapping(currentUsername, mappingData)
       toast.success('Mapping duplicated successfully', {
         style: { background: '#22c55e', color: 'white' }
       })
@@ -209,10 +231,20 @@ const MappingDetail = (): JSX.Element => {
       //   navigate(`/my-mappings`)
     } catch (error) {
       log.error('Failed to duplicate mapping: ', error)
+      toast.error('Failed to duplicate mapping', {
+        style: { background: '#ef4444', color: 'white' }
+      })
     }
   }
 
   const importMapping = async (): Promise<void> => {
+    if (!currentUsername) {
+      toast.error('Please log in to import mappings', {
+        style: { background: '#ef4444', color: 'white' }
+      })
+      return
+    }
+
     try {
       const mappingData = {
         name: mapping.name + ' (Imported)',
@@ -224,8 +256,7 @@ const MappingDetail = (): JSX.Element => {
         num_downloads: 0,
         tags: mapping.tags
       }
-      // TODO: Add current user and change from TEST_USER
-      await window.api.createNewMapping('TEST_USER', mappingData)
+      await window.api.createNewMapping(currentUsername, mappingData)
       toast.success('Mapping imported successfully', {
         style: { background: '#22c55e', color: 'white' }
       })
@@ -233,6 +264,9 @@ const MappingDetail = (): JSX.Element => {
       //   navigate(`/my-mappings`)
     } catch (error) {
       log.error('Failed to import mapping: ', error)
+      toast.error('Failed to import mapping', {
+        style: { background: '#ef4444', color: 'white' }
+      })
     }
   }
 

@@ -114,7 +114,7 @@ export function registerApiHandlers(): void {
     }
   })
 
-  // Create mapping
+  // Create mapping (from local Profile)
   ipcMain.handle('create-mapping', async (_, username: string, mappingData) => {
     //TODO: Temparary hack
     const entireMapping = {
@@ -134,6 +134,18 @@ export function registerApiHandlers(): void {
     } catch (error) {
       log.error('Error creating mapping:', error)
       throw new Error(error instanceof Error ? error.message : 'Failed to create mapping')
+    }
+  })
+
+  // Create mapping (from community import/duplicate - already formatted)
+  ipcMain.handle('import-community-mapping', async (_, username: string, mappingData) => {
+    try {
+      const response = await api.post(`users/${username}/mappings/new`, mappingData)
+      log.info(`Importing community mapping for user ${username}`)
+      return response.data
+    } catch (error) {
+      log.error('Error importing community mapping:', error)
+      throw new Error(error instanceof Error ? error.message : 'Failed to import mapping')
     }
   })
 
