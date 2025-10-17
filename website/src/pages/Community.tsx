@@ -39,8 +39,8 @@ type Mapping = {
 };
 const filters = [
   "All",
-  "Popular",
-  "Recent",
+  "Coding",
+  "Small-Keyboard",
   "Gaming",
   "Productivity",
   "Design",
@@ -99,12 +99,12 @@ const Community = () => {
   useEffect(() => {
     fetchCommunityMappings();
   }, []);
-  
+
   const handleLike = (id: string) => {
     setMappings(
       mappings.map((mapping) => {
         if (mapping.id === id) {
-          console.log("here")
+          // console.log("here");
           return {
             ...mapping,
             likeCount: mapping.numLikes
@@ -112,7 +112,7 @@ const Community = () => {
               : mapping.numLikes + 1,
           };
         }
-        console.log("here2")
+        console.log("here2");
         return mapping;
       })
     );
@@ -195,19 +195,19 @@ const Community = () => {
                   <CardTitle>{mapping.name}</CardTitle>
                   <CardDescription>
                     <span className="flex flex-wrap items-center gap-2 mt-1">
-                            <span className="text-sm text-muted-foreground m-0">
-                              {mapping.description}
-                            </span>
-                            {mapping.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="px-2 py-1 rounded-full bg-primary/10 text-xs font-medium text-primary"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </span>
-                          </CardDescription>
+                      <span className="text-sm text-muted-foreground m-0">
+                        {mapping.description}
+                      </span>
+                      {mapping.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-1 rounded-full bg-primary/10 text-xs font-medium text-primary"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </span>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <div className="flex items-center text-sm text-muted-foreground">
