@@ -1,4 +1,5 @@
 import { Trigger, deserializeTrigger } from './Trigger'
+import { LLBind } from './LowLevelProfile'
 export enum BindType {
   PressKey = 'press_key',
   ReleaseKey = 'release_key',
@@ -28,6 +29,7 @@ export abstract class Bind {
   abstract toString(): string
   abstract toJSON(): object
   abstract equals(other: Bind): boolean
+  abstract toLL(): LLBind[]
 }
 
 /**
@@ -59,6 +61,10 @@ export class PressKey extends Bind {
   toString(): string {
     return `Press: ${this.value}`
   }
+
+  toLL(): LLBind[] {
+    return [{ type: "press_key", value: this.value }]
+  }
 }
 
 /**
@@ -88,6 +94,10 @@ export class ReleaseKey extends Bind {
   }
   toString(): string {
     return `Release: ${this.value}`
+  }
+
+  toLL(): LLBind[] {
+    return [{ type: "release_key", value: this.value }]
   }
 }
 
@@ -120,12 +130,16 @@ export class TapKey extends Bind {
   toString(): string {
     return `Tap: ${this.value}`
   }
+
+  toLL(): LLBind[] {
+    return [{ type: "press_key", value: this.value }, { type: "release_key", value: this.value }]
+  }
 }
 
 /**
  * A combination of different types of binds. Can be link and combo, combo and repeat, etc.
  */
-export class Macro_Bind extends Bind {
+export class Macro extends Bind {
   toString(): string {
     return `Macro: ${this.binds.map((b) => b.toString()).join(', ')}`
   }
@@ -143,24 +157,27 @@ export class Macro_Bind extends Bind {
     }
   }
 
-  static fromJSON(obj: { binds: object[] }): Macro_Bind {
-    return new Macro_Bind(obj.binds.map(deserializeBind))
+  static fromJSON(obj: { binds: object[] }): Macro {
+    return new Macro(obj.binds.map(deserializeBind))
   }
 
   equals(other: Bind): boolean {
     return (
-      other instanceof Macro_Bind &&
+      other instanceof Macro &&
       this.binds.length === other.binds.length &&
       this.binds.every((b, i) => b.equals(other.binds[i]))
     )
   }
+
+  toLL(): LLBind[] {
+    return this.binds.map((b) => b.toLL()).flat();
+  }
 }
 
-// Could possibly just do a delayed macro where it presses the key later.
 /**
  * A macro where there are time delays between each bind. Each time delay can be different.
  */
-export class TimedMacro_Bind extends Bind {
+export class TimedMacro extends Bind {
   toString(): string {
     throw new Error('Method not implemented.')
   }
@@ -181,25 +198,35 @@ export class TimedMacro_Bind extends Bind {
     }
   }
 
-  static fromJSON(obj: { binds: object[]; times: number[] }): TimedMacro_Bind {
-    return new TimedMacro_Bind(obj.binds.map(deserializeBind), obj.times)
+  static fromJSON(obj: { binds: object[]; times: number[] }): TimedMacro {
+    return new TimedMacro(obj.binds.map(deserializeBind), obj.times)
   }
 
   equals(other: Bind): boolean {
     return (
-      other instanceof TimedMacro_Bind &&
+      other instanceof TimedMacro &&
       this.binds.length === other.binds.length &&
       this.times.length === other.times.length &&
       this.binds.every((b, i) => b.equals(other.binds[i])) &&
       this.times.every((t, i) => t === other.times[i])
     )
   }
+
+  toLL(): LLBind[] {
+    let binds: LLBind[] = [];
+    for (let i = 0; i < binds.length; i++) {
+      binds.push(...this.binds[i].toLL());
+      if (i < this.times.length)
+        binds.push({ type: "wait", value: this.times[i] });
+    }
+    return binds;
+  }
 }
 
 /**
  * A bind that will repeat a certain number of times with or without a delay.
  */
-export class Repeat_Bind extends Bind {
+export class Repeat extends Bind {
   toString(): string {
     throw new Error('Method not implemented.')
   }
@@ -243,8 +270,8 @@ export class Repeat_Bind extends Bind {
     time_delay: number
     times_to_execute: number
     cancel_trigger: object
-  }): Repeat_Bind {
-    return new Repeat_Bind(
+  }): Repeat {
+    return new Repeat(
       deserializeBind(obj.value),
       obj.time_delay,
       obj.times_to_execute,
@@ -254,12 +281,16 @@ export class Repeat_Bind extends Bind {
 
   equals(other: Bind): boolean {
     return (
-      other instanceof Repeat_Bind &&
+      other instanceof Repeat &&
       this.value.equals(other.value) &&
       this.time_delay === other.time_delay &&
       this.times_to_execute === other.times_to_execute &&
       this.cancel_trigger.equals(other.cancel_trigger)
     )
+  }
+
+  toLL(): LLBind[] {
+    throw new Error('Method not implemented.')
   }
 }
 
@@ -291,6 +322,10 @@ export class SwapLayer extends Bind {
 
   toString(): string {
     return `Swap Layer: ${this.layer_number}`
+  }
+
+  toLL(): LLBind[] {
+    return [{ type: "switch_layer", value: this.layer_number }]
   }
 }
 
@@ -324,6 +359,10 @@ export class AppOpen_Bind extends Bind {
   toString(): string {
     throw new Error('Method not implemented.')
   }
+
+  toLL(): LLBind[] {
+    throw new Error('Method not implemented.')
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -336,11 +375,11 @@ export function deserializeBind(obj: any): Bind {
     case BindType.TapKey:
       return TapKey.fromJSON(obj)
     case BindType.Macro:
-      return Macro_Bind.fromJSON(obj)
+      return Macro.fromJSON(obj)
     case BindType.TimedMacro:
-      return TimedMacro_Bind.fromJSON(obj)
+      return TimedMacro.fromJSON(obj)
     case BindType.Repeat:
-      return Repeat_Bind.fromJSON(obj)
+      return Repeat.fromJSON(obj)
     case BindType.SwitchLayer:
       return SwapLayer.fromJSON(obj)
     case BindType.AppOpen:

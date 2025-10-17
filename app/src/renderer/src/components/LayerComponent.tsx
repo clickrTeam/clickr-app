@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { Input } from './ui/input'
 import { Trigger } from '../../../models/Trigger'
 import { Bind } from '../../../models/Bind'
+import { AdvancedModificaiton } from '../../../models/Modification'
 
 interface LayerComponentProps {
   layer: Layer
@@ -23,15 +24,15 @@ export const LayerComponent = ({ layer, maxLayer, onUpdate }: LayerComponentProp
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleAddMapping = (trigger: Trigger, bind: Bind) => {
-    const newLayer = new Layer(layer.layer_name, layer.layer_number, new Map(layer.remappings))
-    newLayer.addRemapping(trigger, bind)
+    const newLayer = new Layer(layer.layer_name, [...layer.remappings])
+    newLayer.remappings.push(new AdvancedModificaiton(trigger, bind))
     onUpdate(newLayer)
     setIsDialogOpen(false)
   }
 
-  const handleDeleteMapping = (trigger: Trigger) => {
-    const newLayer = new Layer(layer.layer_name, layer.layer_number, new Map(layer.remappings))
-    newLayer.deleteRemapping(trigger)
+  const handleDeleteMapping = (index: number) => {
+    const newLayer = new Layer(layer.layer_name, [...layer.remappings])
+    newLayer.deleteRemapping(index)
     onUpdate(newLayer)
   }
 
@@ -44,14 +45,13 @@ export const LayerComponent = ({ layer, maxLayer, onUpdate }: LayerComponentProp
             onChange={(e) => {
               const newLayer = new Layer(
                 e.target.value,
-                layer.layer_number,
-                new Map(layer.remappings)
+                [...layer.remappings]
               )
               onUpdate(newLayer)
             }}
             className="w-48"
           />
-          <span className="text-sm text-muted-foreground">Layer {layer.layer_number}</span>
+          <span className="text-sm text-muted-foreground">Layer {layer.layer_name}</span>
         </div>
         <Button size="sm" onClick={() => setIsDialogOpen(true)}>
           Add Mapping
@@ -59,10 +59,10 @@ export const LayerComponent = ({ layer, maxLayer, onUpdate }: LayerComponentProp
       </CardHeader>
 
       <CardContent className="p-4 space-y-2">
-        {Array.from(layer.remappings.entries()).map(([trigger, bind], index) => (
+        {layer.remappings.map((mod, index) => (
           <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
             <span className="text-sm">
-              {trigger.toString()} → {bind.toString()}
+              {mod.toString()}
             </span>
 
             <DropdownMenu>
@@ -74,7 +74,7 @@ export const LayerComponent = ({ layer, maxLayer, onUpdate }: LayerComponentProp
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   className="text-destructive"
-                  onClick={() => handleDeleteMapping(trigger)}
+                  onClick={() => handleDeleteMapping(index)}
                 >
                   Delete
                 </DropdownMenuItem>

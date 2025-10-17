@@ -53,6 +53,24 @@ function App(): JSX.Element {
     }
   }
 
+  const confirmDeleteProfile = (profile_index: number) => {
+    toast('Are you sure you want to delete this profile?', {
+      action: {
+        label: 'Delete',
+        onClick: () => {
+          window.api.deleteProfile(profile_index)
+          updateProfiles()
+          log.info(`Profile at index ${profile_index} deleted.`)
+        }
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => { }
+      }
+    })
+  }
+
+  // Mock login function (replace with real implementation)
   const login = (userData: { username: string }): void => {
     setIsAuthenticated(true)
     setUsername(userData.username)
@@ -80,12 +98,12 @@ function App(): JSX.Element {
           />
           <Route path="/training" element={<Training />} />
           <Route path="/help/*" element={<Help />} />
-        </Routes>
-      </div>
+        </Routes >
+      </div >
 
       {/* Toaster for notifications */}
-      <Toaster />
-    </div>
+      < Toaster />
+    </div >
   )
 }
 

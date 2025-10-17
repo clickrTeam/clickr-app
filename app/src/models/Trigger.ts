@@ -1,4 +1,5 @@
 import log from 'electron-log'
+import { LLAdvancedTrigger, LLBasicTrigger, LLBehavior } from './LowLevelProfile'
 
 export enum TriggerType {
   KeyPress = 'key_press',
@@ -29,6 +30,7 @@ export abstract class Trigger {
   }
 
   abstract toJSON(): object
+  abstract toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior }
   abstract equals(other: Trigger): boolean
   abstract toString(): string
 }
@@ -62,6 +64,10 @@ export class KeyPress extends Trigger {
   toString(): string {
     return `Press: ${this.value}`
   }
+
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
+    return { "type": "key_press", "value": this.value };
+  }
 }
 
 /**
@@ -92,6 +98,10 @@ export class KeyRelease extends Trigger {
 
   toString(): string {
     return `Release: ${this.value}`
+  }
+
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
+    return { "type": "key_release", "value": this.value };
   }
 }
 
@@ -169,6 +179,29 @@ export class TapSequence extends Trigger {
   toString(): string {
     return `Tap: ${this.key_time_pairs.map((key) => key[0]).join(' + ')}`
   }
+
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
+    let triggers: LLAdvancedTrigger[] = [];
+    for (const [key, time] of this.key_time_pairs) {
+      triggers.push({
+        type: "key_press",
+        value: key,
+      })
+      triggers.push({
+        type: "key_release",
+        value: key,
+      })
+      triggers.push({
+        type: "maximum_wait",
+        value: time,
+      })
+    }
+
+    return {
+      behavior: this.behavior,
+      triggers: triggers,
+    };
+  }
 }
 
 /**
@@ -202,6 +235,10 @@ export class Hold extends Trigger {
   equals(other: Trigger): boolean {
     return other instanceof Hold && this.value === other.value && this.wait === other.wait
   }
+
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
+    throw new Error('Method not implemented.')
+  }
 }
 
 /**
@@ -228,6 +265,7 @@ export class AppFocus extends Trigger {
     }
   }
 
+
   static fromJSON(obj: { app_name: string; value: string }): AppFocus {
     return new AppFocus(obj.app_name, obj.value)
   }
@@ -236,6 +274,10 @@ export class AppFocus extends Trigger {
     return (
       other instanceof AppFocus && this.app_name === other.app_name && this.value === other.value
     )
+  }
+
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
+    throw new Error('Method not implemented.')
   }
 }
 

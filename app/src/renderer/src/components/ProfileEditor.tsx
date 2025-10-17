@@ -33,7 +33,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   const handleAddLayer = (): void => {
     log.debug('Adding new layer')
     const next = Profile.fromJSON(localProfile.toJSON())
-    next.addLayer('Layer ' + next.layer_count)
+    next.addLayer('Layer ' + next.layersLength())
 
     setSelectedLayerIndex(next.layers.length - 1)
     setLocalProfile(next)
@@ -52,7 +52,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
       },
       cancel: {
         label: 'Cancel',
-        onClick: () => {}
+        onClick: () => { }
       }
     })
   }

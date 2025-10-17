@@ -8,7 +8,7 @@ import {
   ReleaseKey,
   TapKey,
   SwapLayer,
-  Macro_Bind
+  Macro
 } from '../../../models/Bind'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import KeySelecter from './KeySelector'
@@ -51,7 +51,7 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): J
     setBindValue(BindType.Macro)
     setType(BindType.Macro)
     setMacroBinds([])
-    onBindSelected(new Macro_Bind([]))
+    onBindSelected(new Macro([]))
   }
 
   // Add a new placeholder for a new bind
@@ -65,7 +65,7 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): J
     newBinds[idx] = bind
     setMacroBinds(newBinds)
     // Only pass non-null binds to Macro_Bind
-    onBindSelected(new Macro_Bind(newBinds.filter((b): b is Bind => b !== null)))
+    onBindSelected(new Macro(newBinds.filter((b): b is Bind => b !== null)))
   }
 
   // Dynamic card width for macro binds

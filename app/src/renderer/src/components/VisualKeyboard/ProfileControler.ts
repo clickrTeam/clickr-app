@@ -1,6 +1,7 @@
 import log from 'electron-log';
-import { Bind, Macro_Bind } from '../../../../models/Bind';
+import { Bind, Macro } from '../../../../models/Bind';
 import { Layer } from '../../../../models/Layer';
+import { AdvancedModificaiton } from '../../../../models/Modification';
 import { Profile } from '../../../../models/Profile';
 import { Trigger, KeyPress } from '../../../../models/Trigger';
 
@@ -32,11 +33,11 @@ export class ProfileController {
     }
     log.debug('Adding bind:', binds, 'to trigger:', trigger);
 
-    this.activeLayer.addRemapping(trigger, new Macro_Bind(binds)) // TODO support multiple triggers
+    this.activeLayer.addRemapping(new AdvancedModificaiton(trigger, new Macro(binds)));
     this.onSave();
   }
 
-  removeBind(trigger: Trigger | null, setBind: (bind: Bind[]) => void): void {
+  jemoveBind(trigger: Trigger | null, setBind: (bind: Bind[]) => void): void {
     if (!trigger) {
       log.warn('No trigger provided to removeBind. Aborting.');
       return;
@@ -44,8 +45,16 @@ export class ProfileController {
     log.debug('Removing bind from trigger:', trigger);
 
     setBind([]);
-    this.activeLayer.deleteRemapping(trigger);
-    this.onSave();
+    const indexToDelete = this.activeLayer.remappings.findIndex(
+      (mod) => mod instanceof AdvancedModificaiton && mod.trigger.equals(trigger)
+    );
+
+    if (indexToDelete !== -1) {
+      this.activeLayer.deleteRemapping(indexToDelete);
+      this.onSave();
+    } else {
+      log.warn('No matching modification found for trigger:', trigger);
+    }
   }
 
   setLayer(index: number): void {
@@ -66,25 +75,27 @@ export class ProfileController {
 
     const trigger = new KeyPress(selectedKey);
     setTrigger(trigger);
-    const bind = this.activeLayer.getRemapping(trigger);
-    log.debug('Found binds for trigger:', bind);
-    if (bind instanceof Macro_Bind) {
-      setBind(bind.binds);
-    } else if (bind) {
-      setBind([bind]);
+
+    // Find the modification that matches the trigger
+    const foundModification = this.activeLayer.remappings.find(
+      (mod) => mod instanceof AdvancedModificaiton && mod.trigger.equals(trigger)
+    );
+
+    if (foundModification && foundModification instanceof AdvancedModificaiton) {
+      const bind = foundModification.bind;
+      log.debug('Found binds for trigger:', bind);
+      if (bind instanceof Macro) { // Use Macro instead of Macro_Bind
+        setBind(bind.binds);
+      } else {
+        setBind([bind]);
+      }
     } else {
-      log.warn('No bind found for selected key:', selectedKey);
+      log.warn('No modification found for selected key:', selectedKey);
       setBind([]);
     }
   }
 
-  getActiveRemappings(): Map<Trigger, Bind> {
-    if (!this.activeLayer) {
-      log.warn('No active layer found. Returning empty remappings.');
-      return new Map();
-    }
-    return this.activeLayer.remappings;
-  }
+
 
   getProfile(): Profile {
     return this.profile;
