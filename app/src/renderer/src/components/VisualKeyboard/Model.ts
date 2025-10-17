@@ -34,13 +34,21 @@ export function buildVisualKeyboardModel(
   const keyModels: Record<string, KeyTileModel> = {}
   const unmapped: Array<[Trigger, Bind]> = []
   const keyMap: Record<string, Array<[Trigger, Bind]>> = {}
-  for (const [trigger, bind] of profileController.getActiveRemappings().entries()) {
-    const triggerKey = (trigger as { value?: string }).value
-    if (typeof triggerKey === 'string') {
-      if (!keyMap[triggerKey]) keyMap[triggerKey] = []
-      keyMap[triggerKey].push([trigger, bind])
-    } else {
-      unmapped.push([trigger, bind])
+
+  // Iterate over the remappings array from the activeLayer
+  for (const modification of profileController.activeLayer.remappings) {
+    // Assuming all remappings are AdvancedModificaiton for now
+    if (modification instanceof AdvancedModificaiton) {
+      const trigger = modification.trigger
+      const bind = modification.bind
+      const triggerKey = (trigger as { value?: string }).value
+
+      if (typeof triggerKey === 'string') {
+        if (!keyMap[triggerKey]) keyMap[triggerKey] = []
+        keyMap[triggerKey].push([trigger, bind])
+      } else {
+        unmapped.push([trigger, bind])
+      }
     }
   }
   for (const { key, width, gapAfter } of allKeys) {

@@ -27,6 +27,10 @@ export class Profile {
    */
   OS: string
 
+  layersLength(): number {
+    return this.layers.length;
+  }
+
   /**
    * Creates an instance of a profile
    * @param profile_name: The name associated with the profile
@@ -57,21 +61,26 @@ export class Profile {
     //TODO: Add support for cloning layer 0 when you want to create a new layer.
   }
 
-  duplicateLayer(layerNumber: number) {
-    // const index = this.layers.findindex((layer) => layer.layer_number === layernumber)
-    // if (index === -1) {
-    //   log.warn(`attempted to duplicate layer ${layernumber}, but it does not exist.`)
-    //   throw new error('layer not found.')
-    // }
-    //
-    // const layertoduplicate = this.layers[index]
-    // const newlayer = new layer(layertoduplicate.layer_name + ' copy', this.layer_count)
-    // newlayer.remappings = new map(layertoduplicate.remappings)
-    // this.layers.push(newlayer)
-    // this.layer_count += 1
-    //
-    // log.info(`Layer ${layerNumber} duplicated as ${newLayer.layer_name}.`)
-    //TODO:
+  duplicateLayer(layerIndex: number): void {
+    if (layerIndex < 0 || layerIndex >= this.layers.length) {
+      log.warn(`Attempted to duplicate layer at invalid index: ${layerIndex}.`);
+      return;
+    }
+
+    const layerToDuplicate = this.layers[layerIndex];
+    // Create a new Layer instance with a new name and a deep copy of remappings
+    const newLayerName = `${layerToDuplicate.layer_name} (Copy)`;
+    const newRemappings = layerToDuplicate.remappings.map(mod => {
+      // Assuming Modification objects are immutable or can be safely copied by reference for now
+      // If Modification objects contain mutable state, a deep copy of them would be needed here.
+      return new AdvancedModificaiton(mod.trigger, mod.bind);
+    });
+    const newLayer = new Layer(newLayerName, newRemappings);
+
+    // Insert the new layer after the duplicated layer
+    this.layers.splice(layerIndex + 1, 0, newLayer);
+
+    log.info(`Layer at index ${layerIndex} duplicated as "${newLayerName}".`);
   }
 
   /**
@@ -171,7 +180,6 @@ export class Profile {
     return profile
   }
 
-<<<<<<< HEAD
   /**
    * Checks whether the incoming OS is valid, and if so begins the translation process.
    * @param incoming_OS The OS the read profile was created on.
