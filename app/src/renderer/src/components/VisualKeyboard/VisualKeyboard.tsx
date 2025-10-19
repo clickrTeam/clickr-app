@@ -139,6 +139,11 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
                 {(keyModel[0] as any).value}
               </div>
             ))}
+            {leftoverKeys.filter((keyModel) => keyModel[0] instanceof T.TapSequence).map((keyModel) => (
+              <div>
+                {(keyModel[0] as T.TapSequence).key_time_pairs.map((pair) => pair[0]).join('+')}
+              </div>
+            ))}
             {visualKeyboardModel.unmappedKeyModels.map((keyModel) => (
               <KeyTile
                 keyModel={keyModel}
