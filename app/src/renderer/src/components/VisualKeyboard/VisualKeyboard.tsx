@@ -112,8 +112,8 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
     const leftoverKeys = visualKeyboardModel.unmapped
 
     return (
-      <div className="flex flex-col mt-4">
-        <div className="flex justify-center">
+      <div className="flex flex-col mt-4 p-4" style={{ alignItems: 'center' }}>
+        <div className="flex justify-center" style={{ width: '80%' }}>
           <button
             className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             onClick={() => setShowLeftover((prev) => !prev)}
@@ -179,7 +179,7 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
         activeLayer={profileControler.activeLayer}
       />
     </Card>
-    <Card>{renderLeftoverKeys()}</Card>
+    {renderLeftoverKeys()}
     </div>
   )
 }
