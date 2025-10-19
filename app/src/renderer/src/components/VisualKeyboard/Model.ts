@@ -4,7 +4,6 @@ import { Trigger } from '../../../../models/Trigger'
 import { getKeyClass } from './Colors'
 import { KeyTile } from './KeyTile'
 import { ProfileController } from './ProfileControler'
-import { c } from 'framer-motion/dist/types.d-Cjd591yU'
 
 export interface KeyPressInfo {
   key: string
@@ -26,6 +25,7 @@ export interface KeyTileModel {
 
 export interface VisualKeyboardModel {
   keyModels: Record<string, KeyTileModel>
+  unmappedKeyModels: KeyTileModel[]
   unmapped: Array<[Trigger, Bind]>
 }
 
@@ -36,6 +36,7 @@ export function buildVisualKeyboardModel(
   selectedKey: string | null = null
 ): VisualKeyboardModel {
   const keyModels: Record<string, KeyTileModel> = {}
+  const unmappedKeyModels: KeyTileModel[] = []
   const unmapped: Array<[Trigger, Bind]> = []
   const keyMap: Record<string, Array<[Trigger, Bind]>> = {}
   for (const [trigger, bind] of profileController.getActiveRemappings().entries()) {
@@ -77,5 +78,27 @@ export function buildVisualKeyboardModel(
       isSelected
     }
   }
-  return { keyModels, unmapped }
+
+  for (const k in keyMap) {
+    if (k in keyModels) continue
+    const mapped = keyMap[k]
+    unmappedKeyModels.push({
+      displayKey: undefined,
+      key: k,
+      width: 2.5,
+      gapAfter: '0rem',
+      className: 'vk-key',
+      mapped,
+      displayWidth: '2.5rem',
+      isDown: false,
+      isSelected: false
+    })
+  }
+
+  unmapped.sort((a, b) => {
+      const aKey = (a[0] as { value?: string }).value || ''
+      const bKey = (b[0] as { value?: string }).value || ''
+      return aKey.localeCompare(bKey)
+    })
+  return { keyModels, unmappedKeyModels, unmapped }
 }
