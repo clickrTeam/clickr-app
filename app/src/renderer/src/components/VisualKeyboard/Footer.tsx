@@ -102,9 +102,8 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       onMacroChange([...macro, new PressKey(key.key)])
     } else {
       if (macro[macro.length - 1] instanceof PressKey) {
-        const macros = [...macro]
-        macros[macros.length - 1] = new TapKey(key.key)
-        onMacroChange(macros)
+        macro[macro.length - 1] = new TapKey(key.key)
+        onMacroChange(macro)
       } else {
         onMacroChange([...macro, new ReleaseKey(key.key)])
       }
@@ -184,7 +183,9 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         {showKeyModal && (
           <KeyModal
             onClose={() => setShowKeyModal(false)}
-            onAddKey={handleAddKeyToMacro}
+            onAddKey={
+              (key: KeyPressInfo) => onMacroChange([...macro, new TapKey(key.key)])
+            }
             onSelectLayer={handleAddLayerToMacro}
             layers={profileControler.getProfile().layers}
             activeLayer={profileControler.activeLayer}

@@ -1,7 +1,10 @@
-import { Bind } from '../../../../models/Bind'
+import log from 'electron-log'
+import { Bind, TapKey, PressKey, ReleaseKey, Macro_Bind } from '../../../../models/Bind'
 import { Trigger } from '../../../../models/Trigger'
 import { getKeyClass } from './Colors'
+import { KeyTile } from './KeyTile'
 import { ProfileController } from './ProfileControler'
+import { c } from 'framer-motion/dist/types.d-Cjd591yU'
 
 export interface KeyPressInfo {
   key: string
@@ -9,6 +12,7 @@ export interface KeyPressInfo {
 }
 
 export interface KeyTileModel {
+  displayKey: string | undefined
   key: string
   width: number
   displayWidth: string
@@ -49,12 +53,25 @@ export function buildVisualKeyboardModel(
     let className = getKeyClass(key, [], [])
     if (isSelected) className += ' selected'
     if (isDown) className += ' down'
+    const mapped = keyMap[key] || []
+    let displayKey: string | undefined = undefined
+    if (mapped.length === 1) {
+      const singleBind = mapped[0][1] as Macro_Bind
+      if (singleBind.binds.length > 0) {
+        const firstBind = singleBind.binds[0]
+        if (firstBind instanceof TapKey) {
+          displayKey = firstBind.value
+        }
+      }
+    }
+
     keyModels[key] = {
+      displayKey,
       key,
       width: width ?? 2.5,
       gapAfter: gapAfter ? `${width || 0.25 + (2 * 2.25) / 3}rem` : '0rem',
       className: 'vk-key ' + className,
-      mapped: keyMap[key] || [],
+      mapped,
       displayWidth: `${width || 2.25}rem`,
       isDown,
       isSelected

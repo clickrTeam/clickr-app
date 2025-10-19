@@ -166,3 +166,4 @@ export const keyShortLabels: Record<string, string> = {
 }
 
 export const KEYBOARD_100 = [...mainRows.flat(), ...specialtyRows.flat(), ...numpadRows.flat()]
+export const REPRESENTED_KEYS = KEYBOARD_100.map((k) => k.key).filter((k) => k !== '')
