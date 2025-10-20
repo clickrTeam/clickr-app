@@ -4,6 +4,7 @@ import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
 import { NavLink, Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import Daemon from '@renderer/pages/deamon'
 
 interface NavbarProps {
   isAuthenticated: boolean
@@ -33,7 +34,6 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
   const navLinks = [
     { name: 'Mappings', path: '/', icon: Layers },
     { name: 'Community', path: '/community', icon: Users },
-    { name: 'DAEMON', path: '/daemon', icon: Home },
     { name: 'Help', path: '/help', icon: HelpCircle }
   ]
 
@@ -85,6 +85,8 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
                   {link.name}
                 </NavLink>
               ))}
+
+              <Daemon />
 
               <div>
                 {!isAuthenticated ? (
@@ -144,6 +146,8 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
                 <span className="truncate">{link.name}</span>
               </NavLink>
             ))}
+
+            <Daemon />
           </div>
         </nav>
 
