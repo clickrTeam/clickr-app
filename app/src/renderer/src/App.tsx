@@ -73,7 +73,6 @@ function App(): JSX.Element {
           <Route path="/login" element={<Login login={login} />} />
           <Route path="/community" element={<Community />} />
           <Route path="/mapping/:mappingId" element={<MappingDetail />} />
-          <Route path="/daemon" element={<Daemon />} />
           <Route
             path="/mappings"
             element={<MyMappings isAuthenticated={isAuthenticated} username={username} />}
@@ -81,6 +80,7 @@ function App(): JSX.Element {
           <Route path="/training" element={<Training />} />
           <Route path="/help/*" element={<Help />} />
         </Routes>
+        <Daemon />
       </div>
 
       {/* Toaster for notifications */}

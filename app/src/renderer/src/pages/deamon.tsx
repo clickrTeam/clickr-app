@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@renderer/components/ui/button'
 import log from 'electron-log'
+import { toast } from 'sonner'
 
 const Daemon = (): JSX.Element => {
   const [isRunning, setIsRunning] = useState<boolean>(false)
@@ -13,10 +14,17 @@ const Daemon = (): JSX.Element => {
       if (isRun) {
         log.info('Keybinder is running')
       } else {
+        if (process.env.NODE_ENV === 'production') toast.warning('Keybinder is not running')
         log.info('Keybinder is not running')
       }
     })
   }, [])
+
+  useEffect(() => {
+    checkIsRunning()
+    const interval = setInterval(checkIsRunning, 10000) // 10 seconds
+    return () => clearInterval(interval)
+  }, [checkIsRunning])
 
   // Handlers for run/stop that also update the state
   const handleRunKeybinder = (): void => {
