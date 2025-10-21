@@ -5,6 +5,7 @@ import { registerProfileHandlers } from './ipc/profile-ipc'
 import { registerApiHandlers } from './ipc/api-ipc'
 import { isKeybinderRunning, registerDeamonManagerHandlers, runKeybinder } from './services/daemon-manager'
 import log from 'electron-log'
+import { handleFirstRun } from './services/one-time-intialization.service'
 
 function createWindow(): void {
   log.initialize()
@@ -88,3 +89,5 @@ app.on('window-all-closed', () => {
     log.info('!---------------- All windows closed. ----------------!')
   }
 })
+
+app.whenReady().then(handleFirstRun)
