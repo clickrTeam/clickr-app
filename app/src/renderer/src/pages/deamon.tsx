@@ -55,26 +55,28 @@ const Daemon = ({ refreshActive }: DaemonProps): JSX.Element => {
   }
 
   return (
-  <Button
-    className={cn(
-      'flex items-center justify-center w-10 h-10 rounded-full', // Compact power button styling
-      'transition-all duration-300 ease-in-out', // Smooth transition
-      isRunning
-        ? 'bg-green-500 hover:bg-green-600 text-white'
-        : 'bg-red-500 hover:bg-red-600 text-white',
-      'focus:outline-none focus:ring-2 focus:ring-offset-2', // Accessibility improvements
-      'shadow-md hover:shadow-lg' // Subtle depth effect
-    )}
-    onClick={handleToggleKeybinder}
-    title={isRunning ? 'Keybinder is Running' : 'Keybinder is Stopped'}
-  >
-    <PowerIcon
+    <Button
       className={cn(
-        'w-6 h-6',
-        isRunning ? 'animate-pulse' : '' // Optional pulse animation when running
+        'flex items-center justify-center w-8 h-8 rounded-full',
+        'transition-all duration-300 ease-in-out',
+        isRunning
+          ? 'bg-green-200/30 hover:bg-green-200/50 text-green-700'
+          : 'bg-red-200/30 hover:bg-red-200/50 text-red-700',
+        'focus:outline-none focus:ring-1 focus:ring-offset-1',
+        'shadow-sm hover:shadow-md',
+        'opacity-60 hover:opacity-100',
+        'border border-opacity-20'
       )}
-    />
-  </Button>
+      onClick={handleToggleKeybinder}
+      title={isRunning ? 'Keybinder is Running' : 'Keybinder is Stopped'}
+    >
+      <PowerIcon
+        className={cn(
+          'w-5 h-5',
+          isRunning ? 'animate-pulse opacity-80' : 'opacity-60'
+        )}
+      />
+    </Button>
   )
 }
 
