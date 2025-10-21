@@ -77,7 +77,6 @@ function Game(): JSX.Element {
     }
   }, [mode, difficulty])
 
-  // persist high score locally for this session; you can persist to profile later
   useEffect(() => {
     if (mode === 'playing') return
     if (score > highScore) setHighScore(score)
