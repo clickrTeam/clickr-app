@@ -6,7 +6,11 @@ import { toast } from 'sonner'
 import { cn } from '@renderer/lib/utils'
 import { PowerIcon } from 'lucide-react'
 
-const Daemon = (): JSX.Element => {
+interface DaemonProps {
+  refreshActive: boolean
+}
+
+const Daemon = ({ refreshActive }: DaemonProps): JSX.Element => {
   const [isRunning, setIsRunning] = useState<boolean>(false)
 
   // Function to update isRunning state
@@ -22,11 +26,13 @@ const Daemon = (): JSX.Element => {
     })
   }, [])
 
-  useEffect(() => {
-    checkIsRunning()
-    const interval = setInterval(checkIsRunning, 10000) // 10 seconds
-    return () => clearInterval(interval)
-  }, [checkIsRunning])
+  if (refreshActive) {
+    useEffect(() => {
+      checkIsRunning()
+      const interval = setInterval(checkIsRunning, 10000) // 10 seconds
+      return () => clearInterval(interval)
+    }, [checkIsRunning])
+  }
 
   // Handlers for run/stop that also update the state
   const handleRunKeybinder = (): void => {

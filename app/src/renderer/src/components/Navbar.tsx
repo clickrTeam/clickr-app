@@ -86,7 +86,7 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
                 </NavLink>
               ))}
 
-              <Daemon />
+              <Daemon refreshActive={false} />
 
               <div>
                 {!isAuthenticated ? (
@@ -147,7 +147,7 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
               </NavLink>
             ))}
 
-            <Daemon />
+            <Daemon refreshActive={true} />
           </div>
         </nav>
 
