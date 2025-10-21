@@ -1,8 +1,6 @@
-import log from 'electron-log'
-import { Bind, TapKey, PressKey, ReleaseKey, Macro_Bind } from '../../../../models/Bind'
+import { Bind, TapKey, Macro_Bind } from '../../../../models/Bind'
 import { Trigger } from '../../../../models/Trigger'
 import { getKeyClass } from './Colors'
-import { KeyTile } from './KeyTile'
 import { ProfileController } from './ProfileControler'
 
 export interface KeyPressInfo {
@@ -58,7 +56,7 @@ export function buildVisualKeyboardModel(
     let displayKey: string | undefined = undefined
     if (mapped.length === 1) {
       const singleBind = mapped[0][1] as Macro_Bind
-      if (singleBind.binds.length > 0) {
+      if (singleBind.binds.length === 1) {
         const firstBind = singleBind.binds[0]
         if (firstBind instanceof TapKey) {
           displayKey = firstBind.value
