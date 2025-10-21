@@ -36,11 +36,15 @@ const Daemon = ({ refreshActive }: DaemonProps): JSX.Element => {
 
   // Handlers for run/stop that also update the state
   const handleRunKeybinder = (): void => {
-    window.api.runKeybinder().then(checkIsRunning)
+    window.api.runKeybinder().then(() => {
+      setTimeout(checkIsRunning, 100)
+    })
   }
 
   const handleStopKeybinder = (): void => {
-    window.api.stopKeybinder().then(checkIsRunning)
+    window.api.stopKeybinder().then(() => {
+      setTimeout(checkIsRunning, 100)
+    })
   }
   const handleToggleKeybinder = (): void => {
     if (isRunning) {
