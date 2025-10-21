@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { Button } from '@renderer/components/ui/button'
 import log from 'electron-log'
 import { toast } from 'sonner'

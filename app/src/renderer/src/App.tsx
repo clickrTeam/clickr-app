@@ -6,7 +6,6 @@ import { Toaster } from '@renderer/components/ui/sonner'
 // Pages
 import Login from './pages/Login'
 import Community from './pages/community'
-import Daemon from './pages/deamon'
 import MyMappings from './pages/MyMappings'
 import MappingDetail from './pages/mappingDetails'
 import Training from './pages/Training'
