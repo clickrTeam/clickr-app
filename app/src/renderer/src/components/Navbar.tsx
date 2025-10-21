@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { LogIn, LogOut, Home, Users, Layers, HelpCircle, Menu, X } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
-import { NavLink, Link } from 'react-router-dom'
+import { NavLink, Link, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
 interface NavbarProps {
@@ -11,9 +11,10 @@ interface NavbarProps {
   logout?: () => void
 }
 
-const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element => {
+const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element | null => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const location = useLocation()
 
   useEffect(() => {
     const handleScroll = (): void => {
@@ -36,6 +37,7 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
     { name: 'DAEMON', path: '/daemon', icon: Home },
     { name: 'Help', path: '/help', icon: HelpCircle }
   ]
+  if (location.pathname.startsWith('/training/game')) return null
 
   return (
     <header

@@ -10,6 +10,7 @@ import Daemon from './pages/deamon'
 import MyMappings from './pages/MyMappings'
 import MappingDetail from './pages/mappingDetails'
 import Training from './pages/Training'
+import Game from './pages/Game'
 import Help from './pages/help'
 
 function App(): JSX.Element {
@@ -79,6 +80,7 @@ function App(): JSX.Element {
             element={<MyMappings isAuthenticated={isAuthenticated} username={username} />}
           />
           <Route path="/training" element={<Training />} />
+          <Route path="/training/game" element={<Game />} />
           <Route path="/help/*" element={<Help />} />
         </Routes>
       </div>
