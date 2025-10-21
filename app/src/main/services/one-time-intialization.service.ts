@@ -25,6 +25,12 @@ export function handleFirstRun(): void {
   }
 
   if (process.platform === 'win32') {
+    if (!windowsIsKeybinderRegistered()) {
+      log.warn('One-time initialization: keybinder not registered for startup, proceeding with registration')
+    } else {
+      log.info('One-time initialization: keybinder already registered for startup, skipping registration')
+      return;
+    }
     try {
       windowsSetupKeybinderRunOnStartup()
     } catch (err) {
@@ -51,6 +57,32 @@ function deleteMarkerFile(): void {
   }
 }
 /* eslint-enable @typescript-eslint/no-unused-vars */
+
+function windowsIsKeybinderRegistered(): boolean {
+  const keybinderPath: string = join(__dirname, '../../../../', 'resources', 'app', 'keybinder', 'keybinder.exe')
+  try {
+    const stdout: string = execFileSync('reg', [
+      'query',
+      'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run',
+      '/v',
+      'clickr-keybinder'
+    ], { encoding: 'utf8' }) as string
+
+    const match: RegExpMatchArray | null = stdout.match(/clickr-keybinder\s+REG_SZ\s+(.+)/i)
+    if (!match || !match[1]) {
+      log.info('One-time initialization: registry entry present but value not found', keybinderPath)
+      return false
+    }
+
+    const registeredValue: string = match[1].trim().replace(/^"(.*)"$/, '$1')
+    const isRegistered: boolean = registeredValue === keybinderPath
+    log.info('One-time initialization: registry check', { keybinderPath, registeredValue, isRegistered })
+    return isRegistered
+  } catch (err) {
+    log.info('One-time initialization: registry key not present or query failed', err)
+    return false
+  }
+}
 
 function windowsSetupKeybinderRunOnStartup(): void {
   log.info('One-time initialization: performing Windows startup registration')
