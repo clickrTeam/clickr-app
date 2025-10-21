@@ -96,21 +96,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     setOpenDropdown(null)
   }
 
-  function handleAddKeyToMacro(key: KeyPressInfo): void {
-    console.log('Adding key to macro:', key)
-    if (key.isDown) {
-      onMacroChange([...macro, new PressKey(key.key)])
-    } else {
-      if (macro[macro.length - 1] instanceof PressKey) {
-        const macros = [...macro]
-        macros[macros.length - 1] = new TapKey(key.key)
-        onMacroChange(macros)
-      } else {
-        onMacroChange([...macro, new ReleaseKey(key.key)])
-      }
-    }
-  }
-
   function handleAddLayerToMacro(layerIdx: number): void {
     const newMacro = [...macro, new SwapLayer(layerIdx)]
     onMacroChange(newMacro)
@@ -184,7 +169,9 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         {showKeyModal && (
           <KeyModal
             onClose={() => setShowKeyModal(false)}
-            onAddKey={handleAddKeyToMacro}
+            onAddKey={
+              (key: KeyPressInfo) => onMacroChange([...macro, new TapKey(key.key)])
+            }
             onSelectLayer={handleAddLayerToMacro}
             layers={profileControler.getProfile().layers}
             activeLayer={profileControler.activeLayer}

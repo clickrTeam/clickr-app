@@ -1,4 +1,4 @@
-import { Bind } from '../../../../models/Bind'
+import { Bind, TapKey, Macro_Bind } from '../../../../models/Bind'
 import { Trigger } from '../../../../models/Trigger'
 import { getKeyClass } from './Colors'
 import { ProfileController } from './ProfileControler'
@@ -9,6 +9,7 @@ export interface KeyPressInfo {
 }
 
 export interface KeyTileModel {
+  displayKey: string | undefined
   key: string
   width: number
   displayWidth: string
@@ -22,6 +23,7 @@ export interface KeyTileModel {
 
 export interface VisualKeyboardModel {
   keyModels: Record<string, KeyTileModel>
+  unmappedKeyModels: KeyTileModel[]
   unmapped: Array<[Trigger, Bind]>
 }
 
@@ -32,6 +34,7 @@ export function buildVisualKeyboardModel(
   selectedKey: string | null = null
 ): VisualKeyboardModel {
   const keyModels: Record<string, KeyTileModel> = {}
+  const unmappedKeyModels: KeyTileModel[] = []
   const unmapped: Array<[Trigger, Bind]> = []
   const keyMap: Record<string, Array<[Trigger, Bind]>> = {}
   for (const [trigger, bind] of profileController.getActiveRemappings().entries()) {
@@ -49,16 +52,51 @@ export function buildVisualKeyboardModel(
     let className = getKeyClass(key, [], [])
     if (isSelected) className += ' selected'
     if (isDown) className += ' down'
+    const mapped = keyMap[key] || []
+    let displayKey: string | undefined = undefined
+    if (mapped.length === 1) {
+      const singleBind = mapped[0][1] as Macro_Bind
+      if (singleBind.binds.length === 1) {
+        const firstBind = singleBind.binds[0]
+        if (firstBind instanceof TapKey) {
+          displayKey = firstBind.value
+        }
+      }
+    }
+
     keyModels[key] = {
+      displayKey,
       key,
       width: width ?? 2.5,
       gapAfter: gapAfter ? `${width || 0.25 + (2 * 2.25) / 3}rem` : '0rem',
       className: 'vk-key ' + className,
-      mapped: keyMap[key] || [],
+      mapped,
       displayWidth: `${width || 2.25}rem`,
       isDown,
       isSelected
     }
   }
-  return { keyModels, unmapped }
+
+  for (const k in keyMap) {
+    if (k in keyModels) continue
+    const mapped = keyMap[k]
+    unmappedKeyModels.push({
+      displayKey: undefined,
+      key: k,
+      width: 2.5,
+      gapAfter: '0rem',
+      className: 'vk-key',
+      mapped,
+      displayWidth: '2.5rem',
+      isDown: false,
+      isSelected: false
+    })
+  }
+
+  unmapped.sort((a, b) => {
+      const aKey = (a[0] as { value?: string }).value || ''
+      const bKey = (b[0] as { value?: string }).value || ''
+      return aKey.localeCompare(bKey)
+    })
+  return { keyModels, unmappedKeyModels, unmapped }
 }

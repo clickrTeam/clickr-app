@@ -48,7 +48,11 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onInspect }
         onMouseEnter={() => onInspect(keyModel)}
         onMouseLeave={() => onInspect(null)}
       >
-        {getShortLabel(keyModel.key)}
+        {keyModel.displayKey ? (
+          <b>{getShortLabel(keyModel.displayKey)}</b>
+        ) : (
+          getShortLabel(keyModel.key)
+        )}
       </button>
       {keyModel.gapAfter !== '0rem' && (
         <span
