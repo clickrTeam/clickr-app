@@ -122,12 +122,9 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
         )}
       </AnimatePresence>
 
-      {/* Desktop layout with evenly spaced items */}
       <div className="hidden md:flex w-full px-4 items-center">
-        {/* Left: logo */}
         <div className="flex-shrink-0 text-foreground/80 font-bold text-xl">Clickr</div>
 
-        {/* Center: nav links stretched evenly */}
         <nav className="flex-1 flex justify-center">
           <div className="flex w-full max-w-4xl">
             {navLinks.map((link) => (
