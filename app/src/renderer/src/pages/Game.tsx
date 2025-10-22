@@ -12,6 +12,13 @@ type GameState = {
 function Game(): JSX.Element {
   const location = useLocation()
   const navigate = useNavigate()
+  const navbarHidden = location.pathname.startsWith('/training/game')
+
+  useEffect(() => {
+    if (!navbarHidden) return
+    void document.body.offsetHeight
+    window.dispatchEvent(new Event('resize'))
+  }, [navbarHidden])
 
   const { profile, layer_index, difficulty } = (location.state as GameState) ?? {
     profile: undefined,
@@ -99,8 +106,10 @@ function Game(): JSX.Element {
     navigate('/training', { state: { profile, layer_index, highScore: finalHigh } })
   }
 
+  const rootClass = `relative h-full w-full flex flex-col items-start px-8 ${navbarHidden ? '-mt-16' : 'pt-4'}`
+
   return (
-    <div className="relative h-full w-full flex flex-col items-start pt-4 px-8">
+    <div className={rootClass}>
       <div className="fixed top-2 left-4 z-50">
         <Button variant="outline" onClick={(): void => navigate(-1)}>
           Back
