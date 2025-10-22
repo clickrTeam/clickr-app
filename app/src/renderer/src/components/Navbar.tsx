@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { LogIn, LogOut, Home, Users, Layers, HelpCircle, Menu, X } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
@@ -15,7 +15,7 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const location = useLocation()
-  const headerRef = useRef<HTMLElement | null>(null)
+  // const headerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
     const handleScroll = (): void => {
@@ -32,29 +32,29 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
     }
   }, [scrolled])
 
-  useEffect(() => {
-    const setBodyPadding = (): void => {
-      const h = headerRef.current?.offsetHeight ?? 0
-      if (h > 0) {
-        document.body.style.paddingTop = `${h}px`
-      } else {
-        document.body.style.paddingTop = ''
-      }
-    }
+  // useEffect(() => {
+  //   const setBodyPadding = (): void => {
+  //     const h = headerRef.current?.offsetHeight ?? 0
+  //     if (h > 0) {
+  //       document.body.style.paddingTop = `${h}px`
+  //     } else {
+  //       document.body.style.paddingTop = ''
+  //     }
+  //   }
 
-    // set immediately
-    setBodyPadding()
+  //   // set immediately
+  //   setBodyPadding()
 
-    // update when window resizes (menu open/close, scrolled changes can alter height)
-    window.addEventListener('resize', setBodyPadding)
+  //   // update when window resizes (menu open/close, scrolled changes can alter height)
+  //   window.addEventListener('resize', setBodyPadding)
 
-    // also update when mobile menu toggles or scrolled changes
-    // effect will re-run when these deps change
-    return (): void => {
-      window.removeEventListener('resize', setBodyPadding)
-      document.body.style.paddingTop = ''
-    }
-  }, [isMobileMenuOpen, scrolled])
+  //   // also update when mobile menu toggles or scrolled changes
+  //   // effect will re-run when these deps change
+  //   return (): void => {
+  //     window.removeEventListener('resize', setBodyPadding)
+  //     document.body.style.paddingTop = ''
+  //   }
+  // }, [isMobileMenuOpen, scrolled])
 
   const navLinks = [
     { name: 'Mappings', path: '/', icon: Layers },
@@ -72,7 +72,7 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
           ? 'bg-clickr-light-blue/90 backdrop-blur-md py-2 shadow-md'
           : 'bg-clickr-light-blue py-3'
       )}
-      ref={headerRef}
+      // ref={headerRef}
     >
       {/* logo + hamburger */}
       <div className="flex items-center justify-between w-full px-4 md:hidden">
