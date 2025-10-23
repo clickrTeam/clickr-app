@@ -1,17 +1,17 @@
-import { Layer } from '../../../models/Layer'
-import { Button } from './ui/button'
-import { Card, CardHeader, CardContent } from './ui/card'
+import { Layer } from '../../../../models/Layer'
+import { Button } from '../ui/button'
+import { Card, CardHeader, CardContent } from '../ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
-} from './ui/dropdown-menu'
+} from '../ui/dropdown-menu'
 import CreateMappingDialog from './CreateModification'
 import { useState } from 'react'
-import { Input } from './ui/input'
-import { Trigger } from '../../../models/Trigger'
-import { Bind } from '../../../models/Bind'
+import { Input } from '../ui/input'
+import { Trigger } from '../../../../models/Trigger'
+import { Bind } from '../../../../models/Bind'
 
 interface LayerComponentProps {
   layer: Layer

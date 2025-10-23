@@ -5,11 +5,11 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter
-} from './ui/dialog'
+} from '../ui/dialog'
 import { useEffect, useState } from 'react'
-import { Bind } from '../../../models/Bind'
-import { Trigger } from '../../../models/Trigger'
-import { Button } from './ui/button'
+import { Bind } from '../../../../models/Bind'
+import { Trigger } from '../../../../models/Trigger'
+import { Button } from '../ui/button'
 import TriggerSelector from './CreateTrigger'
 import { BindSelector } from './CreateBind'
 import React from 'react'

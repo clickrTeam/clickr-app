@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
-import { Input } from './ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { Input } from '../ui/input'
 import {
   Bind,
   BindType,
@@ -9,10 +9,10 @@ import {
   TapKey,
   SwapLayer,
   Macro_Bind
-} from '../../../models/Bind'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+} from '../../../../models/Bind'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import KeySelecter from './KeySelector'
-import { Button } from './ui/button'
+import { Button } from '../ui/button'
 
 interface BindSelectorProps {
   maxLayer: number
