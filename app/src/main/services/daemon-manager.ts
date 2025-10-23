@@ -23,6 +23,11 @@ export function registerDeamonManagerHandlers(): void {
 const KEYBINDER_EXE = 'keybinder.exe'
 
 export const isKeybinderRunning = (): Promise<unknown> => {
+  if (platform() !== 'win32') {
+    log.warn('Keybinder running check is only implemented for Windows')
+    return Promise.resolve(false)
+  }
+
   log.info('Checking if keybinder is running...')
   const command =
     platform() === 'win32'

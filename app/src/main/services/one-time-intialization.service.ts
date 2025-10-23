@@ -41,21 +41,6 @@ export function handleFirstRun(): void {
   }
 }
 
-// deleteMarkerFile() // For testing purpose
-// function deleteMarkerFile(): void {
-//   const marker = join(app.getPath('userData'), 'first-run-done')
-//   try {
-//     if (fs.existsSync(marker)) {
-//       fs.unlinkSync(marker)
-//       log.info('One-time initialization: marker file deleted', marker)
-//     } else {
-//       log.info('One-time initialization: marker file does not exist', marker)
-//     }
-//   } catch (err) {
-//     log.error('One-time initialization: failed to delete marker file', err)
-//   }
-// }
-
 function windowsIsKeybinderRegistered(): boolean {
   const keybinderPath: string = join(__dirname, '../../../../', 'resources', 'app', 'keybinder', 'keybinder.exe')
   try {
