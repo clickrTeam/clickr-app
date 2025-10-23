@@ -86,7 +86,13 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{localProfile.profile_name}</h2>
         <div className="space-x-2">
-          <Button variant="outline" onClick={() => { profileControler.onSave(); onBack(); }}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              profileControler.onSave()
+              onBack()
+            }}
+          >
             Back
           </Button>
           <Button onClick={toggleEditor}>
@@ -114,7 +120,11 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
         <div className="flex items-center justify-between">
           <TabsList>
             {localProfile.layers.map((layer: Layer, index) => (
-              <TabsTrigger key={index} value={index.toString()} onClick={() => profileControler.setLayer(index)}>
+              <TabsTrigger
+                key={index}
+                value={index.toString()}
+                onClick={() => profileControler.setLayer(index)}
+              >
                 {layer.layer_name}
               </TabsTrigger>
             ))}
@@ -123,7 +133,9 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
             <Button size="sm" onClick={handleAddLayer}>
               Add Layer
             </Button>
-            <Button size="sm" onClick={() => handleDuplicateLayer(selectedLayerIndex)}>Duplicate Layer</Button>
+            <Button size="sm" onClick={() => handleDuplicateLayer(selectedLayerIndex)}>
+              Duplicate Layer
+            </Button>
             <Button
               variant="destructive"
               size="sm"
@@ -140,15 +152,16 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
           />
         ) : (
           <div>
-          {localProfile.layers.map((layer, index) => (
-            <TabsContent key={index} value={index.toString()}>
-              <LayerComponent
-                layer={layer}
-                maxLayer={profileControler.getProfile().layers.length}
-                onUpdate={(updatedLayer) => handleLayerUpdate(index, updatedLayer)}
-              />
-            </TabsContent>
-          ))}</div>
+            {localProfile.layers.map((layer, index) => (
+              <TabsContent key={index} value={index.toString()}>
+                <LayerComponent
+                  layer={layer}
+                  maxLayer={profileControler.getProfile().layers.length}
+                  onUpdate={(updatedLayer) => handleLayerUpdate(index, updatedLayer)}
+                />
+              </TabsContent>
+            ))}
+          </div>
         )}
       </Tabs>
     </div>
