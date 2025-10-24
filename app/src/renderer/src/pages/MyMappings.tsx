@@ -20,6 +20,7 @@ import { Input } from '@renderer/components/ui/input'
 import { Search, Download, User, Clock, Plus, Upload, Cloud } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { ProfileController } from '@renderer/components/VisualKeyboard/ProfileControler'
+import { useServices } from '@renderer/services/servicesContext'
 
 type UploadedMapping = {
   id: string
@@ -44,6 +45,8 @@ interface MyMappingsProps {
 
 function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element {
   const navigate = useNavigate()
+
+  const profileSelectorService = useServices().profileSelectorService;
 
   // Local mappings state
   const [profiles, setProfiles] = useState<Profile[] | null>(null)
