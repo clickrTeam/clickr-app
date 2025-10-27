@@ -153,7 +153,11 @@ function FallingBoxes({
           if (onLoseLife) onLoseLife(livesRef.current)
 
           if (livesRef.current === 0) {
-            // stop the loop by cancelling the RAF; the cleanup below also cancels
+            /**
+             * stop the loop by cancelling the RAF
+             * the cleanup below also cancels
+             * @todo Can add additional clean up logic here if needed
+             */
             if (rafRef.current) cancelAnimationFrame(rafRef.current)
             rafRef.current = null
             lastTimeRef.current = null
@@ -190,8 +194,7 @@ function FallingBoxes({
   useEffect(() => {
     livesRef.current = initialLives
     setLivesUI(initialLives)
-    if (onLoseLife) onLoseLife(initialLives)
-  }, [initialLives, onLoseLife])
+  }, [initialLives])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
@@ -212,7 +215,7 @@ function FallingBoxes({
       if (bestIndex >= 0) {
         // remove box and increment score
         boxes.splice(bestIndex, 1)
-        scoreRef.current += 100
+        scoreRef.current += Math.round(100 * 0.5 * difficulty)
         setScoreUI(scoreRef.current)
         if (onScore) onScore(scoreRef.current)
       }
@@ -221,7 +224,7 @@ function FallingBoxes({
     return (): void => {
       window.removeEventListener('keydown', onKey)
     }
-  }, [height, onScore])
+  }, [difficulty, height, onScore])
 
   const boxesForRender = boxesRef.current.slice()
 

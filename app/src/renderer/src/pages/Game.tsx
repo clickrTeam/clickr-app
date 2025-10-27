@@ -37,6 +37,7 @@ function Game(): JSX.Element {
   const [score, setScore] = useState<number>(0)
   const [highScore, setHighScore] = useState<number>(0)
   const [lives, setLives] = useState<number>(11 - difficulty)
+  const [gameOver, setGameOver] = useState(false)
 
   const handleBoxScore = useCallback(
     (s: number): void => {
@@ -87,16 +88,12 @@ function Game(): JSX.Element {
     (remaining: number): void => {
       setLives(remaining)
       if (remaining <= 0) {
-        // end game immediately when no lives remain
         const finalHigh = Math.max(highScore, score)
         setHighScore(finalHigh)
-        /**
-         * @todo Show a "Game Over" screen or modal before navigating away
-         */
-        navigate('/training', { state: { profile, layer_index, highScore: finalHigh } })
+        setGameOver(true)
       }
     },
-    [highScore, score, navigate, profile, layer_index]
+    [highScore, score]
   )
 
   const rootClass = `relative h-full w-full flex flex-col items-start px-8 ${navbarHidden ? '-mt-16' : 'pt-4'}`
@@ -144,7 +141,7 @@ function Game(): JSX.Element {
           {mode === 'playing' && (
             <div className="w-full h-[720px] flex flex-col items-center justify-center">
               <FallingBoxes
-                running={mode === 'playing'}
+                running={mode === 'playing' && !gameOver}
                 difficulty={Number(difficulty)}
                 onScore={handleBoxScore}
                 onLoseLife={handleLoseLife}
@@ -156,6 +153,27 @@ function Game(): JSX.Element {
             </div>
           )}
         </div>
+
+        {gameOver && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60">
+            <div className="bg-white rounded-lg p-6 w-96 text-center">
+              <div className="text-xl font-bold mb-4">Game Over</div>
+              <div className="mb-6">Final score: {score}</div>
+              <div className="flex justify-center">
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    const finalHigh = Math.max(highScore, score)
+                    setHighScore(finalHigh)
+                    navigate('/training', { state: { profile, layer_index, highScore: finalHigh } })
+                  }}
+                >
+                  Return
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )
