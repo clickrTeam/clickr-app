@@ -3,9 +3,9 @@ import { TriggerType, KeyPress, KeyRelease, TapSequence, Trigger } from '../../.
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select'
 import { Button } from '../ui/button'
-import KeySelecter from './KeySelector'
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
+import KeySelecter from './KeySelector'
 
 interface TriggerSelectorProps {
   onTriggerSelected: (trigger: Trigger) => void
