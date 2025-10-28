@@ -11,7 +11,7 @@ export function registerDeamonManagerHandlers(): void {
 
   ipcMain.handle('run-keybinder', async () => {
     await runKeybinder()
-    return true
+    return await isKeybinderRunning()
   })
 
   ipcMain.handle('stop-keybinder', async () => {
@@ -23,6 +23,11 @@ export function registerDeamonManagerHandlers(): void {
 const KEYBINDER_EXE = 'keybinder.exe'
 
 export const isKeybinderRunning = (): Promise<unknown> => {
+  if (platform() !== 'win32') {
+    log.warn('Keybinder running check is only implemented for Windows')
+    return Promise.resolve(false)
+  }
+
   log.info('Checking if keybinder is running...')
   const command =
     platform() === 'win32'
@@ -40,9 +45,14 @@ export const isKeybinderRunning = (): Promise<unknown> => {
 }
 
 export const runKeybinder = (): void => {
+  if (platform() !== 'win32') {
+    log.warn('Keybinder execution from electron is currently only implemented for Windows.')
+    return
+  }
+
   log.info('Running keybinder...')
   /// @todo This is hardcoding the path to the keybinder executable on Windows. Mac & Linux will not use an .exe file.
-  const command = path.join(__dirname, '../../../../', 'resources', 'keybinder', 'keybinder.exe')
+  const command = path.join(__dirname, '../../../../', 'resources', 'app', 'keybinder', 'keybinder.exe')
 
   log.info(`Command to run: ${command}`)
   const ls = spawn(command, {
