@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useRef, useState } from 'react'
 import log from 'electron-log'
+import { Layer } from '../../../models/Layer'
 
 type Box = {
   id: number
@@ -21,6 +22,7 @@ type FallingBoxesProps = {
   initialLives: number
   width: number
   height: number
+  currentLayer: Layer
 }
 
 type BoxViewProps = {
@@ -58,7 +60,8 @@ function FallingBoxes({
   onLoseLife,
   initialLives = 3,
   width = 800,
-  height = 760
+  height = 760,
+  currentLayer
 }: FallingBoxesProps): JSX.Element {
   const [paused, setPaused] = useState(false)
 
@@ -73,6 +76,8 @@ function FallingBoxes({
   const [, setLivesUI] = useState<number>(initialLives)
   const onScoreRef = useRef(onScore)
   const onLoseLifeRef = useRef(onLoseLife)
+  const trigValuesRef = useRef<string[]>([])
+  const bindValuesRef = useRef<string[]>([])
 
   // tiny render tick to drive React updates at throttled rate
   const [, setRenderTick] = useState(0)
@@ -96,19 +101,70 @@ function FallingBoxes({
   const BASE_SPAWN = 800
 
   useEffect(() => {
+    const bindValues: string[] = []
+    const trigValues: string[] = []
+    currentLayer.remappings.forEach((bind, trigger) => {
+      log.info('FallingBoxes: considering bind', bind, 'and trigger', trigger)
+      /**
+       * Every single key bind is a 'macro' that contains other binds.
+       * Even if it is a simple key press, it is still wrapped in a macro bind.
+       * @todo Verify this is intended behavior and not a bug.
+       * For now, unwrap the bind if it is a macro with a single simple key bind inside.
+       * @todo Right now, this only supports 'TapKey' binds.
+       */
+      if ('binds' in bind && Array.isArray(bind.binds) && bind.binds.length > 0) {
+        if (bind.binds.length === 1) {
+          const innerBind = bind.binds[0]
+          log.info('FallingBoxes: unwrapped bind to inner bind', innerBind)
+          if (
+            'value' in innerBind &&
+            typeof innerBind.value === 'string' &&
+            'value' in trigger &&
+            typeof trigger.value === 'string'
+          ) {
+            bindValues.push(innerBind.value.toLowerCase())
+            trigValues.push(trigger.value.toLowerCase())
+          }
+        }
+      }
+    })
+    bindValuesRef.current = bindValues
+    trigValuesRef.current = trigValues
+  }, [currentLayer])
+
+  useEffect(() => {
     const localSpawnInterval = Math.max(150, BASE_SPAWN - (difficulty - 1) * 60)
 
-    /**
-     * @todo Refactor spawnBox to use the random bind values from layer.remapping.
-     * Make sure that the binds are not complex like macros
-     */
     const spawnBox = (): void => {
       const id = nextId.current++
-      const texts = ['a', 's', 'd', 'f', 'j', 'k', 'l', ';']
-      const correct = texts[Math.floor(Math.random() * texts.length)]
+      const triggers = trigValuesRef.current
+      const binds = bindValuesRef.current
+
+      // This is a fallback in case there are no binds available
+      if (!binds || binds.length === 0) {
+        const letters = ['n', 'o', 'b', 'i', 'n', 'd', 's']
+        const correct = letters[Math.floor(Math.random() * letters.length)]
+        const box: Box = {
+          id,
+          text: correct.toUpperCase(),
+          x: Math.random() * Math.max(0, width - 60),
+          y: -40,
+          vy: 80 + Math.random() * 80,
+          correctKey: correct,
+          width: 60,
+          height: 40
+        }
+        boxesRef.current.push(box)
+        return
+      }
+
+      const idx = Math.floor(Math.random() * binds.length)
+      const correct = triggers[idx]
+      const display = binds[idx] ?? correct
+
       const box: Box = {
         id,
-        text: correct.toUpperCase(),
+        text: display.toUpperCase(),
         x: Math.random() * Math.max(0, width - 60),
         y: -40,
         vy: 80 + Math.random() * 80,
@@ -150,14 +206,9 @@ function FallingBoxes({
           setRenderTick((r) => (r + 1) | 0)
 
           // notify parent immediately so game can end or act on life loss
-          if (onLoseLife) onLoseLife(livesRef.current)
+          if (onLoseLifeRef.current) onLoseLifeRef.current(livesRef.current)
 
           if (livesRef.current === 0) {
-            /**
-             * stop the loop by cancelling the RAF
-             * the cleanup below also cancels
-             * @todo Can add additional clean up logic here if needed
-             */
             if (rafRef.current) cancelAnimationFrame(rafRef.current)
             rafRef.current = null
             lastTimeRef.current = null
@@ -170,9 +221,8 @@ function FallingBoxes({
       renderAccumulatorRef.current += dt
       if (renderAccumulatorRef.current >= RENDER_INTERVAL) {
         setRenderTick((r) => (r + 1) | 0)
-        if (onScore) onScore(scoreRef.current)
-        if (onLoseLife) onLoseLife(livesRef.current)
-        // reset accumulator but keep remainder
+        if (onScoreRef.current) onScoreRef.current(scoreRef.current)
+        if (onLoseLifeRef.current) onLoseLifeRef.current(livesRef.current)
         renderAccumulatorRef.current = renderAccumulatorRef.current % RENDER_INTERVAL
         setScoreUI(scoreRef.current)
         setLivesUI(livesRef.current)
@@ -189,7 +239,7 @@ function FallingBoxes({
       lastTimeRef.current = null
       renderAccumulatorRef.current = 0
     }
-  }, [running, paused, difficulty, height, width, RENDER_INTERVAL, onLoseLife, onScore])
+  }, [running, paused, difficulty, height, width, RENDER_INTERVAL])
 
   useEffect(() => {
     livesRef.current = initialLives

@@ -38,6 +38,9 @@ function Game(): JSX.Element {
   const [highScore, setHighScore] = useState<number>(0)
   const [lives, setLives] = useState<number>(11 - difficulty)
   const [gameOver, setGameOver] = useState(false)
+  const [startCount, setStartCount] = useState(0)
+
+  const PLAY_AREA_HEIGHT = 680
 
   const handleBoxScore = useCallback(
     (s: number): void => {
@@ -53,6 +56,7 @@ function Game(): JSX.Element {
         if (c <= 1) {
           clearInterval(interval)
           setMode('playing')
+          setStartCount((c) => c + 1)
           return 0
         }
         return c - 1
@@ -133,14 +137,21 @@ function Game(): JSX.Element {
         <div className="w-full bg-black rounded-lg text-white overflow-hidden flex flex-col items-center">
           {/* Playing area */}
           {mode === 'countingDown' && (
-            <div className="w-full h-[720px] flex items-center justify-center">
+            <div
+              className="w-full flex items-center justify-center"
+              style={{ height: PLAY_AREA_HEIGHT }}
+            >
               <div className="text-8xl font-bold">{countdown > 0 ? countdown : 'Go!'}</div>
             </div>
           )}
 
           {mode === 'playing' && (
-            <div className="w-full h-[720px] flex flex-col items-center justify-center">
+            <div
+              className="w-full flex flex-col items-center justify-center"
+              style={{ height: PLAY_AREA_HEIGHT }}
+            >
               <FallingBoxes
+                key={startCount}
                 running={mode === 'playing' && !gameOver}
                 difficulty={Number(difficulty)}
                 onScore={handleBoxScore}
@@ -148,7 +159,8 @@ function Game(): JSX.Element {
                 initialHighScore={highScore}
                 initialLives={11 - difficulty}
                 width={1000}
-                height={720}
+                height={PLAY_AREA_HEIGHT}
+                currentLayer={currentLayer}
               />
             </div>
           )}
