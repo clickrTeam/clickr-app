@@ -4,7 +4,7 @@ import { KeyPressInfo } from './Model'
 import { bindTypeColors, triggerTypeColors } from './Colors'
 import './Footer.css'
 import { ProfileController } from './ProfileControler'
-import { Trigger, TriggerType } from '../../../../models/Trigger'
+import { AppFocus, Hold, KeyPress, KeyRelease, TapSequence, Trigger, TriggerType } from '../../../../models/Trigger'
 import { Layer } from '../../../../models/Layer'
 import { SwapLayer } from '../../../../models/Bind'
 import { KeyModal } from './KeyModal'
@@ -34,6 +34,14 @@ function getMacroButtonBgT(item: Trigger): string {
 function getDropdownBg(item: Bind, opt: { value: BindType | undefined }): string | undefined {
   if (!opt.value) return ''
   return item.bind_type === opt.value ? `${bindTypeColors[opt.value]}22` : undefined
+}
+
+function getDropdownBgT(
+  item: Trigger,
+  opt: { value: TriggerType | undefined }
+): string | undefined {
+  if (!opt.value) return ''
+  return item.trigger_type === opt.value ? `${triggerTypeColors[opt.value]}22` : undefined
 }
 
 function getMacroValue(item: Bind): string {
@@ -104,35 +112,36 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     setOpenDropdown(null)
   }
 
-  handleTriggerTypeChange = (type: TriggerType | undefined): void => {
+  function handleTriggerTypeChange(type: TriggerType | undefined): void {
     if (type === undefined) {
       log.warn('Cannot remove trigger from VisualKeyboardFooter.')
       setOpenTriggerDropdown(false)
       return
     }
 
-    const existing = trigger
-    let value: string
-    if (
-      existing instanceof TapKey ||
-      existing instanceof PressKey ||
-      existing instanceof ReleaseKey
-    ) {
-      value = existing.value
-    } else {
-      log.warn('Trigger is not a TapKey, PressKey, or ReleaseKey. Cannot change type.')
+    if (selectedKey === null) {
+      log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
       setOpenTriggerDropdown(false)
       return
     }
-    let newTrigger: Trigger
-    if (type === TriggerType.KeyPress) {
-      newTrigger = new TapKey(value)
-    } else if (type === TriggerType.PressKey) {
-      newTrigger = new PressKey(value)
-    } else if (type === TriggerType.ReleaseKey) {
-      newTrigger = new ReleaseKey(value)
-    } else {
-      log.warn('Unsupported trigger type for VisualKeyboardFooter.')
+    switch (type) {
+      case TriggerType.AppFocused:
+        trigger = new AppFocus("test", selectedKey)
+        break
+      case TriggerType.Hold:
+        trigger = new Hold(selectedKey, 100) // Default hold time 100ms
+        break
+      case TriggerType.KeyPress:
+        trigger = new KeyPress(selectedKey)
+        break
+      case TriggerType.KeyRelease:
+        trigger = new KeyRelease(selectedKey)
+        break
+      case TriggerType.TapSequence:
+        trigger = new TapSequence([[selectedKey, 350]]) // Default 350ms between taps
+        break
+      default:
+        log.warn(`Unsupported trigger type for VisualKeyboardFooter: ${type}`)
     }
     setOpenTriggerDropdown(false)
   }
@@ -153,17 +162,18 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             background: getMacroButtonBgT(trigger),
             position: 'relative'
           }}
-          onClick={() => setOpenTriggerDropdown(openTriggerDropdown === i ? null : i)}
+          onClick={() => setOpenTriggerDropdown(!openTriggerDropdown)}
           tabIndex={0}
         >
           {selectedKey}
         </button>
         {openTriggerDropdown && (
           <div className="vk-footer-macro-dropdown">
+          <p>A</p>
             {typeOptionsTrigger.map((opt) => (
               <button
-                className={`vk-footer-macro-dropdown-btn${trigger.bind_type === opt.value ? ' selected' : ''}`}
-                style={{ background: getDropdownBg(trigger, opt) }}
+                className={`vk-footer-macro-dropdown-btn${trigger.trigger_type === opt.value ? ' selected' : ''}`}
+                style={{ background: getDropdownBgT(trigger, opt) }}
                 onClick={() => handleTriggerTypeChange(opt.value)}
               >
                 {opt.label}

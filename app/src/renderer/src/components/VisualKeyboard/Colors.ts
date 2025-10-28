@@ -1,5 +1,5 @@
 // Key color identity for VisualKeyboard
-import { Trigger, TriggerType } from 'src/models/Trigger'
+import { Trigger, TriggerType } from '../../../../models/Trigger'
 import { Bind, BindType } from '../../../../models/Bind'
 
 export const bindTypeColors: Record<BindType, string> = {
@@ -13,7 +13,7 @@ export const bindTypeColors: Record<BindType, string> = {
   [BindType.AppOpen]: '#facc15'
 }
 
-export const triggerTypeColors: Record<Trigger['trigger_type'], string> = {
+export const triggerTypeColors: Record<TriggerType, string> = {
   [TriggerType.KeyPress]: '#60a5fa',
   [TriggerType.KeyRelease]: '#f87171',
   [TriggerType.Hold]: '#fbbf24',
