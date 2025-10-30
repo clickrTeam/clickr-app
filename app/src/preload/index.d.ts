@@ -1,5 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { Profile } from '../models/Profile.ts'
+import { Settings } from '../models/Settings.ts'
 
 export interface API {
   getProfiles(): Promise<object[]>
@@ -27,6 +28,24 @@ export interface API {
   isKeybinderRunning(): Promise<boolean>
   runKeybinder(): Promise<void>
   stopKeybinder(): Promise<void>
+
+  // Settings methods
+  getSettings(): Promise<Settings>
+  updateSettings(updates: Partial<Settings>): Promise<Settings>
+  resetSettings(): Promise<Settings>
+  getSetting<K extends keyof Settings>(key: K): Promise<Settings[K]>
+  setSetting<K extends keyof Settings>(key: K, value: Settings[K]): Promise<Settings>
+
+  // Account Settings methods
+  getUserProfile(username: string): Promise<any>
+  updateUserProfile(username: string, profileData: { email?: string; profile_image?: string }): Promise<any>
+  updateUserPreferences(username: string, preferences: { default_mapping_visibility?: 'public' | 'private' }): Promise<any>
+  changePassword(username: string, passwordData: { current_password: string; new_password: string; confirm_password: string }): Promise<any>
+  deleteAccount(username: string, password: string): Promise<any>
+  syncMappings(username: string): Promise<any>
+  renameMapping(mappingId: string, newName: string): Promise<any>
+  updateMappingVisibility(mappingId: string, isPublic: boolean): Promise<any>
+  selectImageFile(): Promise<string | null>
 }
 
 declare global {
