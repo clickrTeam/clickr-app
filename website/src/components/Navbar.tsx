@@ -49,7 +49,7 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // TODO: Change these to the actual download files
+  
   const WIN_DOWNLOAD: string = "clickr-windows.exe";
   const MAC_DOWNLOAD: string = "clickr-macos.dmg";
   const LINUX_DOWNLOAD: string = "clickr.run";
@@ -91,6 +91,39 @@ const Navbar = () => {
         return "Download for Linux";
       default:
         return "Download App";
+    }
+  };
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const link = getDownloadLink();
+    const filename = getDownloadFilename();
+
+    try {
+      // Fetch the file as a blob
+      const response = await fetch(link);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a temporary anchor element and trigger download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Download failed:", error);
+      // Fallback to direct link navigation
+      window.location.href = link;
     }
   };
 
@@ -145,16 +178,10 @@ const Navbar = () => {
               <Button
                 variant="outline"
                 className="flex items-center gap-2"
-                asChild
+                onClick={handleDownload}
               >
-                <a
-                  href={getDownloadLink()}
-                  download={getDownloadFilename()}
-                  className="flex items-center gap-2"
-                >
-                  <Download size={18} />
-                  <span>{getDownloadButtonText()}</span>
-                </a>
+                <Download size={18} />
+                <span>{getDownloadButtonText()}</span>
               </Button>
 
               <Button className="flex items-center gap-2" asChild>
@@ -179,16 +206,10 @@ const Navbar = () => {
               <Button
                 size="sm"
                 className="flex items-center gap-2 bg-gradient-to-r from-indigo-700 to-clickr-blue text-white"
-                asChild
+                onClick={handleDownload}
               >
-                <a
-                  href={getDownloadLink()}
-                  download={getDownloadFilename()}
-                  className="flex items-center gap-2"
-                >
-                  <Download size={18} />
-                  <span>{getDownloadButtonText()}</span>
-                </a>
+                <Download size={18} />
+                <span>{getDownloadButtonText()}</span>
               </Button>
 
               <Button
@@ -239,14 +260,13 @@ const Navbar = () => {
 
               {!isAuthenticated ? (
                 <>
-                  <Link
-                    to={getDownloadLink()}
-                    download={getDownloadFilename()}
-                    className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue"
+                  <button
+                    onClick={handleDownload}
+                    className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue text-left w-full"
                   >
                     <Download size={18} />
                     <span>{getDownloadButtonText()}</span>
-                  </Link>
+                  </button>
                   <Link
                     to="/register"
                     className="flex items-center gap-2 py-2 font-medium transition-colors hover:text-clickr-blue"
@@ -271,16 +291,10 @@ const Navbar = () => {
                   </span>
                   <Button
                     className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-indigo-700 to-clickr-blue text-white"
-                    asChild
+                    onClick={handleDownload}
                   >
-                    <a
-                      href={getDownloadLink()}
-                      download={getDownloadFilename()}
-                      className="flex items-center gap-2"
-                    >
-                      <Download size={18} />
-                      <span>{getDownloadButtonText()}</span>
-                    </a>
+                    <Download size={18} />
+                    <span>{getDownloadButtonText()}</span>
                   </Button>
                   <Button
                     variant="outline"
