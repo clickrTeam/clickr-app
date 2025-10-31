@@ -6,7 +6,7 @@ mod styling;
 
 #[derive(Debug, Parser)]
 #[command(name = "shifter")]
-#[command(about,version, long_about = None)]
+#[command(about, version, long_about = None)]
 #[clap(styles = CLAP_STYLING)]
 pub struct ClickrArgs {
     #[command(subcommand)]
@@ -17,11 +17,19 @@ pub struct ClickrArgs {
 pub enum ClickrSubcommand {
     /// Check the given profile and report any issues
     #[clap(visible_alias("c"))]
-    Check {},
+    Check {
+        /// Profile to use
+        #[clap(short = 'p', long = "profile")]
+        profile: Option<String>,
+    },
 
     /// Check and activate the given profile
     #[clap(visible_alias("l"))]
-    Load {},
+    Load {
+        /// Profile to use
+        #[clap(short = 'p', long = "profile")]
+        profile: Option<String>,
+    },
 
     /// Report the status of the clickr daemon
     #[clap(visible_alias("s"))]
@@ -29,7 +37,11 @@ pub enum ClickrSubcommand {
 
     /// Visualize the current profile
     #[clap(visible_alias("v"))]
-    Show {},
+    Show {
+        /// Profile to visualize
+        #[clap(short = 'p', long = "profile")]
+        profile: Option<String>,
+    },
 
     /// Pause the remapping of all inputs
     #[clap(visible_alias("p"))]
