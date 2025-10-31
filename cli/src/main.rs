@@ -1,3 +1,6 @@
+use clap::Parser;
+use clickr_cli::cli::ClickrArgs;
+
 fn main() {
-    println!("Hello, world!");
+    let args = ClickrArgs::parse();
 }
