@@ -1,8 +1,13 @@
 use clap::{Parser, Subcommand};
 
+use crate::cli::styling::CLAP_STYLING;
+
+mod styling;
+
 #[derive(Debug, Parser)]
 #[command(name = "shifter")]
 #[command(about,version, long_about = None)]
+#[clap(styles = CLAP_STYLING)]
 pub struct ClickrArgs {
     #[command(subcommand)]
     pub mode: ClickrSubcommand,
@@ -10,7 +15,7 @@ pub struct ClickrArgs {
 
 #[derive(Debug, Subcommand)]
 pub enum ClickrSubcommand {
-    /// Check the given profile and report and issues
+    /// Check the given profile and report any issues
     #[clap(visible_alias("c"))]
     Check {},
 
