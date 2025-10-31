@@ -76,9 +76,6 @@ impl<'a> Iterator for Lexer<'a> {
                 None => return None,
 
                 Some(b' ') | Some(b'\t') => {
-                    // let m = COMMENT_WHITESPACE_REGEX
-                    //     .find(&self.bytes[self.cur..])
-                    //     .unwrap();
                     self.cur += 1;
                     continue;
                 }
@@ -129,11 +126,11 @@ impl<'a> Iterator for Lexer<'a> {
                         .find(&self.bytes[self.cur..])
                         .unwrap()
                         .as_bytes();
-                    let kind = bytes_to_keyword(var).unwrap_or(TokenType::Variable);
+                    let kind = bytes_to_keyword(var).unwrap_or(TokenType::Ident);
                     return Some(self.create_token(kind, var.len()));
                 }
 
-                Some(b'\t') | Some(b'\r') | Some(128..) => exit_with_error(
+                Some(b'\r') | Some(128..) => exit_with_error(
                     miette!(
                         severity = Severity::Error,
                         labels = vec![LabeledSpan::at_offset(self.cur, "Invalid character")],
@@ -198,7 +195,7 @@ pub enum TokenType {
     Wait,
     True,
     False,
-    Variable,
+    Ident,
     IntLit,
     StringLit,
     Equals,
