@@ -1,6 +1,6 @@
 export type LLProfile = {
   profile_name: string;
-  default_layer?: number; // optional because your code defaults to 0
+  default_layer: number;
   layers: LLLayer[];
 };
 
@@ -48,7 +48,7 @@ export type LLMaximumWait = {
   value: number;
 };
 
-export type LLBind = LLPressKey | LLReleaseKey | LLSwapLayer | LLWait;
+export type LLBind = LLPressKey | LLReleaseKey | LLSwapLayer | LLWait | LLRunScript;
 
 export type LLPressKey = {
   type: "press_key";
@@ -68,4 +68,9 @@ export type LLSwapLayer = {
 export type LLWait = {
   type: "wait";
   value: number;
+};
+export type LLRunScript = {
+  type: "run_script";
+  interpreter: string
+  script: string
 };

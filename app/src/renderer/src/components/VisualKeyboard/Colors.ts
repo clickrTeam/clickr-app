@@ -10,7 +10,7 @@ export const bindTypeColors: Record<BindType, string> = {
   [BindType.Macro]: '#a78bfa',
   [BindType.TimedMacro]: '#f472b6',
   [BindType.Repeat]: '#fb7185',
-  [BindType.AppOpen]: '#facc15'
+  [BindType.OpenApp]: '#facc15'
 }
 const DEFAULT_COLOR = '#d1d5db'
 

@@ -89,7 +89,7 @@ export class Profile {
    * @returns True if the layer was found and removed, false otherwise
    */
   removeLayer(i: number): boolean {
-    if (i < this.layers.length) {
+    if (i > this.layers.length) {
       log.warn(`Attempted to remove layer ${i} and that does not exist in layer array.`)
     } else if (this.layers.length === 1) {
       log.warn('Attempted to remove the only layer. User should delete profile instead.')

@@ -10,7 +10,8 @@ export enum BindType {
   // Not handled by Daemon
   TimedMacro = 'timed_macro_bind',
   Repeat = 'repeat_bind',
-  AppOpen = 'app_open_bind'
+  OpenApp = 'app_open_bind',
+  RunScript = 'run_script',
 }
 
 /**
@@ -329,39 +330,83 @@ export class SwapLayer extends Bind {
   }
 }
 
-// Not going to happen for a while
 /**
  * Opens an application of the user's choice.
  */
-export class AppOpen_Bind extends Bind {
+export class OpenApp extends Bind {
   app_name: string
 
   constructor(app_name: string) {
-    super(BindType.AppOpen)
+    super(BindType.OpenApp)
     this.app_name = app_name
   }
 
   toJSON(): object {
     return {
-      type: BindType.AppOpen,
+      type: BindType.OpenApp,
       app_name: this.app_name
     }
   }
 
-  static fromJSON(obj: { app_name: string }): AppOpen_Bind {
-    return new AppOpen_Bind(obj.app_name)
+  static fromJSON(obj: { app_name: string }): OpenApp {
+    return new OpenApp(obj.app_name)
   }
 
   equals(other: Bind): boolean {
-    return other instanceof AppOpen_Bind && this.app_name === other.app_name
+    return other instanceof OpenApp && this.app_name === other.app_name
   }
 
   toString(): string {
-    throw new Error('Method not implemented.')
+    return "Open: " + this.app_name
   }
 
   toLL(): LLBind[] {
-    throw new Error('Method not implemented.')
+    //TODO: generlize to other operating systems
+    return [{
+      type: "run_script",
+      script: `open -a "${this.app_name}"`,
+      interpreter: "bash",
+    }]
+  }
+}
+
+export class RunScript extends Bind {
+  script: string
+  interpreter: string
+
+  constructor(script: string, interpreter: string
+  ) {
+    super(BindType.RunScript)
+    this.script = script
+    this.interpreter = interpreter
+  }
+
+  toJSON(): object {
+    return {
+      type: BindType.RunScript,
+      script: this.script,
+      interpreter: this.interpreter,
+    }
+  }
+
+  static fromJSON(obj: { script: string, interpreter: string }): RunScript {
+    return new RunScript(obj.script, obj.interpreter)
+  }
+
+  equals(other: Bind): boolean {
+    return other instanceof RunScript && this.interpreter === other.interpreter && this.script == other.script
+  }
+
+  toString(): string {
+    return `Run ${this.interpreter} script:  ${this.script}`;
+  }
+
+  toLL(): LLBind[] {
+    return [{
+      type: "run_script",
+      script: this.script,
+      interpreter: this.interpreter,
+    }]
   }
 }
 
@@ -382,8 +427,10 @@ export function deserializeBind(obj: any): Bind {
       return Repeat.fromJSON(obj)
     case BindType.SwitchLayer:
       return SwapLayer.fromJSON(obj)
-    case BindType.AppOpen:
-      return AppOpen_Bind.fromJSON(obj)
+    case BindType.OpenApp:
+      return OpenApp.fromJSON(obj)
+    case BindType.RunScript:
+      return RunScript.fromJSON(obj)
     default:
       throw new Error(`Unknown Bind type: ${obj.type}`)
   }

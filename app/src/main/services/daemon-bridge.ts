@@ -5,7 +5,7 @@ import { Profile } from '../../models/Profile'
 
 // Path to the socket which is based on the OS
 const SOCKET_PATH =
-  process.platform === 'win32' ? `\\\\.\\pipe\\clickr` : path.join(os.tmpdir(), 'clickr.sock')
+  process.platform === 'win32' ? `\\\\.\\pipe\\clickr` : '/tmp/clickr.sock'
 
 type DaemonReponse = {
   status: string
@@ -18,9 +18,10 @@ type DaemonReponse = {
  * This wraps the low-level `sendMessage` function with a higher-level command.
  */
 export function sendActiveProfile(profile: Profile): Promise<DaemonReponse> {
+  console.log("SENDING PROFILE")
   return sendMessage({
     type: 'load_profile',
-    profile: profile
+    profile: profile.toLL()
   })
 }
 

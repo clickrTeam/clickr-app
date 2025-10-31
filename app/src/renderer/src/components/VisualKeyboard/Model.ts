@@ -2,6 +2,7 @@ import { Bind } from '../../../../models/Bind'
 import { Trigger } from '../../../../models/Trigger'
 import { getKeyClass } from './Colors'
 import { ProfileController } from './ProfileControler'
+import { AdvancedModificaiton } from '../../../../models/Modification'
 
 export interface KeyPressInfo {
   key: string

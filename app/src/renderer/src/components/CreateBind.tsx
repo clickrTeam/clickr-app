@@ -8,11 +8,15 @@ import {
   ReleaseKey,
   TapKey,
   SwapLayer,
-  Macro
+  Macro,
+  OpenApp,
+  RunScript
 } from '../../../models/Bind'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Textarea } from './ui/textarea'
 import KeySelecter from './KeySelector'
 import { Button } from './ui/button'
+import { Label } from "./ui/label"
 
 interface BindSelectorProps {
   maxLayer: number
@@ -23,6 +27,8 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): J
   const [type, setType] = useState<BindType | null>(null)
   const [bindValue, setBindValue] = useState<string>('')
   const [macroBinds, setMacroBinds] = useState<(Bind | null)[]>([])
+  const [interpretor, setInterpretor] = useState<string>("")
+  const [script, setScript] = useState<string>("")
 
   const handleSingleKeyChange = (key: string): void => {
     setBindValue(key)
@@ -68,6 +74,7 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): J
     onBindSelected(new Macro(newBinds.filter((b): b is Bind => b !== null)))
   }
 
+
   // Dynamic card width for macro binds
   const cardWidthClass = type === BindType.Macro ? 'max-w-4xl' : 'max-w-md'
 
@@ -97,6 +104,8 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): J
             <SelectItem value={BindType.TapKey}>Tap Key</SelectItem>
             <SelectItem value={BindType.SwitchLayer}>Change Layer</SelectItem>
             <SelectItem value={BindType.Macro}>Macro</SelectItem>
+            <SelectItem value={BindType.OpenApp}>Open App</SelectItem>
+            <SelectItem value={BindType.RunScript}>Run Script</SelectItem>
           </SelectContent>
         </Select>
 
@@ -155,7 +164,25 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): J
             </Button>
           </div>
         )}
-      </CardContent>
-    </Card>
+
+        {type === BindType.OpenApp && (
+          <div className="grid w-full max-w-sm items-center gap-3">
+            <Label>App Name</Label>
+            <Input placeholder="App Name" onChange={(e) => { onBindSelected(new OpenApp(e.target.value)) }} />
+          </div>
+        )
+        }
+        {type === BindType.RunScript && (
+          <div className="grid w-full max-w-sm items-center gap-3">
+            <Label >Define Script</Label>
+            <Label>Interpretor</Label>
+            <Input placeholder="Interpretor Name" onChange={(e) => { setInterpretor(e.target.value); onBindSelected(new RunScript(script, e.target.value)); }} />
+            <Label>Script</Label>
+            <Textarea placeholder="Type your script here" onChange={(e) => { setScript(e.target.value); onBindSelected(new RunScript(e.target.value, interpretor)); }} />
+          </div>
+        )
+        }
+      </CardContent >
+    </Card >
   )
 }
