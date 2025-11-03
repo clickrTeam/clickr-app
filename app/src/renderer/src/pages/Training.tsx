@@ -28,7 +28,6 @@ function Training(): JSX.Element {
   const [showHowTo, setShowHowTo] = useState<boolean>(false)
   const [muteSound, setMuteSound] = useState<boolean>(incomingMuteSound ?? false)
 
-
   useEffect((): void => {
     const locState = location.state as { highScore?: number } | undefined
     if (locState?.highScore !== undefined) {
@@ -159,12 +158,21 @@ function Training(): JSX.Element {
                 towards the bottom. You will want to hit the Trigger associated with the Bind before
                 it falls off the game screen.
               </p>
+
               <p>
-                Points accumulate as you play for longer. If you hit the wrong trigger or the Bind
-                falls to the bottom of the screen before you hit its Trigger, you will lose points.
-                The higher the difficulty, the faster your points will accumulate and the faster the
-                Binds will fall from the top of the screen.
+                You get points every time you hit the correct Trigger. When you hit the correct
+                Trigger, that Bind will disappear from the screen. If the Bind falls to the bottom
+                of the screen before you hit its Trigger, you will lose a life. When you increase
+                the difficulty:
               </p>
+
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Binds fall faster.</li>
+                <li>Binds will appear more often.</li>
+                <li>You earn points more quickly.</li>
+                <li>You have fewer lives to start with.</li>
+              </ol>
+
               <p>
                 Click Start Game to begin. Press Stop and Return in the top-left to end the run.
               </p>

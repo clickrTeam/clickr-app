@@ -325,13 +325,6 @@ function FallingBoxes({
       <div style={{ position: 'absolute', top: 8, left: 8, color: '#fff' }}>
         Score {scoreRef.current}
       </div>
-      <div style={{ position: 'absolute', top: 8, right: 8, color: '#fff' }}>
-        Lives {livesRef.current}
-      </div>
-      <div style={{ position: 'absolute', top: 36, left: 8 }}>
-        <button onClick={() => setPaused((p) => !p)}>{paused ? 'Resume' : 'Pause'}</button>
-      </div>
-
       <div style={{ position: 'relative', width: '100%', height: '100%', willChange: 'contents' }}>
         {boxesForRender.map((b) => (
           <BoxView
