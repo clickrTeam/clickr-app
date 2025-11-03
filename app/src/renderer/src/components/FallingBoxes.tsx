@@ -48,14 +48,14 @@ const BoxView = memo(function BoxView({ x, y, width, height, text, exploding }: 
     width,
     height,
     color: '#000',
-    background: exploding ? '#ff0' : '#fff',
+    background: exploding ? 'rgba(40, 206, 40, 1)' : '#fff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 6,
     fontWeight: 'bold',
     willChange: 'transform, opacity',
-    animation: exploding ? 'explode 0.3s ease-out' : undefined
+    animation: exploding ? 'explode 0.3s ease-out' : undefined,
   }
 
   return (

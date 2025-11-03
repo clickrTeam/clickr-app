@@ -148,3 +148,6 @@
     opacity: 0;
   }
 }
+.exploding {
+  animation: explode 0.3s ease-out forwards;
+}
