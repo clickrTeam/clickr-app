@@ -1,6 +1,11 @@
 import React, { memo, useEffect, useRef, useState } from 'react'
 import log from 'electron-log'
 import { Layer } from '../../../models/Layer'
+import { background_music } from './audio_controller'
+import lose_life_sound_file from '../assets/game_sounds/lose_life.mp3'
+
+const lose_life_sound = new Audio(lose_life_sound_file)
+
 
 type Box = {
   id: number
@@ -95,8 +100,6 @@ function FallingBoxes({
   /**
    * @todo Add gravity effect to boxes
    * @todo Add visual effects on box catch/miss
-   * @todo Adjust spawn rate and box speed based on difficulty level
-   * @todo replace any hard-coded widths/heights references to use width/height variables (spawn x and off-bottom threshold)
    */
   const BASE_SPAWN = 800
 
@@ -106,9 +109,6 @@ function FallingBoxes({
     currentLayer.remappings.forEach((bind, trigger) => {
       log.info('FallingBoxes: considering bind', bind, 'and trigger', trigger)
       /**
-       * Every single key bind is a 'macro' that contains other binds.
-       * Even if it is a simple key press, it is still wrapped in a macro bind.
-       * @todo Verify this is intended behavior and not a bug.
        * For now, unwrap the bind if it is a macro with a single simple key bind inside.
        * @todo Right now, this only supports 'TapKey' binds.
        */
@@ -176,6 +176,10 @@ function FallingBoxes({
     }
 
     log.info('FallingBoxes: starting main loop with spawn interval', localSpawnInterval)
+    if (livesRef.current > 0 && running) {
+      background_music.currentTime = 0
+      background_music.play().catch((err) => log.warn('Background music play failed', err))
+    }
 
     const loop = (t: number): void => {
       if (lastTimeRef.current == null) lastTimeRef.current = t
@@ -205,15 +209,22 @@ function FallingBoxes({
           setLivesUI(livesRef.current)
           setRenderTick((r) => (r + 1) | 0)
 
+          if (livesRef.current === 0) {
+            background_music.pause()
+            background_music.currentTime = 0
+          }
+
           // notify parent immediately so game can end or act on life loss
           if (onLoseLifeRef.current) onLoseLifeRef.current(livesRef.current)
-
           if (livesRef.current === 0) {
             if (rafRef.current) cancelAnimationFrame(rafRef.current)
             rafRef.current = null
             lastTimeRef.current = null
             return
           }
+
+          lose_life_sound.currentTime = 0
+          lose_life_sound.play().catch((err) => log.warn('Sound play failed', err))
         }
       }
 

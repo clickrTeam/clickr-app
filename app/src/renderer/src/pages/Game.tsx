@@ -2,7 +2,12 @@ import { useEffect, useState, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Profile } from '../../../models/Profile'
 import { Button } from '@renderer/components/ui/button'
+import log from 'electron-log'
 import FallingBoxes from '@renderer/components/FallingBoxes'
+import game_over_sound_file from '../assets/game_sounds/game_over.mp3'
+import { background_music } from '../components/audio_controller'
+
+const game_over_sound = new Audio(game_over_sound_file)
 
 type GameState = {
   profile: Profile
@@ -33,7 +38,7 @@ function Game(): JSX.Element {
   const currentLayer = profile.layers[layer_index]
 
   const [countdown, setCountdown] = useState<number>(3)
-  const [mode, setMode] = useState<'countingDown' | 'playing'>('countingDown')
+  const [mode, setMode] = useState<'countingDown' | 'playing' | 'gameOver'>('countingDown')
   const [score, setScore] = useState<number>(0)
   const [highScore, setHighScore] = useState<number>(0)
   const [lives, setLives] = useState<number>(11 - difficulty)
@@ -83,7 +88,10 @@ function Game(): JSX.Element {
   }, [score, highScore])
 
   const handleStop = (): void => {
+    background_music.pause()
+    background_music.currentTime = 0
     const finalHigh = Math.max(highScore, score)
+    setMode('gameOver')
     setHighScore(finalHigh)
     navigate('/training', { state: { profile, layer_index, highScore: finalHigh } })
   }
@@ -95,6 +103,8 @@ function Game(): JSX.Element {
         const finalHigh = Math.max(highScore, score)
         setHighScore(finalHigh)
         setGameOver(true)
+        game_over_sound.currentTime = 0
+        game_over_sound.play().catch((err) => log.warn('Sound play failed', err))
       }
     },
     [highScore, score]
