@@ -100,7 +100,7 @@ function FallingBoxes({
   const trigValuesRef = useRef<string[]>([])
   const bindValuesRef = useRef<string[]>([])
 
-  // tiny render tick to drive React updates at throttled rate
+  // render tick to drive React updates every frame
   const [, setRenderTick] = useState(0)
 
   useEffect(() => {
@@ -109,13 +109,16 @@ function FallingBoxes({
   useEffect(() => {
     onLoseLifeRef.current = onLoseLife
   }, [onLoseLife])
-  const RENDER_FPS = 30
-  const RENDER_INTERVAL = 1000 / RENDER_FPS
-  const renderAccumulatorRef = useRef<number>(0)
+
+  // Render every frame - requestAnimationFrame already matches display refresh rate (60Hz, 120Hz, etc.)
+  // Only throttle parent callbacks to reduce parent re-renders
+  const scoreCallbackThrottleRef = useRef<number>(0)
 
   /**
    * @todo Add gravity effect to boxes
    * @todo Add visual effects on box catch/miss
+   * @todo Adjust spawn rate and box speed based on difficulty level
+   * @todo replace any hard-coded widths/heights references to use width/height variables (spawn x and off-bottom threshold)
    */
   const BASE_SPAWN = 800
 
@@ -125,6 +128,9 @@ function FallingBoxes({
     currentLayer.remappings.forEach((bind, trigger) => {
       log.info('FallingBoxes: considering bind', bind, 'and trigger', trigger)
       /**
+       * Every single key bind is a 'macro' that contains other binds.
+       * Even if it is a simple key press, it is still wrapped in a macro bind.
+       * @todo Verify this is intended behavior and not a bug.
        * For now, unwrap the bind if it is a macro with a single simple key bind inside.
        * @todo Right now, this only supports 'TapKey' binds.
        */
@@ -240,21 +246,22 @@ function FallingBoxes({
             lastTimeRef.current = null
             return
           }
-
           lose_life_sound.currentTime = 0
           lose_life_sound.play().catch((err) => log.warn('Sound play failed', err))
         }
       }
 
-      // throttled UI updates: notify parent and trigger a React render at capped rate
-      renderAccumulatorRef.current += dt
-      if (renderAccumulatorRef.current >= RENDER_INTERVAL) {
-        setRenderTick((r) => (r + 1) | 0)
+      // Update React render every frame - requestAnimationFrame already matches display refresh rate
+      setRenderTick((r) => (r + 1) | 0)
+      setScoreUI(scoreRef.current)
+      setLivesUI(livesRef.current)
+
+      // Throttle parent callbacks to reduce parent re-renders (10fps is sufficient for score/lives)
+      scoreCallbackThrottleRef.current += dt
+      if (scoreCallbackThrottleRef.current >= 100) {
         if (onScoreRef.current) onScoreRef.current(scoreRef.current)
         if (onLoseLifeRef.current) onLoseLifeRef.current(livesRef.current)
-        renderAccumulatorRef.current = renderAccumulatorRef.current % RENDER_INTERVAL
-        setScoreUI(scoreRef.current)
-        setLivesUI(livesRef.current)
+        scoreCallbackThrottleRef.current = scoreCallbackThrottleRef.current % 100
       }
 
       rafRef.current = requestAnimationFrame(loop)
@@ -266,9 +273,9 @@ function FallingBoxes({
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
       rafRef.current = null
       lastTimeRef.current = null
-      renderAccumulatorRef.current = 0
+      scoreCallbackThrottleRef.current = 0
     }
-  }, [running, paused, difficulty, height, width, RENDER_INTERVAL])
+  }, [running, paused, difficulty, height, width])
 
   useEffect(() => {
     livesRef.current = initialLives
@@ -326,7 +333,7 @@ function FallingBoxes({
         <button onClick={() => setPaused((p) => !p)}>{paused ? 'Resume' : 'Pause'}</button>
       </div>
 
-      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div style={{ position: 'relative', width: '100%', height: '100%', willChange: 'contents' }}>
         {boxesForRender.map((b) => (
           <BoxView
             key={b.id}

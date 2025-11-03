@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { LogIn, LogOut, Users, Layers, HelpCircle, Menu, X } from 'lucide-react'
+import { LogIn, LogOut, Users, Layers, HelpCircle, Menu, X, Settings } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
 import { NavLink, Link, useLocation } from 'react-router-dom'
@@ -35,7 +35,8 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
   const navLinks = [
     { name: 'Mappings', path: '/', icon: Layers },
     { name: 'Community', path: '/community', icon: Users },
-    { name: 'Help', path: '/help', icon: HelpCircle }
+    { name: 'Help', path: '/help', icon: HelpCircle },
+    { name: 'Settings', path: '/settings', icon: Settings }
   ]
   if (location.pathname.startsWith('/training/game')) return null
 

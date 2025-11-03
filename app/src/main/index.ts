@@ -3,9 +3,41 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerProfileHandlers } from './ipc/profile-ipc'
 import { registerApiHandlers } from './ipc/api-ipc'
+import { registerSettingsHandlers } from './ipc/settings-ipc'
 import { isKeybinderRunning, registerDeamonManagerHandlers, runKeybinder } from './services/daemon-manager'
 import log from 'electron-log'
 import { handleFirstRun } from './services/one-time-intialization.service'
+
+// Handle EPIPE errors gracefully (broken pipe when console is closed)
+process.stdout.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code !== 'EPIPE') {
+    throw error
+  }
+  // Ignore EPIPE errors - console was closed
+})
+
+process.stderr.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code !== 'EPIPE') {
+    throw error
+  }
+  // Ignore EPIPE errors - console was closed
+})
+
+// Handle uncaught exceptions for EPIPE errors
+process.on('uncaughtException', (error: NodeJS.ErrnoException) => {
+  // Check for EPIPE errors (broken pipe when console is closed)
+  if (error.code === 'EPIPE' || error.message?.includes('EPIPE')) {
+    // Ignore EPIPE errors - console was closed, this is expected in some scenarios
+    return
+  }
+  // Log other errors but don't crash - let Electron handle it
+  try {
+    log.error('Uncaught Exception:', error)
+  } catch {
+    // If logging fails, at least try to show in console
+    console.error('Uncaught Exception:', error)
+  }
+})
 
 function createWindow(): void {
   log.initialize()
@@ -61,6 +93,7 @@ app.whenReady().then(() => {
   registerProfileHandlers()
   registerDeamonManagerHandlers() // Register daemon manager handlers
   registerApiHandlers() // Register our new API handlers
+  registerSettingsHandlers() // Register settings handlers
   createWindow()
 
   app.on('activate', function () {

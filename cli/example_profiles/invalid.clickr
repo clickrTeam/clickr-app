@@ -1,0 +1,11 @@
+profile "Simple Profile"
+
+config {
+    default_layer = "base"
+}
+
+layer "base {
+    a = b
+    b = c
+    c = a
+}

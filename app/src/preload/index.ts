@@ -70,6 +70,52 @@ const api: API = {
   },
   stopKeybinder: function (): Promise<void> {
     return ipcRenderer.invoke('stop-keybinder')
+  },
+
+  // Settings methods
+  getSettings: function (): Promise<any> {
+    return ipcRenderer.invoke('get-settings')
+  },
+  updateSettings: function (updates: any): Promise<any> {
+    return ipcRenderer.invoke('update-settings', updates)
+  },
+  resetSettings: function (): Promise<any> {
+    return ipcRenderer.invoke('reset-settings')
+  },
+  getSetting: function (key: string): Promise<any> {
+    return ipcRenderer.invoke('get-setting', key)
+  },
+  setSetting: function (key: string, value: any): Promise<any> {
+    return ipcRenderer.invoke('set-setting', key, value)
+  },
+
+  // Account Settings methods
+  getUserProfile: function (username: string): Promise<any> {
+    return ipcRenderer.invoke('get-user-profile', username)
+  },
+  updateUserProfile: function (username: string, profileData: { email?: string; profile_image?: string }): Promise<any> {
+    return ipcRenderer.invoke('update-user-profile', username, profileData)
+  },
+  updateUserPreferences: function (username: string, preferences: { default_mapping_visibility?: 'public' | 'private' }): Promise<any> {
+    return ipcRenderer.invoke('update-user-preferences', username, preferences)
+  },
+  changePassword: function (username: string, passwordData: { current_password: string; new_password: string; confirm_password: string }): Promise<any> {
+    return ipcRenderer.invoke('change-password', username, passwordData)
+  },
+  deleteAccount: function (username: string, password: string): Promise<any> {
+    return ipcRenderer.invoke('delete-account', username, password)
+  },
+  syncMappings: function (username: string): Promise<any> {
+    return ipcRenderer.invoke('sync-mappings', username)
+  },
+  renameMapping: function (mappingId: string, newName: string): Promise<any> {
+    return ipcRenderer.invoke('rename-mapping', mappingId, newName)
+  },
+  updateMappingVisibility: function (mappingId: string, isPublic: boolean): Promise<any> {
+    return ipcRenderer.invoke('update-mapping-visibility', mappingId, isPublic)
+  },
+  selectImageFile: function (): Promise<string | null> {
+    return ipcRenderer.invoke('select-image-file')
   }
 }
 
