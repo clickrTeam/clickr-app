@@ -13,6 +13,7 @@ type GameState = {
   profile: Profile
   layer_index: number
   difficulty: number
+  muteSound: boolean
 }
 
 function Game(): JSX.Element {
@@ -29,10 +30,11 @@ function Game(): JSX.Element {
     window.dispatchEvent(new Event('resize'))
   }, [navbarHidden])
 
-  const { profile, layer_index, difficulty } = (location.state as GameState) ?? {
+  const { profile, layer_index, difficulty, muteSound } = (location.state as GameState) ?? {
     profile: undefined,
     layer_index: 0,
-    difficulty: 3
+    difficulty: 3,
+    muteSound: false
   }
 
   const currentLayer = profile.layers[layer_index]
@@ -93,7 +95,7 @@ function Game(): JSX.Element {
     const finalHigh = Math.max(highScore, score)
     setMode('gameOver')
     setHighScore(finalHigh)
-    navigate('/training', { state: { profile, layer_index, highScore: finalHigh } })
+    navigate('/training', { state: { profile, layer_index, highScore: finalHigh, muteSound } })
   }
 
   const handleLoseLife = useCallback(
@@ -103,11 +105,14 @@ function Game(): JSX.Element {
         const finalHigh = Math.max(highScore, score)
         setHighScore(finalHigh)
         setGameOver(true)
-        game_over_sound.currentTime = 0
-        game_over_sound.play().catch((err) => log.warn('Sound play failed', err))
+
+        if (!muteSound) {
+          game_over_sound.currentTime = 0
+          game_over_sound.play().catch((err) => log.warn('Sound play failed', err))
+        }
       }
     },
-    [highScore, score]
+    [highScore, muteSound, score]
   )
 
   const rootClass = `relative h-full w-full flex flex-col items-start px-8 ${navbarHidden ? '-mt-16' : 'pt-4'}`
@@ -173,6 +178,7 @@ function Game(): JSX.Element {
                 width={1000}
                 height={PLAY_AREA_HEIGHT}
                 currentLayer={currentLayer}
+                muteSound={muteSound}
               />
             </div>
           )}
@@ -189,7 +195,9 @@ function Game(): JSX.Element {
                   onClick={() => {
                     const finalHigh = Math.max(highScore, score)
                     setHighScore(finalHigh)
-                    navigate('/training', { state: { profile, layer_index, highScore: finalHigh } })
+                    navigate('/training', {
+                      state: { profile, layer_index, highScore: finalHigh, muteSound }
+                    })
                   }}
                 >
                   Return

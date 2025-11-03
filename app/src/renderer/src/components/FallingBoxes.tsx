@@ -28,6 +28,7 @@ type FallingBoxesProps = {
   width: number
   height: number
   currentLayer: Layer
+  muteSound: boolean
 }
 
 type BoxViewProps = {
@@ -82,7 +83,8 @@ function FallingBoxes({
   initialLives = 3,
   width = 800,
   height = 760,
-  currentLayer
+  currentLayer,
+  muteSound = false
 }: FallingBoxesProps): JSX.Element {
   const [paused, setPaused] = useState(false)
 
@@ -114,13 +116,6 @@ function FallingBoxes({
   // Render every frame - requestAnimationFrame already matches display refresh rate (60Hz, 120Hz, etc.)
   // Only throttle parent callbacks to reduce parent re-renders
   const scoreCallbackThrottleRef = useRef<number>(0)
-
-  /**
-   * @todo Add gravity effect to boxes
-   * @todo Add visual effects on box catch/miss
-   * @todo Adjust spawn rate and box speed based on difficulty level
-   * @todo replace any hard-coded widths/heights references to use width/height variables (spawn x and off-bottom threshold)
-   */
   const BASE_SPAWN = 800
 
   useEffect(() => {
@@ -129,10 +124,6 @@ function FallingBoxes({
     currentLayer.remappings.forEach((bind, trigger) => {
       log.info('FallingBoxes: considering bind', bind, 'and trigger', trigger)
       /**
-       * Every single key bind is a 'macro' that contains other binds.
-       * Even if it is a simple key press, it is still wrapped in a macro bind.
-       * @todo Verify this is intended behavior and not a bug.
-       * For now, unwrap the bind if it is a macro with a single simple key bind inside.
        * @todo Right now, this only supports 'TapKey' binds.
        */
       if ('binds' in bind && Array.isArray(bind.binds) && bind.binds.length > 0) {
@@ -201,7 +192,7 @@ function FallingBoxes({
     }
 
     log.info('FallingBoxes: starting main loop with spawn interval', localSpawnInterval)
-    if (livesRef.current > 0 && running) {
+    if (livesRef.current > 0 && running && !muteSound) {
       background_music.currentTime = 0
       background_music.play().catch((err) => log.warn('Background music play failed', err))
     }
@@ -247,8 +238,10 @@ function FallingBoxes({
             lastTimeRef.current = null
             return
           }
-          lose_life_sound.currentTime = 0
-          lose_life_sound.play().catch((err) => log.warn('Sound play failed', err))
+          if (!muteSound) {
+            lose_life_sound.currentTime = 0
+            lose_life_sound.play().catch((err) => log.warn('Sound play failed', err))
+          }
         }
       }
 
@@ -276,7 +269,7 @@ function FallingBoxes({
       lastTimeRef.current = null
       scoreCallbackThrottleRef.current = 0
     }
-  }, [running, paused, difficulty, height, width])
+  }, [running, paused, difficulty, height, width, muteSound])
 
   useEffect(() => {
     livesRef.current = initialLives
