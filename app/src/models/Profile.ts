@@ -4,6 +4,7 @@ import * as T from './Trigger'
 import * as B from './Bind'
 import { MacKey, WinKey, LinuxKey } from './Keys'
 import log from 'electron-log'
+import { LLProfile } from './LowLevelProfile'
 /**
  * Represents an entire profile that can contain many layers.
  */
@@ -277,13 +278,13 @@ export class Profile {
           continue
         }
         // Need recursive call here for array of nested binds
-        else if (bind instanceof B.Macro_Bind || bind instanceof B.TimedMacro_Bind) {
+        else if (bind instanceof B.Macro || bind instanceof B.TimedMacro) {
           for (const single_bind of bind.binds) {
             this.processBindRecursive(single_bind, incoming_OS, target_OS)
           }
         }
         // Need recursive call here for nested bind
-        else if (bind instanceof B.Repeat_Bind) {
+        else if (bind instanceof B.Repeat) {
           this.processBindRecursive(bind.value, incoming_OS, target_OS)
         } else {
           log.warn(
@@ -501,13 +502,13 @@ export class Profile {
    * @param target_OS The OS to translate the profile to, usually the current OS.
    */
   private processBindRecursive(bind: B.Bind, incoming_OS: string, target_OS: string): void {
-    if (bind instanceof B.Macro_Bind || bind instanceof B.TimedMacro_Bind) {
+    if (bind instanceof B.Macro || bind instanceof B.TimedMacro) {
       for (const single_bind of bind.binds) {
         this.processBindRecursive(single_bind, incoming_OS, target_OS)
       }
     }
     // Repeat bind contains a single bind called value, not an array
-    else if (bind instanceof B.Repeat_Bind) {
+    else if (bind instanceof B.Repeat) {
       this.processBindRecursive(bind.value, incoming_OS, target_OS)
     }
     // All other bind types have a single value string. BASE CASE
@@ -522,6 +523,10 @@ export class Profile {
         `Unknown bind type during ${incoming_OS} to ${target_OS} translation. Bind: ${bind.toString()}`
       )
     }
+  }
+  toLL(): LLProfile {
+    return { profile_name: this.profile_name, default_layer: 0, layers: this.layers.map((l) => l.toLL()) }
+
   }
 }
 

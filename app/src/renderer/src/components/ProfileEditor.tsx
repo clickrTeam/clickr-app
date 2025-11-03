@@ -33,7 +33,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   const handleAddLayer = (): void => {
     log.debug('Adding new layer')
     const next = Profile.fromJSON(localProfile.toJSON())
-    next.addLayer('Layer ' + next.layersLength())
+    next.addLayer('Layer ' + next.layers.length)
 
     setSelectedLayerIndex(next.layers.length - 1)
     setLocalProfile(next)

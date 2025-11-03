@@ -1,5 +1,5 @@
 import log from 'electron-log';
-import { Bind, Macro_Bind } from '../../../../models/Bind';
+import { Bind, Macro } from '../../../../models/Bind';
 import { Layer } from '../../../../models/Layer';
 import { Profile } from '../../../../models/Profile';
 import { Trigger, KeyPress } from '../../../../models/Trigger';
@@ -32,7 +32,7 @@ export class ProfileController {
     }
     log.debug('Adding bind:', binds, 'to trigger:', trigger);
 
-    this.activeLayer.addRemapping(trigger, new Macro_Bind(binds)) // TODO support multiple triggers
+    this.activeLayer.addRemapping(trigger, new Macro(binds)) // TODO support multiple triggers
     this.onSave();
   }
 
@@ -68,7 +68,7 @@ export class ProfileController {
     setTrigger(trigger);
     const bind = this.activeLayer.getRemapping(trigger);
     log.debug('Found binds for trigger:', bind);
-    if (bind instanceof Macro_Bind) {
+    if (bind instanceof Macro) {
       setBind(bind.binds);
     } else if (bind) {
       setBind([bind]);
