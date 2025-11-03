@@ -6,7 +6,6 @@ import lose_life_sound_file from '../assets/game_sounds/lose_life.mp3'
 
 const lose_life_sound = new Audio(lose_life_sound_file)
 
-
 type Box = {
   id: number
   text: string
@@ -16,6 +15,7 @@ type Box = {
   correctKey: string
   width: number
   height: number
+  exploding: boolean
 }
 
 type FallingBoxesProps = {
@@ -37,8 +37,16 @@ type BoxViewProps = {
   width: number
   height: number
   text: string
+  exploding: boolean
 }
-const BoxView = memo(function BoxView({ x, y, width, height, text }: BoxViewProps) {
+const BoxView = memo(function BoxView({
+  x,
+  y,
+  width,
+  height,
+  text,
+  exploding
+}: BoxViewProps & { exploding?: boolean }) {
   const style: React.CSSProperties = {
     position: 'absolute',
     left: 0,
@@ -47,13 +55,14 @@ const BoxView = memo(function BoxView({ x, y, width, height, text }: BoxViewProp
     width,
     height,
     color: '#000',
-    background: '#fff',
+    background: exploding ? '#ff0' : '#fff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 6,
     fontWeight: 'bold',
-    willChange: 'transform, opacity'
+    willChange: 'transform, opacity',
+    animation: exploding ? 'explode 0.3s ease-out' : undefined
   }
   return <div style={style}>{text}</div>
 })
@@ -152,7 +161,8 @@ function FallingBoxes({
           vy: 80 + Math.random() * 80,
           correctKey: correct,
           width: 60,
-          height: 40
+          height: 40,
+          exploding: false
         }
         boxesRef.current.push(box)
         return
@@ -170,7 +180,8 @@ function FallingBoxes({
         vy: 80 + Math.random() * 80,
         correctKey: correct,
         width: 60,
-        height: 40
+        height: 40,
+        exploding: false
       }
       boxesRef.current.push(box)
     }
@@ -274,8 +285,15 @@ function FallingBoxes({
         }
       }
       if (bestIndex >= 0) {
-        // remove box and increment score
-        boxes.splice(bestIndex, 1)
+        const box = boxes[bestIndex]
+        box.exploding = true
+
+        // Delay removal to allow animation
+        setTimeout(() => {
+          const index = boxes.findIndex((b) => b.id === box.id)
+          if (index >= 0) boxes.splice(index, 1)
+        }, 300) // adjust duration to match animation
+
         scoreRef.current += Math.round(100 * 0.5 * difficulty)
         setScoreUI(scoreRef.current)
         if (onScore) onScore(scoreRef.current)
@@ -311,6 +329,7 @@ function FallingBoxes({
             width={b.width}
             height={b.height}
             text={b.text}
+            exploding={b.exploding}
           />
         ))}
       </div>
