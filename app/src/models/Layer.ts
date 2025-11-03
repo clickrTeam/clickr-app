@@ -1,5 +1,5 @@
-import { LLLayer } from './LowLevelProfile'
-import { AdvancedModificaiton, Modification } from './Modification'
+import * as T from './Trigger'
+import * as B from './Bind'
 
 /**
  * Represents a keyboard layer within a profile
@@ -11,9 +11,14 @@ export class Layer {
   layer_name: string
 
   /**
+   * The number associated with the layer. Must be unique from other layer numbers. Serves as an identifier
+   */
+  layer_number: number
+
+  /**
    * Contains all the associated Triggers and Binds for a layer.
    */
-  public remappings: Modification[]
+  remappings: Map<T.Trigger, B.Bind>
 
   /**
    * Creates an instance of the Layer class.
@@ -21,9 +26,15 @@ export class Layer {
    * @param layer_number: A number associated with the layer
    * @param remappings - (Optional) A Map of trigger to bind mappings.
    */
-  constructor(layer_name: string, remappings?: Modification[]) {
+  constructor(layer_name: string, layer_number: number, remappings?: Map<T.Trigger, B.Bind>) {
     this.layer_name = layer_name
-    this.remappings = remappings ?? []
+    this.layer_number = layer_number
+
+    if (remappings) {
+      this.remappings = remappings
+    } else {
+      this.remappings = new Map<T.Trigger, B.Bind>()
+    }
   }
 
   /**
@@ -32,12 +43,15 @@ export class Layer {
    * @param trig The associated trigger object
    * @returns True if the trigger and bind was present and removed, false otherwise.
    */
-  deleteRemapping(i: number): boolean {
-    if (i >= this.remappings.length) {
-      return false
+  deleteRemapping(trig: T.Trigger): boolean {
+    // Keys are by reference, so unless the exact Trigger object is indexed, you won't ever delete anything.
+    // Using .equals will allow old_trig to be a different instance
+    for (const existing_trig of this.remappings.keys()) {
+      if (existing_trig.equals(trig)) {
+        return this.remappings.delete(existing_trig)
+      }
     }
-    this.remappings = this.remappings.splice(i, 1)
-    return true
+    return false
   }
 
   /**
@@ -45,8 +59,15 @@ export class Layer {
    * @param trig The trigger that should be associated with a bind
    * @param bnd The desired bind
    */
-  addRemapping(mod: Modification): void {
-    this.remappings.push(mod)
+  addRemapping(trig: T.Trigger, bnd: B.Bind): void {
+    for (const existing_trig of this.remappings.keys()) {
+      if (existing_trig.equals(trig)) {
+        this.remappings.set(existing_trig, bnd)
+        return
+      }
+    }
+    // TODO check if we are mapping a trigger to a bind that does what it would do with no remapping.
+    this.remappings.set(trig, bnd)
   }
 
   equals(other: Layer): boolean {
@@ -59,8 +80,13 @@ export class Layer {
    * @param key The trigger to query
    * @returns The bind associated with that key
    */
-  getRemapping(i: number): Modification | undefined {
-    return this.remappings[i]
+  getRemapping(trig: T.Trigger): B.Bind | undefined {
+    for (const existing_trig of this.remappings.keys()) {
+      if (existing_trig.equals(trig)) {
+        return this.remappings.get(existing_trig)
+      }
+    }
+    return undefined
   }
 
   /**
@@ -74,20 +100,48 @@ export class Layer {
   toJSON(): object {
     return {
       layer_name: this.layer_name,
-      remappings: this.remappings.map(mod => mod.toJSON())
+      layer_number: this.layer_number,
+      remappings: remappingsToJSON(this.remappings)
     }
-  }
-  toLL(): LLLayer {
-    return { layer_name: this.layer_name, remappings: this.remappings.map((r) => r.toLL()) }
   }
 
   static fromJSON(obj: {
     layer_name: string
+    layer_number: number
     remappings: { trigger: object; bind: object }[]
   }): Layer {
-    return new Layer(
-      obj.layer_name,
-      obj.remappings.map(AdvancedModificaiton.fromJSON),
-    )
+    const remappings = remappingsFromJSON(obj.remappings)
+    return new Layer(obj.layer_name, obj.layer_number, remappings)
   }
+}
+
+/**
+ * Turns the map of remapping into an object that can be JSON.Stringify()
+ * @param map The remapping map
+ * @returns An array of triggers and binds
+ */
+function remappingsToJSON(map: Map<T.Trigger, B.Bind>): { trigger: object; bind: object }[] {
+  const arr: { trigger: object; bind: object }[] = []
+  for (const [trigger, bind] of map.entries()) {
+    arr.push({
+      trigger: trigger.toJSON(),
+      bind: bind.toJSON()
+    })
+  }
+  return arr
+}
+
+/**
+ * Converts JSON into a map<Trigger,Bind> for use in the layer object
+ * @param arr Array of triggers and binds
+ * @returns Map object
+ */
+function remappingsFromJSON(arr: { trigger: object; bind: object }[]): Map<T.Trigger, B.Bind> {
+  const map = new Map<T.Trigger, B.Bind>()
+  for (const entry of arr) {
+    const trigger = T.deserializeTrigger(entry.trigger)
+    const bind = B.deserializeBind(entry.bind)
+    map.set(trigger, bind)
+  }
+  return map
 }
