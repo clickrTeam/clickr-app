@@ -48,7 +48,7 @@ const BoxView = memo(function BoxView({ x, y, width, height, text }: BoxViewProp
     justifyContent: 'center',
     borderRadius: 6,
     fontWeight: 'bold',
-    willChange: 'transform, opacity'
+    willChange: 'transform'
   }
   return <div style={style}>{text}</div>
 })
@@ -79,7 +79,7 @@ function FallingBoxes({
   const trigValuesRef = useRef<string[]>([])
   const bindValuesRef = useRef<string[]>([])
 
-  // tiny render tick to drive React updates at throttled rate
+  // render tick to drive React updates every frame
   const [, setRenderTick] = useState(0)
 
   useEffect(() => {
@@ -88,9 +88,10 @@ function FallingBoxes({
   useEffect(() => {
     onLoseLifeRef.current = onLoseLife
   }, [onLoseLife])
-  const RENDER_FPS = 30
-  const RENDER_INTERVAL = 1000 / RENDER_FPS
-  const renderAccumulatorRef = useRef<number>(0)
+
+  // Render every frame - requestAnimationFrame already matches display refresh rate (60Hz, 120Hz, etc.)
+  // Only throttle parent callbacks to reduce parent re-renders
+  const scoreCallbackThrottleRef = useRef<number>(0)
 
   /**
    * @todo Add gravity effect to boxes
@@ -217,15 +218,17 @@ function FallingBoxes({
         }
       }
 
-      // throttled UI updates: notify parent and trigger a React render at capped rate
-      renderAccumulatorRef.current += dt
-      if (renderAccumulatorRef.current >= RENDER_INTERVAL) {
-        setRenderTick((r) => (r + 1) | 0)
+      // Update React render every frame - requestAnimationFrame already matches display refresh rate
+      setRenderTick((r) => (r + 1) | 0)
+      setScoreUI(scoreRef.current)
+      setLivesUI(livesRef.current)
+
+      // Throttle parent callbacks to reduce parent re-renders (10fps is sufficient for score/lives)
+      scoreCallbackThrottleRef.current += dt
+      if (scoreCallbackThrottleRef.current >= 100) {
         if (onScoreRef.current) onScoreRef.current(scoreRef.current)
         if (onLoseLifeRef.current) onLoseLifeRef.current(livesRef.current)
-        renderAccumulatorRef.current = renderAccumulatorRef.current % RENDER_INTERVAL
-        setScoreUI(scoreRef.current)
-        setLivesUI(livesRef.current)
+        scoreCallbackThrottleRef.current = scoreCallbackThrottleRef.current % 100
       }
 
       rafRef.current = requestAnimationFrame(loop)
@@ -237,9 +240,9 @@ function FallingBoxes({
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
       rafRef.current = null
       lastTimeRef.current = null
-      renderAccumulatorRef.current = 0
+      scoreCallbackThrottleRef.current = 0
     }
-  }, [running, paused, difficulty, height, width, RENDER_INTERVAL])
+  }, [running, paused, difficulty, height, width])
 
   useEffect(() => {
     livesRef.current = initialLives
@@ -276,10 +279,12 @@ function FallingBoxes({
     }
   }, [difficulty, height, onScore])
 
-  const boxesForRender = boxesRef.current.slice()
+  // Use ref directly to avoid creating new array on every render
+  // React will handle reconciliation based on keys
+  const boxesForRender = boxesRef.current
 
   return (
-    <div style={{ width, height, position: 'relative', background: '#000' }}>
+    <div style={{ width, height, position: 'relative', background: '#000', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 8, left: 8, color: '#fff' }}>
         Score {scoreRef.current}
       </div>
@@ -290,7 +295,7 @@ function FallingBoxes({
         <button onClick={() => setPaused((p) => !p)}>{paused ? 'Resume' : 'Pause'}</button>
       </div>
 
-      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div style={{ position: 'relative', width: '100%', height: '100%', willChange: 'contents' }}>
         {boxesForRender.map((b) => (
           <BoxView
             key={b.id}
