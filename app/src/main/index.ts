@@ -3,8 +3,9 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerProfileHandlers } from './ipc/profile-ipc'
 import { registerApiHandlers } from './ipc/api-ipc'
-import { registerDeamonManagerHandlers } from './services/daemon-manager'
+import { isKeybinderRunning, registerDeamonManagerHandlers, runKeybinder } from './services/daemon-manager'
 import log from 'electron-log'
+import { handleFirstRun } from './services/one-time-intialization.service'
 
 function createWindow(): void {
   log.initialize()
@@ -69,29 +70,15 @@ app.whenReady().then(() => {
   })
 
   log.info('Starting Express server for keybinder control...')
+})
 
-  // Handle IPC messages
-  // ipcMain.on('is-keybinder-running', async (event) => {
-  //   const isRunning = await isKeybinderRunning()
-  //   event.reply('is-keybinder-running', isRunning)
-  // })
-
-  // ipcMain.on('run-keybinder', () => {
-  //   runKeybinder()
-  // })
-
-  // ipcMain.on('stop-keybinder', () => {
-  //   stopKeybinder()
-  // })
-
-  // isKeybinderRunning().then((isRunning) => {
-  //   console.log('Keybinder running:', isRunning)
-  //   if (!isRunning) {
-  //     runKeybinder()
-  //   } else {
-  //     stopKeybinder()
-  //   }
-  // })
+app.on('ready', async () => {
+  if (await isKeybinderRunning()) {
+    log.info('Keybinder is already running.')
+  } else {
+    log.info('Keybinder is not running. Starting keybinder...')
+    runKeybinder()
+  }
 })
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -99,6 +86,8 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
-    log.info('All windows closed.')
+    log.info('!---------------- All windows closed. ----------------!')
   }
 })
+
+app.whenReady().then(handleFirstRun)
