@@ -39,14 +39,7 @@ type BoxViewProps = {
   text: string
   exploding: boolean
 }
-const BoxView = memo(function BoxView({
-  x,
-  y,
-  width,
-  height,
-  text,
-  exploding
-}: BoxViewProps & { exploding?: boolean }) {
+const BoxView = memo(function BoxView({ x, y, width, height, text, exploding }: BoxViewProps) {
   const style: React.CSSProperties = {
     position: 'absolute',
     left: 0,
@@ -64,7 +57,21 @@ const BoxView = memo(function BoxView({
     willChange: 'transform, opacity',
     animation: exploding ? 'explode 0.3s ease-out' : undefined
   }
-  return <div style={style}>{text}</div>
+
+  return (
+    <div
+      style={style}
+      // Set custom CSS variables directly on the DOM element
+      ref={(el) => {
+        if (el) {
+          el.style.setProperty('--x', `${x}px`)
+          el.style.setProperty('--y', `${y}px`)
+        }
+      }}
+    >
+      {text}
+    </div>
+  )
 })
 
 function FallingBoxes({
