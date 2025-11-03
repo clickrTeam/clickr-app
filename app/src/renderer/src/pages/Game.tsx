@@ -139,7 +139,9 @@ function Game(): JSX.Element {
           <div className="text-sm text-gray-500">High Score</div>
           <div className="text-2xl font-bold text-cyan-600">{highScore}</div>
           <div className="text-sm text-gray-500 mt-2">Lives</div>
-          <div className="text-2xl font-bold text-red-500">{lives}</div>
+          <div className={`text-2xl font-bold ${lives === 1 ? 'text-red-500' : 'text-black'}`}>
+            {lives}
+          </div>
         </div>
       </div>
 
