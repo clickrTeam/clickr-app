@@ -55,7 +55,7 @@ const BoxView = memo(function BoxView({ x, y, width, height, text, exploding }: 
     borderRadius: 6,
     fontWeight: 'bold',
     willChange: 'transform, opacity',
-    animation: exploding ? 'explode 0.3s ease-out' : undefined,
+    animation: exploding ? 'explode 0.3s ease-out' : undefined
   }
 
   return (
@@ -102,6 +102,7 @@ function FallingBoxes({
 
   // render tick to drive React updates every frame
   const [, setRenderTick] = useState(0)
+  const [explodingBoxes, setExplodingBoxes] = useState<Box[]>([])
 
   useEffect(() => {
     onScoreRef.current = onScore
@@ -302,11 +303,16 @@ function FallingBoxes({
         const box = boxes[bestIndex]
         box.exploding = true
 
-        // Delay removal to allow animation
+        // Move to exploding layer
+        setExplodingBoxes((prev) => [...prev, { ...box }])
+
+        // Remove original box immediately
+        boxes.splice(bestIndex, 1)
+
+        // Remove from exploding layer after animation
         setTimeout(() => {
-          const index = boxes.findIndex((b) => b.id === box.id)
-          if (index >= 0) boxes.splice(index, 1)
-        }, 300) // adjust duration to match animation
+          setExplodingBoxes((prev) => prev.filter((b) => b.id !== box.id))
+        }, 300)
 
         scoreRef.current += Math.round(100 * 0.5 * difficulty)
         setScoreUI(scoreRef.current)
@@ -344,6 +350,18 @@ function FallingBoxes({
             height={b.height}
             text={b.text}
             exploding={b.exploding}
+          />
+        ))}
+        {explodingBoxes.map((b) => (
+          <BoxView
+            key={`explode-${b.id}`}
+            id={b.id}
+            x={b.x}
+            y={b.y}
+            width={b.width}
+            height={b.height}
+            text={b.text}
+            exploding={true}
           />
         ))}
       </div>
