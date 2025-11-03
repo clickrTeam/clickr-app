@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Profile } from '../../../models/Profile'
 import { Button } from '@renderer/components/ui/button'
+import FallingBoxes from '@renderer/components/FallingBoxes'
 
 type GameState = {
   profile: Profile
@@ -29,23 +30,33 @@ function Game(): JSX.Element {
     difficulty: 3
   }
 
-  const currentLayer = profile?.layers?.[layer_index]
+  const currentLayer = profile.layers[layer_index]
 
   const [countdown, setCountdown] = useState<number>(3)
   const [mode, setMode] = useState<'countingDown' | 'playing'>('countingDown')
   const [score, setScore] = useState<number>(0)
   const [highScore, setHighScore] = useState<number>(0)
+  const [lives, setLives] = useState<number>(11 - difficulty)
+  const [gameOver, setGameOver] = useState(false)
+  const [startCount, setStartCount] = useState(0)
 
-  const rafRef = useRef<number | null>(null)
-  const lastTimeRef = useRef<number | null>(null)
+  const PLAY_AREA_HEIGHT = 680
+
+  const handleBoxScore = useCallback(
+    (s: number): void => {
+      setScore(s)
+      if (s > highScore) setHighScore(s)
+    },
+    [highScore]
+  )
 
   useEffect(() => {
-    // start countdown immediately
     const interval = setInterval(() => {
       setCountdown((c) => {
         if (c <= 1) {
           clearInterval(interval)
           setMode('playing')
+          setStartCount((c) => c + 1)
           return 0
         }
         return c - 1
@@ -54,38 +65,6 @@ function Game(): JSX.Element {
 
     return (): void => clearInterval(interval)
   }, [])
-
-  useEffect(() => {
-    if (mode !== 'playing') {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current)
-        rafRef.current = null
-      }
-      lastTimeRef.current = null
-      return
-    }
-
-    const loop = (t: number): void => {
-      if (lastTimeRef.current == null) lastTimeRef.current = t
-      const dt = t - lastTimeRef.current
-      lastTimeRef.current = t
-
-      // placeholder scoring influenced by difficulty
-      setScore((s) => s + Math.round((dt / 1000) * difficulty * 10))
-
-      rafRef.current = requestAnimationFrame(loop)
-    }
-
-    rafRef.current = requestAnimationFrame(loop)
-
-    return (): void => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current)
-        rafRef.current = null
-      }
-      lastTimeRef.current = null
-    }
-  }, [mode, difficulty])
 
   useEffect(() => {
     if (mode === 'playing') return
@@ -109,8 +88,23 @@ function Game(): JSX.Element {
     navigate('/training', { state: { profile, layer_index, highScore: finalHigh } })
   }
 
+  const handleLoseLife = useCallback(
+    (remaining: number): void => {
+      setLives(remaining)
+      if (remaining <= 0) {
+        const finalHigh = Math.max(highScore, score)
+        setHighScore(finalHigh)
+        setGameOver(true)
+      }
+    },
+    [highScore, score]
+  )
+
   const rootClass = `relative h-full w-full flex flex-col items-start px-8 ${navbarHidden ? '-mt-16' : 'pt-4'}`
 
+  /**
+   * @todo Resize play area to be more appropriate for smaller windows or screens
+   */
   return (
     <div className={rootClass}>
       <div className="fixed top-2 left-4 z-50">
@@ -131,9 +125,11 @@ function Game(): JSX.Element {
       </div>
 
       <div className="fixed top-2 right-4 z-40 pointer-events-none">
-        <div className="pointer-events-auto text-right">
+        <div className="text-right">
           <div className="text-sm text-gray-500">High Score</div>
           <div className="text-2xl font-bold text-cyan-600">{highScore}</div>
+          <div className="text-sm text-gray-500 mt-2">Lives</div>
+          <div className="text-2xl font-bold text-red-500">{lives}</div>
         </div>
       </div>
 
@@ -141,18 +137,55 @@ function Game(): JSX.Element {
         <div className="w-full bg-black rounded-lg text-white overflow-hidden flex flex-col items-center">
           {/* Playing area */}
           {mode === 'countingDown' && (
-            <div className="w-full h-[720px] flex items-center justify-center">
+            <div
+              className="w-full flex items-center justify-center"
+              style={{ height: PLAY_AREA_HEIGHT }}
+            >
               <div className="text-8xl font-bold">{countdown > 0 ? countdown : 'Go!'}</div>
             </div>
           )}
 
           {mode === 'playing' && (
-            <div className="w-full h-[720px] flex flex-col items-center justify-center">
-              <div className="mb-4 text-lg">Game running</div>
-              <div className="text-6xl font-bold">{score}</div>
+            <div
+              className="w-full flex flex-col items-center justify-center"
+              style={{ height: PLAY_AREA_HEIGHT }}
+            >
+              <FallingBoxes
+                key={startCount}
+                running={mode === 'playing' && !gameOver}
+                difficulty={Number(difficulty)}
+                onScore={handleBoxScore}
+                onLoseLife={handleLoseLife}
+                initialHighScore={highScore}
+                initialLives={11 - difficulty}
+                width={1000}
+                height={PLAY_AREA_HEIGHT}
+                currentLayer={currentLayer}
+              />
             </div>
           )}
         </div>
+
+        {gameOver && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60">
+            <div className="bg-white rounded-lg p-6 w-96 text-center">
+              <div className="text-xl font-bold mb-4">Game Over</div>
+              <div className="mb-6">Final score: {score}</div>
+              <div className="flex justify-center">
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    const finalHigh = Math.max(highScore, score)
+                    setHighScore(finalHigh)
+                    navigate('/training', { state: { profile, layer_index, highScore: finalHigh } })
+                  }}
+                >
+                  Return
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )
