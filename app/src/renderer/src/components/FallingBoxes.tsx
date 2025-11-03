@@ -5,6 +5,7 @@ import { background_music } from './audio_controller'
 import lose_life_sound_file from '../assets/game_sounds/lose_life.mp3'
 
 const lose_life_sound = new Audio(lose_life_sound_file)
+lose_life_sound.volume = 0.3 // Reduce volume to 30% (range: 0.0 to 1.0)
 
 type Box = {
   id: number
