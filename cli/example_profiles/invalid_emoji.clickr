@@ -1,0 +1,11 @@
+profile "Simple Profile"
+
+config {
+    default_layer = "base"
+}
+
+layer "base "{
+    👋 = b
+    b = c
+    c = a
+}
