@@ -329,10 +329,23 @@ function FallingBoxes({
   const boxesForRender = boxesRef.current.slice()
 
   return (
-    <div style={{ width, height, position: 'relative', background: '#000' }}>
+    <div
+      style={{
+        width,
+        height,
+        position: 'relative',
+        // make the play area semi-transparent but keep visible borders
+        background: 'rgba(0,0,0,0.12)', // change alpha to taste (0.0 = fully transparent, 1 = opaque)
+        borderRadius: 8,
+        border: '1px solid rgba(255,255,255,0.14)',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+        overflow: 'hidden'
+      }}
+    >
       <div style={{ position: 'absolute', top: 8, left: 8, color: '#fff' }}>
         Score {scoreRef.current}
       </div>
+
       <div style={{ position: 'relative', width: '100%', height: '100%', willChange: 'contents' }}>
         {boxesForRender.map((b) => (
           <BoxView
@@ -362,5 +375,4 @@ function FallingBoxes({
     </div>
   )
 }
-
 export default FallingBoxes

@@ -5,6 +5,7 @@ import { Button } from '@renderer/components/ui/button'
 import log from 'electron-log'
 import FallingBoxes from '@renderer/components/FallingBoxes'
 import game_over_sound_file from '../assets/game_sounds/game_over.mp3'
+import sky_background from '../assets/sky_background.jpg'
 import { background_music } from '../components/audio_controller'
 
 const game_over_sound = new Audio(game_over_sound_file)
@@ -48,6 +49,13 @@ function Game(): JSX.Element {
   const [startCount, setStartCount] = useState(0)
 
   const PLAY_AREA_HEIGHT = 680
+
+  const rootStyle: React.CSSProperties = {
+    backgroundImage: `url(${sky_background})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  }
 
   const handleBoxScore = useCallback(
     (s: number): void => {
@@ -117,11 +125,22 @@ function Game(): JSX.Element {
 
   const rootClass = `relative h-full w-full flex flex-col items-start px-8 ${navbarHidden ? '-mt-16' : 'pt-4'}`
 
-  /**
-   * @todo Resize play area to be more appropriate for smaller windows or screens
-   */
   return (
-    <div className={rootClass}>
+    <div className={rootClass} style={rootStyle}>
+      {/* translucent background image behind everything */}
+      <img
+        src={sky_background}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        style={{ opacity: 0.08, zIndex: -10 }}
+      />
+
+      {/* subtle global tint overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ backgroundColor: 'rgba(0,0,0,0.02)', zIndex: -5 }}
+      />
+
       <div className="fixed top-2 left-4 z-50">
         <Button variant="destructive" onClick={handleStop}>
           Stop and Return
@@ -151,20 +170,29 @@ function Game(): JSX.Element {
       </div>
 
       <main className="w-full max-w-6xl mt-20">
-        <div className="w-full bg-black rounded-lg text-white overflow-hidden flex flex-col items-center">
-          {/* Playing area */}
+        {/* removed translucent outer panel; keep a single transparent wrapper */}
+        <div className="w-full rounded-lg text-white overflow-hidden flex flex-col items-center bg-transparent">
+          {/* Playing area (countdown and playing use same outer panel so appearance is identical) */}
           {mode === 'countingDown' && (
             <div
-              className="w-full flex items-center justify-center"
+              className="w-full flex items-center justify-center bg-transparent"
               style={{ height: PLAY_AREA_HEIGHT }}
             >
-              <div className="text-8xl font-bold">{countdown > 0 ? countdown : 'Go!'}</div>
+              <div
+                className="text-8xl font-bold text-white"
+                style={{
+                  textShadow:
+                    '-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 0 6px rgba(0,0,0,0.6)'
+                }}
+              >
+                {countdown > 0 ? countdown : 'Go!'}
+              </div>
             </div>
           )}
 
           {mode === 'playing' && (
             <div
-              className="w-full flex flex-col items-center justify-center"
+              className="w-full flex flex-col items-center justify-center bg-transparent"
               style={{ height: PLAY_AREA_HEIGHT }}
             >
               <FallingBoxes
