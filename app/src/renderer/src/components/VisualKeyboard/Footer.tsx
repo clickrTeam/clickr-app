@@ -82,12 +82,8 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     if (openDropdown !== null) setOpenDropdown(null)
     if (openNewTriggerDropdown) setOpenNewTriggerDropdown(false)
     if (openTriggerDropdown) setOpenTriggerDropdown(false)
-    profileControler.setFooterOpen(false)
     return null
   }
-
-  profileControler.setFooterOpen(true)
-
 
   function handleTypeChange(idx: number, type: BindType | undefined): void {
     if (type === undefined) {
@@ -166,7 +162,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   }
 
   function handleNewTriggerType(type: TriggerType | undefined): void {
-    profileControler.addBind(trigger, binds)
     if (type === undefined) {
       log.warn('Cannot add undefined trigger type in VisualKeyboardFooter.')
       return
@@ -220,7 +215,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             ))}
           </div>
         )}
-        {allKeyMappings && allKeyMappings.length == 1 && (
+        {allKeyMappings && allKeyMappings.length > 0 && (
           <div className="vk-footer-trigger-wrapper">
             <button
               onClick={() => setOpenNewTriggerDropdown(!openNewTriggerDropdown)}
