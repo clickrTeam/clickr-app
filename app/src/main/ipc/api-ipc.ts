@@ -1,6 +1,8 @@
 import { ipcMain } from 'electron'
 import axios from 'axios'
 import log from 'electron-log'
+import * as fs from 'fs'
+import FormData from 'form-data'
 import { tokenStorage } from '../services/token-storage'
 
 const BASE_URL = 'https://clickr-backend-production.up.railway.app/api/'
@@ -319,5 +321,95 @@ ipcMain.handle('update-mapping-visibility', async (_, mappingId: string, isPubli
   } catch (error) {
     log.error('Error updating mapping visibility:', error)
     throw new Error(error instanceof Error ? error.message : 'Failed to update mapping visibility')
+  }
+})
+
+// Account Settings API Handlers
+ipcMain.handle('get-user-profile', async (_, username: string) => {
+  try {
+    const response = await api.get(`users/${username}`)
+    log.info(`Fetching user profile for ${username}`)
+    return response.data
+  } catch (error) {
+    log.error('Error fetching user profile:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to fetch user profile')
+  }
+})
+
+ipcMain.handle('update-user-profile', async (_, username: string, profileData: { email?: string; profile_image?: string }) => {
+  try {
+    const formData = new FormData()
+    if (profileData.email) {
+      formData.append('email', profileData.email)
+    }
+    if (profileData.profile_image) {
+      // profile_image should be a file path string in Electron
+      if (fs.existsSync(profileData.profile_image)) {
+        formData.append('profile_image', fs.createReadStream(profileData.profile_image))
+      } else {
+        throw new Error('Profile image file not found')
+      }
+    }
+
+    const response = await api.patch(`users/${username}/profile/`, formData, {
+      headers: {
+        ...formData.getHeaders()
+      }
+    })
+    log.info(`Updating user profile for ${username}`)
+    return response.data
+  } catch (error) {
+    log.error('Error updating user profile:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to update user profile')
+  }
+})
+
+ipcMain.handle('update-user-preferences', async (_, username: string, preferences: { default_mapping_visibility?: 'public' | 'private' }) => {
+  try {
+    const response = await api.patch(`users/${username}/preferences/`, preferences)
+    log.info(`Updating user preferences for ${username}`)
+    return response.data
+  } catch (error) {
+    log.error('Error updating user preferences:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to update user preferences')
+  }
+})
+
+ipcMain.handle('change-password', async (_, username: string, passwordData: { current_password: string; new_password: string; confirm_password: string }) => {
+  try {
+    const response = await api.post(`users/${username}/change-password/`, passwordData)
+    log.info(`Changing password for user ${username}`)
+    return response.data
+  } catch (error: any) {
+    log.error('Error changing password:', error)
+    const errorMessage = error.response?.data?.error || error.message || 'Failed to change password'
+    throw new Error(errorMessage)
+  }
+})
+
+ipcMain.handle('delete-account', async (_, username: string, password: string) => {
+  try {
+    const response = await api.delete(`users/${username}/account/`, {
+      data: { password }
+    })
+    log.info(`Deleting account for user ${username}`)
+    // Clear tokens after successful deletion
+    await tokenStorage.clearTokens()
+    return response.data
+  } catch (error: any) {
+    log.error('Error deleting account:', error)
+    const errorMessage = error.response?.data?.error || error.message || 'Failed to delete account'
+    throw new Error(errorMessage)
+  }
+})
+
+ipcMain.handle('sync-mappings', async (_, username: string) => {
+  try {
+    const response = await api.post(`users/${username}/sync/`)
+    log.info(`Syncing mappings for user ${username}`)
+    return response.data
+  } catch (error) {
+    log.error('Error syncing mappings:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to sync mappings')
   }
 })

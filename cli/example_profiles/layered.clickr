@@ -1,0 +1,17 @@
+profile "Layered Profile"
+
+config {
+    default_layer = "base"
+}
+
+layer "base" {
+    # This is a comment
+    hold(esc) = [t, i, m]
+    _caps = layer("apps")
+}
+
+layer "apps" {
+    g     = open_app("Google Chrome")
+    t     = open_app("Terminal")
+    ^caps = layer("apps")
+}

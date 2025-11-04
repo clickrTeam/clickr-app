@@ -5,12 +5,14 @@ import { Toaster } from '@renderer/components/ui/sonner'
 
 // Pages
 import Login from './pages/Login'
+import Register from './pages/Register'
 import Community from './pages/community'
 import MyMappings from './pages/MyMappings'
 import MappingDetail from './pages/mappingDetails'
 import Training from './pages/Training'
 import Game from './pages/Game'
 import Help from './pages/help'
+import Settings from './pages/Settings'
 
 function App(): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
@@ -71,6 +73,7 @@ function App(): JSX.Element {
             element={<MyMappings isAuthenticated={isAuthenticated} username={username} />}
           />
           <Route path="/login" element={<Login login={login} />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/community" element={<Community />} />
           <Route path="/mapping/:mappingId" element={<MappingDetail />} />
           <Route
@@ -80,6 +83,10 @@ function App(): JSX.Element {
           <Route path="/training" element={<Training />} />
           <Route path="/training/game" element={<Game />} />
           <Route path="/help/*" element={<Help />} />
+          <Route
+            path="/settings"
+            element={<Settings isAuthenticated={isAuthenticated} username={username} />}
+          />
         </Routes>
       </div>
 

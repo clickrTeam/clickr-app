@@ -42,7 +42,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   useEffect(() => {
     profileControler.profile = localProfile
     profileControler.setLayer(selectedLayerIndex)
-  }, [localProfile, selectedLayerIndex])
+  }, [localProfile, profileControler, selectedLayerIndex])
 
   const confirmDeleteLayer = (layerNumber: number): void => {
     toast('Are you sure you want to delete this layer?', {
@@ -99,14 +99,12 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
             {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
           </Button>
           <Button
-            onClick={() =>
+            onClick={() => {
+              const latest = profileControler.getProfile()
               navigate('/training', {
-                state: {
-                  profile: localProfile,
-                  layer_index: selectedLayerIndex
-                }
+                state: { profile: latest, layer_index: selectedLayerIndex }
               })
-            }
+            }}
           >
             Start Training
           </Button>
