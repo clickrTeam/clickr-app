@@ -96,7 +96,7 @@ export class ProfileController {
       return;
     }
     else if ((this.currentTrigger as { value?: string }).value === 'UNDEFINED') {
-      log.warn('Current trigger is UNDEFINED. Aborting addBind.');
+      log.warn('Current trigger is UNDEFINED. Aborting addBind:', this.currentTrigger);
       return;
     }
     else if (this.currentBinds.binds.length === 0) {

@@ -9,7 +9,9 @@ export enum BindType {
   // Not handled by Daemon
   TimedMacro = 'timed_macro_bind',
   Repeat = 'repeat_bind',
-  AppOpen = 'app_open_bind'
+  AppOpen = 'app_open_bind',
+  // Meta bind type for destroying existing binds/triggers
+  Meta_Destroy = "Meta_Destroy"
 }
 
 
@@ -21,6 +23,7 @@ export function getBindTypeDisplayName(value: BindType | string): string {
     case BindType.SwitchLayer:return 'Switch layer';
     case BindType.Macro:      return 'Macro';
     case BindType.AppOpen:    return 'Open App';
+    case BindType.Meta_Destroy: return 'Remove Bind';
     default:                  return 'Unknown bind';
   }
 }

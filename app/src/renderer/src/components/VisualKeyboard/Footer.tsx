@@ -15,6 +15,7 @@ const typeOptionsBind: BindType[] = [
   BindType.TapKey,
   BindType.PressKey,
   BindType.ReleaseKey,
+  BindType.Meta_Destroy,
 ]
 
 const typeOptionsTrigger: TriggerType[] = [
@@ -113,6 +114,10 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       newBind = new PressKey(value)
     } else if (type === BindType.ReleaseKey) {
       newBind = new ReleaseKey(value)
+    } else if (type === BindType.Meta_Destroy) {
+      currentBinds.binds.splice(idx, 1)
+      profileControler.currentBinds = new Macro_Bind(currentBinds.binds)
+      return
     } else {
       throw new Error('Unsupported bind type for macro UI')
     }
