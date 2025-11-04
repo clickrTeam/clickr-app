@@ -12,6 +12,18 @@ export enum TriggerType {
   Hold = 'hold_trigger',
   AppFocused = 'app_focus_trigger'
 }
+
+export function getTriggerDisplayName(value: TriggerType | string): string {
+  switch (value) {
+    case TriggerType.KeyPress:   return 'Key press';
+    case TriggerType.KeyRelease: return 'Key release';
+    case TriggerType.TapSequence:return 'Tap sequence';
+    case TriggerType.Hold:       return 'Hold';
+    case TriggerType.AppFocused: return 'App focused';
+    default:                     return 'Unknown trigger';
+  }
+}
+
 export enum TimedTriggerBehavior {
   // Capture and release. probably a better name but this seems ok
   Default = 'default',
