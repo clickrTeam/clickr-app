@@ -171,8 +171,9 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
         profileControler={profileControler}
         selectedKey={selectedKey}
         macro={binds}
-        trigger={trigger ?? new T.KeyPress(selectedKey ?? '')}
         onMacroChange={setBind}
+        trigger={trigger ?? new T.KeyPress(selectedKey ?? '')}
+        onTriggerChange={setTrigger}
         onClose={(save: boolean) => {
           if (save) {
             profileControler.addBind(trigger, binds)

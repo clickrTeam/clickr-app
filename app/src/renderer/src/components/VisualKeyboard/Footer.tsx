@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Bind, BindType, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyPressInfo } from './Model'
 import { bindTypeColors, triggerTypeColors } from './Colors'
@@ -58,8 +58,9 @@ export interface VisualKeyboardFooterProps {
   profileControler: ProfileController
   selectedKey: string | null
   macro: Bind[]
-  trigger: Trigger
   onMacroChange: (macro: Bind[]) => void
+  trigger: Trigger
+  onTriggerChange: (trigger: Trigger) => void
   onClose: (save: boolean) => void
   activeLayer: Layer
 }
@@ -70,12 +71,18 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   macro,
   trigger,
   onMacroChange,
+  onTriggerChange,
   onClose
 }): JSX.Element | null => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
   const [openTriggerDropdown, setOpenTriggerDropdown] = useState<boolean>(false)
   const [showKeyModal, setShowKeyModal] = useState(false)
   if (!selectedKey) return null
+
+  useEffect(() => {
+    setOpenDropdown(null)
+    setOpenTriggerDropdown(false)
+  }, [selectedKey])
 
   function handleTypeChange(idx: number, type: BindType | undefined): void {
     if (type === undefined) {
@@ -144,6 +151,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         log.warn(`Unsupported trigger type for VisualKeyboardFooter: ${type}`)
     }
     setOpenTriggerDropdown(false)
+    onTriggerChange(trigger)
   }
 
   function handleAddLayerToMacro(layerIdx: number): void {
@@ -156,31 +164,32 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     <div className="vk-footer">
       <div className="vk-footer-row">
         <span className="vk-footer-selected-label">Selected Key:</span>
-        <button
-          className="vk-footer-selected-key relative z-10"
-          style={{
-            background: getMacroButtonBgT(trigger),
-            position: 'relative'
-          }}
-          onClick={() => setOpenTriggerDropdown(!openTriggerDropdown)}
-          tabIndex={0}
-        >
-          {selectedKey}
-        </button>
-        {openTriggerDropdown && (
-          <div className="vk-footer-macro-dropdown">
-          <p>A</p>
-            {typeOptionsTrigger.map((opt) => (
-              <button
-                className={`vk-footer-macro-dropdown-btn${trigger.trigger_type === opt.value ? ' selected' : ''}`}
-                style={{ background: getDropdownBgT(trigger, opt) }}
-                onClick={() => handleTriggerTypeChange(opt.value)}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="vk-footer-trigger-wrapper">
+          <button
+            className="vk-footer-selected-key z-10"
+            style={{
+              background: getMacroButtonBgT(trigger)
+            }}
+            onClick={() => setOpenTriggerDropdown(!openTriggerDropdown)}
+            tabIndex={0}
+          >
+            {selectedKey}
+          </button>
+          {openTriggerDropdown && (
+            <div className="vk-footer-macro-dropdown">
+              {typeOptionsTrigger.map((opt) => (
+                <button
+                  key={opt.value}
+                  className={`vk-footer-macro-dropdown-btn${trigger.trigger_type === opt.value ? ' selected' : ''}`}
+                  style={{ background: getDropdownBgT(trigger, opt) }}
+                  onClick={() => handleTriggerTypeChange(opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <button
           className="vk-footer-clear"
           onClick={() => profileControler.removeBind(trigger, onMacroChange)}
