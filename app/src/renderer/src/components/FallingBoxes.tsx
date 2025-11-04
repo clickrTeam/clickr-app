@@ -3,9 +3,12 @@ import log from 'electron-log'
 import { Layer } from '../../../models/Layer'
 import { background_music } from './audio_controller'
 import lose_life_sound_file from '../assets/game_sounds/lose_life.mp3'
+import correct_sound_file from '../assets/game_sounds/correct_sound2.mp3'
 
 const lose_life_sound = new Audio(lose_life_sound_file)
+const correct_sound = new Audio(correct_sound_file)
 lose_life_sound.volume = 0.3 // Reduce volume to 30% (range: 0.0 to 1.0)
+correct_sound.volume = 0.3
 
 type Box = {
   id: number
@@ -87,7 +90,7 @@ function FallingBoxes({
   currentLayer,
   muteSound = false
 }: FallingBoxesProps): JSX.Element {
-  const [paused, setPaused] = useState(false)
+  const [paused] = useState(false)
 
   const boxesRef = useRef<Box[]>([])
   const rafRef = useRef<number | null>(null)
@@ -303,6 +306,10 @@ function FallingBoxes({
         // Remove original box immediately
         boxes.splice(bestIndex, 1)
 
+        if (!muteSound) {
+          correct_sound.currentTime = 0
+          correct_sound.play().catch((err) => log.warn('Correct sound play failed', err))
+        }
         // Remove from exploding layer after animation
         setTimeout(() => {
           setExplodingBoxes((prev) => prev.filter((b) => b.id !== box.id))
