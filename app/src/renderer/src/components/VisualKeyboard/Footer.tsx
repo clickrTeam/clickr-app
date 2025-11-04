@@ -4,7 +4,7 @@ import { KeyPressInfo } from './Model'
 import { bindTypeColors, triggerTypeColors } from './Colors'
 import './Footer.css'
 import { ProfileController } from './ProfileControler'
-import { AppFocus, getTriggerTypeDisplayName, Hold, KeyPress, KeyRelease, TapSequence, Trigger, TriggerType } from '../../../../models/Trigger'
+import { AppFocus, createTrigger, getTriggerTypeDisplayName, Hold, KeyPress, KeyRelease, TapSequence, Trigger, TriggerType } from '../../../../models/Trigger'
 import { Layer } from '../../../../models/Layer'
 import { SwapLayer } from '../../../../models/Bind'
 import { KeyModal } from './KeyModal'
@@ -69,6 +69,11 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   const [showKeyModal, setShowKeyModal] = useState(false)
   const [currentBinds, setCurrentBinds] = useState<Macro_Bind>(profileControler.currentBinds)
   const [currentTrigger, setCurrentTrigger] = useState<Trigger>(profileControler.currentTrigger)
+  const [currentKeyMappings, setCurrentKeyMappings] = useState<[Trigger, Bind][]>(profileControler.getMappings(selectedKey))
+
+  useEffect(() => {
+    setCurrentKeyMappings(profileControler.getMappings(selectedKey))
+  }, [profileControler, selectedKey])
 
   useEffect(() => {
     const cleanup = profileControler.addStateChangeListener((binds, trigger) => {
@@ -81,8 +86,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       cleanup()
     }
   }, [profileControler])
-
-  const allKeyMappings = profileControler.getMappings(selectedKey)
 
   function handleTypeChange(idx: number, type: BindType | undefined): void {
     if (type === undefined) {
@@ -122,63 +125,28 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       log.warn('Cannot remove trigger from VisualKeyboardFooter.')
       return
     }
-
-    let newTrigger: Trigger
-    switch (type) {
-      case TriggerType.AppFocused:
-        newTrigger = new AppFocus("test", selectedKey ?? '')
-        break
-      case TriggerType.Hold:
-        if (selectedKey === null) {
-          log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
-          return
-        }
-        newTrigger = new Hold(selectedKey, 100) // Default hold time 100ms
-        break
-      case TriggerType.KeyPress:
-        if (selectedKey === null) {
-          log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
-          return
-        }
-        newTrigger = new KeyPress(selectedKey)
-        break
-      case TriggerType.KeyRelease:
-        if (selectedKey === null) {
-          log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
-          return
-        }
-        newTrigger = new KeyRelease(selectedKey)
-        break
-      case TriggerType.TapSequence:
-        if (selectedKey === null) {
-          log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
-          return
-        }
-        newTrigger = new TapSequence([[selectedKey, 350]]) // Default 350ms between taps
-        break
-      default:
-        log.warn(`Unsupported trigger type for VisualKeyboardFooter: ${type}`)
-        return
+    const newTrigger = createTrigger(type, selectedKey)
+    if (newTrigger) {
+      profileControler.changeTrigger(newTrigger)
+    } else {
+      log.warn('Failed to change to a new trigger in VisualKeyboardFooter.')
     }
-    profileControler.changeTrigger(newTrigger)
+  }
+
+  function handleAddTriggerType(type: TriggerType): void {
+    profileControler.currentBinds = new Macro_Bind([])
+    const newTrigger = createTrigger(type, selectedKey)
+    if (newTrigger) {
+      profileControler.currentTrigger = newTrigger
+    } else {
+      log.warn('Failed to create new trigger in VisualKeyboardFooter.')
+    }
   }
 
   function handleAddLayerToMacro(layerIdx: number): void {
     const newMacro = [...currentBinds.binds, new SwapLayer(layerIdx)]
-    profileControler.setBinds(new Macro_Bind(newMacro))
+    profileControler.currentBinds = new Macro_Bind(newMacro)
     setShowKeyModal(false)
-  }
-
-  function handleNewTriggerType(type: TriggerType | undefined): void {
-    if (type === undefined) {
-      log.warn('Cannot add undefined trigger type in VisualKeyboardFooter.')
-      return
-    }
-
-    // todo ADD mapping
-
-    profileControler.setBinds(new Macro_Bind([]))
-    handleTriggerTypeChange(type)
   }
 
   return (
@@ -191,37 +159,42 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
           handleSelection={handleTriggerTypeChange}
           getDropdownBg={getDropdownBgT}
           getDisplayName={getTriggerTypeDisplayName}
-          allSelected={allKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
+          allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
           openBtnLabel={selectedKey}
           openBtnBackground={getMacroButtonBgT(currentTrigger)}
           id="trigger-dropdown"
         ></Dropdown>
-        {allKeyMappings.length > 1 && (
+        {currentKeyMappings.length > 1 && (
           <div className="vk-footer-mappings">
-            {allKeyMappings.map((mapping) => (
+            {currentKeyMappings.filter((mapping) => mapping[0].trigger_type !== currentTrigger.trigger_type).map((mapping) => (
               <button
+                className="vk-footer-macro-btn relative z-10"
+                style={{ background: '20% transparent' }}
                 key={mapping[0].trigger_type}
-                onClick={() => console.log('Swap to mapping', mapping)}
+                onClick={() => profileControler.swapToMapping(mapping)}
               >
-                {mapping[0].trigger_type}
+                {getTriggerTypeDisplayName(mapping[0].trigger_type)}
               </button>
             ))}
           </div>
         )}
-        {allKeyMappings.length > 0 && currentTrigger && (
+        {currentKeyMappings.length > 0 && currentTrigger && (
           <Dropdown
             options={typeOptionsTrigger}
             currentSelected={currentTrigger.trigger_type}
-            handleSelection={handleNewTriggerType}
+            handleSelection={handleAddTriggerType}
             getDropdownBg={getDropdownBgT}
             getDisplayName={getTriggerTypeDisplayName}
-            allSelected={allKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
+            allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
             id="new-trigger-dropdown"
           ></Dropdown>
         )}
         <button
           className="vk-footer-clear"
-          onClick={() => currentTrigger && profileControler.removeBind(currentTrigger, (binds) => profileControler.setBinds(binds))}
+          onClick={() => {
+            profileControler.removeBind(currentTrigger);
+            onClose(true);
+          }}
         >
           Clear
         </button>
@@ -249,6 +222,13 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
           ))
         )}
 
+        <button
+          className="vk-footer-clear"
+          onClick={() => profileControler.clearBinds()}
+        >
+          Clear
+        </button>
+
         <span style={{ position: 'relative', display: 'inline-block' }}>
           <button
             className="vk-footer-macro-btn"
@@ -270,7 +250,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             onAddKey={
               (key: KeyPressInfo) => {
                 const newBinds = [...currentBinds.binds, new TapKey(key.key)]
-                profileControler.setBinds(new Macro_Bind(newBinds))
+                profileControler.currentBinds = new Macro_Bind(newBinds)
               }
             }
             onSelectLayer={handleAddLayerToMacro}

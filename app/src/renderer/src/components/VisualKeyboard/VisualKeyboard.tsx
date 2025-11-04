@@ -69,7 +69,7 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
 
   useEffect(() => {
     profileControler.setSelectedKey(selectedKey)
-  }, [selectedKey, profileControler])
+  }, [selectedKey])
 
   const [showPressedKeys, setShowPressedKeys] = useState<string[]>([])
 
@@ -168,8 +168,9 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
         profileControler={profileControler}
         selectedKey={selectedKey}
         onClose={(save: boolean) => {
+          log.debug('Footer onClose called with save =', save);
           if (save) {
-            profileControler.addBind(profileControler.currentTrigger, profileControler.currentBinds)
+            profileControler.addBind();
           }
           setSelectedKey(null)
           profileControler.currentTrigger = new T.KeyPress('UNDEFINED')

@@ -25,7 +25,12 @@ export class ProfileController {
   }
 
   set currentBinds(binds: Macro_Bind) {
+    if (binds === this.currentBinds) return;
+    log.debug('Setting currentBinds:', binds);
     this._currentBinds = binds;
+    if (this.currentTrigger && binds.binds.length > 0) {
+      this.addBind();
+    }
     this.notifyStateChange();
   }
 
@@ -34,15 +39,19 @@ export class ProfileController {
   }
 
   set currentTrigger(trigger: Trigger) {
+    if (trigger === this.currentTrigger) return;
+    log.debug('Setting currentTrigger:', trigger);
     this._currentTrigger = trigger;
+    if (this.currentBinds.binds.length > 0) {
+      this.addBind();
+    }
     this.notifyStateChange();
   }
 
   clearMapping(): void {
-    log.silly('Clearing current mapping.');
-    this._currentBinds = new Macro_Bind([]);
-    this._currentTrigger = new KeyPress('UNDEFINED');
-    this.notifyStateChange();
+    log.debug('Clearing current mapping.');
+    this.currentBinds = new Macro_Bind([]);
+    this.currentTrigger = new KeyPress('UNDEFINED');
   }
 
   addStateChangeListener(callback: ProfileStateChangeCallback): () => void {
@@ -64,37 +73,65 @@ export class ProfileController {
     });
   }
 
+  private saveTimeout: NodeJS.Timeout | null = null;
+
   onSave(): void {
-    log.debug(`Profile is being updated and saved. Updated profile: ${this.profile.profile_name}`)
-    window.api.updateProfile(this.editedProfileIndex, this.profile.toJSON())
-    this.onUpSave(this);
+    // Clear any existing timeout
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+
+    // Set new timeout
+    this.saveTimeout = setTimeout(() => {
+      log.debug(`Profile is being updated and saved. Updated profile: ${this.profile.profile_name}`)
+      window.api.updateProfile(this.editedProfileIndex, this.profile.toJSON())
+      this.onUpSave(this);
+      this.saveTimeout = null;
+    }, 350);
   }
 
-  addBind(trigger: Trigger, binds: Macro_Bind): void {
-    if (!trigger) {
+  addBind(): void {
+    if (!this.currentTrigger) {
       log.warn('No trigger provided to addBind. Aborting.');
       return;
     }
-    if (binds.binds.length === 0) {
+    else if ((this.currentTrigger as { value?: string }).value === 'UNDEFINED') {
+      log.warn('Current trigger is UNDEFINED. Aborting addBind.');
+      return;
+    }
+    else if (this.currentBinds.binds.length === 0) {
       log.warn('No binds provided to addBind. Aborting.');
       return;
     }
-    log.debug('Adding bind:', binds, 'to trigger:', trigger);
+    log.debug('Adding bind:', this.currentBinds, 'to trigger:', this.currentTrigger);
 
-    this.activeLayer.addRemapping(trigger, binds)
+    this.activeLayer.addRemapping(this.currentTrigger, this.currentBinds);
     this.onSave();
   }
 
-  removeBind(trigger: Trigger | null, setBind: (bind: Macro_Bind) => void): void {
+  removeBind(trigger: Trigger | null): void {
     if (!trigger) {
       log.warn('No trigger provided to removeBind. Aborting.');
       return;
     }
     log.debug('Removing bind from trigger:', trigger);
 
-    setBind(new Macro_Bind([]));
+    this.currentBinds = new Macro_Bind([]);
     this.activeLayer.deleteRemapping(trigger);
     this.onSave();
+  }
+
+  clearBinds(): void {
+    log.debug('Clearing all binds from active layer.');
+    this._currentBinds = new Macro_Bind([]);
+    this.notifyStateChange();
+  }
+
+  swapToMapping(mapping: [Trigger, Bind]): void {
+    console.log('Swap to mapping', mapping);
+    this._currentTrigger = mapping[0];
+    this._currentBinds = mapping[1] instanceof Macro_Bind ? mapping[1] : new Macro_Bind([mapping[1]]);
+    this.notifyStateChange();
   }
 
   setLayer(index: number): void {
@@ -107,6 +144,9 @@ export class ProfileController {
 
     if (!selectedKey || selectedKey === '') {
       this.clearMapping();
+      return;
+    }
+    if (selectedKey === 'UNDEFINED') {
       return;
     }
 
@@ -154,27 +194,11 @@ export class ProfileController {
       });
   }
 
-  setBinds(binds: Macro_Bind): void {
-    log.debug('Setting currentBinds:', binds);
-    this.currentBinds = binds;
-    if (this.currentTrigger && binds.binds.length > 0) {
-      this.addBind(this.currentTrigger, binds);
-    }
-  }
-
-  setTrigger(trigger: Trigger): void {
-    log.debug('Setting currentTrigger:', trigger);
-    this.currentTrigger = trigger;
-    if (this.currentBinds.binds.length > 0) {
-      this.addBind(trigger, this.currentBinds);
-    }
-  }
-
   changeTrigger(newTrigger: Trigger) {
-    log.debug('Changing trigger to:', newTrigger, 'with binds:', this.currentBinds);
+    log.debug('Changing trigger to:', newTrigger, 'with binds:', this._currentBinds);
 
     this.activeLayer.deleteRemapping(this.currentTrigger);
-    this.currentTrigger = newTrigger;
-    this.addBind(newTrigger, this.currentBinds);
+    this._currentTrigger = newTrigger;
+    this.addBind();
   }
 }
