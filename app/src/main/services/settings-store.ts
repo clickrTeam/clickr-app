@@ -109,3 +109,5 @@ export const settingsStore = {
   }
 }
 
+
+export type { Settings }
