@@ -79,11 +79,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   const [showKeyModal, setShowKeyModal] = useState(false)
   if (!selectedKey) return null
 
-  useEffect(() => {
-    setOpenDropdown(null)
-    setOpenTriggerDropdown(false)
-  }, [selectedKey])
-
   function handleTypeChange(idx: number, type: BindType | undefined): void {
     if (type === undefined) {
       // If type is undefined, we can remove the macro item

@@ -64,15 +64,25 @@ export class ProfileController {
     }
     selectedKey = selectedKey || '';
 
-    const trigger = new KeyPress(selectedKey);
-    setTrigger(trigger);
-    const bind = this.activeLayer.getRemapping(trigger);
-    log.debug('Found binds for trigger:', bind);
-    if (bind instanceof Macro_Bind) {
-      setBind(bind.binds);
-    } else if (bind) {
-      setBind([bind]);
+    const cur_triggers = this.getMappings(selectedKey);
+    if (cur_triggers.length > 0) {
+      const [trigger, _bind] = cur_triggers[0];
+      log.debug('Found trigger for selected key:', trigger);
+      setTrigger(trigger);
+      const bind = this.activeLayer.getRemapping(trigger);
+      log.debug('Found binds for trigger:', bind);
+      if (bind instanceof Macro_Bind) {
+        setBind(bind.binds);
+      } else if (bind) {
+        setBind([bind]);
+      } else {
+        log.warn('No bind found for selected key:', selectedKey);
+        setBind([]);
+      }
     } else {
+      log.debug('No trigger found for selected key, creating new KeyPress trigger.');
+      const trigger = new KeyPress(selectedKey);
+      setTrigger(trigger);
       log.warn('No bind found for selected key:', selectedKey);
       setBind([]);
     }
@@ -88,5 +98,14 @@ export class ProfileController {
 
   getProfile(): Profile {
     return this.profile;
+  }
+
+  getMappings(selectedKey: string | null): Array<[Trigger, Bind]> {
+    if (!selectedKey) return [];
+    return Array.from(this.activeLayer.remappings.entries())
+      .filter(([trigger, _bind]) => {
+        const triggerKey = (trigger as { value?: string }).value;
+        return typeof triggerKey === 'string' && triggerKey === selectedKey;
+      });
   }
 }
