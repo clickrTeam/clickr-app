@@ -9,6 +9,7 @@ import { Trigger, KeyPress } from '../../../../models/Trigger';
 // ProfileController class with comprehensive profile management
 export class ProfileController {
   public activeLayer: Layer;
+  public footerOpen: boolean = false;
 
   constructor(public profile: Profile, public editedProfileIndex: number, public onUpSave: (profileControler: ProfileController) => void) {
     this.activeLayer = this.profile.layers[0];
@@ -16,9 +17,17 @@ export class ProfileController {
   }
 
   onSave(): void {
+    if (this.footerOpen) return;
     log.debug(`Profile is being updated and saved. Updated profile: ${this.profile.profile_name}`)
     window.api.updateProfile(this.editedProfileIndex, this.profile.toJSON())
     this.onUpSave(this);
+  }
+
+  setFooterOpen(isFooterOpen: boolean) {
+    this.footerOpen = isFooterOpen;
+    if (!isFooterOpen) {
+      this.onSave();
+    }
   }
 
   addBind(trigger: Trigger | null, binds: Bind[]): void {
