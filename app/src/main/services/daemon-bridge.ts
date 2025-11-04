@@ -8,6 +8,7 @@ const SOCKET_PATH =
 type DaemonReponse = {
   status: string
   error?: string
+  [key: string]: any
 }
 
 /**
@@ -24,6 +25,28 @@ export function sendActiveProfile(profile: Profile): Promise<DaemonReponse> {
 }
 
 /**
+ * Sends settings JSON to the daemon to update the current settings.
+ */
+export function sendSettings(settings: object): Promise<DaemonReponse> {
+  return sendMessage({
+    type: 'set_settings',
+    settings,
+  })
+}
+
+/**
+ * Requests the key press frequencies from the daemon.
+ */
+export async function getFrequencies(): Promise<Record<string, number>> {
+  const resp = await sendMessage({ type: 'get_frequencies' })
+  if (resp.status === 'success' && resp.frequencies) {
+    return resp.frequencies as Record<string, number>
+  } else {
+    throw new Error(resp.error || 'Failed to get frequencies')
+  }
+}
+
+/**
  * Sends a JSON message to the local daemon via a UNIX domain socket or named pipe,
  * waits for a newline-delimited JSON response, and resolves with the parsed result.
  *
@@ -31,6 +54,7 @@ export function sendActiveProfile(profile: Profile): Promise<DaemonReponse> {
  * This will requre messages to have some kind of ID.
  */
 function sendMessage(message: object): Promise<DaemonReponse> {
+  console.log("here sending message")
   return new Promise((resolve, reject) => {
     const client = net.createConnection(SOCKET_PATH, () => {
       client.write(JSON.stringify(message) + '\n')
@@ -39,6 +63,7 @@ function sendMessage(message: object): Promise<DaemonReponse> {
     let buffer = ''
 
     client.on('data', (data) => {
+      console.log(data);
       buffer += data.toString()
 
       if (buffer.includes('\n')) {
@@ -56,6 +81,7 @@ function sendMessage(message: object): Promise<DaemonReponse> {
     })
 
     client.on('error', (err) => {
+      console.log(err)
       reject(new Error(`Failed to connect to daemon: ${err.message}`))
     })
   })
