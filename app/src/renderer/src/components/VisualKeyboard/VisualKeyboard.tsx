@@ -11,6 +11,7 @@ import { Trigger } from '../../../../models/Trigger'
 import { useKeyboardController } from './controler'
 import { ProfileController } from './ProfileControler'
 import { ChevronDown } from 'lucide-react'
+import log from 'electron-log'
 
 interface VisualKeyboardProps {
   profileControler: ProfileController
@@ -19,11 +20,17 @@ interface VisualKeyboardProps {
 export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
-  const [binds, setBind] = useState<Bind[]>([])
-  const [trigger, setTrigger] = useState<Trigger | null>(null)
 
   const onKey: KeyPressInfo = useKeyboardController()
   const [keyQueue, setKeyQueue] = useState<KeyPressInfo[]>([])
+
+  // Example of using the state change callback
+  useEffect(() => {
+    const removeListener = profileControler.addStateChangeListener((binds, trigger) => {
+      log.debug('Profile state updated:', { bindsCount: binds.length, hasTrigger: !!trigger });
+    });
+    return removeListener;
+  }, [profileControler]);
 
   useEffect(() => {
     setKeyQueue((prev) => [...prev, onKey])
@@ -48,30 +55,28 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
 
     if (selectedKey) {
       if (currentKey.isDown) {
-        setBind((prevBinds) => [...prevBinds, new PressKey(currentKey.key)])
+        profileControler.currentBinds = [...profileControler.currentBinds, new PressKey(currentKey.key)]
       } else {
-        setBind((prevBinds) => {
-          const newBinds = [...prevBinds]
+        const newBinds = [...profileControler.currentBinds]
 
-          if (
-            newBinds.length !== 0 &&
-            newBinds[newBinds.length - 1] instanceof PressKey &&
-            (newBinds[newBinds.length - 1] as PressKey).value === currentKey.key
-          ) {
-            newBinds[newBinds.length - 1] = new TapKey(currentKey.key)
-            return newBinds
-          }
-
-          return [...newBinds, new ReleaseKey(currentKey.key)]
-        })
+        if (
+          newBinds.length !== 0 &&
+          newBinds[newBinds.length - 1] instanceof PressKey &&
+          (newBinds[newBinds.length - 1] as PressKey).value === currentKey.key
+        ) {
+          newBinds[newBinds.length - 1] = new TapKey(currentKey.key)
+          profileControler.currentBinds = newBinds
+        } else {
+          profileControler.currentBinds = [...newBinds, new ReleaseKey(currentKey.key)]
+        }
       }
     }
 
     setKeyQueue((prev) => prev.slice(1))
-  }, [keyQueue])
+  }, [keyQueue, profileControler])
 
   useEffect(() => {
-    profileControler.setSelectedKey(selectedKey, setBind, setTrigger)
+    profileControler.setSelectedKey(selectedKey)
   }, [selectedKey, profileControler])
 
   const [showPressedKeys, setShowPressedKeys] = useState<string[]>([])
@@ -170,19 +175,14 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
       <VisualKeyboardFooter
         profileControler={profileControler}
         selectedKey={selectedKey}
-        binds={binds}
-        onMacroChange={setBind}
-        trigger={trigger ?? new T.KeyPress(selectedKey ?? '')}
-        onTriggerChange={setTrigger}
         onClose={(save: boolean) => {
           if (save) {
-            profileControler.addBind(trigger, binds)
+            profileControler.addBind(profileControler.currentTrigger, profileControler.currentBinds)
           }
           setSelectedKey(null)
-          setTrigger(null)
-          setBind([])
+          profileControler.currentTrigger = null
+          profileControler.currentBinds = []
         }}
-        activeLayer={profileControler.activeLayer}
       />
     </Card>
     {renderLeftoverKeys()}
