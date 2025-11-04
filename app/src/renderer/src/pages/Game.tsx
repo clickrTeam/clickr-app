@@ -126,12 +126,34 @@ function Game(): JSX.Element {
   const rootClass = `relative h-full w-full flex flex-col items-start px-8 ${navbarHidden ? '-mt-16' : 'pt-4'}`
 
   return (
-    <div className={rootClass} style={rootStyle}>
+    <div
+      className={rootClass}
+      style={{
+        ...rootStyle,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        margin: 0,
+        padding: 0
+      }}
+    >
       <img
         src={sky_background}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-        style={{ opacity: 0.08, zIndex: -10 }}
+        className="pointer-events-none"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          objectFit: 'cover',
+          opacity: 0.08,
+          zIndex: -10
+        }}
       />
 
       <div
