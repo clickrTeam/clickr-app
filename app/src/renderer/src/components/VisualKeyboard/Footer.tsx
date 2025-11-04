@@ -123,33 +123,44 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       return
     }
 
-    if (selectedKey === null) {
-      log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
-      return
-    }
-
     let newTrigger: Trigger
     switch (type) {
       case TriggerType.AppFocused:
-        newTrigger = new AppFocus("test", selectedKey)
+        newTrigger = new AppFocus("test", selectedKey ?? '')
         break
       case TriggerType.Hold:
+        if (selectedKey === null) {
+          log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
+          return
+        }
         newTrigger = new Hold(selectedKey, 100) // Default hold time 100ms
         break
       case TriggerType.KeyPress:
+        if (selectedKey === null) {
+          log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
+          return
+        }
         newTrigger = new KeyPress(selectedKey)
         break
       case TriggerType.KeyRelease:
+        if (selectedKey === null) {
+          log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
+          return
+        }
         newTrigger = new KeyRelease(selectedKey)
         break
       case TriggerType.TapSequence:
+        if (selectedKey === null) {
+          log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
+          return
+        }
         newTrigger = new TapSequence([[selectedKey, 350]]) // Default 350ms between taps
         break
       default:
         log.warn(`Unsupported trigger type for VisualKeyboardFooter: ${type}`)
         return
     }
-    profileControler.setTrigger(newTrigger)
+    profileControler.changeTrigger(newTrigger)
   }
 
   function handleAddLayerToMacro(layerIdx: number): void {
@@ -163,6 +174,8 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       log.warn('Cannot add undefined trigger type in VisualKeyboardFooter.')
       return
     }
+
+    // todo ADD mapping
 
     profileControler.setBinds(new Macro_Bind([]))
     handleTriggerTypeChange(type)

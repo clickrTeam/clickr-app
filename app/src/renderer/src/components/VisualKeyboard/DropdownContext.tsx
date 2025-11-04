@@ -23,7 +23,7 @@ export function DropdownProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const isOpen = useCallback((id: string) => {
-    log.debug(`Checking if dropdown with id: ${id} is open`);
+    log.silly(`Checking if dropdown with id: ${id} is open`);
     return openDropdownId === id;
   }, [openDropdownId]);
 

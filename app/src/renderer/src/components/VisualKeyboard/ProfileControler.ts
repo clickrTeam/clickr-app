@@ -169,4 +169,12 @@ export class ProfileController {
       this.addBind(trigger, this.currentBinds);
     }
   }
+
+  changeTrigger(newTrigger: Trigger) {
+    log.debug('Changing trigger to:', newTrigger, 'with binds:', this.currentBinds);
+
+    this.activeLayer.deleteRemapping(this.currentTrigger);
+    this.currentTrigger = newTrigger;
+    this.addBind(newTrigger, this.currentBinds);
+  }
 }
