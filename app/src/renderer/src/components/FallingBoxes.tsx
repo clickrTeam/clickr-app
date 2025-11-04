@@ -324,7 +324,7 @@ function FallingBoxes({
     return (): void => {
       window.removeEventListener('keydown', onKey)
     }
-  }, [difficulty, height, onScore])
+  }, [difficulty, height, muteSound, onScore])
 
   const boxesForRender = boxesRef.current.slice()
 
@@ -334,11 +334,13 @@ function FallingBoxes({
         width,
         height,
         position: 'relative',
-        // make the play area semi-transparent but keep visible borders
-        background: 'rgba(0,0,0,0.12)', // change alpha to taste (0.0 = fully transparent, 1 = opaque)
+        // frosted glass effect
+        background: 'rgba(255,255,255,0.06)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         borderRadius: 8,
-        border: '1px solid rgba(255,255,255,0.14)',
-        boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+        border: '1px solid rgba(255,255,255,0.12)',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.18)',
         overflow: 'hidden'
       }}
     >

@@ -127,7 +127,6 @@ function Game(): JSX.Element {
 
   return (
     <div className={rootClass} style={rootStyle}>
-      {/* translucent background image behind everything */}
       <img
         src={sky_background}
         alt=""
@@ -135,7 +134,6 @@ function Game(): JSX.Element {
         style={{ opacity: 0.08, zIndex: -10 }}
       />
 
-      {/* subtle global tint overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{ backgroundColor: 'rgba(0,0,0,0.02)', zIndex: -5 }}
@@ -149,10 +147,21 @@ function Game(): JSX.Element {
 
       <div className="fixed top-2 inset-x-0 z-40 flex justify-center pointer-events-none">
         <div className="pointer-events-auto text-center bg-transparent">
-          <div className="text-lg font-semibold text-gray-700">
+          <div
+            className="text-2xl font-semibold text-white"
+            style={{
+              textShadow:
+                '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000'
+            }}
+          >
             Profile: {profile?.profile_name}
           </div>
-          <div className="text-sm text-gray-500">
+          <div
+            className="text-lg text-white"
+            style={{
+              textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+            }}
+          >
             Layer: {currentLayer?.layer_name ?? `Layer ${layer_index}`}
           </div>
         </div>
@@ -160,19 +169,46 @@ function Game(): JSX.Element {
 
       <div className="fixed top-2 right-4 z-40 pointer-events-none">
         <div className="text-right">
-          <div className="text-sm text-gray-500">High Score</div>
-          <div className="text-2xl font-bold text-cyan-600">{highScore}</div>
-          <div className="text-sm text-gray-500 mt-2">Lives</div>
-          <div className={`text-2xl font-bold ${lives === 1 ? 'text-red-500' : 'text-black'}`}>
+          <div
+            className="text-lg text-white"
+            style={{
+              textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+            }}
+          >
+            High Score
+          </div>
+          <div
+            className="text-4xl font-bold text-white"
+            style={{
+              textShadow:
+                '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000'
+            }}
+          >
+            {highScore}
+          </div>
+
+          <div
+            className="text-lg text-white mt-2"
+            style={{
+              textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+            }}
+          >
+            Lives
+          </div>
+          <div
+            className={`text-3xl font-bold ${lives === 1 ? 'text-red-500' : 'text-white'}`}
+            style={{
+              textShadow:
+                '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000'
+            }}
+          >
             {lives}
           </div>
         </div>
       </div>
 
       <main className="w-full max-w-6xl mt-20">
-        {/* removed translucent outer panel; keep a single transparent wrapper */}
         <div className="w-full rounded-lg text-white overflow-hidden flex flex-col items-center bg-transparent">
-          {/* Playing area (countdown and playing use same outer panel so appearance is identical) */}
           {mode === 'countingDown' && (
             <div
               className="w-full flex items-center justify-center bg-transparent"
