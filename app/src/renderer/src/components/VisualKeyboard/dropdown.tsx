@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { TriggerType } from '../../../../models/Trigger';
 import { useDropdown } from './DropdownContext';
 
@@ -38,6 +38,12 @@ export default function Dropdown({
     }
   };
 
+  useEffect(() => {
+    return () => {
+      closeDropdown(); // cleanup (componentWillUnmount)
+    };
+  }, []);
+
   return (
     <div className="vk-footer-trigger-wrapper">
       <button
@@ -75,4 +81,3 @@ export default function Dropdown({
     </div>
   );
 }
-
