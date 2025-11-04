@@ -13,7 +13,7 @@ export enum TriggerType {
   AppFocused = 'app_focus_trigger'
 }
 
-export function getTriggerDisplayName(value: TriggerType | string): string {
+export function getTriggerTypeDisplayName(value: TriggerType | string): string {
   switch (value) {
     case TriggerType.KeyPress:   return 'Key press';
     case TriggerType.KeyRelease: return 'Key release';

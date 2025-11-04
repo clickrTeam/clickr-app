@@ -3,7 +3,7 @@ import { Card } from '../ui/card'
 import { mainRows, specialtyRows, numpadRows, KEYBOARD_100 as KEYBOARD_100 } from './Layout.const'
 import { InspectPopover } from './InspectPopover'
 import { VisualKeyboardFooter } from './Footer'
-import { Bind, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
+import { Bind, Macro_Bind, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyTile } from './KeyTile'
 import * as T from '../../../../models/Trigger'
 import { buildVisualKeyboardModel, KeyPressInfo, KeyTileModel, VisualKeyboardModel } from './Model'
@@ -23,14 +23,6 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
 
   const onKey: KeyPressInfo = useKeyboardController()
   const [keyQueue, setKeyQueue] = useState<KeyPressInfo[]>([])
-
-  // Example of using the state change callback
-  useEffect(() => {
-    const removeListener = profileControler.addStateChangeListener((binds, trigger) => {
-      log.debug('Profile state updated:', { bindsCount: binds.length, hasTrigger: !!trigger });
-    });
-    return removeListener;
-  }, [profileControler]);
 
   useEffect(() => {
     setKeyQueue((prev) => [...prev, onKey])
@@ -54,20 +46,20 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
     }
 
     if (selectedKey) {
+      const existingBinds = [...profileControler.currentBinds.binds]
       if (currentKey.isDown) {
-        profileControler.currentBinds = [...profileControler.currentBinds, new PressKey(currentKey.key)]
+        profileControler.currentBinds = new Macro_Bind([...existingBinds, new PressKey(currentKey.key)])
       } else {
-        const newBinds = [...profileControler.currentBinds]
 
         if (
-          newBinds.length !== 0 &&
-          newBinds[newBinds.length - 1] instanceof PressKey &&
-          (newBinds[newBinds.length - 1] as PressKey).value === currentKey.key
+          existingBinds.length !== 0 &&
+          existingBinds[existingBinds.length - 1] instanceof PressKey &&
+          (existingBinds[existingBinds.length - 1] as PressKey).value === currentKey.key
         ) {
-          newBinds[newBinds.length - 1] = new TapKey(currentKey.key)
-          profileControler.currentBinds = newBinds
+          existingBinds[existingBinds.length - 1] = new TapKey(currentKey.key)
+          profileControler.currentBinds = new Macro_Bind(existingBinds)
         } else {
-          profileControler.currentBinds = [...newBinds, new ReleaseKey(currentKey.key)]
+          profileControler.currentBinds = new Macro_Bind([...existingBinds, new ReleaseKey(currentKey.key)])
         }
       }
     }
@@ -180,8 +172,8 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
             profileControler.addBind(profileControler.currentTrigger, profileControler.currentBinds)
           }
           setSelectedKey(null)
-          profileControler.currentTrigger = null
-          profileControler.currentBinds = []
+          profileControler.currentTrigger = new T.KeyPress('UNDEFINED')
+          profileControler.currentBinds = new Macro_Bind([])
         }}
       />
     </Card>

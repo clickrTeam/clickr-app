@@ -12,6 +12,42 @@ export enum BindType {
   AppOpen = 'app_open_bind'
 }
 
+
+export function getBindTypeDisplayName(value: BindType | string): string {
+  switch (value) {
+    case BindType.PressKey:   return 'Key press';
+    case BindType.ReleaseKey: return 'Key release';
+    case BindType.TapKey:     return 'Tap key';
+    case BindType.SwitchLayer:return 'Switch layer';
+    case BindType.Macro:      return 'Macro';
+    case BindType.AppOpen:    return 'Open App';
+    default:                  return 'Unknown bind';
+  }
+}
+
+export function getBindDisplayName(bind: Bind): string {
+  switch (bind.bind_type) {
+    case BindType.PressKey:
+      return `${ (bind as PressKey).value }`
+    case BindType.ReleaseKey:
+      return `${ (bind as ReleaseKey).value }`
+    case BindType.TapKey:
+      return `${ (bind as TapKey).value }`
+    case BindType.SwitchLayer:
+      return `${ (bind as SwapLayer).layer_number }`
+    case BindType.Macro:
+      return `${ (bind as Macro_Bind).binds.length }`
+    case BindType.TimedMacro:
+      return `Timed Macro (${ (bind as TimedMacro_Bind).binds.length } actions)`
+    case BindType.Repeat:
+      return `Repeat Bind`
+    case BindType.AppOpen:
+      return `Open App: ${ (bind as AppOpen_Bind).app_name }`
+    default:
+      return 'Unknown Bind'
+  }
+}
+
 /**
  * Represents the desired bind to be associated with a key
  */
