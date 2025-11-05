@@ -27,6 +27,7 @@ type FallingBoxesProps = {
   difficulty: number
   onScore: (score: number) => void
   onLoseLife: (remainingLives: number) => void
+  onStreakChange: (streak: number) => void
   initialHighScore: number
   initialLives: number
   width: number
@@ -84,6 +85,7 @@ function FallingBoxes({
   difficulty = 3,
   onScore,
   onLoseLife,
+  onStreakChange,
   initialLives = 3,
   width = 800,
   height = 760,
@@ -105,6 +107,11 @@ function FallingBoxes({
   const onLoseLifeRef = useRef(onLoseLife)
   const trigValuesRef = useRef<string[]>([])
   const bindValuesRef = useRef<string[]>([])
+  const streakRef = useRef<number>(0)
+  const [, setStreakUI] = useState<number>(0) // used to force renders when streak changes
+  const STREAK_THRESHOLD = 10
+  const BONUS_PER_HIT = 50 // adjust to your desired bonus per hit during a streak
+  const onStreakChangeRef = useRef<((s: number) => void) | undefined>(undefined)
 
   // render tick to drive React updates every frame
   const [, setRenderTick] = useState(0)
@@ -116,6 +123,10 @@ function FallingBoxes({
   useEffect(() => {
     onLoseLifeRef.current = onLoseLife
   }, [onLoseLife])
+
+  useEffect(() => {
+    onStreakChangeRef.current = onStreakChange
+  }, [onStreakChange])
 
   // Render every frame - requestAnimationFrame already matches display refresh rate (60Hz, 120Hz, etc.)
   // Only throttle parent callbacks to reduce parent re-renders
@@ -229,6 +240,13 @@ function FallingBoxes({
           setLivesUI(livesRef.current)
           setRenderTick((r) => (r + 1) | 0)
 
+          // reset streak on miss
+          if (streakRef.current !== 0) {
+            streakRef.current = 0
+            setStreakUI(0)
+            if (onStreakChangeRef.current) onStreakChangeRef.current(0)
+          }
+
           if (livesRef.current === 0) {
             background_music.pause()
             background_music.currentTime = 0
@@ -272,6 +290,9 @@ function FallingBoxes({
       rafRef.current = null
       lastTimeRef.current = null
       scoreCallbackThrottleRef.current = 0
+      streakRef.current = 0
+      setStreakUI(0)
+      if (onStreakChangeRef.current) onStreakChangeRef.current(0)
     }
   }, [running, paused, difficulty, height, width, muteSound])
 
@@ -315,9 +336,20 @@ function FallingBoxes({
           setExplodingBoxes((prev) => prev.filter((b) => b.id !== box.id))
         }, 300)
 
-        scoreRef.current += Math.round(100 * 0.5 * difficulty)
+        // base points for a correct hit
+        const basePoints = Math.round(100 * 0.5 * difficulty)
+
+        // increment streak
+        streakRef.current = (streakRef.current ?? 0) + 1
+        setStreakUI(streakRef.current)
+        if (onStreakChangeRef.current) onStreakChangeRef.current(streakRef.current)
+
+        // determine bonus: only after reaching threshold apply bonus per hit (you could also apply for hits >= threshold)
+        const bonus = streakRef.current >= STREAK_THRESHOLD ? BONUS_PER_HIT : 0
+
+        scoreRef.current += basePoints + bonus
         setScoreUI(scoreRef.current)
-        if (onScore) onScore(scoreRef.current)
+        if (onScoreRef.current) onScoreRef.current(scoreRef.current)
       }
     }
     window.addEventListener('keydown', onKey)
