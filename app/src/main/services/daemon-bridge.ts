@@ -17,7 +17,6 @@ type DaemonReponse = {
  * This wraps the low-level `sendMessage` function with a higher-level command.
  */
 export function sendActiveProfile(profile: Profile): Promise<DaemonReponse> {
-  console.log("SENDING PROFILE")
   return sendMessage({
     type: 'load_profile',
     profile: profile.toLL()
@@ -54,7 +53,6 @@ export async function getFrequencies(): Promise<Record<string, number>> {
  * This will requre messages to have some kind of ID.
  */
 function sendMessage(message: object): Promise<DaemonReponse> {
-  console.log("here sending message")
   return new Promise((resolve, reject) => {
     const client = net.createConnection(SOCKET_PATH, () => {
       client.write(JSON.stringify(message) + '\n')
