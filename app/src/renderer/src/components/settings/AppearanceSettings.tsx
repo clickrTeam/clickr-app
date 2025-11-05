@@ -1,7 +1,6 @@
 import { Settings } from '../../../../models/Settings'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@renderer/components/ui/card'
 import { Label } from '@renderer/components/ui/label'
-import { Switch } from '@renderer/components/ui/switch'
 import {
   Select,
   SelectContent,
