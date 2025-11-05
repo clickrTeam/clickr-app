@@ -1,5 +1,6 @@
 import * as T from './Trigger'
 import * as B from './Bind'
+import { LLLayer } from './LowLevelProfile'
 
 /**
  * Represents a keyboard layer within a profile
@@ -112,6 +113,28 @@ export class Layer {
   }): Layer {
     const remappings = remappingsFromJSON(obj.remappings)
     return new Layer(obj.layer_name, obj.layer_number, remappings)
+  }
+
+  toLL(): LLLayer {
+    return {
+      layer_name: this.layer_name,
+      remappings: Array.from(this.remappings.entries()).map(([trigger, bind]) => {
+        let ll_trigger = trigger.toLL();
+        let ll_bind = bind.toLL();
+        if ("triggers" in ll_trigger) {
+          return {
+            ...ll_trigger,
+            binds: ll_bind
+          }
+
+        } else {
+          return {
+            trigger: ll_trigger,
+            binds: ll_bind,
+          }
+        }
+      }),
+    }
   }
 }
 
