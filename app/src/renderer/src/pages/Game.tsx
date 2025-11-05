@@ -233,8 +233,14 @@ function Game(): JSX.Element {
         <div className="w-full rounded-lg text-white overflow-hidden flex flex-col items-center bg-transparent">
           {mode === 'countingDown' && (
             <div
-              className="w-full flex items-center justify-center bg-transparent"
-              style={{ height: PLAY_AREA_HEIGHT }}
+              className="flex items-center justify-center bg-transparent"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh'
+              }}
             >
               <div
                 className="text-8xl font-bold text-white"
@@ -250,8 +256,14 @@ function Game(): JSX.Element {
 
           {mode === 'playing' && (
             <div
-              className="w-full flex flex-col items-center justify-center bg-transparent"
-              style={{ height: PLAY_AREA_HEIGHT }}
+              className="flex items-center justify-center bg-transparent"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh'
+              }}
             >
               <FallingBoxes
                 key={startCount}
