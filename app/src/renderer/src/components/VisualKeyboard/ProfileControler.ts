@@ -208,8 +208,7 @@ export class ProfileController {
     log.debug('Changing trigger to:', newTrigger, 'with binds:', this._currentBinds);
 
     this.activeLayer!.deleteRemapping(this.currentTrigger);
-    this._currentTrigger = newTrigger;
-    this.addBind();
+    this.currentTrigger = newTrigger;
   }
 }
 

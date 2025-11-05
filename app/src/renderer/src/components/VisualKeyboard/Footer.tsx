@@ -159,10 +159,10 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         <Dropdown
           options={typeOptionsTrigger}
           currentSelected={currentTrigger.trigger_type}
+          allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
           handleSelection={handleTriggerTypeChange}
           getDropdownBg={getDropdownBgT}
           getDisplayName={getTriggerTypeDisplayName}
-          allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
           openBtnLabel={selectedKey}
           openBtnBackground={getMacroButtonBgT(currentTrigger)}
           id="trigger-dropdown"
@@ -185,10 +185,10 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
           <Dropdown
             options={typeOptionsTrigger}
             currentSelected={currentTrigger.trigger_type}
+            allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
             handleSelection={handleAddTriggerType}
             getDropdownBg={getDropdownBgT}
             getDisplayName={getTriggerTypeDisplayName}
-            allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
             id="new-trigger-dropdown"
           ></Dropdown>
         )}
@@ -199,7 +199,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             onClose(true);
           }}
         >
-          Clear
+          Remove Mapping
         </button>
         <button className="vk-footer-close" onClick={() => onClose(true)}>
           Close
@@ -229,7 +229,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
           className="vk-footer-clear"
           onClick={() => profileController.clearBinds()}
         >
-          Clear
+          Clear Binds
         </button>
 
         <span style={{ position: 'relative', display: 'inline-block' }}>

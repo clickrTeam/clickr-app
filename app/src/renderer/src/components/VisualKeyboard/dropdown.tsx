@@ -19,11 +19,12 @@ type DropdownProps = {
 export default function Dropdown({
   options,
   currentSelected,
+  allSelected,
   handleSelection,
+
   getDropdownBg,
   getDisplayName,
   openBtnLabel = 'Add',
-  allSelected,
   openBtnBackground,
   id,
 }: DropdownProps) {
@@ -57,7 +58,8 @@ export default function Dropdown({
       {dropdownIsOpen && (
         <div className="vk-footer-macro-dropdown">
           {options.map((opt) => {
-            const disabled = allSelected?.some((selected) => selected.trigger_type === opt) ?? false;
+            const anyAlreadySelected = allSelected?.some((selected) => selected === opt) ?? false;
+            const disabled = anyAlreadySelected && opt !== currentSelected;
             const selected = currentSelected === opt;
             const bg = getDropdownBg?.(currentSelected, opt) ?? '';
 
