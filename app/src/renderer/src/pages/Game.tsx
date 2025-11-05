@@ -221,16 +221,29 @@ function Game(): JSX.Element {
           </div>
 
           <div
-            className="text-4xl font-bold"
+            className={`streak-wrap text-4xl font-bold ${streak >= STREAK_THRESHOLD ? 'on-fire' : ''}`}
             style={{
               textShadow:
                 '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000',
-              color: streak >= STREAK_THRESHOLD ? undefined : '#FFFFFF'
+              color: streak >= STREAK_THRESHOLD ? undefined : '#FFFFFF',
+              position: 'relative',
+              zIndex: 50
             }}
+            aria-live="polite"
+            aria-atomic="true"
           >
             <span className={streak >= STREAK_THRESHOLD ? 'text-yellow-400' : undefined}>
               {streak}
             </span>
+
+            {streak >= STREAK_THRESHOLD && (
+              <>
+                <div className="ember" aria-hidden="true" />
+                <div className="ember" aria-hidden="true" />
+                <div className="ember" aria-hidden="true" />
+                <div className="ember" aria-hidden="true" />
+              </>
+            )}
           </div>
 
           <div

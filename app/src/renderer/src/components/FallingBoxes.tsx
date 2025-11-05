@@ -4,9 +4,11 @@ import { Layer } from '../../../models/Layer'
 import { background_music } from './audio_controller'
 import lose_life_sound_file from '../assets/game_sounds/lose_life.mp3'
 import correct_sound_file from '../assets/game_sounds/correct_sound2.mp3'
+import cowabunga_sound_file from '../assets/game_sounds/cowabunga.mp3'
 
 const lose_life_sound = new Audio(lose_life_sound_file)
 const correct_sound = new Audio(correct_sound_file)
+const cowabunga_sound = new Audio(cowabunga_sound_file)
 lose_life_sound.volume = 0.3 // Reduce volume to 30% (range: 0.0 to 1.0)
 correct_sound.volume = 0.3
 
@@ -343,6 +345,11 @@ function FallingBoxes({
 
         // increment streak
         streakRef.current = (streakRef.current ?? 0) + 1
+
+        if (streakRef.current === STREAK_THRESHOLD && !muteSound) {
+          cowabunga_sound.currentTime = 0
+          cowabunga_sound.play().catch((err) => log.warn('Cowabunga play failed', err))
+        }
         setStreakUI(streakRef.current)
         if (onStreakChangeRef.current) onStreakChangeRef.current(streakRef.current)
 
