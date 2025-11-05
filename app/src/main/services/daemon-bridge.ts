@@ -8,6 +8,7 @@ const SOCKET_PATH =
 type DaemonReponse = {
   status: string
   error?: string
+  [key: string]: any
 }
 
 /**
@@ -16,11 +17,32 @@ type DaemonReponse = {
  * This wraps the low-level `sendMessage` function with a higher-level command.
  */
 export function sendActiveProfile(profile: Profile): Promise<DaemonReponse> {
-  console.log("SENDING PROFILE")
   return sendMessage({
     type: 'load_profile',
     profile: profile.toLL()
   })
+}
+
+/**
+ * Sends settings JSON to the daemon to update the current settings.
+ */
+export function sendSettings(settings: object): Promise<DaemonReponse> {
+  return sendMessage({
+    type: 'set_settings',
+    settings,
+  })
+}
+
+/**
+ * Requests the key press frequencies from the daemon.
+ */
+export async function getFrequencies(): Promise<Record<string, number>> {
+  const resp = await sendMessage({ type: 'get_frequencies' })
+  if (resp.status === 'success' && resp.frequencies) {
+    return resp.frequencies as Record<string, number>
+  } else {
+    throw new Error(resp.error || 'Failed to get frequencies')
+  }
 }
 
 /**
@@ -39,6 +61,7 @@ function sendMessage(message: object): Promise<DaemonReponse> {
     let buffer = ''
 
     client.on('data', (data) => {
+      console.log(data);
       buffer += data.toString()
 
       if (buffer.includes('\n')) {
@@ -56,6 +79,7 @@ function sendMessage(message: object): Promise<DaemonReponse> {
     })
 
     client.on('error', (err) => {
+      console.log(err)
       reject(new Error(`Failed to connect to daemon: ${err.message}`))
     })
   })
