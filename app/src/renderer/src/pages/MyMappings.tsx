@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/u
 import { Input } from '@renderer/components/ui/input'
 import { Search, Download, User, Clock, Plus, Upload, Cloud } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { ProfileController } from '@renderer/components/VisualKeyboard/ProfileControler'
+import profileController, { ProfileController } from '@renderer/components/VisualKeyboard/ProfileControler'
 
 type UploadedMapping = {
   id: string
@@ -239,7 +239,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     return filteredMappings
   }
 
-  const onSave = (_profileControler: ProfileController): void => {
+  const onSave = (_profileController: ProfileController): void => {
     if (editedProfileIndex === null) return
     if (activeProfileIndex == editedProfileIndex) {
       window.api.setActiveProfile(editedProfileIndex)
@@ -249,15 +249,13 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
 
   // If editing a profile, show the editor
   if (editedProfileIndex !== null && profiles != null) {
-    const profileControler = new ProfileController(
-      profiles[editedProfileIndex],
-      editedProfileIndex,
-      onSave
-    )
+    profileController.setup(
+        profiles[editedProfileIndex],
+        editedProfileIndex,
+        onSave)
     return (
       <div className="space-y-6">
         <ProfileEditor
-          profileControler={profileControler}
           onBack={() => setEditedProfileIndex(null)}
         />
       </div>

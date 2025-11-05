@@ -15,7 +15,7 @@ import {
 } from '../../../../models/Keys'
 import { detectOS } from '../../../../models/Profile'
 import { Layer } from '../../../../models/Layer'
-import { ProfileController } from './ProfileControler'
+import ProfileController from './profileController'
 
 const current_OS = detectOS()
 
@@ -36,18 +36,18 @@ interface KeyModalProps {
   onClose: () => void
   onAddKey: (key: KeyPressInfo) => void
   onSelectLayer: (layerIndex: number) => void
-  profileControler: ProfileController
+  profileController: ProfileController
 }
 
 export const KeyModal: React.FC<KeyModalProps> = ({
   onClose,
   onAddKey,
   onSelectLayer,
-  profileControler,
+  profileController,
 }) => {
-  const layers = profileControler.getProfile().layers
-  const activeLayer = profileControler.activeLayer
-  const currentLayerIndex = profileControler.activeLayer.layer_number
+  const layers = profileController.getProfile().layers
+  const activeLayer = profileController.activeLayer
+  const currentLayerIndex = profileController.activeLayer.layer_number
 
   const [keyCategory, setKeyCategory] = useState<string | null>(null)
   const resolvedActiveLayerIndex = ((): number => {

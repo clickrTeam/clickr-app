@@ -1,7 +1,7 @@
 import { Bind, TapKey, Macro_Bind } from '../../../../models/Bind'
 import { Trigger } from '../../../../models/Trigger'
 import { getKeyClass } from './Colors'
-import { ProfileController } from './ProfileControler'
+import ProfileController from './profileController'
 
 export interface KeyPressInfo {
   key: string

@@ -6,18 +6,24 @@ import { Trigger, KeyPress } from '../../../../models/Trigger';
 
 export type ProfileStateChangeCallback = (binds: Macro_Bind, trigger: Trigger) => void;
 
-
 // ProfileController class with comprehensive profile management
 export class ProfileController {
-  public activeLayer: Layer;
   public footerOpen: boolean = false;
   private _currentBinds: Macro_Bind = new Macro_Bind([]);
   private _currentTrigger: Trigger = new KeyPress('UNDEFINED');
   private stateChangeCallbacks: Set<ProfileStateChangeCallback> = new Set();
 
-  constructor(public profile: Profile, public editedProfileIndex: number, public onUpSave: (profileControler: ProfileController) => void) {
-    this.activeLayer = this.profile.layers[0];
-    log.silly(`ProfileController initialized for profile: ${this.profile.profile_name}`);
+  public activeLayer?: Layer;
+  public profile?: Profile;
+  private editedProfileIndex?: number;
+  private onUpSave?: ((profileController: ProfileController) => void);
+
+  setup(_profile: Profile, _editedProfileIndex: number, _onUpSave: (profileController: ProfileController) => void) {
+    this.profile = _profile;
+    this.editedProfileIndex = _editedProfileIndex;
+    this.onUpSave = _onUpSave;
+    this.activeLayer = _profile.layers[0];
+    log.debug(`ProfileController initialized for profile: ${_profile.profile_name}`);
   }
 
   get currentBinds(): Macro_Bind {
@@ -76,6 +82,10 @@ export class ProfileController {
   private saveTimeout: NodeJS.Timeout | null = null;
 
   onSave(): void {
+    if (!this.profile || this.editedProfileIndex === undefined || !this.onUpSave || !this.editedProfileIndex) {
+      log.warn('ProfileController not properly initialized for saving. Aborting onSave.');
+      return;
+    }
     // Clear any existing timeout
     if (this.saveTimeout) {
       clearTimeout(this.saveTimeout);
@@ -83,9 +93,9 @@ export class ProfileController {
 
     // Set new timeout
     this.saveTimeout = setTimeout(() => {
-      log.debug(`Profile is being updated and saved. Updated profile: ${this.profile.profile_name}`)
-      window.api.updateProfile(this.editedProfileIndex, this.profile.toJSON())
-      this.onUpSave(this);
+      log.debug(`Profile is being updated and saved. Updated profile: ${this.profile!.profile_name}`)
+      window.api.updateProfile(this.editedProfileIndex!, this.profile!.toJSON())
+      this.onUpSave!(this);
       this.saveTimeout = null;
     }, 350);
   }
@@ -105,7 +115,7 @@ export class ProfileController {
     }
     log.debug('Adding bind:', this.currentBinds, 'to trigger:', this.currentTrigger);
 
-    this.activeLayer.addRemapping(this.currentTrigger, this.currentBinds);
+    this.activeLayer!.addRemapping(this.currentTrigger, this.currentBinds);
     this.onSave();
   }
 
@@ -117,7 +127,7 @@ export class ProfileController {
     log.debug('Removing bind from trigger:', trigger);
 
     this.currentBinds = new Macro_Bind([]);
-    this.activeLayer.deleteRemapping(trigger);
+    this.activeLayer!.deleteRemapping(trigger);
     this.onSave();
   }
 
@@ -136,7 +146,7 @@ export class ProfileController {
 
   setLayer(index: number): void {
     log.silly('Setting active layer to index:', index);
-    this.activeLayer = this.profile.layers[index];
+    this.activeLayer = this.profile!.layers[index];
   }
 
   setSelectedKey(selectedKey: string | null): void {
@@ -155,7 +165,7 @@ export class ProfileController {
       const [trigger, _bind] = cur_triggers[0];
       log.debug('Found trigger for selected key:', trigger);
       this.currentTrigger = trigger;
-      const bind = this.activeLayer.getRemapping(trigger);
+      const bind = this.activeLayer!.getRemapping(trigger);
       log.debug('Found binds for trigger:', bind);
       if (bind instanceof Macro_Bind) {
         this.currentBinds = bind;
@@ -182,12 +192,12 @@ export class ProfileController {
   }
 
   getProfile(): Profile {
-    return this.profile;
+    return this.profile!;
   }
 
   getMappings(selectedKey: string | null): Array<[Trigger, Bind]> {
     if (!selectedKey) return [];
-    return Array.from(this.activeLayer.remappings.entries())
+    return Array.from(this.activeLayer!.remappings.entries())
       .filter(([trigger, _bind]) => {
         const triggerKey = (trigger as { value?: string }).value;
         return typeof triggerKey === 'string' && triggerKey === selectedKey;
@@ -197,8 +207,11 @@ export class ProfileController {
   changeTrigger(newTrigger: Trigger) {
     log.debug('Changing trigger to:', newTrigger, 'with binds:', this._currentBinds);
 
-    this.activeLayer.deleteRemapping(this.currentTrigger);
+    this.activeLayer!.deleteRemapping(this.currentTrigger);
     this._currentTrigger = newTrigger;
     this.addBind();
   }
 }
+
+const profileController = new ProfileController();
+export default profileController;
