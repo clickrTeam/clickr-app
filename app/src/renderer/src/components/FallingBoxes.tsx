@@ -34,6 +34,7 @@ type FallingBoxesProps = {
   height: number
   currentLayer: Layer
   muteSound: boolean
+  streakThreshold: number
 }
 
 type BoxViewProps = {
@@ -90,7 +91,8 @@ function FallingBoxes({
   width = 800,
   height = 760,
   currentLayer,
-  muteSound = false
+  muteSound = false,
+  streakThreshold
 }: FallingBoxesProps): JSX.Element {
   const [paused] = useState(false)
 
@@ -109,7 +111,7 @@ function FallingBoxes({
   const bindValuesRef = useRef<string[]>([])
   const streakRef = useRef<number>(0)
   const [, setStreakUI] = useState<number>(0) // used to force renders when streak changes
-  const STREAK_THRESHOLD = 10
+  const STREAK_THRESHOLD = streakThreshold
   const BONUS_PER_HIT = 50 // adjust to your desired bonus per hit during a streak
   const onStreakChangeRef = useRef<((s: number) => void) | undefined>(undefined)
 
@@ -344,10 +346,13 @@ function FallingBoxes({
         setStreakUI(streakRef.current)
         if (onStreakChangeRef.current) onStreakChangeRef.current(streakRef.current)
 
-        // determine bonus: only after reaching threshold apply bonus per hit (you could also apply for hits >= threshold)
-        const bonus = streakRef.current >= STREAK_THRESHOLD ? BONUS_PER_HIT : 0
+        if (streakRef.current >= STREAK_THRESHOLD) {
+          const bonus = (streakRef.current - STREAK_THRESHOLD + 1) * difficulty * BONUS_PER_HIT
+          scoreRef.current += basePoints + bonus
+        } else {
+          scoreRef.current += basePoints
+        }
 
-        scoreRef.current += basePoints + bonus
         setScoreUI(scoreRef.current)
         if (onScoreRef.current) onScoreRef.current(scoreRef.current)
       }
@@ -356,7 +361,7 @@ function FallingBoxes({
     return (): void => {
       window.removeEventListener('keydown', onKey)
     }
-  }, [difficulty, height, muteSound, onScore])
+  }, [STREAK_THRESHOLD, difficulty, height, muteSound, onScore])
 
   const boxesForRender = boxesRef.current.slice()
 

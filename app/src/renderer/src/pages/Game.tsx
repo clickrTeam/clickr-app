@@ -211,14 +211,26 @@ function Game(): JSX.Element {
             {highScore}
           </div>
 
-          <div className="text-lg text-white mt-2" style={{ textShadow: '...' }}>
+          <div
+            className="text-lg text-white mt-2"
+            style={{
+              textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+            }}
+          >
             Streak
           </div>
+
           <div
-            className={`text-2xl font-semibold ${streak >= STREAK_THRESHOLD ? 'text-yellow-400' : 'text-white'}`}
-            style={{ textShadow: '...' }}
+            className="text-4xl font-bold"
+            style={{
+              textShadow:
+                '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000',
+              color: streak >= STREAK_THRESHOLD ? undefined : '#FFFFFF'
+            }}
           >
-            {streak}
+            <span className={streak >= STREAK_THRESHOLD ? 'text-yellow-400' : undefined}>
+              {streak}
+            </span>
           </div>
 
           <div
@@ -290,6 +302,7 @@ function Game(): JSX.Element {
                 height={PLAY_AREA_HEIGHT}
                 currentLayer={currentLayer}
                 muteSound={muteSound}
+                streakThreshold={STREAK_THRESHOLD}
               />
             </div>
           )}
