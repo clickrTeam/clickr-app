@@ -7,9 +7,14 @@ function Training(): JSX.Element {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const { profile, layer_index } = location.state as {
+  const {
+    profile,
+    layer_index,
+    muteSound: incomingMuteSound
+  } = location.state as {
     profile: Profile
     layer_index: number
+    muteSound: boolean
   }
 
   const currentLayer = profile.layers[layer_index]
@@ -21,6 +26,7 @@ function Training(): JSX.Element {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   const [showHowTo, setShowHowTo] = useState<boolean>(false)
+  const [muteSound, setMuteSound] = useState<boolean>(incomingMuteSound ?? false)
 
   useEffect((): void => {
     const locState = location.state as { highScore?: number } | undefined
@@ -36,7 +42,8 @@ function Training(): JSX.Element {
         profile,
         layer_index,
         difficulty,
-        highScore
+        highScore,
+        muteSound
       }
     })
   }
@@ -97,14 +104,25 @@ function Training(): JSX.Element {
             Start Game
           </Button>
 
-          <Button
-            size="sm"
-            variant="outline"
-            className="text-sm px-4"
-            onClick={(): void => setShowHowTo(true)}
-          >
-            How To Play
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-sm px-4"
+              onClick={(): void => setShowHowTo(true)}
+            >
+              How To Play
+            </Button>
+
+            <label className="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={muteSound}
+                onChange={(e): void => setMuteSound(e.target.checked)}
+              />
+              Mute Sound
+            </label>
+          </div>
         </div>
 
         <div className="w-full">
@@ -140,12 +158,21 @@ function Training(): JSX.Element {
                 towards the bottom. You will want to hit the Trigger associated with the Bind before
                 it falls off the game screen.
               </p>
+
               <p>
-                Points accumulate as you play for longer. If you hit the wrong trigger or the Bind
-                falls to the bottom of the screen before you hit its Trigger, you will lose points.
-                The higher the difficulty, the faster your points will accumulate and the faster the
-                Binds will fall from the top of the screen.
+                You get points every time you hit the correct Trigger. When you hit the correct
+                Trigger, that Bind will disappear from the screen. If the Bind falls to the bottom
+                of the screen before you hit its Trigger, you will lose a life. When you increase
+                the difficulty:
               </p>
+
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Binds fall faster.</li>
+                <li>Binds will appear more often.</li>
+                <li>You earn points more quickly.</li>
+                <li>You have fewer lives to start with.</li>
+              </ol>
+
               <p>
                 Click Start Game to begin. Press Stop and Return in the top-left to end the run.
               </p>
