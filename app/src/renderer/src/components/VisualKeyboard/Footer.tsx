@@ -219,27 +219,34 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         {currentBinds.binds.length === 0 ? (
           <span className="vk-footer-macro-empty">(Tap keys to add to macro)</span>
         ) : (
-          currentBinds.binds.map((item: Bind, i: number) => (
-            <Dropdown
-              options={typeOptionsBind}
-              currentSelected={item?.bind_type}
-              handleSelection={(opt: BindType) => handleTypeChange(i, opt)}
-              getDropdownBg={getMacroButtonBg}
-              getDisplayName={getBindTypeDisplayName}
-              openBtnLabel={getBindDisplayName(item)}
-              openBtnBackground={getMacroButtonBg(item)}
-              id={`bind-dropdown-${i}`}
-              extraClass={i === justAddedIndex ? 'vk-bind-just-added vk-wiggle-hover' : ''}
-            ></Dropdown>
-          ))
+          <div className="flex">
+            <div className="max-w-[60vw] gap-2 flex" style={{ height: '52px', paddingRight: '6px', alignItems: 'center', overflowX: 'auto' }}>
+              {currentBinds.binds.map((item: Bind, i: number) => (
+                <Dropdown
+                  options={typeOptionsBind}
+                  currentSelected={item?.bind_type}
+                  handleSelection={(opt: BindType) => handleTypeChange(i, opt)}
+                  getDropdownBg={getMacroButtonBg}
+                  getDisplayName={getBindTypeDisplayName}
+                  openBtnLabel={getBindDisplayName(item)}
+                  openBtnBackground={getMacroButtonBg(item)}
+                  id={`bind-dropdown-${i}`}
+                  extraClass={i === justAddedIndex ? 'vk-bind-just-added vk-wiggle-hover' : ''}
+                ></Dropdown>
+              ))}
+            </div>
+
+            <button
+              className="vk-footer-clear"
+              onClick={() => profileController.clearBinds()}
+              style={{ width: '100px', flex: 'none' }}
+            >
+              Clear Binds
+            </button>
+          </div>
         )}
 
-        <button
-          className="vk-footer-clear"
-          onClick={() => profileController.clearBinds()}
-        >
-          Clear Binds
-        </button>
+
 
         <span style={{ position: 'relative', display: 'inline-block' }}>
           <button
