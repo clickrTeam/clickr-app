@@ -3,24 +3,18 @@ import { Card } from '../ui/card'
 import { mainRows, specialtyRows, numpadRows, KEYBOARD_100 as KEYBOARD_100 } from './Layout.const'
 import { InspectPopover } from './InspectPopover'
 import { VisualKeyboardFooter } from './Footer'
-import { Bind, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
+import { Macro, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyTile } from './KeyTile'
 import * as T from '../../../../models/Trigger'
 import { buildVisualKeyboardModel, KeyPressInfo, KeyTileModel, VisualKeyboardModel } from './Model'
-import { Trigger } from '../../../../models/Trigger'
 import { useKeyboardController } from './controler'
-import { ProfileController } from './ProfileControler'
 import { ChevronDown } from 'lucide-react'
+import log from 'electron-log'
+import profileController from './ProfileControler'
 
-interface VisualKeyboardProps {
-  profileControler: ProfileController
-}
-
-export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.Element => {
+export const VisualKeyboard = (): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
-  const [binds, setBind] = useState<Bind[]>([])
-  const [trigger, setTrigger] = useState<Trigger | null>(null)
 
   const onKey: KeyPressInfo = useKeyboardController()
   const [keyQueue, setKeyQueue] = useState<KeyPressInfo[]>([])
@@ -47,38 +41,36 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
     }
 
     if (selectedKey) {
+      const existingBinds = [...profileController.currentBinds.binds]
       if (currentKey.isDown) {
-        setBind((prevBinds) => [...prevBinds, new PressKey(currentKey.key)])
+        profileController.currentBinds = new Macro([...existingBinds, new PressKey(currentKey.key)])
       } else {
-        setBind((prevBinds) => {
-          const newBinds = [...prevBinds]
 
-          if (
-            newBinds.length !== 0 &&
-            newBinds[newBinds.length - 1] instanceof PressKey &&
-            (newBinds[newBinds.length - 1] as PressKey).value === currentKey.key
-          ) {
-            newBinds[newBinds.length - 1] = new TapKey(currentKey.key)
-            return newBinds
-          }
-
-          return [...newBinds, new ReleaseKey(currentKey.key)]
-        })
+        if (
+          existingBinds.length !== 0 &&
+          existingBinds[existingBinds.length - 1] instanceof PressKey &&
+          (existingBinds[existingBinds.length - 1] as PressKey).value === currentKey.key
+        ) {
+          existingBinds[existingBinds.length - 1] = new TapKey(currentKey.key)
+          profileController.currentBinds = new Macro(existingBinds)
+        } else {
+          profileController.currentBinds = new Macro([...existingBinds, new ReleaseKey(currentKey.key)])
+        }
       }
     }
 
     setKeyQueue((prev) => prev.slice(1))
-  }, [keyQueue])
+  }, [keyQueue, profileController])
 
   useEffect(() => {
-    profileControler.setSelectedKey(selectedKey, setBind, setTrigger)
-  }, [selectedKey, profileControler])
+    profileController.setSelectedKey(selectedKey)
+  }, [selectedKey])
 
   const [showPressedKeys, setShowPressedKeys] = useState<string[]>([])
 
   const visualKeyboardModel: VisualKeyboardModel = buildVisualKeyboardModel(
     KEYBOARD_100,
-    profileControler,
+    profileController,
     showPressedKeys,
     selectedKey
   )
@@ -168,20 +160,16 @@ export const VisualKeyboard = ({ profileControler }: VisualKeyboardProps): JSX.E
       <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
 
       <VisualKeyboardFooter
-        profileControler={profileControler}
         selectedKey={selectedKey}
-        macro={binds}
-        trigger={trigger}
-        onMacroChange={setBind}
         onClose={(save: boolean) => {
+          log.debug('Footer onClose called with save =', save);
           if (save) {
-            profileControler.addBind(trigger, binds)
+            profileController.addBind();
           }
           setSelectedKey(null)
-          setTrigger(null)
-          setBind([])
+          profileController.currentTrigger = new T.KeyPress('UNDEFINED')
+          profileController.currentBinds = new Macro([])
         }}
-        activeLayer={profileControler.activeLayer}
       />
     </Card>
     {renderLeftoverKeys()}

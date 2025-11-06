@@ -70,6 +70,11 @@
   z-index: 50;
   min-width: 80px;
 }
+
+.vk-footer-trigger-wrapper {
+  position: relative;
+  display: inline-block;
+}
 .vk-footer-macro-dropdown-btn {
   width: 100%;
   text-align: left;

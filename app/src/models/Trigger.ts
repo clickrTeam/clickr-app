@@ -13,12 +13,67 @@ export enum TriggerType {
   Hold = 'hold_trigger',
   AppFocused = 'app_focus_trigger'
 }
+
+export function getTriggerTypeDisplayName(value: TriggerType | string): string {
+  switch (value) {
+    case TriggerType.KeyPress:   return 'Key press';
+    case TriggerType.KeyRelease: return 'Key release';
+    case TriggerType.TapSequence:return 'Tap sequence';
+    case TriggerType.Hold:       return 'Hold';
+    case TriggerType.AppFocused: return 'App focused';
+    default:                     return 'Unknown trigger';
+  }
+}
+
+export function createTrigger(type: TriggerType, selectedKey: string | null): Trigger | undefined {
+  let newTrigger: Trigger
+  switch (type) {
+    case TriggerType.AppFocused:
+      newTrigger = new AppFocus("test", selectedKey ?? '')
+      break
+    case TriggerType.Hold:
+      if (selectedKey === null) {
+        log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
+        return
+      }
+      newTrigger = new Hold(selectedKey, 100) // Default hold time 100ms
+      break
+    case TriggerType.KeyPress:
+      if (selectedKey === null) {
+        log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
+        return
+      }
+      newTrigger = new KeyPress(selectedKey)
+      break
+    case TriggerType.KeyRelease:
+      if (selectedKey === null) {
+        log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
+        return
+      }
+      newTrigger = new KeyRelease(selectedKey)
+      break
+    case TriggerType.TapSequence:
+      if (selectedKey === null) {
+        log.warn('No selected key to assign trigger to in VisualKeyboardFooter.')
+        return
+      }
+      newTrigger = new TapSequence([[selectedKey, 350]]) // Default 350ms between taps
+      break
+    default:
+      log.warn(`Unsupported trigger type for VisualKeyboardFooter: ${type}`)
+      return
+  }
+  log.debug('Created new trigger in VisualKeyboardFooter:', newTrigger)
+  return newTrigger
+}
+
 export enum TimedTriggerBehavior {
   // Capture and release. probably a better name but this seems ok
   Default = 'default',
   Capture = 'capture',
   Release = 'release'
 }
+
 /**
  * Represents a physical key on the keyboard
  */

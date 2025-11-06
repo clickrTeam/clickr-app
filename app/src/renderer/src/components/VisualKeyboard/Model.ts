@@ -1,4 +1,4 @@
-import { Bind, TapKey, Macro_Bind } from '../../../../models/Bind'
+import { Bind, TapKey, Macro } from '../../../../models/Bind'
 import { Trigger } from '../../../../models/Trigger'
 import { getKeyClass } from './Colors'
 import { ProfileController } from './ProfileControler'
@@ -55,7 +55,7 @@ export function buildVisualKeyboardModel(
     const mapped = keyMap[key] || []
     let displayKey: string | undefined = undefined
     if (mapped.length === 1) {
-      const singleBind = mapped[0][1] as Macro_Bind
+      const singleBind = mapped[0][1] as Macro
       if (singleBind.binds.length === 1) {
         const firstBind = singleBind.binds[0]
         if (firstBind instanceof TapKey) {

@@ -1,5 +1,5 @@
 // Key color identity for VisualKeyboard
-import { Trigger } from 'src/models/Trigger'
+import { Trigger, TriggerType } from '../../../../models/Trigger'
 import { Bind, BindType } from '../../../../models/Bind'
 
 export const bindTypeColors: Record<BindType, string> = {
@@ -10,9 +10,19 @@ export const bindTypeColors: Record<BindType, string> = {
   [BindType.Macro]: '#a78bfa',
   [BindType.TimedMacro]: '#f472b6',
   [BindType.Repeat]: '#fb7185',
-  [BindType.OpenApp]: '#fb7185',
-  [BindType.RunScript]: '#fb7185',
+  [BindType.OpenApp]: '#71fb83ff',
+  [BindType.RunScript]: '#71f2fbff',
+  [BindType.Meta_Destroy]: '#cb0f2bff',
 }
+
+export const triggerTypeColors: Record<TriggerType, string> = {
+  [TriggerType.KeyPress]: '#60a5fa',
+  [TriggerType.KeyRelease]: '#f87171',
+  [TriggerType.Hold]: '#fbbf24',
+  [TriggerType.TapSequence]: '#a78bfa',
+  [TriggerType.AppFocused]: '#34d399'
+}
+
 const DEFAULT_COLOR = '#d1d5db'
 
 export function getBindColor(bindings: Array<[Trigger, Bind]>): string {

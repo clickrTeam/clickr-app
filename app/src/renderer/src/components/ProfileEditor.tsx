@@ -6,22 +6,21 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 import { LayerComponent } from './LayerComponent'
-import { ProfileController } from './VisualKeyboard/ProfileControler'
 import log from 'electron-log'
 import { useNavigate } from 'react-router-dom'
+import profileController from './VisualKeyboard/ProfileControler'
 
 interface ProfileEditorProps {
-  profileControler: ProfileController
   onBack: () => void
 }
 
-export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps): JSX.Element => {
-  const [localProfile, setLocalProfile] = useState(profileControler.getProfile())
+export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
+  const [localProfile, setLocalProfile] = useState(profileController.getProfile())
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
   const navigate = useNavigate()
 
-  profileControler.setLayer(selectedLayerIndex) // Hack to keep the active layer on construct.
+  profileController.setLayer(selectedLayerIndex) // Hack to keep the active layer on construct.
 
   const handleLayerUpdate = (layerIndex: number, updatedLayer: Layer): void => {
     log.debug('Updating layer at index:', layerIndex)
@@ -40,9 +39,9 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
   }
 
   useEffect(() => {
-    profileControler.profile = localProfile
-    profileControler.setLayer(selectedLayerIndex)
-  }, [localProfile, profileControler, selectedLayerIndex])
+    profileController.profile = localProfile
+    profileController.setLayer(selectedLayerIndex)
+  }, [localProfile, profileController, selectedLayerIndex])
 
   const confirmDeleteLayer = (layerNumber: number): void => {
     toast('Are you sure you want to delete this layer?', {
@@ -89,7 +88,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
           <Button
             variant="outline"
             onClick={() => {
-              profileControler.onSave()
+              profileController.onSave()
               onBack()
             }}
           >
@@ -100,7 +99,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
           </Button>
           <Button
             onClick={() => {
-              const latest = profileControler.getProfile()
+              const latest = profileController.getProfile()
               navigate('/training', {
                 state: { profile: latest, layer_index: selectedLayerIndex }
               })
@@ -121,7 +120,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
               <TabsTrigger
                 key={index}
                 value={index.toString()}
-                onClick={() => profileControler.setLayer(index)}
+                onClick={() => profileController.setLayer(index)}
               >
                 {layer.layer_name}
               </TabsTrigger>
@@ -146,7 +145,6 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
         {useVisualKeyboard ? (
           <VisualKeyboard
             key={`${localProfile.profile_name}-${selectedLayerIndex}`}
-            profileControler={profileControler}
           />
         ) : (
           <div>
@@ -154,7 +152,7 @@ export const ProfileEditor = ({ profileControler, onBack }: ProfileEditorProps):
               <TabsContent key={index} value={index.toString()}>
                 <LayerComponent
                   layer={layer}
-                  maxLayer={profileControler.getProfile().layers.length}
+                  maxLayer={profileController.getProfile().layers.length}
                   onUpdate={(updatedLayer) => handleLayerUpdate(index, updatedLayer)}
                 />
               </TabsContent>
