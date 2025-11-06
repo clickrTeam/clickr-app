@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react';
-import { TriggerType } from '../../../../models/Trigger';
+import { useEffect } from 'react';
 import { useDropdown } from './DropdownContext';
 
 type DropdownProps = {

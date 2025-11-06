@@ -1,10 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Bind, BindType, getBindDisplayName, getBindTypeDisplayName, Macro, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyPressInfo } from './Model'
 import { bindTypeColors, triggerTypeColors } from './Colors'
 import './Footer.css'
-import { AppFocus, createTrigger, getTriggerTypeDisplayName, Trigger, TriggerType } from '../../../../models/Trigger'
-import { Layer } from '../../../../models/Layer'
+import { createTrigger, getTriggerTypeDisplayName, Trigger, TriggerType } from '../../../../models/Trigger'
 import { SwapLayer } from '../../../../models/Bind'
 import { KeyModal } from './KeyModal'
 import log from 'electron-log'
@@ -31,27 +30,12 @@ function getMacroButtonBgT(item: Trigger): string {
   return `${triggerTypeColors[item.trigger_type as TriggerType]}80`
 }
 
-function getDropdownBg(item: Bind, opt: { value: BindType | undefined }): string | undefined {
-  if (!opt.value) return ''
-  return item.bind_type === opt.value ? `${bindTypeColors[opt.value]}22` : undefined
-}
-
 function getDropdownBgT(
   item: Trigger,
   opt: TriggerType
 ): string {
   if (!opt) return ''
   return item.trigger_type === opt ? `${triggerTypeColors[opt]}22` : ''
-}
-
-function getMacroValue(item: Bind): string {
-  if ('value' in item) {
-    return (item as TapKey | PressKey | ReleaseKey).value
-  } else if ('layer_number' in item) {
-    return 'Swap to Layer ' + item.layer_number
-  }
-  log.warn(`Macro value not applicable to add ${item.bind_type}`)
-  return ''
 }
 
 export interface VisualKeyboardFooterProps {

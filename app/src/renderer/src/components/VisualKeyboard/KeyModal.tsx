@@ -15,7 +15,7 @@ import {
 } from '../../../../models/Keys'
 import { detectOS } from '../../../../models/Profile'
 import { Layer } from '../../../../models/Layer'
-import ProfileController from './profileController'
+import { ProfileController } from './ProfileControler'
 
 const current_OS = detectOS()
 
@@ -46,8 +46,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
   profileController,
 }) => {
   const layers = profileController.getProfile().layers
-  const activeLayer = profileController.activeLayer
-  const currentLayerIndex = profileController.activeLayer.layer_number
+  const currentLayerIndex = profileController.activeLayer!.layer_number
 
   const [keyCategory, setKeyCategory] = useState<string | null>(null)
   const resolvedActiveLayerIndex = ((): number => {

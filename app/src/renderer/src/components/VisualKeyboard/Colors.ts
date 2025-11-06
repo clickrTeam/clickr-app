@@ -10,8 +10,9 @@ export const bindTypeColors: Record<BindType, string> = {
   [BindType.Macro]: '#a78bfa',
   [BindType.TimedMacro]: '#f472b6',
   [BindType.Repeat]: '#fb7185',
-  [BindType.OpenApp]: '#fb7185',
-  [BindType.RunScript]: '#fb7185',
+  [BindType.OpenApp]: '#71fb83ff',
+  [BindType.RunScript]: '#71f2fbff',
+  [BindType.Meta_Destroy]: '#cb0f2bff',
 }
 
 export const triggerTypeColors: Record<TriggerType, string> = {
