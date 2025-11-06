@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useRef, useState } from 'react'
 import log from 'electron-log'
+import { Profile } from '../../../models/Profile'
 import { Layer } from '../../../models/Layer'
 import { background_music } from './audio_controller'
 import lose_life_sound_file from '../assets/game_sounds/lose_life.mp3'
@@ -25,6 +26,7 @@ type Box = {
 }
 
 type FallingBoxesProps = {
+  profile: Profile
   running: boolean
   difficulty: number
   onScore: (score: number) => void
@@ -84,6 +86,7 @@ const BoxView = memo(function BoxView({ x, y, width, height, text, exploding }: 
 })
 
 function FallingBoxes({
+  profile,
   running = true,
   difficulty = 3,
   onScore,
@@ -155,7 +158,16 @@ function FallingBoxes({
             'value' in trigger &&
             typeof trigger.value === 'string'
           ) {
-            bindValues.push(innerBind.value.toLowerCase())
+            bindValues.push(innerBind.value.toUpperCase())
+            trigValues.push(trigger.value.toLowerCase())
+          } else if (
+            'layer_number' in innerBind &&
+            typeof innerBind.layer_number === 'number' &&
+            'value' in trigger &&
+            typeof trigger.value === 'string'
+          ) {
+            const display_value = `Swap to ${profile.layers[innerBind.layer_number].layer_name}`
+            bindValues.push(display_value)
             trigValues.push(trigger.value.toLowerCase())
           }
         }
@@ -163,7 +175,7 @@ function FallingBoxes({
     })
     bindValuesRef.current = bindValues
     trigValuesRef.current = trigValues
-  }, [currentLayer])
+  }, [currentLayer, profile.layers])
 
   useEffect(() => {
     const localSpawnInterval = Math.max(150, BASE_SPAWN - (difficulty - 1) * 60)
@@ -198,7 +210,7 @@ function FallingBoxes({
 
       const box: Box = {
         id,
-        text: display.toUpperCase(),
+        text: display,
         x: Math.random() * Math.max(0, width - 60),
         y: -40,
         vy: 80 + Math.random() * 80,
