@@ -47,8 +47,10 @@ function Game(): JSX.Element {
   const [lives, setLives] = useState<number>(11 - difficulty)
   const [gameOver, setGameOver] = useState(false)
   const [startCount, setStartCount] = useState(0)
+  const [streak, setStreak] = useState<number>(0)
 
   const PLAY_AREA_HEIGHT = 680
+  const STREAK_THRESHOLD = 10
 
   const rootStyle: React.CSSProperties = {
     backgroundImage: `url(${sky_background})`,
@@ -215,6 +217,41 @@ function Game(): JSX.Element {
               textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
             }}
           >
+            Streak
+          </div>
+
+          <div
+            className={`streak-wrap text-4xl font-bold ${streak >= STREAK_THRESHOLD ? 'on-fire' : ''}`}
+            style={{
+              textShadow:
+                '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000',
+              color: streak >= STREAK_THRESHOLD ? undefined : '#FFFFFF',
+              position: 'relative',
+              zIndex: 50
+            }}
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <span className={streak >= STREAK_THRESHOLD ? 'text-yellow-400' : undefined}>
+              {streak}
+            </span>
+
+            {streak >= STREAK_THRESHOLD && (
+              <>
+                <div className="ember" aria-hidden="true" />
+                <div className="ember" aria-hidden="true" />
+                <div className="ember" aria-hidden="true" />
+                <div className="ember" aria-hidden="true" />
+              </>
+            )}
+          </div>
+
+          <div
+            className="text-lg text-white mt-2"
+            style={{
+              textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+            }}
+          >
             Lives
           </div>
           <div
@@ -271,12 +308,14 @@ function Game(): JSX.Element {
                 difficulty={Number(difficulty)}
                 onScore={handleBoxScore}
                 onLoseLife={handleLoseLife}
+                onStreakChange={(s) => setStreak(s)}
                 initialHighScore={highScore}
                 initialLives={11 - difficulty}
                 width={1000}
                 height={PLAY_AREA_HEIGHT}
                 currentLayer={currentLayer}
                 muteSound={muteSound}
+                streakThreshold={STREAK_THRESHOLD}
               />
             </div>
           )}
