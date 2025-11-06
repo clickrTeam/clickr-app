@@ -3,23 +3,17 @@
   border: 1.5px solid transparent;
   box-shadow: none;
   background: inherit;
-  height: 2.2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.5rem;
 }
 
 .vk-key.selected {
-  border: 2.5px solid #2563eb;
-  box-shadow: 0 0 0 2px #93c5fd;
-  z-index: 2;
+  border: 2.5px solid #2563eb !important;
+  box-shadow: 0 0 0 2px #93c5fd !important;
+  z-index: 2 !important;
 }
 
 .vk-key.down {
-  transform: scale(0.96) translateY(2px);
-  box-shadow: 0 2px 8px 0 #0002;
-  background: #e0e7ef;
+  transform: scale(0.96) translateY(2px) !important;
+  box-shadow: 0 2px 8px 0 #0002 !important;
 }
 
 button:disabled {
