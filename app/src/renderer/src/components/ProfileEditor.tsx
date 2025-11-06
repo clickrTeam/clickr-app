@@ -9,6 +9,8 @@ import { LayerComponent } from './LayerComponent'
 import log from 'electron-log'
 import { useNavigate } from 'react-router-dom'
 import profileController from './VisualKeyboard/ProfileControler'
+import { Input } from './ui/input'
+import './profileEditor.css'
 
 interface ProfileEditorProps {
   onBack: () => void
@@ -18,6 +20,7 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
   const [localProfile, setLocalProfile] = useState(profileController.getProfile())
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
+  const [editLayerName, setEditLayerName] = useState(false)
   const navigate = useNavigate()
 
   profileController.setLayer(selectedLayerIndex) // Hack to keep the active layer on construct.
@@ -114,18 +117,42 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
         value={selectedLayerIndex.toString()}
         onValueChange={(val) => setSelectedLayerIndex(Number(val))}
       >
-        <div className="flex items-center justify-between">
-          <TabsList>
-            {localProfile.layers.map((layer: Layer, index) => (
-              <TabsTrigger
-                key={index}
-                value={index.toString()}
-                onClick={() => profileController.setLayer(index)}
-              >
-                {layer.layer_name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        <div className="flex items-center justify-between layer-control-bar">
+          <div className="flex row layer-tabs">
+            <TabsList>
+              {localProfile.layers.map((layer: Layer, index) => (
+                <TabsTrigger
+                  key={index}
+                  value={index.toString()}
+                  onClick={() => profileController.setLayer(index)}
+                >
+                  {layer.layer_name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            <div className="edit-layer-name ml-4">
+              {editLayerName ? (
+                <div className="flex gap-2 items-center">
+                  <Input
+                    autoFocus
+                    defaultValue={profileController.activeLayer!.layer_name}
+                    onChange={(e) => {
+                      profileController.setLayerName(e.target.value);
+                      setLocalProfile(Profile.fromJSON(profileController.getProfile().toJSON()));
+                    }}
+                    className="w-48"
+                  />
+                  <Button size="sm" onClick={() => setEditLayerName(false)}>
+                    Done
+                  </Button>
+                </div>
+              ) : (
+                <Button size="sm" onClick={() => setEditLayerName(true)}>
+                  Edit Layer Name
+                </Button>
+              )}
+            </div>
+          </div>
           <div className="flex gap-2">
             <Button size="sm" onClick={handleAddLayer}>
               Add Layer
