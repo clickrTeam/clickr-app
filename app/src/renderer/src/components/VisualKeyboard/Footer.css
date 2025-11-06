@@ -11,7 +11,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: fade-in 0.2s;
+  /* default shown state */
+}
+.vk-footer-opening {
+  animation: slide-up 260ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+.vk-footer-closing {
+  animation: slide-down 220ms cubic-bezier(.2,.9,.2,1) forwards;
 }
 .vk-footer-row {
   display: flex;
@@ -92,6 +98,25 @@
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  0% { opacity: 0; transform: translateY(18px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-down {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(18px); }
+}
+
+/* make footer buttons wiggle on hover */
+.vk-footer-macro-btn.vk-wiggle-hover:hover,
+.vk-footer-macro-dropdown-btn.vk-wiggle-hover:hover,
+.vk-footer-macro-btn:hover,
+.vk-footer-macro-dropdown-btn:hover,
+.vk-footer-clear:hover,
+.vk-footer-close:hover {
+  animation: vk-wiggle 700ms ease-in-out;
 }
 
 

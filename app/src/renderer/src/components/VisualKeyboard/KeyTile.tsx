@@ -56,7 +56,7 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onInspect }
           keyModel.keyRef = el
         }}
         type="button"
-        className={keyModel.className}
+  className={`${keyModel.className} vk-wiggle-hover`}
         style={{
           minWidth: keyModel.displayWidth,
           background: getBindColor(keyModel.mapped),

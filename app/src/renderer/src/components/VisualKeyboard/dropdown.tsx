@@ -5,6 +5,7 @@ type DropdownProps = {
   options: any[];
   currentSelected: any;
   handleSelection: (opt: any) => void;
+  extraClass?: string;
 
   getDropdownBg?: (current: any, opt: any) => string;
   getDisplayName?: (opt: any) => string;
@@ -20,11 +21,11 @@ export default function Dropdown({
   currentSelected,
   allSelected,
   handleSelection,
-
   getDropdownBg,
   getDisplayName,
   openBtnLabel = 'Add',
   openBtnBackground,
+  extraClass,
   id,
 }: DropdownProps) {
   const { isOpen, openDropdown, closeDropdown } = useDropdown();
@@ -47,7 +48,7 @@ export default function Dropdown({
   return (
     <div className="vk-footer-trigger-wrapper">
       <button
-        className="vk-footer-macro-btn relative z-10"
+        className={`vk-footer-macro-btn relative z-10 ${extraClass ?? ''}`}
         style={{ background: openBtnBackground }}
         onClick={handleClick}
       >

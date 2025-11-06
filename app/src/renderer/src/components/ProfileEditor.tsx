@@ -115,17 +115,19 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
         onValueChange={(val) => setSelectedLayerIndex(Number(val))}
       >
         <div className="flex items-center justify-between">
-          <TabsList>
-            {localProfile.layers.map((layer: Layer, index) => (
-              <TabsTrigger
-                key={index}
-                value={index.toString()}
-                onClick={() => profileController.setLayer(index)}
-              >
-                {layer.layer_name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="max-w-[60vw] overflow-x-auto whitespace-nowrap">
+            <TabsList>
+              {localProfile.layers.map((layer: Layer, index) => (
+                <TabsTrigger
+                  key={index}
+                  value={index.toString()}
+                  onClick={() => profileController.setLayer(index)}
+                >
+                  {layer.layer_name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
           <div className="flex gap-2">
             <Button size="sm" onClick={handleAddLayer}>
               Add Layer

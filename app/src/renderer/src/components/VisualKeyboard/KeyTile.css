@@ -32,8 +32,36 @@ button:disabled {
   animation: bind-add 420ms cubic-bezier(.2,.9,.2,1);
 }
 
+/* Wiggle on hover for keys and other interactive key-like elements */
+.vk-wiggle-hover {
+  will-change: transform;
+  display: inline-block;
+}
+.vk-wiggle-hover:hover {
+  animation: vk-wiggle 700ms ease-in-out;
+}
+
+@keyframes vk-wiggle {
+  0% { transform: translateY(0) rotate(0deg); }
+  15% { transform: translateY(-2px) rotate(-1.5deg); }
+  30% { transform: translateY(0px) rotate(1.2deg); }
+  45% { transform: translateY(-1px) rotate(-0.8deg); }
+  60% { transform: translateY(0px) rotate(0.6deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
 @keyframes bind-add {
   0% { transform: scale(0.85); opacity: 0; }
   60% { transform: scale(1.05); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+/* make bind-add also wiggle slightly when applied */
+.vk-bind-just-added {
+  animation: bind-add 420ms cubic-bezier(.2,.9,.2,1), vk-wiggle 900ms ease-in-out;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f3f4f6;
 }

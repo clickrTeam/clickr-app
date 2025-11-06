@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Bind, BindType, getBindDisplayName, getBindTypeDisplayName, Macro, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyPressInfo } from './Model'
 import { bindTypeColors, triggerTypeColors } from './Colors'
@@ -53,6 +53,9 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   const [currentBinds, setCurrentBinds] = useState<Macro>(profileController.currentBinds)
   const [currentTrigger, setCurrentTrigger] = useState<Trigger>(profileController.currentTrigger)
   const [currentKeyMappings, setCurrentKeyMappings] = useState<[Trigger, Bind][]>(profileController.getMappings(selectedKey))
+  const [isClosing, setIsClosing] = useState(false)
+  const [justAddedIndex, setJustAddedIndex] = useState<number | null>(null)
+  const prevBindsLength = useRef<number>(currentBinds.binds.length)
 
   useEffect(() => {
     setCurrentKeyMappings(profileController.getMappings(selectedKey))
@@ -69,6 +72,27 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       cleanup()
     }
   }, [profileController])
+
+  // detect when a new bind was added so we can animate it
+  useEffect(() => {
+    const prev = prevBindsLength.current
+    const curr = currentBinds.binds.length
+    if (curr > prev) {
+      const idx = curr - 1
+      setJustAddedIndex(idx)
+      // clear after animations
+      const t = setTimeout(() => setJustAddedIndex(null), 1000)
+      return () => clearTimeout(t)
+    }
+    prevBindsLength.current = curr
+  }, [currentBinds])
+
+  // handle closing animation then call parent's onClose
+  function requestClose(save: boolean): void {
+    setIsClosing(true)
+    // match CSS duration
+    setTimeout(() => onClose(save), 260)
+  }
 
   function handleTypeChange(idx: number, type: BindType | undefined): void {
     if (type === undefined) {
@@ -137,7 +161,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   }
 
   return (
-    <div className="vk-footer">
+  <div className={`vk-footer ${isClosing ? 'vk-footer-closing' : 'vk-footer-opening'}`}>
       <div className="vk-footer-row">
         <span className="vk-footer-selected-label">Selected Key:</span>
         <Dropdown
@@ -180,12 +204,12 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
           className="vk-footer-clear"
           onClick={() => {
             profileController.removeBind(currentTrigger);
-            onClose(true);
+            requestClose(true)
           }}
         >
           Remove Mapping
         </button>
-        <button className="vk-footer-close" onClick={() => onClose(true)}>
+        <button className="vk-footer-close" onClick={() => requestClose(true)}>
           Close
         </button>
       </div>
@@ -205,6 +229,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
               openBtnLabel={getBindDisplayName(item)}
               openBtnBackground={getMacroButtonBg(item)}
               id={`bind-dropdown-${i}`}
+              extraClass={i === justAddedIndex ? 'vk-bind-just-added vk-wiggle-hover' : ''}
             ></Dropdown>
           ))
         )}
