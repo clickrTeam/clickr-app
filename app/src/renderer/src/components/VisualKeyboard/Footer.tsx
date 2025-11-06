@@ -53,6 +53,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   const [currentBinds, setCurrentBinds] = useState<Macro>(profileController.currentBinds)
   const [currentTrigger, setCurrentTrigger] = useState<Trigger>(profileController.currentTrigger)
   const [currentKeyMappings, setCurrentKeyMappings] = useState<[Trigger, Bind][]>(profileController.getMappings(selectedKey))
+  const [lastAddedIndex, setLastAddedIndex] = useState<number | null>(null)
 
   useEffect(() => {
     setCurrentKeyMappings(profileController.getMappings(selectedKey))
@@ -134,6 +135,9 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
     const newMacro = [...currentBinds.binds, new SwapLayer(layerIdx)]
     profileController.currentBinds = new Macro(newMacro)
     setShowKeyModal(false)
+    // mark newly added bind for animation
+    setLastAddedIndex(newMacro.length - 1)
+    setTimeout(() => setLastAddedIndex(null), 800)
   }
 
   return (
@@ -204,6 +208,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
               getDisplayName={getBindTypeDisplayName}
               openBtnLabel={getBindDisplayName(item)}
               openBtnBackground={getMacroButtonBg(item)}
+              openBtnClass={lastAddedIndex === i ? 'vk-bind-just-added' : undefined}
               id={`bind-dropdown-${i}`}
             ></Dropdown>
           ))
@@ -238,6 +243,8 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
               (key: KeyPressInfo) => {
                 const newBinds = [...currentBinds.binds, new TapKey(key.key)]
                 profileController.currentBinds = new Macro(newBinds)
+                setLastAddedIndex(newBinds.length - 1)
+                setTimeout(() => setLastAddedIndex(null), 800)
               }
             }
             onSelectLayer={handleAddLayerToMacro}

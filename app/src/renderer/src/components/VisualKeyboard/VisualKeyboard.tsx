@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card } from '../ui/card'
 import { mainRows, specialtyRows, numpadRows, KEYBOARD_100 as KEYBOARD_100 } from './Layout.const'
 import { InspectPopover } from './InspectPopover'
@@ -7,6 +7,7 @@ import { Macro, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyTile } from './KeyTile'
 import * as T from '../../../../models/Trigger'
 import { buildVisualKeyboardModel, KeyPressInfo, KeyTileModel, VisualKeyboardModel } from './Model'
+import './VisualKeyboard.css'
 import { useKeyboardController } from './controler'
 import { ChevronDown } from 'lucide-react'
 import log from 'electron-log'
@@ -18,6 +19,29 @@ export const VisualKeyboard = (): JSX.Element => {
 
   const onKey: KeyPressInfo = useKeyboardController()
   const [keyQueue, setKeyQueue] = useState<KeyPressInfo[]>([])
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
+  type Ghost = {
+    id: string
+    key: string
+    left: number
+    top: number
+    color?: string
+    label?: string
+  }
+  const [ghosts, setGhosts] = useState<Ghost[]>([])
+  useEffect(() => {
+    setKeyQueue((prev) => [...prev, onKey])
+  }, [onKey])
+
+  const [showPressedKeys, setShowPressedKeys] = useState<string[]>([])
+
+  const visualKeyboardModel: VisualKeyboardModel = buildVisualKeyboardModel(
+    KEYBOARD_100,
+    profileController,
+    showPressedKeys,
+    selectedKey
+  )
 
   useEffect(() => {
     setKeyQueue((prev) => [...prev, onKey])
@@ -59,21 +83,32 @@ export const VisualKeyboard = (): JSX.Element => {
       }
     }
 
+    // spawn a ghost visual for the key press
+    try {
+      const vm = visualKeyboardModel
+      const km = vm.keyModels[currentKey.key]
+      if (km && km.keyRef && containerRef.current) {
+        const rect = km.keyRef.getBoundingClientRect()
+        const parentRect = containerRef.current.getBoundingClientRect()
+        const left = rect.left - parentRect.left + rect.width / 2
+        const top = rect.top - parentRect.top + rect.height / 2
+        const id = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`
+        const color = (km.mapped && km.mapped[0]) ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.06)'
+        const label = km.displayKey || km.key
+        const g: Ghost = { id, key: km.key, left, top, color, label }
+        setGhosts((prev) => [...prev, g])
+        setTimeout(() => setGhosts((prev) => prev.filter((x) => x.id !== id)), 1200)
+      }
+    } catch (err) {
+      // ignore
+    }
+
     setKeyQueue((prev) => prev.slice(1))
-  }, [keyQueue, profileController])
+  }, [keyQueue, profileController, visualKeyboardModel, selectedKey])
 
   useEffect(() => {
     profileController.setSelectedKey(selectedKey)
   }, [selectedKey])
-
-  const [showPressedKeys, setShowPressedKeys] = useState<string[]>([])
-
-  const visualKeyboardModel: VisualKeyboardModel = buildVisualKeyboardModel(
-    KEYBOARD_100,
-    profileController,
-    showPressedKeys,
-    selectedKey
-  )
 
   const renderRow = (row: { key: string; width?: number; gapAfter?: boolean }[]): JSX.Element => {
     return (
@@ -150,16 +185,17 @@ export const VisualKeyboard = (): JSX.Element => {
   }
   return (
     <div className='flex flex-col gap-4'>
-    <Card
-      className="p-4 bg-neutral-100 overflow-auto flex flex-row items-start"
-      style={{ position: 'relative', width: 'fit-content', alignSelf: 'center' }}
-    >
+      <div ref={containerRef} style={{ position: 'relative' }}>
+        <Card
+          className="p-4 bg-neutral-100 overflow-auto flex flex-row items-start"
+          style={{ position: 'relative', width: 'fit-content', alignSelf: 'center' }}
+        >
       {renderInspectPopover()}
       <div className="flex flex-col">{mainRows.map(renderRow)}</div>
       <div className="flex flex-col">{specialtyRows.map(renderRow)}</div>
       <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
 
-      <VisualKeyboardFooter
+        <VisualKeyboardFooter
         selectedKey={selectedKey}
         onClose={(save: boolean) => {
           log.debug('Footer onClose called with save =', save);
@@ -170,8 +206,23 @@ export const VisualKeyboard = (): JSX.Element => {
           profileController.currentTrigger = new T.KeyPress('UNDEFINED')
           profileController.currentBinds = new Macro([])
         }}
-      />
-    </Card>
+        />
+        </Card>
+
+        {/* ghosts overlay */}
+        <div className="vk-ghosts-overlay" aria-hidden>
+          {ghosts.map((g) => (
+            <div
+              key={g.id}
+              className="vk-ghost"
+              style={{ left: g.left, top: g.top, background: g.color }}
+              title={g.label}
+            >
+              {g.label}
+            </div>
+          ))}
+        </div>
+      </div>
     {renderLeftoverKeys()}
     </div>
   )

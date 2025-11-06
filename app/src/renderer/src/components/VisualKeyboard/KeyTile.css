@@ -1,8 +1,13 @@
 .vk-key {
-  transition: box-shadow 0.1s, border 0.1s, transform 0.07s;
+  transition: box-shadow 0.12s, border 0.12s, transform 0.12s, background 0.18s, opacity 0.36s;
   border: 1.5px solid transparent;
   box-shadow: none;
   background: inherit;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.5rem;
 }
 
 .vk-key.selected {
@@ -23,4 +28,18 @@ button:disabled {
   background-color: light-dark(rgba(239, 239, 239, 0.3), rgba(19, 1, 1, 0.3)) !important;
   color: light-dark(rgba(16, 16, 16, 0.3), rgba(255, 255, 255, 0.3)) !important;
   border-color: light-dark(rgba(118, 118, 118, 0.3), rgba(195, 195, 195, 0.3)) !important;
+}
+
+/* subtle focus/visual helpers for alignment */
+.vk-key { box-sizing: border-box; }
+
+/* bind added animation helper (Footer will add this class to the dropdown button) */
+.vk-bind-just-added {
+  animation: bind-add 420ms cubic-bezier(.2,.9,.2,1);
+}
+
+@keyframes bind-add {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
