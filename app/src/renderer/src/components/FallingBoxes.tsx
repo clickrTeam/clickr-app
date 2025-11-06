@@ -1,6 +1,14 @@
 import React, { memo, useEffect, useRef, useState } from 'react'
 import log from 'electron-log'
 import { Layer } from '../../../models/Layer'
+import { background_music } from './audio_controller'
+import lose_life_sound_file from '../assets/game_sounds/lose_life.mp3'
+import correct_sound_file from '../assets/game_sounds/correct_sound2.mp3'
+
+const lose_life_sound = new Audio(lose_life_sound_file)
+const correct_sound = new Audio(correct_sound_file)
+lose_life_sound.volume = 0.3 // Reduce volume to 30% (range: 0.0 to 1.0)
+correct_sound.volume = 0.3
 
 type Box = {
   id: number
@@ -11,6 +19,7 @@ type Box = {
   correctKey: string
   width: number
   height: number
+  exploding: boolean
 }
 
 type FallingBoxesProps = {
@@ -23,6 +32,7 @@ type FallingBoxesProps = {
   width: number
   height: number
   currentLayer: Layer
+  muteSound: boolean
 }
 
 type BoxViewProps = {
@@ -32,8 +42,9 @@ type BoxViewProps = {
   width: number
   height: number
   text: string
+  exploding: boolean
 }
-const BoxView = memo(function BoxView({ x, y, width, height, text }: BoxViewProps) {
+const BoxView = memo(function BoxView({ x, y, width, height, text, exploding }: BoxViewProps) {
   const style: React.CSSProperties = {
     position: 'absolute',
     left: 0,
@@ -42,15 +53,30 @@ const BoxView = memo(function BoxView({ x, y, width, height, text }: BoxViewProp
     width,
     height,
     color: '#000',
-    background: '#fff',
+    background: exploding ? 'rgba(40, 206, 40, 1)' : '#fff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 6,
     fontWeight: 'bold',
-    willChange: 'transform'
+    willChange: 'transform, opacity',
+    animation: exploding ? 'explode 0.3s ease-out' : undefined
   }
-  return <div style={style}>{text}</div>
+
+  return (
+    <div
+      style={style}
+      // Set custom CSS variables directly on the DOM element
+      ref={(el) => {
+        if (el) {
+          el.style.setProperty('--x', `${x}px`)
+          el.style.setProperty('--y', `${y}px`)
+        }
+      }}
+    >
+      {text}
+    </div>
+  )
 })
 
 function FallingBoxes({
@@ -61,9 +87,10 @@ function FallingBoxes({
   initialLives = 3,
   width = 800,
   height = 760,
-  currentLayer
+  currentLayer,
+  muteSound = false
 }: FallingBoxesProps): JSX.Element {
-  const [paused, setPaused] = useState(false)
+  const [paused] = useState(false)
 
   const boxesRef = useRef<Box[]>([])
   const rafRef = useRef<number | null>(null)
@@ -81,6 +108,7 @@ function FallingBoxes({
 
   // render tick to drive React updates every frame
   const [, setRenderTick] = useState(0)
+  const [explodingBoxes, setExplodingBoxes] = useState<Box[]>([])
 
   useEffect(() => {
     onScoreRef.current = onScore
@@ -92,13 +120,6 @@ function FallingBoxes({
   // Render every frame - requestAnimationFrame already matches display refresh rate (60Hz, 120Hz, etc.)
   // Only throttle parent callbacks to reduce parent re-renders
   const scoreCallbackThrottleRef = useRef<number>(0)
-
-  /**
-   * @todo Add gravity effect to boxes
-   * @todo Add visual effects on box catch/miss
-   * @todo Adjust spawn rate and box speed based on difficulty level
-   * @todo replace any hard-coded widths/heights references to use width/height variables (spawn x and off-bottom threshold)
-   */
   const BASE_SPAWN = 800
 
   useEffect(() => {
@@ -107,10 +128,6 @@ function FallingBoxes({
     currentLayer.remappings.forEach((bind, trigger) => {
       log.info('FallingBoxes: considering bind', bind, 'and trigger', trigger)
       /**
-       * Every single key bind is a 'macro' that contains other binds.
-       * Even if it is a simple key press, it is still wrapped in a macro bind.
-       * @todo Verify this is intended behavior and not a bug.
-       * For now, unwrap the bind if it is a macro with a single simple key bind inside.
        * @todo Right now, this only supports 'TapKey' binds.
        */
       if ('binds' in bind && Array.isArray(bind.binds) && bind.binds.length > 0) {
@@ -153,7 +170,8 @@ function FallingBoxes({
           vy: 80 + Math.random() * 80,
           correctKey: correct,
           width: 60,
-          height: 40
+          height: 40,
+          exploding: false
         }
         boxesRef.current.push(box)
         return
@@ -171,12 +189,17 @@ function FallingBoxes({
         vy: 80 + Math.random() * 80,
         correctKey: correct,
         width: 60,
-        height: 40
+        height: 40,
+        exploding: false
       }
       boxesRef.current.push(box)
     }
 
     log.info('FallingBoxes: starting main loop with spawn interval', localSpawnInterval)
+    if (livesRef.current > 0 && running && !muteSound) {
+      background_music.currentTime = 0
+      background_music.play().catch((err) => log.warn('Background music play failed', err))
+    }
 
     const loop = (t: number): void => {
       if (lastTimeRef.current == null) lastTimeRef.current = t
@@ -206,14 +229,22 @@ function FallingBoxes({
           setLivesUI(livesRef.current)
           setRenderTick((r) => (r + 1) | 0)
 
+          if (livesRef.current === 0) {
+            background_music.pause()
+            background_music.currentTime = 0
+          }
+
           // notify parent immediately so game can end or act on life loss
           if (onLoseLifeRef.current) onLoseLifeRef.current(livesRef.current)
-
           if (livesRef.current === 0) {
             if (rafRef.current) cancelAnimationFrame(rafRef.current)
             rafRef.current = null
             lastTimeRef.current = null
             return
+          }
+          if (!muteSound) {
+            lose_life_sound.currentTime = 0
+            lose_life_sound.play().catch((err) => log.warn('Sound play failed', err))
           }
         }
       }
@@ -242,7 +273,7 @@ function FallingBoxes({
       lastTimeRef.current = null
       scoreCallbackThrottleRef.current = 0
     }
-  }, [running, paused, difficulty, height, width])
+  }, [running, paused, difficulty, height, width, muteSound])
 
   useEffect(() => {
     livesRef.current = initialLives
@@ -266,8 +297,24 @@ function FallingBoxes({
         }
       }
       if (bestIndex >= 0) {
-        // remove box and increment score
+        const box = boxes[bestIndex]
+        box.exploding = true
+
+        // Move to exploding layer
+        setExplodingBoxes((prev) => [...prev, { ...box }])
+
+        // Remove original box immediately
         boxes.splice(bestIndex, 1)
+
+        if (!muteSound) {
+          correct_sound.currentTime = 0
+          correct_sound.play().catch((err) => log.warn('Correct sound play failed', err))
+        }
+        // Remove from exploding layer after animation
+        setTimeout(() => {
+          setExplodingBoxes((prev) => prev.filter((b) => b.id !== box.id))
+        }, 300)
+
         scoreRef.current += Math.round(100 * 0.5 * difficulty)
         setScoreUI(scoreRef.current)
         if (onScore) onScore(scoreRef.current)
@@ -277,22 +324,28 @@ function FallingBoxes({
     return (): void => {
       window.removeEventListener('keydown', onKey)
     }
-  }, [difficulty, height, onScore])
+  }, [difficulty, height, muteSound, onScore])
 
-  // Use ref directly to avoid creating new array on every render
-  // React will handle reconciliation based on keys
-  const boxesForRender = boxesRef.current
+  const boxesForRender = boxesRef.current.slice()
 
   return (
-    <div style={{ width, height, position: 'relative', background: '#000', overflow: 'hidden' }}>
+    <div
+      style={{
+        width,
+        height,
+        position: 'relative',
+        // frosted glass effect
+        background: 'rgba(255,255,255,0.06)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        borderRadius: 8,
+        border: '1px solid rgba(255,255,255,0.12)',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.18)',
+        overflow: 'hidden'
+      }}
+    >
       <div style={{ position: 'absolute', top: 8, left: 8, color: '#fff' }}>
         Score {scoreRef.current}
-      </div>
-      <div style={{ position: 'absolute', top: 8, right: 8, color: '#fff' }}>
-        Lives {livesRef.current}
-      </div>
-      <div style={{ position: 'absolute', top: 36, left: 8 }}>
-        <button onClick={() => setPaused((p) => !p)}>{paused ? 'Resume' : 'Pause'}</button>
       </div>
 
       <div style={{ position: 'relative', width: '100%', height: '100%', willChange: 'contents' }}>
@@ -305,11 +358,23 @@ function FallingBoxes({
             width={b.width}
             height={b.height}
             text={b.text}
+            exploding={b.exploding}
+          />
+        ))}
+        {explodingBoxes.map((b) => (
+          <BoxView
+            key={`explode-${b.id}`}
+            id={b.id}
+            x={b.x}
+            y={b.y}
+            width={b.width}
+            height={b.height}
+            text={b.text}
+            exploding={true}
           />
         ))}
       </div>
     </div>
   )
 }
-
 export default FallingBoxes

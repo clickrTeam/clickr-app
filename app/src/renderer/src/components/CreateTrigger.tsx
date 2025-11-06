@@ -63,7 +63,7 @@ const TriggerSelector: React.FC<TriggerSelectorProps> = ({ onTriggerSelected }) 
                     newSeq[idx] = k
                     //TOOD: use timeout values
                     if (newSeq.every((k) => k !== ''))
-                      onTriggerSelected(new TapSequence(newSeq.map((k) => [k, 0])))
+                      onTriggerSelected(new TapSequence(newSeq.map((k) => [k, 2000])))
                     setSequence(newSeq)
                   }}
                 />

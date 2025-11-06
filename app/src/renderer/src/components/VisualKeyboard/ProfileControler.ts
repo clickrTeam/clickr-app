@@ -1,15 +1,15 @@
 import log from 'electron-log';
-import { Bind, Macro_Bind } from '../../../../models/Bind';
+import { Bind, Macro } from '../../../../models/Bind';
 import { Layer } from '../../../../models/Layer';
 import { Profile } from '../../../../models/Profile';
 import { Trigger, KeyPress } from '../../../../models/Trigger';
 
-export type ProfileStateChangeCallback = (binds: Macro_Bind, trigger: Trigger) => void;
+export type ProfileStateChangeCallback = (binds: Macro, trigger: Trigger) => void;
 
 // ProfileController class with comprehensive profile management
 export class ProfileController {
   public footerOpen: boolean = false;
-  private _currentBinds: Macro_Bind = new Macro_Bind([]);
+  private _currentBinds: Macro = new Macro([]);
   private _currentTrigger: Trigger = new KeyPress('UNDEFINED');
   private stateChangeCallbacks: Set<ProfileStateChangeCallback> = new Set();
 
@@ -26,11 +26,11 @@ export class ProfileController {
     log.debug(`ProfileController initialized for profile: ${_profile.profile_name}`);
   }
 
-  get currentBinds(): Macro_Bind {
+  get currentBinds(): Macro {
     return this._currentBinds;
   }
 
-  set currentBinds(binds: Macro_Bind) {
+  set currentBinds(binds: Macro) {
     if (binds === this.currentBinds) return;
     log.debug('Setting currentBinds:', binds);
     this._currentBinds = binds;
@@ -56,7 +56,7 @@ export class ProfileController {
 
   clearMapping(): void {
     log.debug('Clearing current mapping.');
-    this.currentBinds = new Macro_Bind([]);
+    this.currentBinds = new Macro([]);
     this.currentTrigger = new KeyPress('UNDEFINED');
   }
 
@@ -126,21 +126,21 @@ export class ProfileController {
     }
     log.debug('Removing bind from trigger:', trigger);
 
-    this.currentBinds = new Macro_Bind([]);
+    this.currentBinds = new Macro([]);
     this.activeLayer!.deleteRemapping(trigger);
     this.onSave();
   }
 
   clearBinds(): void {
     log.debug('Clearing all binds from active layer.');
-    this._currentBinds = new Macro_Bind([]);
+    this._currentBinds = new Macro([]);
     this.notifyStateChange();
   }
 
   swapToMapping(mapping: [Trigger, Bind]): void {
     console.log('Swap to mapping', mapping);
     this._currentTrigger = mapping[0];
-    this._currentBinds = mapping[1] instanceof Macro_Bind ? mapping[1] : new Macro_Bind([mapping[1]]);
+    this._currentBinds = mapping[1] instanceof Macro ? mapping[1] : new Macro([mapping[1]]);
     this.notifyStateChange();
   }
 
@@ -167,19 +167,19 @@ export class ProfileController {
       this.currentTrigger = trigger;
       const bind = this.activeLayer!.getRemapping(trigger);
       log.debug('Found binds for trigger:', bind);
-      if (bind instanceof Macro_Bind) {
+      if (bind instanceof Macro) {
         this.currentBinds = bind;
       } else if (bind) {
-        this.currentBinds = new Macro_Bind([bind]);
+        this.currentBinds = new Macro([bind]);
       } else {
         log.warn('No bind found for selected key:', selectedKey);
-        this.currentBinds = new Macro_Bind([]);
+        this.currentBinds = new Macro([]);
       }
     } else {
       log.debug('No trigger found for selected key, creating new KeyPress trigger.');
       this.currentTrigger = new KeyPress(selectedKey);
       log.warn('No bind found for selected key:', selectedKey);
-      this.currentBinds = new Macro_Bind([]);
+      this.currentBinds = new Macro([]);
     }
   }
 

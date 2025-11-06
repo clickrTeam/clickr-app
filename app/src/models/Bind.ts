@@ -1,4 +1,5 @@
 import { Trigger, deserializeTrigger } from './Trigger'
+import { LLBind } from './LowLevelProfile'
 export enum BindType {
   PressKey = 'press_key',
   ReleaseKey = 'release_key',
@@ -9,6 +10,8 @@ export enum BindType {
   // Not handled by Daemon
   TimedMacro = 'timed_macro_bind',
   Repeat = 'repeat_bind',
+  OpenApp = 'app_open_bind',
+  RunScript = 'run_script',
   AppOpen = 'app_open_bind',
   // Meta bind type for destroying existing binds/triggers
   Meta_Destroy = "Meta_Destroy"
@@ -67,6 +70,7 @@ export abstract class Bind {
   abstract toString(): string
   abstract toJSON(): object
   abstract equals(other: Bind): boolean
+  abstract toLL(): LLBind[]
 }
 
 /**
@@ -98,6 +102,10 @@ export class PressKey extends Bind {
   toString(): string {
     return `Press: ${this.value}`
   }
+
+  toLL(): LLBind[] {
+    return [{ type: "press_key", value: this.value }]
+  }
 }
 
 /**
@@ -127,6 +135,10 @@ export class ReleaseKey extends Bind {
   }
   toString(): string {
     return `Release: ${this.value}`
+  }
+
+  toLL(): LLBind[] {
+    return [{ type: "release_key", value: this.value }]
   }
 }
 
@@ -159,12 +171,16 @@ export class TapKey extends Bind {
   toString(): string {
     return `Tap: ${this.value}`
   }
+
+  toLL(): LLBind[] {
+    return [{ type: "press_key", value: this.value }, { type: "release_key", value: this.value }]
+  }
 }
 
 /**
  * A combination of different types of binds. Can be link and combo, combo and repeat, etc.
  */
-export class Macro_Bind extends Bind {
+export class Macro extends Bind {
   toString(): string {
     return `Macro: ${this.binds.map((b) => b.toString()).join(', ')}`
   }
@@ -182,24 +198,27 @@ export class Macro_Bind extends Bind {
     }
   }
 
-  static fromJSON(obj: { binds: object[] }): Macro_Bind {
-    return new Macro_Bind(obj.binds.map(deserializeBind))
+  static fromJSON(obj: { binds: object[] }): Macro {
+    return new Macro(obj.binds.map(deserializeBind))
   }
 
   equals(other: Bind): boolean {
     return (
-      other instanceof Macro_Bind &&
+      other instanceof Macro &&
       this.binds.length === other.binds.length &&
       this.binds.every((b, i) => b.equals(other.binds[i]))
     )
   }
+
+  toLL(): LLBind[] {
+    return this.binds.map((b) => b.toLL()).flat();
+  }
 }
 
-// Could possibly just do a delayed macro where it presses the key later.
 /**
  * A macro where there are time delays between each bind. Each time delay can be different.
  */
-export class TimedMacro_Bind extends Bind {
+export class TimedMacro extends Bind {
   toString(): string {
     throw new Error('Method not implemented.')
   }
@@ -220,25 +239,35 @@ export class TimedMacro_Bind extends Bind {
     }
   }
 
-  static fromJSON(obj: { binds: object[]; times: number[] }): TimedMacro_Bind {
-    return new TimedMacro_Bind(obj.binds.map(deserializeBind), obj.times)
+  static fromJSON(obj: { binds: object[]; times: number[] }): TimedMacro {
+    return new TimedMacro(obj.binds.map(deserializeBind), obj.times)
   }
 
   equals(other: Bind): boolean {
     return (
-      other instanceof TimedMacro_Bind &&
+      other instanceof TimedMacro &&
       this.binds.length === other.binds.length &&
       this.times.length === other.times.length &&
       this.binds.every((b, i) => b.equals(other.binds[i])) &&
       this.times.every((t, i) => t === other.times[i])
     )
   }
+
+  toLL(): LLBind[] {
+    let binds: LLBind[] = [];
+    for (let i = 0; i < binds.length; i++) {
+      binds.push(...this.binds[i].toLL());
+      if (i < this.times.length)
+        binds.push({ type: "wait", value: this.times[i] });
+    }
+    return binds;
+  }
 }
 
 /**
  * A bind that will repeat a certain number of times with or without a delay.
  */
-export class Repeat_Bind extends Bind {
+export class Repeat extends Bind {
   toString(): string {
     throw new Error('Method not implemented.')
   }
@@ -282,8 +311,8 @@ export class Repeat_Bind extends Bind {
     time_delay: number
     times_to_execute: number
     cancel_trigger: object
-  }): Repeat_Bind {
-    return new Repeat_Bind(
+  }): Repeat {
+    return new Repeat(
       deserializeBind(obj.value),
       obj.time_delay,
       obj.times_to_execute,
@@ -293,12 +322,16 @@ export class Repeat_Bind extends Bind {
 
   equals(other: Bind): boolean {
     return (
-      other instanceof Repeat_Bind &&
+      other instanceof Repeat &&
       this.value.equals(other.value) &&
       this.time_delay === other.time_delay &&
       this.times_to_execute === other.times_to_execute &&
       this.cancel_trigger.equals(other.cancel_trigger)
     )
+  }
+
+  toLL(): LLBind[] {
+    throw new Error('Method not implemented.')
   }
 }
 
@@ -331,37 +364,89 @@ export class SwapLayer extends Bind {
   toString(): string {
     return `Swap Layer: ${this.layer_number}`
   }
+
+  toLL(): LLBind[] {
+    return [{ type: "switch_layer", value: this.layer_number }]
+  }
 }
 
-// Not going to happen for a while
 /**
  * Opens an application of the user's choice.
  */
-export class AppOpen_Bind extends Bind {
+export class OpenApp extends Bind {
   app_name: string
 
   constructor(app_name: string) {
-    super(BindType.AppOpen)
+    super(BindType.OpenApp)
     this.app_name = app_name
   }
 
   toJSON(): object {
     return {
-      type: BindType.AppOpen,
+      type: BindType.OpenApp,
       app_name: this.app_name
     }
   }
 
-  static fromJSON(obj: { app_name: string }): AppOpen_Bind {
-    return new AppOpen_Bind(obj.app_name)
+  static fromJSON(obj: { app_name: string }): OpenApp {
+    return new OpenApp(obj.app_name)
   }
 
   equals(other: Bind): boolean {
-    return other instanceof AppOpen_Bind && this.app_name === other.app_name
+    return other instanceof OpenApp && this.app_name === other.app_name
   }
 
   toString(): string {
-    throw new Error('Method not implemented.')
+    return "Open: " + this.app_name
+  }
+
+  toLL(): LLBind[] {
+    //TODO: generlize to other operating systems
+    return [{
+      type: "run_script",
+      script: `open -a "${this.app_name}"`,
+      interpreter: "bash",
+    }]
+  }
+}
+
+export class RunScript extends Bind {
+  script: string
+  interpreter: string
+
+  constructor(script: string, interpreter: string
+  ) {
+    super(BindType.RunScript)
+    this.script = script
+    this.interpreter = interpreter
+  }
+
+  toJSON(): object {
+    return {
+      type: BindType.RunScript,
+      script: this.script,
+      interpreter: this.interpreter,
+    }
+  }
+
+  static fromJSON(obj: { script: string, interpreter: string }): RunScript {
+    return new RunScript(obj.script, obj.interpreter)
+  }
+
+  equals(other: Bind): boolean {
+    return other instanceof RunScript && this.interpreter === other.interpreter && this.script == other.script
+  }
+
+  toString(): string {
+    return `Run ${this.interpreter} script:  ${this.script}`;
+  }
+
+  toLL(): LLBind[] {
+    return [{
+      type: "run_script",
+      script: this.script,
+      interpreter: this.interpreter,
+    }]
   }
 }
 
@@ -375,15 +460,17 @@ export function deserializeBind(obj: any): Bind {
     case BindType.TapKey:
       return TapKey.fromJSON(obj)
     case BindType.Macro:
-      return Macro_Bind.fromJSON(obj)
+      return Macro.fromJSON(obj)
     case BindType.TimedMacro:
-      return TimedMacro_Bind.fromJSON(obj)
+      return TimedMacro.fromJSON(obj)
     case BindType.Repeat:
-      return Repeat_Bind.fromJSON(obj)
+      return Repeat.fromJSON(obj)
     case BindType.SwitchLayer:
       return SwapLayer.fromJSON(obj)
-    case BindType.AppOpen:
-      return AppOpen_Bind.fromJSON(obj)
+    case BindType.OpenApp:
+      return OpenApp.fromJSON(obj)
+    case BindType.RunScript:
+      return RunScript.fromJSON(obj)
     default:
       throw new Error(`Unknown Bind type: ${obj.type}`)
   }
