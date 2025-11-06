@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Bind, BindType, getBindDisplayName, getBindTypeDisplayName, Macro_Bind, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
+import { Bind, BindType, getBindDisplayName, getBindTypeDisplayName, Macro, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyPressInfo } from './Model'
 import { bindTypeColors, triggerTypeColors } from './Colors'
 import './Footer.css'
-import { AppFocus, createTrigger, getTriggerTypeDisplayName, Hold, KeyPress, KeyRelease, TapSequence, Trigger, TriggerType } from '../../../../models/Trigger'
+import { AppFocus, createTrigger, getTriggerTypeDisplayName, Trigger, TriggerType } from '../../../../models/Trigger'
 import { Layer } from '../../../../models/Layer'
 import { SwapLayer } from '../../../../models/Bind'
 import { KeyModal } from './KeyModal'
@@ -66,7 +66,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   if (!selectedKey) return null
 
   const [showKeyModal, setShowKeyModal] = useState(false)
-  const [currentBinds, setCurrentBinds] = useState<Macro_Bind>(profileController.currentBinds)
+  const [currentBinds, setCurrentBinds] = useState<Macro>(profileController.currentBinds)
   const [currentTrigger, setCurrentTrigger] = useState<Trigger>(profileController.currentTrigger)
   const [currentKeyMappings, setCurrentKeyMappings] = useState<[Trigger, Bind][]>(profileController.getMappings(selectedKey))
 
@@ -89,8 +89,8 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   function handleTypeChange(idx: number, type: BindType | undefined): void {
     if (type === undefined) {
       // If type is undefined, we can remove the macro item
-      const newMacro = currentBinds.binds.filter((_, i: number) => i !== idx)
-      profileController.currentBinds = new Macro_Bind(newMacro)
+      const newMacro = currentBinds.binds.filter((_: any, i: number) => i !== idx)
+      profileController.currentBinds = new Macro(newMacro)
       return
     }
 
@@ -114,13 +114,13 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       newBind = new ReleaseKey(value)
     } else if (type === BindType.Meta_Destroy) {
       currentBinds.binds.splice(idx, 1)
-      profileController.currentBinds = new Macro_Bind(currentBinds.binds)
+      profileController.currentBinds = new Macro(currentBinds.binds)
       return
     } else {
       throw new Error('Unsupported bind type for macro UI')
     }
     const newMacro = currentBinds.binds.map((item: Bind, i: number) => (i === idx ? newBind : item))
-    profileController.currentBinds = new Macro_Bind(newMacro)
+    profileController.currentBinds = new Macro(newMacro)
   }
 
   function handleTriggerTypeChange(type: TriggerType | undefined): void {
@@ -137,7 +137,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   }
 
   function handleAddTriggerType(type: TriggerType): void {
-    profileController.currentBinds = new Macro_Bind([])
+    profileController.currentBinds = new Macro([])
     const newTrigger = createTrigger(type, selectedKey)
     if (newTrigger) {
       profileController.currentTrigger = newTrigger
@@ -148,7 +148,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
 
   function handleAddLayerToMacro(layerIdx: number): void {
     const newMacro = [...currentBinds.binds, new SwapLayer(layerIdx)]
-    profileController.currentBinds = new Macro_Bind(newMacro)
+    profileController.currentBinds = new Macro(newMacro)
     setShowKeyModal(false)
   }
 
@@ -253,7 +253,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             onAddKey={
               (key: KeyPressInfo) => {
                 const newBinds = [...currentBinds.binds, new TapKey(key.key)]
-                profileController.currentBinds = new Macro_Bind(newBinds)
+                profileController.currentBinds = new Macro(newBinds)
               }
             }
             onSelectLayer={handleAddLayerToMacro}

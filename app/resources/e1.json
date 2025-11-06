@@ -35,7 +35,7 @@
           "App_Focus_Trigger": {
             "app_name": "Photoshop"
           },
-          "TimedMacro_Bind": [
+          "TimedMacro": [
             {
               "Link_Bind":{
                 "value": "A"

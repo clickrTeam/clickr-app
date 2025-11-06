@@ -148,8 +148,8 @@ export function generateRecursiveBindProfile(): Profile {
   profile.OS = 'macOS'
 
   const t1 = new T.KeyPress(Letters.A)
-  const b1 = new B.Macro_Bind([
-    new B.Macro_Bind([new B.TapKey(MacKey.CommandLeft), new B.TapKey(MacKey.CommandRight)]),
+  const b1 = new B.Macro([
+    new B.Macro([new B.TapKey(MacKey.CommandLeft), new B.TapKey(MacKey.CommandRight)]),
     new B.TapKey(MacKey.OptionLeft)
   ])
   profile.layers[0].addRemapping(t1, b1)

@@ -3,7 +3,7 @@ import { Card } from '../ui/card'
 import { mainRows, specialtyRows, numpadRows, KEYBOARD_100 as KEYBOARD_100 } from './Layout.const'
 import { InspectPopover } from './InspectPopover'
 import { VisualKeyboardFooter } from './Footer'
-import { Bind, Macro_Bind, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
+import { Bind, Macro, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyTile } from './KeyTile'
 import * as T from '../../../../models/Trigger'
 import { buildVisualKeyboardModel, KeyPressInfo, KeyTileModel, VisualKeyboardModel } from './Model'
@@ -44,7 +44,7 @@ export const VisualKeyboard = (): JSX.Element => {
     if (selectedKey) {
       const existingBinds = [...profileController.currentBinds.binds]
       if (currentKey.isDown) {
-        profileController.currentBinds = new Macro_Bind([...existingBinds, new PressKey(currentKey.key)])
+        profileController.currentBinds = new Macro([...existingBinds, new PressKey(currentKey.key)])
       } else {
 
         if (
@@ -53,9 +53,9 @@ export const VisualKeyboard = (): JSX.Element => {
           (existingBinds[existingBinds.length - 1] as PressKey).value === currentKey.key
         ) {
           existingBinds[existingBinds.length - 1] = new TapKey(currentKey.key)
-          profileController.currentBinds = new Macro_Bind(existingBinds)
+          profileController.currentBinds = new Macro(existingBinds)
         } else {
-          profileController.currentBinds = new Macro_Bind([...existingBinds, new ReleaseKey(currentKey.key)])
+          profileController.currentBinds = new Macro([...existingBinds, new ReleaseKey(currentKey.key)])
         }
       }
     }
@@ -169,7 +169,7 @@ export const VisualKeyboard = (): JSX.Element => {
           }
           setSelectedKey(null)
           profileController.currentTrigger = new T.KeyPress('UNDEFINED')
-          profileController.currentBinds = new Macro_Bind([])
+          profileController.currentBinds = new Macro([])
         }}
       />
     </Card>

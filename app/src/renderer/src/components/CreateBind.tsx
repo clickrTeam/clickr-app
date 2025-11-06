@@ -70,7 +70,7 @@ export function BindSelector({ maxLayer, onBindSelected }: BindSelectorProps): J
     const newBinds = [...macroBinds]
     newBinds[idx] = bind
     setMacroBinds(newBinds)
-    // Only pass non-null binds to Macro_Bind
+    // Only pass non-null binds to Macro
     onBindSelected(new Macro(newBinds.filter((b): b is Bind => b !== null)))
   }
 

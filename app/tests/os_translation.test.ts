@@ -370,10 +370,10 @@ describe('Recursive binds translation between OS', () => {
 
     expect(mac_recursive.OS).toBe('Windows')
     const b1 = mac_recursive.layers[0].getRemapping(new T.KeyPress(Letters.A))
-    const macro = b1 as B.Macro_Bind
-    expect(macro).toBeInstanceOf(B.Macro_Bind)
-    expect(macro.binds[0]).toBeInstanceOf(B.Macro_Bind)
-    const inner_macro = macro.binds[0] as B.Macro_Bind
+    const macro = b1 as B.Macro
+    expect(macro).toBeInstanceOf(B.Macro)
+    expect(macro.binds[0]).toBeInstanceOf(B.Macro)
+    const inner_macro = macro.binds[0] as B.Macro
     expect(inner_macro.binds[0]).toEqual(new B.TapKey(WinKey.WinLeft))
     expect(inner_macro.binds[1]).toEqual(new B.TapKey(WinKey.WinRight))
     expect(macro.binds[1]).toEqual(new B.TapKey(WinKey.AltLeft))

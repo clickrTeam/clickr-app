@@ -42,13 +42,13 @@ export function getBindDisplayName(bind: Bind): string {
     case BindType.SwitchLayer:
       return `${ (bind as SwapLayer).layer_number }`
     case BindType.Macro:
-      return `${ (bind as Macro_Bind).binds.length }`
+      return `${ (bind as Macro).binds.length }`
     case BindType.TimedMacro:
-      return `Timed Macro (${ (bind as TimedMacro_Bind).binds.length } actions)`
+      return `Timed Macro (${ (bind as TimedMacro).binds.length } actions)`
     case BindType.Repeat:
       return `Repeat Bind`
     case BindType.AppOpen:
-      return `Open App: ${ (bind as AppOpen_Bind).app_name }`
+      return `Open App: ${ (bind as OpenApp).app_name }`
     default:
       return 'Unknown Bind'
   }
