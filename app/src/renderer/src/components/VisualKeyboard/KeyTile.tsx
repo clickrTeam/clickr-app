@@ -60,12 +60,13 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onInspect }
         type="button"
   className={`${keyModel.className} vk-wiggle-hover`}
         style={{
-          minWidth: keyModel.displayWidth,
+          width: keyModel.displayWidth,
           background: getTriggerColor(keyModel.mapped),
           opacity: mounted ? 1 : 0,
           transform: `translateY(${(mounted ? 0 : 6)}px)`,
           transition: `opacity 360ms ease ${delay}ms, transform 360ms cubic-bezier(.2,.9,.2,1) ${delay}ms`,
-          minHeight: `calc(${keyModel.gridRowSpan}00% + ${(keyModel.gridRowSpan - 1) * 4}px)`
+          minHeight: `calc(${keyModel.gridRowSpan}00% + ${(keyModel.gridRowSpan - 1) * 4}px)`,
+          overflow: 'clip'
         }}
         onClick={onClick}
         onMouseEnter={() => onInspect(keyModel)}
