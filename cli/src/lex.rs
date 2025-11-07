@@ -65,6 +65,10 @@ impl<'a> Lexer<'a> {
         self.cur += len;
         token
     }
+
+    pub fn bytes(&self) -> &'a [u8] {
+        self.bytes
+    }
 }
 
 impl<'a> Iterator for Lexer<'a> {
@@ -73,7 +77,20 @@ impl<'a> Iterator for Lexer<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             match self.bytes.get(self.cur) {
-                None => return None,
+                None => {
+                    // If this is the first time we are beyond the bytes then return end of file,
+                    // otherwise return None
+                    return if self.cur == self.bytes.len() {
+                        self.cur += 1;
+                        Some(Token {
+                            start: self.cur - 1,
+                            bytes: "",
+                            kind: TokenType::Eof,
+                        })
+                    } else {
+                        None
+                    };
+                }
 
                 Some(b' ') | Some(b'\t') => {
                     self.cur += 1;
@@ -210,6 +227,7 @@ pub enum TokenType {
     Newline,
     Caret,
     Underscore,
+    Eof,
 }
 
 impl Display for TokenType {
