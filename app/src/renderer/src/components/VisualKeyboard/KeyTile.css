@@ -1,6 +1,5 @@
 .vk-key {
   transition: box-shadow 0.12s, border 0.12s, transform 0.12s, background 0.18s, opacity 0.36s;
-  border: 1.5px solid transparent;
   box-shadow: none;
   background: inherit;
 }

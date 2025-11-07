@@ -1,8 +1,10 @@
 import React, {useEffect, useMemo, useState} from 'react'
 import { getShortLabel } from './Util'
 import { KeyTileModel } from './Model'
-import { getBindColor } from './Colors'
+import { getTriggerColor } from './Colors'
 import './KeyTile.css'
+import { Bind } from 'src/models/Bind'
+import { Trigger } from 'src/models/Trigger'
 
 interface KeyTileProps {
   keyModel: KeyTileModel
@@ -59,7 +61,7 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onInspect }
   className={`${keyModel.className} vk-wiggle-hover`}
         style={{
           minWidth: keyModel.displayWidth,
-          background: getBindColor(keyModel.mapped),
+          background: getTriggerColor(keyModel.mapped),
           opacity: mounted ? 1 : 0,
           transform: mounted ? 'none' : 'translateY(6px)',
           transition: `opacity 360ms ease ${delay}ms, transform 360ms cubic-bezier(.2,.9,.2,1) ${delay}ms`
