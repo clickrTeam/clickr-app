@@ -3,11 +3,25 @@ use std::collections::VecDeque;
 use crate::{
     ast::Behavior,
     lex::{Lexer, Token, TokenType},
+    utils::{Span, Spanned},
 };
 use miette::{miette, LabeledSpan, Severity};
 
 /// Something that can be parsed from a token stream
 pub trait Parse: Sized {
+    fn parse_spanned(ts: &mut TokenStream<'_>) -> miette::Result<Spanned<Self>> {
+        let start = ts.peek().map(|t| t.loc()).unwrap_or_default();
+        let value = Self::parse(ts)?;
+        let end = ts.prev_token.map(|t| t.loc()).unwrap_or_default();
+        let next = ts.peek().map(|t| t.loc()).unwrap_or_default();
+        // No tokens consumed
+        let span = if start == next {
+            Span::new(start.start(), 0)
+        } else {
+            start.join(end)
+        };
+        Ok(Spanned::new(value, span))
+    }
     fn parse(ts: &mut TokenStream<'_>) -> miette::Result<Self>;
 }
 
@@ -17,7 +31,7 @@ pub fn parse_sequence<P: Parse>(
     ts: &mut TokenStream,
     delimiter: TokenType,
     terminator: TokenType,
-) -> miette::Result<Box<[P]>> {
+) -> miette::Result<Box<[Spanned<P>]>> {
     let mut items = Vec::new();
 
     // Check for empty sequences
@@ -26,7 +40,7 @@ pub fn parse_sequence<P: Parse>(
     }
 
     loop {
-        items.push(P::parse(ts)?);
+        items.push(P::parse_spanned(ts)?);
         if ts.peek_type() != Some(delimiter) {
             break;
         }
@@ -36,7 +50,9 @@ pub fn parse_sequence<P: Parse>(
     Ok(items.into_boxed_slice())
 }
 
-pub fn parse_square_bracket_list<P: Parse>(ts: &mut TokenStream) -> miette::Result<Box<[P]>> {
+pub fn parse_square_bracket_list<P: Parse>(
+    ts: &mut TokenStream,
+) -> miette::Result<Box<[Spanned<P>]>> {
     expect_tokens(ts, [TokenType::LSquare])?;
     let seq = parse_sequence(ts, TokenType::Comma, TokenType::RSquare)?;
     expect_tokens(ts, [TokenType::RSquare])?;
@@ -45,16 +61,16 @@ pub fn parse_square_bracket_list<P: Parse>(ts: &mut TokenStream) -> miette::Resu
 
 pub fn parse_optional_trigger_args(
     ts: &mut TokenStream,
-) -> miette::Result<(Option<Behavior>, Option<usize>)> {
+) -> miette::Result<(Option<Spanned<Behavior>>, Option<Spanned<usize>>)> {
     let mut behavior = None;
     let mut timeout = None;
     if !next_match!(ts, TokenType::RParen) {
         expect_tokens(ts, [TokenType::Comma])?;
-        behavior = Some(Behavior::parse(ts)?);
+        behavior = Some(Behavior::parse_spanned(ts)?);
     }
     if !next_match!(ts, TokenType::RParen) {
         expect_tokens(ts, [TokenType::Comma])?;
-        timeout = Some(usize::parse(ts)?);
+        timeout = Some(usize::parse_spanned(ts)?);
     }
     expect_tokens(ts, [TokenType::RParen])?;
 
@@ -67,7 +83,7 @@ pub fn parse_sequence_trailing<P: Parse>(
     ts: &mut TokenStream,
     delimiter: TokenType,
     terminator: TokenType,
-) -> miette::Result<Box<[P]>> {
+) -> miette::Result<Box<[Spanned<P>]>> {
     let mut items = Vec::new();
 
     // Check for empty sequences
@@ -76,7 +92,7 @@ pub fn parse_sequence_trailing<P: Parse>(
     }
 
     while ts.peek_type() != Some(terminator) {
-        items.push(P::parse(ts)?);
+        items.push(P::parse_spanned(ts)?);
         expect_tokens(ts, [delimiter])?;
     }
 
@@ -89,7 +105,7 @@ pub struct TokenStream<'a> {
     // The front of the peeked queue contains the next token to be processed.
     peeked: VecDeque<Token<'a>>,
     lexer: Lexer<'a>,
-    prev_token_type: Option<TokenType>,
+    prev_token: Option<Token<'a>>,
 }
 
 impl<'a> Iterator for TokenStream<'a> {
@@ -99,11 +115,11 @@ impl<'a> Iterator for TokenStream<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         let next = self.peeked.pop_front().or_else(|| self.lexer.next());
         let next_type = next.map(|t| t.kind());
-        if next_type == Some(TokenType::Newline) && self.prev_token_type == Some(TokenType::Newline)
-        {
+        let prev_token_type = self.prev_token.map(|t| t.kind());
+        if next_type == Some(TokenType::Newline) && prev_token_type == Some(TokenType::Newline) {
             self.next()
         } else {
-            self.prev_token_type = next_type;
+            self.prev_token = next;
             next
         }
     }
@@ -115,7 +131,7 @@ impl<'a> TokenStream<'a> {
         Self {
             peeked: VecDeque::new(),
             lexer,
-            prev_token_type: None,
+            prev_token: None,
         }
     }
 
