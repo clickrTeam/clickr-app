@@ -11,18 +11,23 @@ use miette::{miette, LabeledSpan, NamedSource, Severity};
 mod keys;
 
 #[derive(Debug, Clone)]
-pub struct Program {
+pub struct Profile {
     name: String,
     config: Config,
     layers: Box<[Layer]>,
 }
 
-impl Parse for Program {
+impl Parse for Profile {
     fn parse(ts: &mut crate::parse::TokenStream<'_>) -> miette::Result<Self> {
+        if next_match!(ts, TokenType::Newline) {
+            expect_tokens(ts, [TokenType::Newline])?;
+        }
         expect_tokens(ts, [TokenType::Profile])?;
         let name = String::parse(ts)?;
+        expect_tokens(ts, [TokenType::Newline])?;
         let config = Config::parse(ts)?;
-        let layers = parse_sequence(ts, TokenType::Newline, TokenType::Eof)?;
+        expect_tokens(ts, [TokenType::Newline])?;
+        let layers = parse_sequence_trailing(ts, TokenType::Newline, TokenType::Eof)?;
         Ok(Self {
             name,
             config,

@@ -89,6 +89,7 @@ pub struct TokenStream<'a> {
     // The front of the peeked queue contains the next token to be processed.
     peeked: VecDeque<Token<'a>>,
     lexer: Lexer<'a>,
+    prev_token_type: Option<TokenType>,
 }
 
 impl<'a> Iterator for TokenStream<'a> {
@@ -96,7 +97,15 @@ impl<'a> Iterator for TokenStream<'a> {
 
     /// Returns the next token from the peeked queue or the lexer.
     fn next(&mut self) -> Option<Self::Item> {
-        self.peeked.pop_front().or_else(|| self.lexer.next())
+        let next = self.peeked.pop_front().or_else(|| self.lexer.next());
+        let next_type = next.map(|t| t.kind());
+        if next_type == Some(TokenType::Newline) && self.prev_token_type == Some(TokenType::Newline)
+        {
+            self.next()
+        } else {
+            self.prev_token_type = next_type;
+            next
+        }
     }
 }
 
@@ -106,6 +115,7 @@ impl<'a> TokenStream<'a> {
         Self {
             peeked: VecDeque::new(),
             lexer,
+            prev_token_type: None,
         }
     }
 
