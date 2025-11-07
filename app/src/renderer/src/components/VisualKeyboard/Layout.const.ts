@@ -174,3 +174,45 @@ export const keyShortLabels: Record<string, string> = {
 
 export const KEYBOARD_100 = [...mainRows.flat(), ...specialtyRows.flat(), ...numpadRows.flat()]
 export const REPRESENTED_KEYS = KEYBOARD_100.map((k) => k.key).filter((k) => k !== '')
+
+export const KEYBOARD_80 = [
+  // Function row (optional on many 80% layouts; kept compact)
+  [{ key: 'Esc', gapAfter: true }, { key: 'F1' }, { key: 'F2' }, { key: 'F3' }, { key: 'F4', gapAfter: true },
+   { key: 'F5' }, { key: 'F6' }, { key: 'F7' }, { key: 'F8', gapAfter: true },
+   { key: 'F9' }, { key: 'F10' }, { key: 'F11' }, { key: 'F12' }],
+
+  // Number row
+  [{ key: '`' }, { key: '1' }, { key: '2' }, { key: '3' }, { key: '4' },
+   { key: '5' }, { key: '6' }, { key: '7' }, { key: '8' }, { key: '9' },
+   { key: '0' }, { key: '-' }, { key: '=' }, { key: 'Backspace', width: 5 }],
+
+  // QWERTY row
+  [{ key: 'Tab', width: 3.75 }, { key: 'Q' }, { key: 'W' }, { key: 'E' }, { key: 'R' },
+   { key: 'T' }, { key: 'Y' }, { key: 'U' }, { key: 'I' }, { key: 'O' },
+   { key: 'P' }, { key: '[' }, { key: ']' }, { key: '\\', width: 3.5 }],
+
+  // Home row
+  [{ key: 'CapsLock', width: 4.5 }, { key: 'A' }, { key: 'S' }, { key: 'D' }, { key: 'F' },
+   { key: 'G' }, { key: 'H' }, { key: 'J' }, { key: 'K' }, { key: 'L' },
+   { key: ';' }, { key: "'" }, { key: 'Enter', width: 5.25 }],
+
+  // Bottom letter row
+  [{ key: 'ShiftLeft', width: 5.75 }, { key: 'Z' }, { key: 'X' }, { key: 'C' }, { key: 'V' },
+   { key: 'B' }, { key: 'N' }, { key: 'M' }, { key: ',' }, { key: '.' },
+   { key: '/' }, { key: 'ShiftRight', width: 6.5 }],
+
+  // Modifier row (80% keeps arrows and a small nav cluster to the right)
+  [{ key: 'CtrlLeft', width: 3 }, { key: 'Win', width: 3 }, { key: 'AltLeft', width: 3 },
+   { key: 'Space', width: 11 }, { key: 'AltRight', width: 2.5 }, { key: 'Fn', width: 2.5 },
+   { key: 'Menu', width: 2.5 }, { key: 'CtrlRight', width: 3 }],
+
+  // Navigation / editing cluster (compact, usually 3 columns)
+  [{ key: 'Insert' }, { key: 'Home' }, { key: 'PageUp' }],
+  [{ key: 'Delete' }, { key: 'End' }, { key: 'PageDown' }],
+
+  // Arrow cluster (compact layout: up between blanks)
+  [{ key: '' }, { key: 'Up' }, { key: '' }],
+  [{ key: 'Left' }, { key: 'Down' }, { key: 'Right' }]
+];
+
+export const REPRESENTED_KEYS_80 = KEYBOARD_80.flat().map(k => k.key).filter(k => k !== '');
