@@ -130,6 +130,8 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
                 </TabsTrigger>
               ))}
             </TabsList>
+          </div>
+          <div className="flex gap-2">
             <div className="edit-layer-name ml-4">
               {editLayerName ? (
                 <div className="flex gap-2 items-center">
@@ -152,8 +154,6 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
                 </Button>
               )}
             </div>
-          </div>
-          <div className="flex gap-2">
             <Button size="sm" onClick={handleAddLayer}>
               Add Layer
             </Button>
