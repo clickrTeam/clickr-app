@@ -168,7 +168,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         <Dropdown
           options={typeOptionsTrigger}
           currentSelected={currentTrigger.trigger_type}
-          allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
+          allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger.trigger_type)}
           handleSelection={handleTriggerTypeChange}
           getDropdownBg={getDropdownBgT}
           getDisplayName={getTriggerTypeDisplayName}
@@ -195,7 +195,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             key={`${currentKeyMappings.length}-add-new-trigger-dropdown`}
             options={typeOptionsTrigger}
             currentSelected={currentTrigger.trigger_type}
-            allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
+            allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger.trigger_type)}
             handleSelection={handleAddTriggerType}
             getDropdownBg={getDropdownBgT}
             getDisplayName={getTriggerTypeDisplayName}

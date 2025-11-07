@@ -97,7 +97,7 @@ const DropdownMenu = ({
             }}
             disabled={disabled}
           >
-            {(getDisplayName?.(opt) ?? opt) + (disabled ? ' (Already Selected)' : 'A')}
+            {(getDisplayName?.(opt) ?? opt)}
           </button>
         );
       })}
