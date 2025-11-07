@@ -264,7 +264,7 @@ export class TapSequence extends Trigger {
  */
 export class Hold extends Trigger {
   toString(): string {
-    throw new Error('Method not implemented.')
+    return `Hold: ${this.value} for ${this.wait}ms`
   }
   value: string
   wait: number
