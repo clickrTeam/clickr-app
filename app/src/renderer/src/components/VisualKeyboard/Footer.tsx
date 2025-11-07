@@ -161,7 +161,8 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   }
 
   return (
-  <div className={`vk-footer ${isClosing ? 'vk-footer-closing' : 'vk-footer-opening'}`}>
+  <div>
+    <div className={`vk-footer ${isClosing ? 'vk-footer-closing' : 'vk-footer-opening'}`}>
       <div className="vk-footer-row">
         <span className="vk-footer-selected-label">Selected Key:</span>
         <Dropdown
@@ -263,21 +264,21 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             +
           </button>
         </span>
-
-        {showKeyModal && (
-          <KeyModal
-            onClose={() => setShowKeyModal(false)}
-            onAddKey={
-              (key: KeyPressInfo) => {
-                const newBinds = [...currentBinds.binds, new TapKey(key.key)]
-                profileController.currentBinds = new Macro(newBinds)
-              }
-            }
-            onSelectLayer={handleAddLayerToMacro}
-            profileController={profileController}
-          />
-        )}
       </div>
     </div>
+    {showKeyModal && (
+      <KeyModal
+        onClose={() => setShowKeyModal(false)}
+        onAddKey={
+          (key: KeyPressInfo) => {
+            const newBinds = [...currentBinds.binds, new TapKey(key.key)]
+            profileController.currentBinds = new Macro(newBinds)
+          }
+        }
+        onSelectLayer={handleAddLayerToMacro}
+        profileController={profileController}
+      />
+    )}
+  </div>
   )
 }
