@@ -59,7 +59,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
 
   useEffect(() => {
     setCurrentKeyMappings(profileController.getMappings(selectedKey))
-  }, [profileController, selectedKey])
+  }, [profileController, selectedKey, currentBinds, currentTrigger])
 
   useEffect(() => {
     const cleanup = profileController.addStateChangeListener((binds, trigger) => {
@@ -162,8 +162,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
 
   return (
   <div className={`vk-footer ${isClosing ? 'vk-footer-closing' : 'vk-footer-opening'}`}>
-      <div className="vk-footer-row"
-        key={`${selectedKey} + footer + ${profileController.currentBinds.toString()}`}>
+      <div className="vk-footer-row">
         <span className="vk-footer-selected-label">Selected Key:</span>
         <Dropdown
           options={typeOptionsTrigger}
@@ -192,6 +191,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         )}
         {currentKeyMappings.length > 0 && currentTrigger && (
           <Dropdown
+            key={`${currentKeyMappings.length}-add-new-trigger-dropdown`}
             options={typeOptionsTrigger}
             currentSelected={currentTrigger.trigger_type}
             allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger)}
