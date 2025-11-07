@@ -145,7 +145,7 @@ impl Parse for Layer {
     fn parse(ts: &mut crate::parse::TokenStream<'_>) -> miette::Result<Self> {
         expect_tokens(ts, [TokenType::Layer])?;
         let name = String::parse(ts)?;
-        expect_tokens(ts, [TokenType::LCurly])?;
+        expect_tokens(ts, [TokenType::LCurly, TokenType::Newline])?;
         let statements = parse_sequence_trailing(ts, TokenType::Newline, TokenType::RCurly)?;
         expect_tokens(ts, [TokenType::RCurly])?;
         return Ok(Self { name, statements });
@@ -183,6 +183,10 @@ pub enum Trigger {
 impl Parse for Trigger {
     fn parse(ts: &mut crate::parse::TokenStream<'_>) -> miette::Result<Self> {
         match ts.peek_type() {
+            Some(TokenType::Ident)
+            | Some(TokenType::StringLit)
+            | Some(TokenType::Caret)
+            | Some(TokenType::Underscore) => Ok(Trigger::Key(Key::parse(ts)?)),
             Some(TokenType::Chord) => {
                 expect_tokens(ts, [TokenType::Chord, TokenType::LParen])?;
                 let keys = parse_square_bracket_list(ts)?;
@@ -246,6 +250,7 @@ impl Parse for Trigger {
 
 #[derive(Debug, Clone)]
 pub enum Bind {
+    Key(Key),
     None,
     ChangeLayer(String),
     Run { interpreter: String, script: String },
@@ -255,6 +260,10 @@ pub enum Bind {
 impl Parse for Bind {
     fn parse(ts: &mut crate::parse::TokenStream<'_>) -> miette::Result<Self> {
         match ts.peek_type() {
+            Some(TokenType::Ident)
+            | Some(TokenType::StringLit)
+            | Some(TokenType::Caret)
+            | Some(TokenType::Underscore) => Ok(Bind::Key(Key::parse(ts)?)),
             Some(TokenType::NoneKw) => {
                 expect_tokens(ts, [TokenType::NoneKw])?;
                 Ok(Bind::None)
