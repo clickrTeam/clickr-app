@@ -4,9 +4,11 @@ import { Layer } from '../../../models/Layer'
 import { background_music } from './audio_controller'
 import lose_life_sound_file from '../assets/game_sounds/lose_life.mp3'
 import correct_sound_file from '../assets/game_sounds/correct_sound2.mp3'
+import cowabunga_sound_file from '../assets/game_sounds/cowabunga.mp3'
 
 const lose_life_sound = new Audio(lose_life_sound_file)
 const correct_sound = new Audio(correct_sound_file)
+const cowabunga_sound = new Audio(cowabunga_sound_file)
 lose_life_sound.volume = 0.3 // Reduce volume to 30% (range: 0.0 to 1.0)
 correct_sound.volume = 0.3
 
@@ -27,12 +29,14 @@ type FallingBoxesProps = {
   difficulty: number
   onScore: (score: number) => void
   onLoseLife: (remainingLives: number) => void
+  onStreakChange: (streak: number) => void
   initialHighScore: number
   initialLives: number
   width: number
   height: number
   currentLayer: Layer
   muteSound: boolean
+  streakThreshold: number
 }
 
 type BoxViewProps = {
@@ -84,11 +88,13 @@ function FallingBoxes({
   difficulty = 3,
   onScore,
   onLoseLife,
+  onStreakChange,
   initialLives = 3,
   width = 800,
   height = 760,
   currentLayer,
-  muteSound = false
+  muteSound = false,
+  streakThreshold
 }: FallingBoxesProps): JSX.Element {
   const [paused] = useState(false)
 
@@ -105,6 +111,11 @@ function FallingBoxes({
   const onLoseLifeRef = useRef(onLoseLife)
   const trigValuesRef = useRef<string[]>([])
   const bindValuesRef = useRef<string[]>([])
+  const streakRef = useRef<number>(0)
+  const [, setStreakUI] = useState<number>(0) // used to force renders when streak changes
+  const STREAK_THRESHOLD = streakThreshold
+  const BONUS_PER_HIT = 50 // adjust to your desired bonus per hit during a streak
+  const onStreakChangeRef = useRef<((s: number) => void) | undefined>(undefined)
 
   // render tick to drive React updates every frame
   const [, setRenderTick] = useState(0)
@@ -116,6 +127,10 @@ function FallingBoxes({
   useEffect(() => {
     onLoseLifeRef.current = onLoseLife
   }, [onLoseLife])
+
+  useEffect(() => {
+    onStreakChangeRef.current = onStreakChange
+  }, [onStreakChange])
 
   // Render every frame - requestAnimationFrame already matches display refresh rate (60Hz, 120Hz, etc.)
   // Only throttle parent callbacks to reduce parent re-renders
@@ -229,6 +244,13 @@ function FallingBoxes({
           setLivesUI(livesRef.current)
           setRenderTick((r) => (r + 1) | 0)
 
+          // reset streak on miss
+          if (streakRef.current !== 0) {
+            streakRef.current = 0
+            setStreakUI(0)
+            if (onStreakChangeRef.current) onStreakChangeRef.current(0)
+          }
+
           if (livesRef.current === 0) {
             background_music.pause()
             background_music.currentTime = 0
@@ -272,6 +294,9 @@ function FallingBoxes({
       rafRef.current = null
       lastTimeRef.current = null
       scoreCallbackThrottleRef.current = 0
+      streakRef.current = 0
+      setStreakUI(0)
+      if (onStreakChangeRef.current) onStreakChangeRef.current(0)
     }
   }, [running, paused, difficulty, height, width, muteSound])
 
@@ -315,16 +340,35 @@ function FallingBoxes({
           setExplodingBoxes((prev) => prev.filter((b) => b.id !== box.id))
         }, 300)
 
-        scoreRef.current += Math.round(100 * 0.5 * difficulty)
+        // base points for a correct hit
+        const basePoints = Math.round(100 * 0.5 * difficulty)
+
+        // increment streak
+        streakRef.current = (streakRef.current ?? 0) + 1
+
+        if (streakRef.current === STREAK_THRESHOLD && !muteSound) {
+          cowabunga_sound.currentTime = 0
+          cowabunga_sound.play().catch((err) => log.warn('Cowabunga play failed', err))
+        }
+        setStreakUI(streakRef.current)
+        if (onStreakChangeRef.current) onStreakChangeRef.current(streakRef.current)
+
+        if (streakRef.current >= STREAK_THRESHOLD) {
+          const bonus = (streakRef.current - STREAK_THRESHOLD + 1) * difficulty * BONUS_PER_HIT
+          scoreRef.current += basePoints + bonus
+        } else {
+          scoreRef.current += basePoints
+        }
+
         setScoreUI(scoreRef.current)
-        if (onScore) onScore(scoreRef.current)
+        if (onScoreRef.current) onScoreRef.current(scoreRef.current)
       }
     }
     window.addEventListener('keydown', onKey)
     return (): void => {
       window.removeEventListener('keydown', onKey)
     }
-  }, [difficulty, height, muteSound, onScore])
+  }, [STREAK_THRESHOLD, difficulty, height, muteSound, onScore])
 
   const boxesForRender = boxesRef.current.slice()
 

@@ -1,5 +1,6 @@
 //! Utility functions used throughout the compiler
 use core::str;
+use std::ops::{Deref, DerefMut};
 use std::process::exit;
 
 pub fn exit_with_error(err: miette::Error) -> ! {
@@ -11,7 +12,7 @@ pub fn exit_with_error(err: miette::Error) -> ! {
 /// Represents a span of source code.
 ///
 /// Empty spans are allowed
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct Span {
     start: usize,
     len: usize,
@@ -61,6 +62,42 @@ impl Span {
     /// Returns the string that this span references in the given source
     pub fn as_str<'a>(&self, src: &'a [u8]) -> &'a str {
         str::from_utf8(&src[self.start..self.end()]).expect("source code should be uf8")
+    }
+}
+
+/// A value of type `T` with an associated span in the source code.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Spanned<T> {
+    pub value: T,
+    pub span: Span,
+}
+
+impl<T> Spanned<T> {
+    /// Construct a new spanned value from a value and a span
+    pub fn new(value: T, span: Span) -> Self {
+        Self { value, span }
+    }
+
+    /// Construct a new spanned value from a value and a start/end position
+    pub fn new_end(value: T, start: usize, end: usize) -> Self {
+        Self {
+            value,
+            span: Span::new_end(start, end),
+        }
+    }
+}
+
+// Deref allows you to treat Spanned<T> like a T
+impl<T> Deref for Spanned<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        &self.value
+    }
+}
+
+impl<T> DerefMut for Spanned<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.value
     }
 }
 

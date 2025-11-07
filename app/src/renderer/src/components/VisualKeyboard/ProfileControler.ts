@@ -210,6 +210,12 @@ export class ProfileController {
     this.activeLayer!.deleteRemapping(this.currentTrigger);
     this.currentTrigger = newTrigger;
   }
+
+  setLayerName(value: string) {
+    this.activeLayer!.layer_name = value;
+    log.debug('Layer name set to:', value);
+    this.onSave();
+  }
 }
 
 const profileController = new ProfileController();

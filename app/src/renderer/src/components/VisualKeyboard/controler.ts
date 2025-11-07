@@ -10,8 +10,6 @@ export const useKeyboardController = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      event.preventDefault()
-      event.stopPropagation()
       setKeyState({
         isDown: true,
         key: normalizeKey(event)
