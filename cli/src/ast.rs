@@ -2,20 +2,20 @@ use crate::{
     ast::keys::KeyIdent,
     lex::TokenType,
     parse::{
-        expect_tokens, next_match, parse_optional_trigger_args, parse_sequence,
-        parse_sequence_trailing, parse_square_bracket_list, Parse, TokenStream,
+        expect_tokens, next_match, parse_optional_trigger_args, parse_sequence_trailing,
+        parse_square_bracket_list, Parse, TokenStream,
     },
     utils::Spanned,
 };
-use miette::{miette, LabeledSpan, NamedSource, Severity};
+use miette::{miette, LabeledSpan, Severity};
 
 mod keys;
 
 #[derive(Debug, Clone)]
 pub struct Profile {
-    name: Spanned<String>,
-    config: Spanned<Config>,
-    layers: Box<[Spanned<Layer>]>,
+    pub name: Spanned<String>,
+    pub config: Spanned<Config>,
+    pub layers: Box<[Spanned<Layer>]>,
 }
 
 impl Parse for Profile {
@@ -39,7 +39,7 @@ impl Parse for Profile {
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    entries: Box<[Spanned<ConfigEntry>]>,
+    pub entries: Box<[Spanned<ConfigEntry>]>,
 }
 
 impl Parse for Config {
@@ -70,7 +70,7 @@ pub enum ConfigEntry {
 
 impl Parse for ConfigEntry {
     fn parse(ts: &mut TokenStream<'_>) -> miette::Result<Self> {
-        let [ident_token, eq_token] = expect_tokens(ts, [TokenType::Ident, TokenType::Equals])?;
+        let [ident_token, _] = expect_tokens(ts, [TokenType::Ident, TokenType::Equals])?;
         Ok(match ident_token.bytes() {
             "default_layer" => ConfigEntry::DefaultLayer(String::parse_spanned(ts)?),
             "default_behavior" => ConfigEntry::DefaultBehavior(Behavior::parse_spanned(ts)?),
@@ -139,8 +139,8 @@ impl Parse for Behavior {
 
 #[derive(Debug, Clone)]
 pub struct Layer {
-    name: Spanned<String>,
-    statements: Box<[Spanned<Statement>]>,
+    pub name: Spanned<String>,
+    pub statements: Box<[Spanned<Statement>]>,
 }
 impl Parse for Layer {
     fn parse(ts: &mut TokenStream<'_>) -> miette::Result<Self> {
@@ -155,8 +155,8 @@ impl Parse for Layer {
 
 #[derive(Debug, Clone)]
 pub struct Statement {
-    lhs: Spanned<Trigger>,
-    rhs: Box<[Spanned<Bind>]>,
+    pub lhs: Spanned<Trigger>,
+    pub rhs: Box<[Spanned<Bind>]>,
 }
 impl Parse for Statement {
     fn parse(ts: &mut TokenStream<'_>) -> miette::Result<Self> {
@@ -230,7 +230,7 @@ impl Parse for Trigger {
             }
 
             Some(TokenType::Hold) => {
-                expect_tokens(ts, [TokenType::Tap, TokenType::LParen])?;
+                expect_tokens(ts, [TokenType::Hold, TokenType::LParen])?;
                 let key = KeyIdent::parse_spanned(ts)?;
                 expect_tokens(ts, [TokenType::Comma])?;
                 let (behavior, timeout) = parse_optional_trigger_args(ts)?;
@@ -355,7 +355,7 @@ impl Parse for Key {
             expect_tokens(ts, [TokenType::Caret])?;
             Key::Up(KeyIdent::parse_spanned(ts)?)
         } else if next_match!(ts, TokenType::Underscore) {
-            expect_tokens(ts, [TokenType::Caret])?;
+            expect_tokens(ts, [TokenType::Underscore])?;
             Key::Down(KeyIdent::parse_spanned(ts)?)
         } else {
             Key::Unspecified(KeyIdent::parse_spanned(ts)?)
