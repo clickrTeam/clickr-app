@@ -164,7 +164,7 @@ export class ProfileController {
     if (cur_triggers.length > 0) {
       const [trigger, _bind] = cur_triggers[0];
       log.debug('Found trigger for selected key:', trigger);
-      this.currentTrigger = trigger;
+      this._currentTrigger = trigger;
       const bind = this.activeLayer!.getRemapping(trigger);
       log.debug('Found binds for trigger:', bind);
       if (bind instanceof Macro) {
@@ -177,7 +177,7 @@ export class ProfileController {
       }
     } else {
       log.debug('No trigger found for selected key, creating new KeyPress trigger.');
-      this.currentTrigger = new KeyPress(selectedKey);
+      this._currentTrigger = new KeyPress(selectedKey);
       log.warn('No bind found for selected key:', selectedKey);
       this.currentBinds = new Macro([]);
     }

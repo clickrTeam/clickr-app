@@ -162,7 +162,8 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
 
   return (
   <div className={`vk-footer ${isClosing ? 'vk-footer-closing' : 'vk-footer-opening'}`}>
-      <div className="vk-footer-row">
+      <div className="vk-footer-row"
+        key={`${selectedKey} + footer + ${profileController.currentBinds.toString()}`}>
         <span className="vk-footer-selected-label">Selected Key:</span>
         <Dropdown
           options={typeOptionsTrigger}
