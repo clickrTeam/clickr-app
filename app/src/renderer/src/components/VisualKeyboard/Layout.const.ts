@@ -1,6 +1,13 @@
 // Contains layout and label data for VisualKeyboard
 
-export const mainRows: { key: string; width?: number; gapAfter?: boolean }[][] = [
+type KeyLayoutKey = {
+  key: string
+  width?: number
+  gapAfter?: boolean
+  gridRowSpan?: number
+}
+
+export const mainRows: KeyLayoutKey[][] = [
   [
     { key: 'Esc', gapAfter: true },
     { key: 'F1' },
@@ -89,7 +96,7 @@ export const mainRows: { key: string; width?: number; gapAfter?: boolean }[][] =
   ]
 ]
 
-export const specialtyRows: { key: string; width?: number }[][] = [
+export const specialtyRows: KeyLayoutKey[][] = [
   [{ key: 'PrintScreen' }, { key: 'ScrollLock' }, { key: 'Pause' }],
   [{ key: 'Insert' }, { key: 'Home' }, { key: 'PageUp' }],
   [{ key: 'Delete' }, { key: 'End' }, { key: 'PageDown' }],
@@ -98,7 +105,7 @@ export const specialtyRows: { key: string; width?: number }[][] = [
   [{ key: 'Left' }, { key: 'Down' }, { key: 'Right' }]
 ]
 
-export const numpadRows: { key: string; width?: number }[][] = [
+export const numpadRows: KeyLayoutKey[][] = [
   [{ key: '' }],
   [
     { key: 'NumLock' },
@@ -106,10 +113,10 @@ export const numpadRows: { key: string; width?: number }[][] = [
     { key: 'NumpadMultiply' },
     { key: 'NumpadSubtract' }
   ],
-  [{ key: 'Numpad7' }, { key: 'Numpad8' }, { key: 'Numpad9' }, { key: 'NumpadAdd' }],
-  [{ key: 'Numpad4' }, { key: 'Numpad5' }, { key: 'Numpad6' }, { key: 'NumpadAdd' }],
-  [{ key: 'Numpad1' }, { key: 'Numpad2' }, { key: 'Numpad3' }, { key: 'NumpadEnter' }],
-  [{ key: 'Numpad0', width: 4.75 }, { key: 'NumpadDecimal' }, { key: 'NumpadEnter' }]
+  [{ key: 'Numpad7' }, { key: 'Numpad8' }, { key: 'Numpad9' }, { key: 'NumpadAdd', gridRowSpan: 2 }],
+  [{ key: 'Numpad4' }, { key: 'Numpad5' }, { key: 'Numpad6' }],
+  [{ key: 'Numpad1' }, { key: 'Numpad2' }, { key: 'Numpad3' }, { key: 'NumpadEnter', gridRowSpan: 2 }],
+  [{ key: 'Numpad0', width: 4.75 }, { key: 'NumpadDecimal' }]
 ]
 
 export const keyShortLabels: Record<string, string> = {

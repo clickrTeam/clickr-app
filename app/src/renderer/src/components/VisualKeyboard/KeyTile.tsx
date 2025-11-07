@@ -52,7 +52,7 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onInspect }
   }
 
   return (
-    <span className="flex items-center">
+    <span className="flex items-center" style={{ transform: `translateY(${((keyModel.gridRowSpan - 1) * 22)}px)` }}>
       <button
         ref={(el) => {
           keyModel.keyRef = el
@@ -63,8 +63,9 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onInspect }
           minWidth: keyModel.displayWidth,
           background: getTriggerColor(keyModel.mapped),
           opacity: mounted ? 1 : 0,
-          transform: mounted ? 'none' : 'translateY(6px)',
-          transition: `opacity 360ms ease ${delay}ms, transform 360ms cubic-bezier(.2,.9,.2,1) ${delay}ms`
+          transform: `translateY(${(mounted ? 0 : 6)}px)`,
+          transition: `opacity 360ms ease ${delay}ms, transform 360ms cubic-bezier(.2,.9,.2,1) ${delay}ms`,
+          minHeight: `calc(${keyModel.gridRowSpan}00% + ${(keyModel.gridRowSpan - 1) * 4}px)`
         }}
         onClick={onClick}
         onMouseEnter={() => onInspect(keyModel)}
