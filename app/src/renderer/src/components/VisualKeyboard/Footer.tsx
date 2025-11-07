@@ -85,6 +85,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       return () => clearTimeout(t)
     }
     prevBindsLength.current = curr
+    return
   }, [currentBinds])
 
   // handle closing animation then call parent's onClose

@@ -63,6 +63,7 @@ const DropdownMenu = ({
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
+    return
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -157,6 +158,7 @@ export default function Dropdown({
         window.removeEventListener('resize', updatePosition);
       };
     }
+    return
   }, [dropdownIsOpen, updatePosition]);
 
   useEffect(() => {

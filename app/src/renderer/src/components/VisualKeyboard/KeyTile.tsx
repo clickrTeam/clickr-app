@@ -3,8 +3,6 @@ import { getShortLabel } from './Util'
 import { KeyTileModel } from './Model'
 import { getTriggerColor } from './Colors'
 import './KeyTile.css'
-import { Bind } from 'src/models/Bind'
-import { Trigger } from 'src/models/Trigger'
 
 interface KeyTileProps {
   keyModel: KeyTileModel
