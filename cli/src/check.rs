@@ -30,14 +30,14 @@ impl Profile {
 
         let mut seen: HashMap<&str, &Spanned<_>> = HashMap::new();
         let mut name_to_index: HashMap<&str, usize> = HashMap::new();
-        let mut graph: Vec<Vec<usize>> = Vec::with_capacity(self.layers.len());
+        let mut found_duplicate = false;
 
         for (i, layer) in self.layers.iter().enumerate() {
             let name = layer.name.as_str();
             name_to_index.insert(name, i);
 
             if let Some(original) = seen.get(name) {
-                let err = miette!(
+                result.push(miette!(
                     severity = Severity::Error,
                     labels = vec![
                         LabeledSpan::new(
@@ -53,13 +53,14 @@ impl Profile {
                     ],
                     "Duplicate layer name '{}'",
                     name
-                );
-                eprintln!("{:?}", err); // optional: useful for debugging
+                ));
+                found_duplicate = true;
             } else {
                 seen.insert(name, layer);
             }
         }
 
+        let mut graph: Vec<Vec<usize>> = Vec::with_capacity(self.layers.len());
         for layer in self.layers.iter() {
             graph.push(
                 layer
@@ -113,6 +114,11 @@ impl Profile {
             Some(s) => name_to_index[s.as_str()],
             None => 0,
         };
+
+        // Don't look for unreachable layers if there are duplicates
+        if found_duplicate {
+            return;
+        }
 
         let unreachable_layers = Profile::find_unreachable_layers(&graph, default_layer_idx);
         for layer_idx in unreachable_layers {
