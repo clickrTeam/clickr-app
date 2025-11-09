@@ -224,7 +224,6 @@ impl Parse for Trigger {
             Some(TokenType::Tap) => {
                 expect_tokens(ts, [TokenType::Tap, TokenType::LParen])?;
                 let key = KeyIdent::parse_spanned(ts)?;
-                expect_tokens(ts, [TokenType::Comma])?;
                 let (behavior, timeout) = parse_optional_trigger_args(ts)?;
                 Ok(Trigger::Tap(key, behavior, timeout))
             }
@@ -232,7 +231,6 @@ impl Parse for Trigger {
             Some(TokenType::Hold) => {
                 expect_tokens(ts, [TokenType::Hold, TokenType::LParen])?;
                 let key = KeyIdent::parse_spanned(ts)?;
-                expect_tokens(ts, [TokenType::Comma])?;
                 let (behavior, timeout) = parse_optional_trigger_args(ts)?;
                 Ok(Trigger::Hold(key, behavior, timeout))
             }
@@ -310,7 +308,7 @@ impl Parse for Bind {
                 })
             }
             Some(TokenType::OpenApp) => {
-                expect_tokens(ts, [TokenType::Layer, TokenType::LParen])?;
+                expect_tokens(ts, [TokenType::OpenApp, TokenType::LParen])?;
                 let app_name = String::parse_spanned(ts)?;
                 expect_tokens(ts, [TokenType::RParen])?;
                 Ok(Bind::OpenApp(app_name))
