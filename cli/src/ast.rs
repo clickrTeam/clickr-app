@@ -1,3 +1,5 @@
+use std::default;
+
 use crate::{
     ast::keys::KeyIdent,
     lex::TokenType,
@@ -95,10 +97,61 @@ impl Parse for ConfigEntry {
     }
 }
 
+impl Config {
+    pub fn to_data(&self) -> ConfigData {
+        let mut data = ConfigData::default();
+
+        for entry in self.entries.iter().rev() {
+            match &entry.value {
+                ConfigEntry::DefaultLayer(v) => data.default_layer = Some(v.value.clone()),
+                ConfigEntry::DefaultBehavior(v) => data.default_behavior = v.value,
+                ConfigEntry::TapTimeout(v) => data.tap_timeout = v.value,
+                ConfigEntry::HoldTime(v) => data.hold_time = v.value,
+                ConfigEntry::ChordTimeout(v) => data.chord_timeout = v.value,
+                ConfigEntry::SequenceTimeout(v) => data.sequence_timeout = v.value,
+                ConfigEntry::ComboTimeout(v) => data.combo_timeout = v.value,
+                ConfigEntry::Advanced(v) => data.advanced = *v,
+            }
+        }
+
+        data
+    }
+}
+
+const DEFULT_TIMEOUT: usize = 200;
+
 #[derive(Debug, Clone)]
+pub struct ConfigData {
+    pub default_layer: Option<String>,
+    pub default_behavior: Behavior,
+    pub tap_timeout: usize,
+    pub hold_time: usize,
+    pub chord_timeout: usize,
+    pub sequence_timeout: usize,
+    pub combo_timeout: usize,
+    pub advanced: bool,
+}
+
+impl Default for ConfigData {
+    fn default() -> Self {
+        Self {
+            default_layer: None,
+            default_behavior: Behavior::default(),
+            tap_timeout: DEFULT_TIMEOUT,
+            hold_time: DEFULT_TIMEOUT,
+            chord_timeout: DEFULT_TIMEOUT,
+            sequence_timeout: DEFULT_TIMEOUT,
+            combo_timeout: DEFULT_TIMEOUT,
+            advanced: false,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default)]
 pub enum Behavior {
     Capture,
     Release,
+    #[default]
     Wait,
 }
 
