@@ -64,11 +64,11 @@ pub fn parse_optional_trigger_args(
 ) -> miette::Result<(Option<Spanned<Behavior>>, Option<Spanned<usize>>)> {
     let mut behavior = None;
     let mut timeout = None;
-    if dbg!(!next_match!(ts, TokenType::RParen)) {
+    if !next_match!(ts, TokenType::RParen) {
         expect_tokens(ts, [TokenType::Comma])?;
         behavior = Some(Behavior::parse_spanned(ts)?);
     }
-    if dbg!(!next_match!(ts, TokenType::RParen)) {
+    if !next_match!(ts, TokenType::RParen) {
         expect_tokens(ts, [TokenType::Comma])?;
         timeout = Some(usize::parse_spanned(ts)?);
     }
