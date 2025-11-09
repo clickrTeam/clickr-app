@@ -1,5 +1,5 @@
 use crate::{
-    ast::keys::KeyIdent,
+    ast::key::KeyIdent,
     lex::TokenType,
     parse::{
         expect_tokens, next_match, parse_optional_trigger_args, parse_sequence_trailing,
@@ -9,7 +9,7 @@ use crate::{
 };
 use miette::{miette, LabeledSpan, Severity};
 
-mod keys;
+pub mod key;
 
 #[derive(Debug, Clone)]
 pub struct Profile {
@@ -92,6 +92,19 @@ impl Parse for ConfigEntry {
                 ))
             }
         })
+    }
+}
+
+impl ConfigEntry {
+    fn get_timeout(&self) -> Option<usize> {
+        match self {
+            ConfigEntry::TapTimeout(t)
+            | ConfigEntry::HoldTime(t)
+            | ConfigEntry::ChordTimeout(t)
+            | ConfigEntry::SequenceTimeout(t)
+            | ConfigEntry::ComboTimeout(t) => Some(t.value),
+            _ => None,
+        }
     }
 }
 
