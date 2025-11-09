@@ -1,5 +1,3 @@
-use std::default;
-
 use crate::{
     ast::keys::KeyIdent,
     lex::TokenType,
