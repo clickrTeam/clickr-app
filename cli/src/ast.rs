@@ -1,5 +1,3 @@
-use std::default;
-
 use crate::{
     ast::keys::KeyIdent,
     lex::TokenType,
@@ -157,12 +155,12 @@ pub enum Behavior {
 
 impl Parse for Behavior {
     fn parse(ts: &mut TokenStream<'_>) -> miette::Result<Self> {
-        let next_token = ts.peek();
+        let next_token = ts.next();
         match next_token.map(|t| t.kind()) {
             Some(TokenType::Capture) => Ok(Behavior::Capture),
             Some(TokenType::Release) => Ok(Behavior::Release),
             Some(TokenType::Wait) => Ok(Behavior::Wait),
-            Some(t) => {
+            Some(_) => {
                 return Err(miette!(
                     severity = Severity::Error,
                     labels = vec![LabeledSpan::new(
@@ -288,7 +286,7 @@ impl Parse for Trigger {
                 Ok(Trigger::Hold(key, behavior, timeout))
             }
             Some(TokenType::Combo) => {
-                expect_tokens(ts, [TokenType::Chord, TokenType::LParen])?;
+                expect_tokens(ts, [TokenType::Combo, TokenType::LParen])?;
                 let keys = parse_square_bracket_list(ts)?;
                 let (behavior, timeout) = parse_optional_trigger_args(ts)?;
                 Ok(Trigger::Combo(keys, behavior, timeout))
