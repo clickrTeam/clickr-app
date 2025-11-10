@@ -13,6 +13,7 @@ import Training from './pages/Training'
 import Game from './pages/Game'
 import Help from './pages/help'
 import Settings from './pages/Settings'
+import Insights from './pages/Insights'
 
 function App(): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
@@ -75,6 +76,7 @@ function App(): JSX.Element {
           <Route path="/login" element={<Login login={login} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/community" element={<Community />} />
+          <Route path="/insights" element={<Insights />} />
           <Route path="/mapping/:mappingId" element={<MappingDetail />} />
           <Route
             path="/mappings"

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { LogIn, LogOut, Users, Layers, HelpCircle, Menu, X, Settings } from 'lucide-react'
+import { LogIn, LogOut, Users, Layers, HelpCircle, Menu, X, Settings, BarChart3 } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@renderer/lib/utils'
 import { NavLink, Link, useLocation } from 'react-router-dom'
@@ -35,6 +35,7 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
   const navLinks = [
     { name: 'Mappings', path: '/', icon: Layers },
     { name: 'Community', path: '/community', icon: Users },
+    { name: 'Insights', path: '/insights', icon: BarChart3 },
     { name: 'Help', path: '/help', icon: HelpCircle },
     { name: 'Settings', path: '/settings', icon: Settings }
   ]
