@@ -37,11 +37,8 @@ export const isKeybinderRunning = (): Promise<unknown> => {
         }
       })
     })
-  } else if (current_platform === 'darwin') {
-    log.warn('Keybinder running check is not yet implemented for MacOS')
-    return Promise.resolve(false)
-  } else if (current_platform === 'linux') {
-    log.info('Checking if keybinder is running on Linux...')
+  } else if (current_platform === 'darwin' || current_platform === 'linux') {
+    log.info(`Checking if keybinder is running on ${current_platform}...`)
     command = `pgrep -x keybinder`
     return new Promise((resolve) => {
       exec(command, (error, stdout) => {
@@ -85,7 +82,30 @@ export const runKeybinder = (): void => {
       log.info('child process exited with code: ', code)
     })
   } else if (current_platform === 'darwin') {
-    log.warn('Keybinder run is not yet implemented for MacOS')
+    log.info('Running keybinder on MacOS...')
+    // Assume the distributed binary is at resources/app/keybinder/keybinder
+    // If packaged as a .app bundle, this should point to the executable inside the .app
+    const binaryPath = path.join(
+      __dirname,
+      '../../../../',
+      'resources',
+      'app',
+      'keybinder',
+      'keybinder'
+    )
+
+    log.info(`macOS keybinder path: ${binaryPath}`)
+    // Use spawn with shell true and detached so it continues after app exits
+    const ls = spawn(binaryPath, {
+      shell: true,
+      detached: true,
+      stdio: 'ignore'
+    })
+    ls.unref()
+
+    ls.on('close', (code) => {
+      log.info('keybinder process exited with code:', code)
+    })
   } else if (current_platform === 'linux') {
     log.info('Running keybinder on Linux...')
 
@@ -116,10 +136,8 @@ export const stopKeybinder = (): void => {
         log.error('Error when attempting to stop keybinder: ', error)
       }
     })
-  } else if (current_platform === 'darwin') {
-    log.warn('Keybinder stop is not yet implemented for MacOS')
-  } else if (current_platform === 'linux') {
-    log.info('Stopping keybinder on Linux...')
+  } else if (current_platform === 'darwin' || current_platform === 'linux') {
+    log.info(`Stopping keybinder on ${current_platform}...`)
     command = `pkill -x -SIGINT keybinder`
     exec(command, (error) => {
       if (error) {
