@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useRef, useState } from 'react'
 import log from 'electron-log'
+import { Profile } from '../../../models/Profile'
 import { Layer } from '../../../models/Layer'
 import { background_music } from './audio_controller'
 import lose_life_sound_file from '../assets/game_sounds/lose_life.mp3'
@@ -25,6 +26,7 @@ type Box = {
 }
 
 type FallingBoxesProps = {
+  profile: Profile
   running: boolean
   difficulty: number
   onScore: (score: number) => void
@@ -84,6 +86,7 @@ const BoxView = memo(function BoxView({ x, y, width, height, text, exploding }: 
 })
 
 function FallingBoxes({
+  profile,
   running = true,
   difficulty = 3,
   onScore,
@@ -137,6 +140,63 @@ function FallingBoxes({
   const scoreCallbackThrottleRef = useRef<number>(0)
   const BASE_SPAWN = 800
 
+  // --- Text measurement helpers and box sizing constants ---
+  const textMeasureCanvas = useRef<HTMLCanvasElement | null>(null)
+  useEffect(() => {
+    textMeasureCanvas.current = document.createElement('canvas')
+    return (): void => {
+      textMeasureCanvas.current = null
+    }
+  }, [])
+
+  const FONT = '16px Arial'
+  const H_PADDING = 18 // total horizontal padding (left + right)
+  const V_PADDING = 12 // total vertical padding (top + bottom)
+  const MIN_BOX_WIDTH = 60
+  const MIN_BOX_HEIGHT = 40
+  const MAX_BOX_WIDTH = Math.max(120, width - 20)
+
+  const measureTextWidth = React.useCallback((text: string, font = FONT): number => {
+    const canvas = textMeasureCanvas.current
+    if (!canvas) return text.length * 8
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return text.length * 8
+    ctx.font = font
+    const metrics = ctx.measureText(text)
+    return metrics.width
+  }, [])
+
+  const makeBox = React.useCallback(
+    (id: number, displayText: string, correct: string): Box => {
+      const textWidth = Math.ceil(measureTextWidth(displayText, FONT))
+      const boxWidth = Math.min(MAX_BOX_WIDTH, Math.max(MIN_BOX_WIDTH, textWidth + H_PADDING))
+      const fontSizeMatch = parseInt(FONT, 10) || 16
+      const boxHeight = Math.max(MIN_BOX_HEIGHT, Math.ceil(fontSizeMatch + V_PADDING))
+
+      return {
+        id,
+        text: displayText,
+        x: Math.random() * Math.max(0, width - boxWidth),
+        y: -40,
+        vy: 80 + Math.random() * 80,
+        correctKey: correct,
+        width: boxWidth,
+        height: boxHeight,
+        exploding: false
+      }
+    },
+    [
+      width,
+      FONT,
+      H_PADDING,
+      V_PADDING,
+      MIN_BOX_WIDTH,
+      MIN_BOX_HEIGHT,
+      MAX_BOX_WIDTH,
+      measureTextWidth
+    ]
+  )
+
   useEffect(() => {
     const bindValues: string[] = []
     const trigValues: string[] = []
@@ -155,7 +215,16 @@ function FallingBoxes({
             'value' in trigger &&
             typeof trigger.value === 'string'
           ) {
-            bindValues.push(innerBind.value.toLowerCase())
+            bindValues.push(innerBind.value.toUpperCase())
+            trigValues.push(trigger.value.toLowerCase())
+          } else if (
+            'layer_number' in innerBind &&
+            typeof innerBind.layer_number === 'number' &&
+            'value' in trigger &&
+            typeof trigger.value === 'string'
+          ) {
+            const display_value = `Swap to ${profile.layers[innerBind.layer_number].layer_name}`
+            bindValues.push(display_value)
             trigValues.push(trigger.value.toLowerCase())
           }
         }
@@ -163,7 +232,7 @@ function FallingBoxes({
     })
     bindValuesRef.current = bindValues
     trigValuesRef.current = trigValues
-  }, [currentLayer])
+  }, [currentLayer, profile.layers])
 
   useEffect(() => {
     const localSpawnInterval = Math.max(150, BASE_SPAWN - (difficulty - 1) * 60)
@@ -173,40 +242,18 @@ function FallingBoxes({
       const triggers = trigValuesRef.current
       const binds = bindValuesRef.current
 
-      // This is a fallback in case there are no binds available
       if (!binds || binds.length === 0) {
         const letters = ['n', 'o', 'b', 'i', 'n', 'd', 's']
         const correct = letters[Math.floor(Math.random() * letters.length)]
-        const box: Box = {
-          id,
-          text: correct.toUpperCase(),
-          x: Math.random() * Math.max(0, width - 60),
-          y: -40,
-          vy: 80 + Math.random() * 80,
-          correctKey: correct,
-          width: 60,
-          height: 40,
-          exploding: false
-        }
+        const box = makeBox(id, correct.toUpperCase(), correct)
         boxesRef.current.push(box)
         return
       }
 
       const idx = Math.floor(Math.random() * binds.length)
       const correct = triggers[idx]
-      const display = binds[idx] ?? correct
-
-      const box: Box = {
-        id,
-        text: display.toUpperCase(),
-        x: Math.random() * Math.max(0, width - 60),
-        y: -40,
-        vy: 80 + Math.random() * 80,
-        correctKey: correct,
-        width: 60,
-        height: 40,
-        exploding: false
-      }
+      const display = bindValuesRef.current[idx] ?? correct
+      const box = makeBox(id, display, correct)
       boxesRef.current.push(box)
     }
 
@@ -298,7 +345,7 @@ function FallingBoxes({
       setStreakUI(0)
       if (onStreakChangeRef.current) onStreakChangeRef.current(0)
     }
-  }, [running, paused, difficulty, height, width, muteSound])
+  }, [running, paused, difficulty, height, width, muteSound, makeBox])
 
   useEffect(() => {
     livesRef.current = initialLives

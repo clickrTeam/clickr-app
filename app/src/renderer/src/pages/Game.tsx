@@ -303,6 +303,7 @@ function Game(): JSX.Element {
               }}
             >
               <FallingBoxes
+                profile={profile}
                 key={startCount}
                 running={mode === 'playing' && !gameOver}
                 difficulty={Number(difficulty)}
