@@ -92,7 +92,12 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: rowIndex * 0.05 + keyIndex * 0.01 }}
-        whileHover={{ scale: 1.05, y: -2, zIndex: 40 }}
+        whileHover={{
+          scale: 1.05,
+          y: -2,
+          zIndex: 40,
+          transition: { duration: 0.08, ease: 'easeOut' }
+        }}
       >
         {/* Key label */}
         <span className="relative z-10 text-[10px]">{displayLabel}</span>
