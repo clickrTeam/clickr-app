@@ -37,12 +37,18 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
   const getRemappingStyle = (key: string): string | null => {
     if (!hoveredRemapping) return null
 
-    if (key === hoveredRemapping.fromKey) {
-      return 'border-4 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
-    }
+    if (hoveredRemapping.type === 'swap') {
+      if (key === hoveredRemapping.swapKey1 || key === hoveredRemapping.swapKey2) {
+        return 'border-4 border-purple-600 animate-pulse shadow-lg shadow-purple-600/50'
+      }
+    } else {
+      if (key === hoveredRemapping.fromKey) {
+        return 'border-4 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
+      }
 
-    if (key === hoveredRemapping.toKey) {
-      return 'border-4 border-green-600 animate-pulse shadow-lg shadow-green-600/50'
+      if (key === hoveredRemapping.toKey) {
+        return 'border-4 border-green-600 animate-pulse shadow-lg shadow-green-600/50'
+      }
     }
 
     return null
@@ -80,19 +86,20 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
         style={{
           width: `${(keyData.width || 2.25) * 16}px`,
           height: '40px',
-          minWidth: `${(keyData.width || 2.25) * 16}px`
+          minWidth: `${(keyData.width || 2.25) * 16}px`,
+          zIndex: 1
         }}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: rowIndex * 0.05 + keyIndex * 0.01 }}
-        whileHover={{ scale: 1.05, y: -2 }}
+        whileHover={{ scale: 1.05, y: -2, zIndex: 40 }}
       >
         {/* Key label */}
         <span className="relative z-10 text-[10px]">{displayLabel}</span>
 
         {/* Tooltip on hover */}
         {count > 0 && (
-          <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+          <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity delay-100 pointer-events-none z-50">
             <div className="bg-gray-900 text-white px-2 py-1 rounded text-[10px] whitespace-nowrap shadow-xl">
               <div className="font-bold">{keyData.key}</div>
               <div>{count.toLocaleString()} presses</div>
@@ -108,7 +115,11 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
         {/* Remapping indicator */}
         {remappingStyle && hoveredRemapping && (
           <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white border-2 border-current rounded px-1 py-0.5 text-[9px] font-bold whitespace-nowrap shadow-lg z-30">
-            {keyData.key === hoveredRemapping.fromKey ? 'FROM' : 'TO'}
+            {hoveredRemapping.type === 'swap'
+              ? 'SWAP'
+              : keyData.key === hoveredRemapping.fromKey
+                ? 'FROM'
+                : 'TO'}
           </div>
         )}
       </motion.div>
@@ -159,9 +170,19 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
           exit={{ opacity: 0, y: 10 }}
         >
           <p className="text-sm font-semibold">
-            <span className="text-blue-600">{hoveredRemapping.fromKey}</span>
-            {' → '}
-            <span className="text-green-600">{hoveredRemapping.toKey}</span>
+            {hoveredRemapping.type === 'swap' ? (
+              <>
+                <span className="text-purple-600">{hoveredRemapping.swapKey1}</span>
+                {' ↔ '}
+                <span className="text-purple-600">{hoveredRemapping.swapKey2}</span>
+              </>
+            ) : (
+              <>
+                <span className="text-blue-600">{hoveredRemapping.fromKey}</span>
+                {' → '}
+                <span className="text-green-600">{hoveredRemapping.toKey}</span>
+              </>
+            )}
           </p>
           <p className="text-xs text-muted-foreground mt-1">{hoveredRemapping.reason}</p>
         </motion.div>

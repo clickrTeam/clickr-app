@@ -20,10 +20,12 @@ const keyColors = {
 
 // Positions for floating bubbles around the keyboard
 const bubblePositions = [
-  { top: '5%', left: '10%', delay: 0 }, // Top-left (blue)
-  { bottom: '5%', right: '15%', delay: 1 }, // Bottom-right (green)
-  { top: '20%', right: '10%', delay: 2 }, // Top-right (yellow/orange)
-  { bottom: '15%', left: '5%', delay: 3 } // Bottom-left (red)
+  { top: '-5%', left: '10%', delay: 0 }, // Top-left (blue)
+  { top: '-10%', left: '45%', delay: 1 }, // Top-middle
+  { top: '-5%', right: '8%', delay: 2 }, // Top-right (yellow/orange)
+  { bottom: '15%', left: '5%', delay: 3 }, // Bottom-left (red)
+  { bottom: '5%', left: '40%', delay: 2 }, // Bottom-middle
+  { bottom: '12%', right: '10%', delay: 1 } // Bottom-right (green)
 ]
 
 const RemappingBubble = ({
@@ -35,10 +37,10 @@ const RemappingBubble = ({
 }: RemappingBubbleProps): JSX.Element => {
   const position = bubblePositions[index % bubblePositions.length]
 
-  // Floating animation - exact copy from the provided code
+  // Floating animation
   const bubbleVariants = {
     float: {
-      y: [0, -10, 0],
+      y: [-5, -15, -5],
       x: [0, 5, -5, 0],
       transition: {
         duration: 4,
@@ -63,14 +65,17 @@ const RemappingBubble = ({
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
       whileHover={{
-        scale: 1.15,
-        y: -10,
-        boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
-        filter: 'brightness(1.1)',
-        zIndex: 30
+        scale: 1.08,
+        y: -5,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        filter: 'brightness(1.05)',
+        zIndex: 30,
+        transition: { duration: 0.2, ease: 'easeOut' }
       }}
     >
-      {remapping.fromKey} → {remapping.toKey}
+      {remapping.type === 'swap'
+        ? `${remapping.swapKey1} ↔ ${remapping.swapKey2}`
+        : `${remapping.fromKey} → ${remapping.toKey}`}
     </motion.div>
   )
 }
