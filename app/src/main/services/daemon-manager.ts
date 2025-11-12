@@ -82,30 +82,7 @@ export const runKeybinder = (): void => {
       log.info('child process exited with code: ', code)
     })
   } else if (current_platform === 'darwin') {
-    log.info('Running keybinder on MacOS...')
-    // Assume the distributed binary is at resources/app/keybinder/keybinder
-    // If packaged as a .app bundle, this should point to the executable inside the .app
-    const binaryPath = path.join(
-      __dirname,
-      '../../../../',
-      'resources',
-      'app',
-      'keybinder',
-      'keybinder'
-    )
-
-    log.info(`macOS keybinder path: ${binaryPath}`)
-    // Use spawn with shell true and detached so it continues after app exits
-    const ls = spawn(binaryPath, {
-      shell: true,
-      detached: true,
-      stdio: 'ignore'
-    })
-    ls.unref()
-
-    ls.on('close', (code) => {
-      log.info('keybinder process exited with code:', code)
-    })
+    log.warn('Starting keybinder on macOS is not yet implemented.')
   } else if (current_platform === 'linux') {
     log.info('Running keybinder on Linux...')
 
