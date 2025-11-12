@@ -26,7 +26,7 @@ export type LLSequenceRemapping = {
 
 export type LLBasicTrigger = LLKeyPress | LLKeyRelease | LLAppFocus;
 
-export type LLAdvancedTrigger = LLKeyPress | LLKeyRelease | LLMinimumWait | LLMaximumWait;
+export type LLAdvancedTrigger = LLKeyPress | LLKeyRelease | LLAppFocus | LLMinimumWait | LLMaximumWait;
 
 export type LLKeyPress = {
   type: "key_press";

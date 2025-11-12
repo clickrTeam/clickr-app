@@ -68,12 +68,16 @@ export const VisualKeyboard = (): JSX.Element => {
   }, [keyQueue, profileController])
 
   useEffect(() => {
+    if (showNewMappingKeyModal) {
+      return
+    }
     profileController.setSelectedKey(selectedKey, profileController.radialSelectedTriggerType)
     log.debug("reseting radialSelectedTriggerType as used: ", profileController.radialSelectedTriggerType)
     profileController.radialSelectedTriggerType = T.TriggerType.KeyPress
   }, [selectedKey])
 
   const handleTriggerTypeSelected = (triggerType: T.TriggerType) => {
+    log.debug('handleTriggerTypeSelected: ', triggerType)
     setShowNewTriggerRadial(false)
     profileController.clearMapping()
     profileController.radialSelectedTriggerType = triggerType
@@ -88,16 +92,18 @@ export const VisualKeyboard = (): JSX.Element => {
         setShowNewMappingKeyModal(true)
         return
       case T.TriggerType.AppFocused:
+        setIsCreatingNewMapping(true)
+        setSelectedKey(null)
+        profileController.currentTrigger = new T.AppFocus("App Name")
         return
       case T.TriggerType.TapSequence:
+        setIsCreatingNewMapping(true)
+        setSelectedKey(null)
+        profileController.currentTrigger = new T.TapSequence([])
         return
       default:
         log.warn("handleTriggerTypeSelected: undefined radial output.")
         return
-    }
-    const newTrigger = T.createTrigger(triggerType, null)
-    if (newTrigger) {
-      setIsCreatingNewMapping(true)
     }
   }
 
@@ -221,20 +227,21 @@ export const VisualKeyboard = (): JSX.Element => {
         <div className="flex flex-col">{mainRows.map(renderRow)}</div>
         <div className="flex flex-col">{specialtyRows.map(renderRow)}</div>
         <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
-
-        {(isCreatingNewMapping || selectedKey) && (
-          <VisualKeyboardFooter
-            selectedKey={selectedKey}
-            onClose={(save: boolean) => {
-              if (save) profileController.addBind()
-              setSelectedKey(null)
-              setIsCreatingNewMapping(false)
-              profileController.currentTrigger = new T.KeyPress('UNDEFINED')
-              profileController.currentBinds = new Macro([])
-            }}
-          />
-        )}
       </Card>
+
+      {(isCreatingNewMapping || selectedKey) && (
+        <VisualKeyboardFooter
+          selectedKey={selectedKey}
+          onClose={(save: boolean) => {
+            log.debug('Closing VisualKeyboard Footer')
+            if (save) profileController.addBind()
+            setSelectedKey(null)
+            setIsCreatingNewMapping(false)
+            profileController.currentTrigger = new T.KeyPress('UNDEFINED')
+            profileController.currentBinds = new Macro([])
+          }}
+        />
+      )}
       {renderLeftoverKeys()}
     </div>
   )

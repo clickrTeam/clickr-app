@@ -166,7 +166,9 @@ export class ProfileController {
   }
 
   setSelectedKey(selectedKey: string | null, trigger_type: TriggerType = TriggerType.KeyPress): void {
-    log.silly('Setting selected key:', selectedKey)
+    if (trigger_type === TriggerType.AppFocused) return
+    if (trigger_type === TriggerType.TapSequence) return
+    log.debug('Setting selected key:', selectedKey)
 
     if (!selectedKey || selectedKey === '') {
       this.clearMapping()

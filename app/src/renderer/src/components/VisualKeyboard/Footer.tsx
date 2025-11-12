@@ -3,12 +3,14 @@ import { Bind, BindType, getBindDisplayName, getBindTypeDisplayName, Macro, Pres
 import { KeyPressInfo } from './Model'
 import { getDropdownBgT, getMacroButtonBg, getMacroButtonBgT } from './Colors'
 import './Footer.css'
-import { createTrigger, getTriggerTypeDisplayName, Trigger, TriggerType } from '../../../../models/Trigger'
+import { AppFocus, createTrigger, getTriggerTypeDisplayName, Hold, TapSequence, Trigger, TriggerType } from '../../../../models/Trigger'
 import { SwapLayer } from '../../../../models/Bind'
 import { KeyModal } from './KeyModal'
 import log from 'electron-log'
 import Dropdown from './dropdown'
 import profileController from './ProfileControler'
+import { Input } from '../ui/input'
+import { Label } from '@radix-ui/react-label'
 
 const typeOptionsBind: BindType[] = [
   BindType.TapKey,
@@ -28,13 +30,17 @@ export interface VisualKeyboardFooterProps {
   onClose: (save: boolean) => void
 }
 
+enum keyModalType {
+  Binds,
+  Trigger_TapSequence,
+  Closed,
+}
+
 export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   selectedKey,
   onClose
 }): JSX.Element | null => {
-  if (!selectedKey) return null
-
-  const [showKeyModal, setShowKeyModal] = useState(false)
+  const [showKeyModal, setShowKeyModal] = useState(keyModalType.Closed)
   const [currentBinds, setCurrentBinds] = useState<Macro>(profileController.currentBinds)
   const [currentTrigger, setCurrentTrigger] = useState<Trigger>(profileController.currentTrigger)
   const [currentKeyMappings, setCurrentKeyMappings] = useState<[Trigger, Bind][]>(profileController.getMappings(selectedKey))
@@ -143,25 +149,74 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   function handleAddLayerToMacro(layerIdx: number): void {
     const newMacro = [...currentBinds.binds, new SwapLayer(layerIdx)]
     profileController.currentBinds = new Macro(newMacro)
-    setShowKeyModal(false)
+    setShowKeyModal(keyModalType.Closed)
   }
 
   return (
   <div>
     <div className={`vk-footer ${isClosing ? 'vk-footer-closing' : 'vk-footer-opening'}`}>
-      <div className="vk-footer-row">
-        <span className="vk-footer-selected-label">Selected Key:</span>
-        <Dropdown
-          options={typeOptionsTrigger}
-          currentSelected={currentTrigger.trigger_type}
-          allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger.trigger_type)}
-          handleSelection={handleTriggerTypeChange}
-          getDropdownBg={getDropdownBgT}
-          getDisplayName={getTriggerTypeDisplayName}
-          openBtnLabel={selectedKey}
-          openBtnBackground={getMacroButtonBgT(currentTrigger)}
-          id="trigger-dropdown"
-        ></Dropdown>
+      <div className="vk-footer-row" aria-label={`triggers ${currentTrigger.trigger_type}`}>
+        {selectedKey ? (
+          <div aria-label='keyed triggers' className='flex gap-4'>
+            <span className="vk-footer-selected-label">Selected Key:</span>
+            <Dropdown
+              options={typeOptionsTrigger}
+              currentSelected={currentTrigger.trigger_type}
+              allSelected={currentKeyMappings.map(([mappingTrigger]) => mappingTrigger.trigger_type)}
+              handleSelection={handleTriggerTypeChange}
+              getDropdownBg={getDropdownBgT}
+              getDisplayName={getTriggerTypeDisplayName}
+              openBtnLabel={selectedKey}
+              openBtnBackground={getMacroButtonBgT(currentTrigger)}
+              id="trigger-dropdown"
+            ></Dropdown>
+            {currentTrigger.trigger_type === TriggerType.Hold && (
+              <div aria-label='Hold'>
+                <Input
+                  type="number"
+                  placeholder="Time (ms)"
+                  min={0}
+                  onChange={(e) => profileController.currentTrigger = new Hold((currentTrigger as Hold).value, parseInt(e.target.value))}
+                />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div aria-label='keyless triggers'>
+            {currentTrigger.trigger_type === TriggerType.TapSequence && (
+              <div aria-label='TapSequence' className='flex gap-4'>
+                { (currentTrigger as TapSequence).key_time_pairs.map((key_time_pair) =>
+                  <div>
+                    <div
+                      className={`vk-footer-macro-btn relative z-10`}
+                    >
+                      {key_time_pair[0]}
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  className="vk-footer-macro-btn"
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: 18,
+                    padding: '0 0.7rem',
+                    marginLeft: currentBinds.binds.length > 0 ? 8 : 0
+                  }}
+                  onClick={() => setShowKeyModal(keyModalType.Trigger_TapSequence)}
+                >
+                  +
+                </button>
+              </div>
+            )}
+            {currentTrigger.trigger_type === TriggerType.AppFocused && (
+              <div aria-label='AppFocused' className='flex'>
+                <span className="vk-footer-selected-label" title='When this application is focused, or tab is selected.' style={{ minWidth: '112px' }}>On app focus:</span>
+                <Input placeholder={(currentTrigger as AppFocus).app_name} onChange={(e) => { profileController.currentTrigger = new AppFocus(e.target.value) }} />
+              </div>
+            )}
+          </div>
+        )}
         {currentKeyMappings.length > 1 && (
           <div className="vk-footer-mappings">
             {currentKeyMappings.filter((mapping) => mapping[0].trigger_type !== currentTrigger.trigger_type).map((mapping) => (
@@ -202,7 +257,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         </button>
       </div>
 
-      <div className="vk-footer-row">
+      <div className="vk-footer-row" aria-label='binds'>
         <span className="vk-footer-macro-label">New Mapping:</span>
         {currentBinds.binds.length === 0 ? (
           <span className="vk-footer-macro-empty">(Tap keys to add to macro)</span>
@@ -245,22 +300,30 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
               padding: '0 0.7rem',
               marginLeft: currentBinds.binds.length > 0 ? 8 : 0
             }}
-            onClick={() => setShowKeyModal(true)}
+            onClick={() => setShowKeyModal(keyModalType.Binds)}
           >
             +
           </button>
         </span>
       </div>
     </div>
-    {showKeyModal && (
+    {showKeyModal !== keyModalType.Closed && (
       <KeyModal
-        onClose={() => setShowKeyModal(false)}
+        onClose={() => setShowKeyModal(keyModalType.Closed)}
         onAddKey={
           (key: KeyPressInfo) => {
-            const newBinds = [...currentBinds.binds, new TapKey(key.key)]
-            profileController.currentBinds = new Macro(newBinds)
+            if (showKeyModal === keyModalType.Binds) {
+              const newBinds = [...currentBinds.binds, new TapKey(key.key)]
+              profileController.currentBinds = new Macro(newBinds)
+            } else if (showKeyModal === keyModalType.Trigger_TapSequence) {
+              const newSequence: [string, number][] = [...(currentTrigger as TapSequence).key_time_pairs, [key.key, 350]]
+              profileController.currentTrigger = new TapSequence(newSequence, (currentTrigger as TapSequence).behavior)
+            } else {
+              log.error('Footers keymodal is trying to add a key without a proper type')
+            }
           }
         }
+        keyOnly={showKeyModal === keyModalType.Trigger_TapSequence}
         onSelectLayer={handleAddLayerToMacro}
         profileController={profileController}
       />
