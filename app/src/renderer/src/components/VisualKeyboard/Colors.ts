@@ -51,7 +51,18 @@ export function getBindColor(bindings: Array<[Trigger, Bind]>): string {
   const stops = colors.map(
     (color: string, i: number) => `${color} ${Math.round((i / colors.length) * 100)}%`
   )
-  return `linear-gradient(135deg, ${stops.join(', ')})`
+  return `linear-gradient(45deg, ${stops.join(', ')})`
+}
+
+export function getTriggerColor(mapped: [Trigger, Bind][]): import("csstype").Property.Background<string | number> | undefined {
+  if (!mapped || mapped.length === 0) return DEFAULT_COLOR
+  const colors = mapped.map(([trigger, ]) => triggerTypeColors[trigger.trigger_type])
+  if (colors.length === 1) return colors[0]
+  // Average the colors for now, later implement a multi-color geometry background
+  const stops = colors.map(
+    (color: string, i: number) => `${color} ${Math.round(((i + 1) / (colors.length + 1)) * 100)}%`
+  )
+  return `linear-gradient(60deg, ${stops.join(', ')})`;
 }
 
 export function getKeyClass(

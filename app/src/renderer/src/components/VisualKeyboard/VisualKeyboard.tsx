@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Card } from '../ui/card'
-import { mainRows, specialtyRows, numpadRows, KEYBOARD_100 as KEYBOARD_100 } from './Layout.const'
+import { mainRows, specialtyRows, numpadRows, KEYBOARD_100 } from './Layout.const'
 import { InspectPopover } from './InspectPopover'
 import { VisualKeyboardFooter } from './Footer'
 import { Macro, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
