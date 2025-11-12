@@ -13,6 +13,7 @@ import { ChevronDown } from 'lucide-react'
 import log from 'electron-log'
 import profileController from './ProfileControler'
 import { KeyModal } from './KeyModal'
+import { getMacroButtonBgT, getTriggerTypeBackground } from './Colors'
 
 export const VisualKeyboard = (): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
@@ -45,7 +46,7 @@ export const VisualKeyboard = (): JSX.Element => {
       setShowPressedKeys((prev: string[]) => prev.filter((k) => k !== currentKey.key))
     }
 
-    if (selectedKey) {
+    if (selectedKey || isCreatingNewMapping) {
       const existingBinds = [...profileController.currentBinds.binds]
       if (currentKey.isDown) {
         profileController.currentBinds = new Macro([...existingBinds, new PressKey(currentKey.key)])
@@ -168,21 +169,32 @@ export const VisualKeyboard = (): JSX.Element => {
         </div>
         {showLeftover && (
           <div className="flex flex-wrap mt-2" style={{ gap: '0.25rem' }}>
-            {leftoverKeys.filter((keyModel) => keyModel[0] instanceof T.AppFocus).map((keyModel) => (
-              <div>
+            {leftoverKeys.filter((keyModel) => keyModel[0].trigger_type === T.TriggerType.AppFocused).map((keyModel) => (
+              <button aria-label={keyModel[0].trigger_type + ' leftover-item'} className='vk-footer-macro-btn'>
                 {(keyModel[0] as T.AppFocus).app_name}
-              </div>
+              </button>
+            ))}
+            {leftoverKeys.filter((keyModel) => keyModel[0].trigger_type === T.TriggerType.TapSequence).map((keyModel) => (
+              <button
+                aria-label={keyModel[0].trigger_type + ' leftover-item'}
+                className='vk-footer-macro-btn'
+                style={{ background: getMacroButtonBgT(keyModel[0]) }}
+                onClick={(): void => {
+                  profileController.clearMapping()
+                  setSelectedKey(null)
+                  setIsCreatingNewMapping(true)
+                  profileController.currentTrigger = keyModel[0]
+                  profileController.currentBinds = (keyModel[1] as Macro)
+                }}
+              >
+                {(keyModel[0] as T.TapSequence).key_time_pairs.map((pair) => pair[0]).join('+')}
+              </button>
             ))}
             {leftoverKeys.filter((keyModel) => keyModel[0] instanceof T.KeyPress ||
                    keyModel[0] instanceof T.KeyRelease ||
                    keyModel[0] instanceof T.Hold).map((keyModel) => (
-              <div>
+              <div aria-label={keyModel[0].trigger_type + ' leftover-item'} className='vk-footer-macro-btn'>
                 {(keyModel[0] as any).value}
-              </div>
-            ))}
-            {leftoverKeys.filter((keyModel) => keyModel[0] instanceof T.TapSequence).map((keyModel) => (
-              <div>
-                {(keyModel[0] as T.TapSequence).key_time_pairs.map((pair) => pair[0]).join('+')}
               </div>
             ))}
             {visualKeyboardModel.unmappedKeyModels.map((keyModel) => (

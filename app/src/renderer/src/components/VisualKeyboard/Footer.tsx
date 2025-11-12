@@ -176,7 +176,10 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
                   type="number"
                   placeholder="Time (ms)"
                   min={0}
-                  onChange={(e) => profileController.currentTrigger = new Hold((currentTrigger as Hold).value, parseInt(e.target.value))}
+                  onChange={(e) => {
+                    profileController.currentTrigger = new Hold((currentTrigger as Hold).value, parseInt(e.target.value))
+                    e.stopPropagation()
+                  }}
                 />
               </div>
             )}
@@ -212,7 +215,11 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
             {currentTrigger.trigger_type === TriggerType.AppFocused && (
               <div aria-label='AppFocused' className='flex'>
                 <span className="vk-footer-selected-label" title='When this application is focused, or tab is selected.' style={{ minWidth: '112px' }}>On app focus:</span>
-                <Input placeholder={(currentTrigger as AppFocus).app_name} onChange={(e) => { profileController.currentTrigger = new AppFocus(e.target.value) }} />
+                <Input placeholder={(currentTrigger as AppFocus).app_name} onChange={(e) => {
+                  (currentTrigger as AppFocus).app_name = e.target.value
+                  // profileController.currentTrigger = new AppFocus(e.target.value)
+                  e.stopPropagation()
+                }} />
               </div>
             )}
           </div>
