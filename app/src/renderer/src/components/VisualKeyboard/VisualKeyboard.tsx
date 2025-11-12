@@ -8,13 +8,18 @@ import { KeyTile } from './KeyTile'
 import * as T from '../../../../models/Trigger'
 import { buildVisualKeyboardModel, KeyPressInfo, KeyTileModel, VisualKeyboardModel } from './Model'
 import { useKeyboardController } from './controler'
+import { TriggerRadialMenu } from './TriggerRadialMenu'
 import { ChevronDown } from 'lucide-react'
 import log from 'electron-log'
 import profileController from './ProfileControler'
+import { KeyModal } from './KeyModal'
 
 export const VisualKeyboard = (): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const [isCreatingNewMapping, setIsCreatingNewMapping] = useState(false)
+  const [showNewTriggerRadial, setShowNewTriggerRadial] = useState(false)
+  const [showNewMappingKeyModal, setShowNewMappingKeyModal] = useState(false)
 
   const onKey: KeyPressInfo = useKeyboardController()
   const [keyQueue, setKeyQueue] = useState<KeyPressInfo[]>([])
@@ -63,8 +68,38 @@ export const VisualKeyboard = (): JSX.Element => {
   }, [keyQueue, profileController])
 
   useEffect(() => {
-    profileController.setSelectedKey(selectedKey)
+    profileController.setSelectedKey(selectedKey, profileController.radialSelectedTriggerType)
+    log.debug("reseting radialSelectedTriggerType as used: ", profileController.radialSelectedTriggerType)
+    profileController.radialSelectedTriggerType = T.TriggerType.KeyPress
   }, [selectedKey])
+
+  const handleTriggerTypeSelected = (triggerType: T.TriggerType) => {
+    setShowNewTriggerRadial(false)
+    profileController.clearMapping()
+    profileController.radialSelectedTriggerType = triggerType
+    switch (triggerType) {
+      case T.TriggerType.KeyPress:
+        setShowNewMappingKeyModal(true)
+        return
+      case T.TriggerType.KeyRelease:
+        setShowNewMappingKeyModal(true)
+        return
+      case T.TriggerType.Hold:
+        setShowNewMappingKeyModal(true)
+        return
+      case T.TriggerType.AppFocused:
+        return
+      case T.TriggerType.TapSequence:
+        return
+      default:
+        log.warn("handleTriggerTypeSelected: undefined radial output.")
+        return
+    }
+    const newTrigger = T.createTrigger(triggerType, null)
+    if (newTrigger) {
+      setIsCreatingNewMapping(true)
+    }
+  }
 
   const [showPressedKeys, setShowPressedKeys] = useState<string[]>([])
 
@@ -116,6 +151,14 @@ export const VisualKeyboard = (): JSX.Element => {
               className={`h-4 w-4 transform transition-transform duration-150 ${showLeftover ? 'rotate-180' : 'rotate-0'}`}
             />
           </button>
+          <button
+            className="p-1 bg-indigo-200 rounded-full hover:bg-indigo-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ml-2"
+            onClick={() => setShowNewTriggerRadial((prev) => !prev)}
+            aria-label={'Add New Mapping'}
+            title={'Add New Mapping'}
+          >
+            <span className="text-sm font-semibold text-indigo-700">+</span>
+          </button>
         </div>
         {showLeftover && (
           <div className="flex flex-wrap mt-2" style={{ gap: '0.25rem' }}>
@@ -148,31 +191,51 @@ export const VisualKeyboard = (): JSX.Element => {
       </div>
     )
   }
+
   return (
     <div className='flex flex-col gap-4'>
-    <Card
-      className="p-4 bg-neutral-100 overflow-auto flex flex-row items-start"
-      style={{ position: 'relative', width: 'fit-content', alignSelf: 'center' }}
-    >
-      {renderInspectPopover()}
-      <div className="flex flex-col">{mainRows.map(renderRow)}</div>
-      <div className="flex flex-col">{specialtyRows.map(renderRow)}</div>
-      <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
-
-      <VisualKeyboardFooter
-        selectedKey={selectedKey}
-        onClose={(save: boolean) => {
-          log.debug('Footer onClose called with save =', save);
-          if (save) {
-            profileController.addBind();
-          }
-          setSelectedKey(null)
-          profileController.currentTrigger = new T.KeyPress('UNDEFINED')
-          profileController.currentBinds = new Macro([])
-        }}
+      <TriggerRadialMenu
+        isOpen={showNewTriggerRadial}
+        onSelectTrigger={handleTriggerTypeSelected}
+        onClose={() => setShowNewTriggerRadial(false)}
       />
-    </Card>
-    {renderLeftoverKeys()}
+      {showNewMappingKeyModal && (
+        <KeyModal
+          onClose={(as_cancel: boolean) => {
+            setShowNewMappingKeyModal(false)
+            if (as_cancel) {
+              log.debug("reseting radialSelectedTriggerType as cancel")
+              profileController.radialSelectedTriggerType = T.TriggerType.KeyPress
+            }
+          }}
+          onAddKey={(key: KeyPressInfo) => { setSelectedKey(key.key) }}
+          keyOnly={true}
+          profileController={profileController}
+        />
+      )}
+      <Card
+        className="p-4 bg-neutral-100 overflow-auto flex flex-row items-start"
+        style={{ position: 'relative', width: 'fit-content', alignSelf: 'center' }}
+      >
+        {renderInspectPopover()}
+        <div className="flex flex-col">{mainRows.map(renderRow)}</div>
+        <div className="flex flex-col">{specialtyRows.map(renderRow)}</div>
+        <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
+
+        {(isCreatingNewMapping || selectedKey) && (
+          <VisualKeyboardFooter
+            selectedKey={selectedKey}
+            onClose={(save: boolean) => {
+              if (save) profileController.addBind()
+              setSelectedKey(null)
+              setIsCreatingNewMapping(false)
+              profileController.currentTrigger = new T.KeyPress('UNDEFINED')
+              profileController.currentBinds = new Macro([])
+            }}
+          />
+        )}
+      </Card>
+      {renderLeftoverKeys()}
     </div>
   )
 }

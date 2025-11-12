@@ -25,11 +25,15 @@ export function getTriggerTypeDisplayName(value: TriggerType | string): string {
   }
 }
 
-export function createTrigger(type: TriggerType, selectedKey: string | null): Trigger | undefined {
+export function createTrigger(type: TriggerType, selectedKey: string | null, app_name?: string): Trigger | undefined {
   let newTrigger: Trigger
   switch (type) {
     case TriggerType.AppFocused:
-      newTrigger = new AppFocus("test", selectedKey ?? '')
+      if (!app_name) {
+        log.warn('No app name to assign to trigger in VisualKeyboardFooter.')
+        return
+      }
+      newTrigger = new AppFocus(app_name)
       break
     case TriggerType.Hold:
       if (selectedKey === null) {
@@ -296,43 +300,35 @@ export class Hold extends Trigger {
   }
 }
 
-/**
- * This only applies when a certain application is running.
- */
 export class AppFocus extends Trigger {
-  toString(): string {
-    throw new Error('Method not implemented.')
-  }
   app_name: string
-  value: string
 
-  constructor(app_name: string, value: string) {
+  constructor(app_name: string) {
     super(TriggerType.AppFocused)
     this.app_name = app_name
-    this.value = value
   }
 
   toJSON(): object {
     return {
-      type: TriggerType.AppFocused,
-      app_name: this.app_name,
-      value: this.value
+      type: TriggerType.KeyRelease,
+      value: this.app_name
     }
   }
 
-
-  static fromJSON(obj: { app_name: string; value: string }): AppFocus {
-    return new AppFocus(obj.app_name, obj.value)
+  static fromJSON(obj: { app_name: string }): AppFocus {
+    return new AppFocus(obj.app_name)
   }
 
-  equals(other: Trigger): boolean {
-    return (
-      other instanceof AppFocus && this.app_name === other.app_name && this.value === other.value
-    )
+  equals(other: AppFocus): boolean {
+    return other instanceof AppFocus && this.app_name === other.app_name
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
-    throw new Error('Method not implemented.')
+  toString(): string {
+    return `AppFocus: ${this.app_name}`
+  }
+
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
+    return { "type": "app_focus", "app_name": this.app_name };
   }
 }
 

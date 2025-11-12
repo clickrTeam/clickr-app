@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Bind, BindType, getBindDisplayName, getBindTypeDisplayName, Macro, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
 import { KeyPressInfo } from './Model'
-import { bindTypeColors, triggerTypeColors } from './Colors'
+import { getDropdownBgT, getMacroButtonBg, getMacroButtonBgT } from './Colors'
 import './Footer.css'
 import { createTrigger, getTriggerTypeDisplayName, Trigger, TriggerType } from '../../../../models/Trigger'
 import { SwapLayer } from '../../../../models/Bind'
@@ -22,21 +22,6 @@ const typeOptionsTrigger: TriggerType[] = [
   TriggerType.KeyPress,
   TriggerType.KeyRelease,
 ]
-
-function getMacroButtonBg(item: Bind): string {
-  return `${bindTypeColors[item.bind_type as BindType]}80`
-}
-function getMacroButtonBgT(item: Trigger): string {
-  return `${triggerTypeColors[item.trigger_type as TriggerType]}80`
-}
-
-function getDropdownBgT(
-  item: Trigger,
-  opt: TriggerType
-): string {
-  if (!opt) return ''
-  return item.trigger_type === opt ? `${triggerTypeColors[opt]}22` : ''
-}
 
 export interface VisualKeyboardFooterProps {
   selectedKey: string | null
