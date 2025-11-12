@@ -117,8 +117,8 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
         value={selectedLayerIndex.toString()}
         onValueChange={(val) => setSelectedLayerIndex(Number(val))}
       >
-        <div className="flex items-center justify-between layer-control-bar">
-          <div className="flex row layer-tabs">
+        <div className="flex items-center justify-between">
+          <div className="max-w-[60vw] overflow-x-auto whitespace-nowrap flex row layer-tabs">
             <TabsList>
               {localProfile.layers.map((layer: Layer, index) => (
                 <TabsTrigger
@@ -130,6 +130,8 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
                 </TabsTrigger>
               ))}
             </TabsList>
+          </div>
+          <div className="flex gap-2">
             <div className="edit-layer-name ml-4">
               {editLayerName ? (
                 <div className="flex gap-2 items-center">
@@ -152,8 +154,6 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
                 </Button>
               )}
             </div>
-          </div>
-          <div className="flex gap-2">
             <Button size="sm" onClick={handleAddLayer}>
               Add Layer
             </Button>
