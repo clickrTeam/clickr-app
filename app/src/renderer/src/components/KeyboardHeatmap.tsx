@@ -145,7 +145,7 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
 
         {/* Remapping indicator */}
         {remappingStyle && hoveredRemapping && (
-          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white border-2 border-current rounded px-1 py-0.5 text-[9px] font-bold whitespace-nowrap shadow-lg z-30">
+          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-100 border-2 border-gray-400 text-gray-700 rounded px-1 py-0.5 text-[9px] font-bold whitespace-nowrap shadow-lg z-30">
             {hoveredRemapping.type === 'swap'
               ? 'SWAP'
               : keyData.key === hoveredRemapping.fromKey
@@ -211,7 +211,7 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
                       }}
                     >
                       {/* Remapping indicator */}
-                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white border-2 border-blue-600 rounded px-1 py-0.5 text-[9px] font-bold whitespace-nowrap shadow-lg z-30">
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-100 border-2 border-gray-400 text-gray-700 rounded px-1 py-0.5 text-[9px] font-bold whitespace-nowrap shadow-lg z-30">
                         FROM
                       </div>
                       <span className="relative z-10 text-[10px] text-blue-600 whitespace-nowrap">

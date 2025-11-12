@@ -175,7 +175,7 @@ function Insights(): JSX.Element {
       id: '4',
       type: 'mapping',
       fromKey: 'Fn',
-      toKeys: ['Esc'],
+      toKeys: ['CtrlLeft', 'ShiftLeft', 'E'],
       reason: 'Easy access to Escape for quick exits.',
       potentialSavings: 1.8,
       color: 'red'
