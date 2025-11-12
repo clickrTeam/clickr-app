@@ -72,6 +72,11 @@ const api: API = {
     return ipcRenderer.invoke('stop-keybinder')
   },
 
+  // Statistics methods
+  getKeyFrequencies: function (): Promise<{ key: string; count: number }[]> {
+    return ipcRenderer.invoke('get-key-frequencies')
+  },
+
   // Settings methods
   getSettings: function (): Promise<any> {
     return ipcRenderer.invoke('get-settings')

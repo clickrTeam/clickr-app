@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import KeyboardHeatmap from '../components/KeyboardHeatmap'
 import RemappingBubble from '../components/RemappingBubble'
 import { Card } from '../components/ui/card'
+import { RefreshCw } from 'lucide-react'
+import { Button } from '../components/ui/button'
+import log from 'electron-log'
 
 // Data interfaces
 export interface KeyCount {
   key: string
   count: number
-  percentage: number
 }
 
 export interface SuggestedRemapping {
@@ -24,123 +26,120 @@ export interface SuggestedRemapping {
 }
 
 function Insights(): JSX.Element {
-  // Mock data - can be connected to daemon/API later
-  // Realistic data based on English letter frequency and typical usage patterns
-  // Total: ~50,000 key presses
-  const [keyCountData] = useState<KeyCount[]>([
+  const [keyCountData, setKeyCountData] = useState<KeyCount[]>([
     // Most common letters (English frequency distribution)
-    { key: 'E', count: 6350, percentage: 12.7 },
-    { key: 'T', count: 4550, percentage: 9.1 },
-    { key: 'A', count: 4100, percentage: 8.2 },
-    { key: 'O', count: 3750, percentage: 7.5 },
-    { key: 'I', count: 3500, percentage: 7.0 },
-    { key: 'N', count: 3350, percentage: 6.7 },
-    { key: 'S', count: 3150, percentage: 6.3 },
-    { key: 'R', count: 3000, percentage: 6.0 },
-    { key: 'H', count: 3050, percentage: 6.1 },
-    { key: 'D', count: 2150, percentage: 4.3 },
-    { key: 'L', count: 2000, percentage: 4.0 },
-    { key: 'U', count: 1400, percentage: 2.8 },
-    { key: 'C', count: 1400, percentage: 2.8 },
-    { key: 'M', count: 1200, percentage: 2.4 },
-    { key: 'W', count: 1200, percentage: 2.4 },
-    { key: 'F', count: 1100, percentage: 2.2 },
-    { key: 'G', count: 1000, percentage: 2.0 },
-    { key: 'Y', count: 1000, percentage: 2.0 },
-    { key: 'P', count: 950, percentage: 1.9 },
-    { key: 'B', count: 750, percentage: 1.5 },
-    { key: 'V', count: 500, percentage: 1.0 },
-    { key: 'K', count: 400, percentage: 0.8 },
-    { key: 'J', count: 75, percentage: 0.15 },
-    { key: 'X', count: 75, percentage: 0.15 },
-    { key: 'Q', count: 50, percentage: 0.1 },
-    { key: 'Z', count: 35, percentage: 0.07 },
+    { key: 'E', count: 6350 },
+    { key: 'T', count: 4550 },
+    { key: 'A', count: 4100 },
+    { key: 'O', count: 3750 },
+    { key: 'I', count: 3500 },
+    { key: 'N', count: 3350 },
+    { key: 'S', count: 3150 },
+    { key: 'R', count: 3000 },
+    { key: 'H', count: 3050 },
+    { key: 'D', count: 2150 },
+    { key: 'L', count: 2000 },
+    { key: 'U', count: 1400 },
+    { key: 'C', count: 1400 },
+    { key: 'M', count: 1200 },
+    { key: 'W', count: 1200 },
+    { key: 'F', count: 1100 },
+    { key: 'G', count: 1000 },
+    { key: 'Y', count: 1000 },
+    { key: 'P', count: 950 },
+    { key: 'B', count: 750 },
+    { key: 'V', count: 500 },
+    { key: 'K', count: 400 },
+    { key: 'J', count: 75 },
+    { key: 'X', count: 75 },
+    { key: 'Q', count: 50 },
+    { key: 'Z', count: 35 },
     // Numbers (0-9)
-    { key: '1', count: 800, percentage: 1.6 },
-    { key: '2', count: 750, percentage: 1.5 },
-    { key: '3', count: 700, percentage: 1.4 },
-    { key: '4', count: 650, percentage: 1.3 },
-    { key: '5', count: 600, percentage: 1.2 },
-    { key: '6', count: 550, percentage: 1.1 },
-    { key: '7', count: 500, percentage: 1.0 },
-    { key: '8', count: 450, percentage: 0.9 },
-    { key: '9', count: 400, percentage: 0.8 },
-    { key: '0', count: 350, percentage: 0.7 },
+    { key: '1', count: 800 },
+    { key: '2', count: 750 },
+    { key: '3', count: 700 },
+    { key: '4', count: 650 },
+    { key: '5', count: 600 },
+    { key: '6', count: 550 },
+    { key: '7', count: 500 },
+    { key: '8', count: 450 },
+    { key: '9', count: 400 },
+    { key: '0', count: 350 },
     // High-frequency special keys
-    { key: 'Space', count: 8500, percentage: 17.0 },
-    { key: 'Enter', count: 2200, percentage: 4.4 },
-    { key: 'Backspace', count: 1800, percentage: 3.6 },
-    { key: 'ShiftLeft', count: 3200, percentage: 6.4 },
-    { key: 'ShiftRight', count: 800, percentage: 1.6 },
-    { key: 'Tab', count: 1200, percentage: 2.4 },
+    { key: 'Space', count: 8500 },
+    { key: 'Enter', count: 2200 },
+    { key: 'Backspace', count: 1800 },
+    { key: 'ShiftLeft', count: 3200 },
+    { key: 'ShiftRight', count: 800 },
+    { key: 'Tab', count: 1200 },
     // Modifiers
-    { key: 'CtrlLeft', count: 1500, percentage: 3.0 },
-    { key: 'CtrlRight', count: 200, percentage: 0.4 },
-    { key: 'AltLeft', count: 800, percentage: 1.6 },
-    { key: 'AltRight', count: 150, percentage: 0.3 },
-    { key: 'Win', count: 600, percentage: 1.2 },
+    { key: 'CtrlLeft', count: 1500 },
+    { key: 'CtrlRight', count: 200 },
+    { key: 'AltLeft', count: 800 },
+    { key: 'AltRight', count: 150 },
+    { key: 'Win', count: 600 },
     // Common punctuation
-    { key: '.', count: 1200, percentage: 2.4 },
-    { key: ',', count: 1000, percentage: 2.0 },
-    { key: "'", count: 600, percentage: 1.2 },
-    { key: ';', count: 400, percentage: 0.8 },
-    { key: '/', count: 500, percentage: 1.0 },
-    { key: '-', count: 450, percentage: 0.9 },
-    { key: '=', count: 200, percentage: 0.4 },
-    { key: '[', count: 150, percentage: 0.3 },
-    { key: ']', count: 150, percentage: 0.3 },
-    { key: '\\', count: 100, percentage: 0.2 },
-    { key: '`', count: 80, percentage: 0.16 },
+    { key: '.', count: 1200 },
+    { key: ',', count: 1000 },
+    { key: "'", count: 600 },
+    { key: ';', count: 400 },
+    { key: '/', count: 500 },
+    { key: '-', count: 450 },
+    { key: '=', count: 200 },
+    { key: '[', count: 150 },
+    { key: ']', count: 150 },
+    { key: '\\', count: 100 },
+    { key: '`', count: 80 },
     // Navigation keys
-    { key: 'Up', count: 450, percentage: 0.9 },
-    { key: 'Down', count: 500, percentage: 1.0 },
-    { key: 'Left', count: 400, percentage: 0.8 },
-    { key: 'Right', count: 450, percentage: 0.9 },
-    { key: 'Home', count: 200, percentage: 0.4 },
-    { key: 'End', count: 180, percentage: 0.36 },
-    { key: 'PageUp', count: 150, percentage: 0.3 },
-    { key: 'PageDown', count: 150, percentage: 0.3 },
-    { key: 'Delete', count: 350, percentage: 0.7 },
-    { key: 'Insert', count: 50, percentage: 0.1 },
+    { key: 'Up', count: 450 },
+    { key: 'Down', count: 500 },
+    { key: 'Left', count: 400 },
+    { key: 'Right', count: 450 },
+    { key: 'Home', count: 200 },
+    { key: 'End', count: 180 },
+    { key: 'PageUp', count: 150 },
+    { key: 'PageDown', count: 150 },
+    { key: 'Delete', count: 350 },
+    { key: 'Insert', count: 50 },
     // Function keys (low usage)
-    { key: 'F1', count: 120, percentage: 0.24 },
-    { key: 'F2', count: 100, percentage: 0.2 },
-    { key: 'F3', count: 90, percentage: 0.18 },
-    { key: 'F4', count: 80, percentage: 0.16 },
-    { key: 'F5', count: 200, percentage: 0.4 },
-    { key: 'F6', count: 70, percentage: 0.14 },
-    { key: 'F7', count: 60, percentage: 0.12 },
-    { key: 'F8', count: 50, percentage: 0.1 },
-    { key: 'F9', count: 40, percentage: 0.08 },
-    { key: 'F10', count: 180, percentage: 0.36 },
-    { key: 'F11', count: 300, percentage: 0.6 },
-    { key: 'F12', count: 250, percentage: 0.5 },
+    { key: 'F1', count: 120 },
+    { key: 'F2', count: 100 },
+    { key: 'F3', count: 90 },
+    { key: 'F4', count: 80 },
+    { key: 'F5', count: 200 },
+    { key: 'F6', count: 70 },
+    { key: 'F7', count: 60 },
+    { key: 'F8', count: 50 },
+    { key: 'F9', count: 40 },
+    { key: 'F10', count: 180 },
+    { key: 'F11', count: 300 },
+    { key: 'F12', count: 250 },
     // Rarely used keys
-    { key: 'Esc', count: 400, percentage: 0.8 },
-    { key: 'CapsLock', count: 25, percentage: 0.05 },
-    { key: 'Fn', count: 15, percentage: 0.03 },
-    { key: 'Menu', count: 30, percentage: 0.06 },
-    { key: 'PrintScreen', count: 20, percentage: 0.04 },
-    { key: 'ScrollLock', count: 5, percentage: 0.01 },
-    { key: 'Pause', count: 8, percentage: 0.016 },
+    { key: 'Esc', count: 400 },
+    { key: 'CapsLock', count: 25 },
+    { key: 'Fn', count: 15 },
+    { key: 'Menu', count: 30 },
+    { key: 'PrintScreen', count: 20 },
+    { key: 'ScrollLock', count: 5 },
+    { key: 'Pause', count: 8 },
     // Numpad (moderate usage)
-    { key: 'Numpad0', count: 300, percentage: 0.6 },
-    { key: 'Numpad1', count: 250, percentage: 0.5 },
-    { key: 'Numpad2', count: 250, percentage: 0.5 },
-    { key: 'Numpad3', count: 200, percentage: 0.4 },
-    { key: 'Numpad4', count: 200, percentage: 0.4 },
-    { key: 'Numpad5', count: 180, percentage: 0.36 },
-    { key: 'Numpad6', count: 180, percentage: 0.36 },
-    { key: 'Numpad7', count: 150, percentage: 0.3 },
-    { key: 'Numpad8', count: 150, percentage: 0.3 },
-    { key: 'Numpad9', count: 120, percentage: 0.24 },
-    { key: 'NumpadAdd', count: 100, percentage: 0.2 },
-    { key: 'NumpadSubtract', count: 80, percentage: 0.16 },
-    { key: 'NumpadMultiply', count: 60, percentage: 0.12 },
-    { key: 'NumpadDivide', count: 50, percentage: 0.1 },
-    { key: 'NumpadDecimal', count: 90, percentage: 0.18 },
-    { key: 'NumpadEnter', count: 120, percentage: 0.24 },
-    { key: 'NumLock', count: 10, percentage: 0.02 }
+    { key: 'Numpad0', count: 300 },
+    { key: 'Numpad1', count: 250 },
+    { key: 'Numpad2', count: 250 },
+    { key: 'Numpad3', count: 200 },
+    { key: 'Numpad4', count: 200 },
+    { key: 'Numpad5', count: 180 },
+    { key: 'Numpad6', count: 180 },
+    { key: 'Numpad7', count: 150 },
+    { key: 'Numpad8', count: 150 },
+    { key: 'Numpad9', count: 120 },
+    { key: 'NumpadAdd', count: 100 },
+    { key: 'NumpadSubtract', count: 80 },
+    { key: 'NumpadMultiply', count: 60 },
+    { key: 'NumpadDivide', count: 50 },
+    { key: 'NumpadDecimal', count: 90 },
+    { key: 'NumpadEnter', count: 120 },
+    { key: 'NumLock', count: 10 }
   ])
 
   const [suggestedRemappings] = useState<SuggestedRemapping[]>([
@@ -202,6 +201,71 @@ function Insights(): JSX.Element {
   ])
 
   const [hoveredRemapping, setHoveredRemapping] = useState<SuggestedRemapping | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isButtonSpinning, setIsButtonSpinning] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [debugData, setDebugData] = useState<string>('')
+
+  // Fetch key frequencies from daemon
+  const fetchKeyFrequencies = useCallback(async (isManualRefresh = false) => {
+    try {
+      if (isManualRefresh) {
+        setIsRefreshing(true)
+        // Stop the immediate spin animation once refresh state is set
+        setTimeout(() => setIsButtonSpinning(false), 100)
+      } else {
+        setIsLoading(true)
+      }
+      setError(null)
+
+      // Check if API method exists (in case preload hasn't reloaded)
+      if (!window.api || typeof window.api.getKeyFrequencies !== 'function') {
+        const errorMsg =
+          'getKeyFrequencies API not available. Please restart the app to reload the preload script.'
+        log.error(errorMsg)
+        setError(errorMsg)
+        setIsLoading(false)
+        setIsRefreshing(false)
+        return
+      }
+
+      log.info('Fetching key frequencies from daemon...')
+      const frequencies = await window.api.getKeyFrequencies()
+
+      // Debug: display raw response
+      setDebugData(JSON.stringify(frequencies, null, 2))
+      log.debug('Received frequencies:', frequencies)
+
+      if (frequencies && frequencies.length > 0) {
+        setKeyCountData(frequencies)
+        log.info(`Successfully loaded ${frequencies.length} key frequencies`)
+      } else {
+        log.warn('No key frequency data received from daemon')
+        setError('No data available. Make sure the keybinder is running.')
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch key frequencies'
+      log.error('Error fetching key frequencies:', err)
+
+      // Provide more helpful error messages
+      if (errorMessage.includes('ENOENT') || errorMessage.includes('connect')) {
+        setError(
+          'Cannot connect to daemon. Make sure the keybinder is running. Check the daemon status in settings.'
+        )
+      } else {
+        setError(errorMessage)
+      }
+    } finally {
+      setIsLoading(false)
+      setIsRefreshing(false)
+    }
+  }, [])
+
+  // Load data on mount
+  useEffect(() => {
+    fetchKeyFrequencies()
+  }, [fetchKeyFrequencies])
 
   return (
     <div className="min-h-screen pb-12 bg-gray-50">
@@ -255,9 +319,51 @@ function Insights(): JSX.Element {
           transition={{ delay: 0.3, duration: 0.5 }}
         >
           <Card className="glass-panel p-6 relative overflow-visible">
-            <h2 className="text-xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-              Keyboard Heatmap
-            </h2>
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                  Keyboard Heatmap
+                </h2>
+              </div>
+              {/* Refresh Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  // Start spinning immediately for visual feedback
+                  setIsButtonSpinning(true)
+                  fetchKeyFrequencies(true)
+                }}
+                disabled={isRefreshing || isLoading}
+                className="ml-4"
+              >
+                <motion.div
+                  animate={{
+                    rotate: isRefreshing || isButtonSpinning ? 360 : 0
+                  }}
+                  transition={{
+                    duration: 0.6,
+                    repeat: isRefreshing || isButtonSpinning ? Infinity : 0,
+                    ease: 'linear'
+                  }}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </motion.div>
+              </Button>
+            </div>
+
+            {/* Error/Loading State */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+            {isLoading && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-600 text-sm">
+                Loading key frequency data...
+              </div>
+            )}
+
             <p className="text-sm text-muted-foreground mb-4">
               {hoveredRemapping
                 ? hoveredRemapping.type === 'swap'
@@ -313,25 +419,33 @@ function Insights(): JSX.Element {
           <Card className="glass-panel p-6">
             <h3 className="text-lg font-bold mb-4">Top 10 Keys</h3>
             <div className="space-y-2">
-              {keyCountData.slice(0, 10).map((keyData) => (
-                <div key={keyData.key} className="flex items-center gap-3">
-                  <div className="w-12 h-8 flex items-center justify-center rounded border-2 border-blue-600 text-blue-600 font-mono font-bold bg-white/20 text-sm">
-                    {keyData.key.length > 4 ? keyData.key.slice(0, 4) : keyData.key}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-xs font-medium">{keyData.key}</span>
-                      <span className="text-xs text-muted-foreground">{keyData.count} presses</span>
+              {(() => {
+                const totalCount = keyCountData.reduce((sum, kc) => sum + kc.count, 0)
+                return keyCountData.slice(0, 10).map((keyData) => {
+                  const percentage = totalCount > 0 ? (keyData.count / totalCount) * 100 : 0
+                  return (
+                    <div key={keyData.key} className="flex items-center gap-3">
+                      <div className="w-12 h-8 flex items-center justify-center rounded border-2 border-blue-600 text-blue-600 font-mono font-bold bg-white/20 text-sm">
+                        {keyData.key.length > 4 ? keyData.key.slice(0, 4) : keyData.key}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs font-medium">{keyData.key}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {keyData.count} presses
+                          </span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-1.5">
+                          <div
+                            className="bg-gradient-to-r from-blue-600 to-cyan-500 h-1.5 rounded-full transition-all"
+                            style={{ width: `${percentage * 8}%` }}
+                          ></div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-1.5">
-                      <div
-                        className="bg-gradient-to-r from-blue-600 to-cyan-500 h-1.5 rounded-full transition-all"
-                        style={{ width: `${keyData.percentage * 8}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  )
+                })
+              })()}
             </div>
           </Card>
 
@@ -361,6 +475,28 @@ function Insights(): JSX.Element {
             </div>
           </Card>
         </motion.div>
+
+        {/* Debug Section - Show raw daemon response */}
+        {debugData && (
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            <Card className="glass-panel p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold">Debug: Raw Daemon Response</h3>
+                <Button variant="outline" size="sm" onClick={() => setDebugData('')}>
+                  Hide
+                </Button>
+              </div>
+              <pre className="text-xs bg-gray-900 text-green-400 p-4 rounded overflow-auto max-h-96 font-mono">
+                {debugData}
+              </pre>
+            </Card>
+          </motion.div>
+        )}
       </div>
     </div>
   )

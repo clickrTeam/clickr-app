@@ -1,6 +1,12 @@
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { KeyCount, SuggestedRemapping } from '../pages/Insights'
-import { mainRows, specialtyRows, numpadRows, keyShortLabels } from './VisualKeyboard/Layout.const'
+import {
+  mainRows,
+  specialtyRows,
+  numpadRows,
+  keyShortLabels,
+  REPRESENTED_KEYS
+} from './VisualKeyboard/Layout.const'
 
 interface KeyboardHeatmapProps {
   keyCountData: KeyCount[]
@@ -14,9 +20,18 @@ const getDestinationKeys = (remapping: SuggestedRemapping | null): string[] => {
   return remapping.toKeys || []
 }
 
+// Helper function to get keys that are not on the keyboard layout
+const getMissingKeys = (remapping: SuggestedRemapping | null): string[] => {
+  const destinationKeys = getDestinationKeys(remapping)
+  return destinationKeys.filter((key) => !REPRESENTED_KEYS.includes(key))
+}
+
 const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProps): JSX.Element => {
   // Create a map for quick lookup
   const keyCountMap = new Map(keyCountData.map((kc) => [kc.key, kc]))
+
+  // Calculate total count once for percentage calculations
+  const totalCount = keyCountData.reduce((sum, kc) => sum + kc.count, 0)
 
   // Get the max count for color intensity calculation
   const maxCount = Math.max(...keyCountData.map((kc) => kc.count))
@@ -117,7 +132,9 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
             <div className="bg-gray-900 text-white px-2 py-1 rounded text-[10px] whitespace-nowrap shadow-xl">
               <div className="font-bold">{keyData.key}</div>
               <div>{count.toLocaleString()} presses</div>
-              <div className="text-gray-300">{keyCount?.percentage.toFixed(1)}%</div>
+              <div className="text-gray-300">
+                {totalCount > 0 ? ((count / totalCount) * 100).toFixed(1) : '0.0'}%
+              </div>
             </div>
             {/* Arrow */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
@@ -166,7 +183,47 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
         </div>
 
         {/* Numpad section */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 relative">
+          {/* Ethereal keys - keys not on the keyboard layout */}
+          <AnimatePresence>
+            {hoveredRemapping && hoveredRemapping.type === 'mapping' && (
+              <div
+                className="absolute right-0 flex flex-col gap-1 items-end"
+                style={{ top: '-8px' }}
+              >
+                {getMissingKeys(hoveredRemapping).map((missingKey, index) => {
+                  const displayText = keyShortLabels[missingKey] || missingKey
+                  return (
+                    <motion.div
+                      key={missingKey}
+                      className="relative flex items-center justify-center rounded-md border-4 border-blue-600 bg-white/90 backdrop-blur-sm font-mono font-bold text-xs animate-pulse shadow-lg shadow-blue-600/50 px-2"
+                      style={{
+                        height: '40px',
+                        minWidth: `${2.25 * 16}px`
+                      }}
+                      initial={{ opacity: 0, scale: 0.5, y: -10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.5, y: -10 }}
+                      transition={{
+                        duration: 0.3,
+                        delay: index * 0.1,
+                        ease: 'easeOut'
+                      }}
+                    >
+                      {/* Remapping indicator */}
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white border-2 border-blue-600 rounded px-1 py-0.5 text-[9px] font-bold whitespace-nowrap shadow-lg z-30">
+                        FROM
+                      </div>
+                      <span className="relative z-10 text-[10px] text-blue-600 whitespace-nowrap">
+                        {displayText}
+                      </span>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            )}
+          </AnimatePresence>
+
           {numpadRows.map((row, rowIndex) => (
             <div key={rowIndex} className="flex gap-0.5">
               {row.map((keyData, keyIndex) => renderKey(keyData, rowIndex, keyIndex, 'numpad'))}
