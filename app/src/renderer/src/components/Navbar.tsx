@@ -52,7 +52,9 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
     >
       {/* logo + hamburger */}
       <div className="flex items-center justify-between w-full px-4 md:hidden">
-        <div className="text-foreground/80 font-bold text-xl">Clickr</div>
+        <Link to="/" className="text-foreground/80 font-bold text-xl hover:text-white transition-colors">
+          Clickr
+        </Link>
         <button
           aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMobileMenuOpen}
@@ -127,7 +129,9 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
       </AnimatePresence>
 
       <div className="hidden md:flex w-full px-4 items-center">
-        <div className="flex-shrink-0 text-foreground/80 font-bold text-xl">Clickr</div>
+        <Link to="/" className="flex-shrink-0 text-foreground/80 font-bold text-xl hover:text-white transition-colors">
+          Clickr
+        </Link>
 
         <nav className="flex-1 flex justify-center">
           <div className="flex w-full max-w-4xl">

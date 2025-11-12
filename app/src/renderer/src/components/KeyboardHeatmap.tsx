@@ -43,11 +43,11 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
       }
     } else {
       if (key === hoveredRemapping.fromKey) {
-        return 'border-4 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
+        return 'border-4 border-green-600 animate-pulse shadow-lg shadow-green-600/50'
       }
 
       if (key === hoveredRemapping.toKey) {
-        return 'border-4 border-green-600 animate-pulse shadow-lg shadow-green-600/50'
+        return 'border-4 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
       }
     }
 
@@ -123,8 +123,8 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
             {hoveredRemapping.type === 'swap'
               ? 'SWAP'
               : keyData.key === hoveredRemapping.fromKey
-                ? 'FROM'
-                : 'TO'}
+                ? 'TO'
+                : 'FROM'}
           </div>
         )}
       </motion.div>
@@ -183,9 +183,9 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
               </>
             ) : (
               <>
-                <span className="text-blue-600">{hoveredRemapping.fromKey}</span>
+                <span className="text-green-600">{hoveredRemapping.fromKey}</span>
                 {' → '}
-                <span className="text-green-600">{hoveredRemapping.toKey}</span>
+                <span className="text-blue-600">{hoveredRemapping.toKey}</span>
               </>
             )}
           </p>

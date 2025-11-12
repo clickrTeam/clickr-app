@@ -70,7 +70,7 @@ const Settings = ({ isAuthenticated, username }: SettingsProps): JSX.Element => 
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="min-h-screen pt-8 pb-16">
+      <div className="min-h-screen pt-8 pb-16 bg-gray-50">
       <div className="container mx-auto px-4 max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

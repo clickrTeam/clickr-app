@@ -17,7 +17,7 @@ import { Button } from '@renderer/components/ui/button'
 import { Badge } from '@renderer/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Input } from '@renderer/components/ui/input'
-import { Search, Download, User, Clock, Plus, Upload, Cloud } from 'lucide-react'
+import { Search, Download, User, Clock, Plus, Upload, Cloud, Trash } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import profileController, { ProfileController } from '@renderer/components/VisualKeyboard/ProfileControler'
 
@@ -263,7 +263,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
   }
 
   return (
-    <div className="min-h-screen pt-8 pb-16">
+    <div className="min-h-screen pt-8 pb-16 bg-gray-50">
       <div className="container mx-auto px-4">
         <motion.div
           className="max-w-6xl mx-auto"
@@ -460,7 +460,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
             {isAuthenticated ? 'Upload' : 'Login to Upload'}
           </Button>
           <Button variant="destructive" size="sm" onClick={() => confirmDeleteProfile(item.index)}>
-            Delete
+            <Trash size={14} />
           </Button>
         </CardFooter>
       </Card>
@@ -554,7 +554,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
               })
             }}
           >
-            Delete
+            <Trash size={14} />
           </Button>
         </CardFooter>
       </Card>

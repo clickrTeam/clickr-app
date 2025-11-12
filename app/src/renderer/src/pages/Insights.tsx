@@ -185,8 +185,8 @@ function Insights(): JSX.Element {
       id: '5',
       type: 'mapping',
       fromKey: 'AltLeft',
-      toKey: 'Command',
-      reason: 'Optimize for Mac-style shortcuts.',
+      toKey: 'CtrlLeft + C',
+      reason: 'Left Alt is rarely used, Left Ctrl is frequently used.',
       potentialSavings: 3.2,
       color: 'yellow'
     },
@@ -194,8 +194,8 @@ function Insights(): JSX.Element {
       id: '6',
       type: 'mapping',
       fromKey: 'Menu',
-      toKey: 'Delete',
-      reason: 'Menu key is underused, Delete is high-traffic.',
+      toKey: 'VolumeUp',
+      reason: 'Menu key is underused, VolumeUp is frequently used.',
       potentialSavings: 2.8,
       color: 'purple'
     }
@@ -204,7 +204,7 @@ function Insights(): JSX.Element {
   const [hoveredRemapping, setHoveredRemapping] = useState<SuggestedRemapping | null>(null)
 
   return (
-    <div className="min-h-screen pb-12 bg-gradient-to-b from-background to-secondary/20">
+    <div className="min-h-screen pb-12 bg-gray-50">
       <div className="container mx-auto px-4">
         {/* Header Section */}
         <motion.div

@@ -64,7 +64,7 @@ const Login = ({ login: handleLogin }: LoginProps): JSX.Element => {
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-center"
+      className="flex flex-col items-center justify-center bg-gray-50 min-h-screen"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
