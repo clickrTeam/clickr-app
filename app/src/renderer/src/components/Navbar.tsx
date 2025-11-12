@@ -52,7 +52,14 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
     >
       {/* logo + hamburger */}
       <div className="flex items-center justify-between w-full px-4 md:hidden">
-        <Link to="/" className="text-foreground/80 font-bold text-xl hover:text-white transition-colors">
+        <Link
+          to="/"
+          onClick={() => {
+            // Dispatch event to reset edit state in MyMappings
+            window.dispatchEvent(new Event('reset-mappings-edit'))
+          }}
+          className="text-foreground/80 font-bold text-xl hover:text-white transition-colors"
+        >
           Clickr
         </Link>
         <button
@@ -74,23 +81,29 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
             className="md:hidden px-4 bg-clickr-light-blue/95 backdrop-blur-lg border-t"
           >
             <nav className="flex flex-col space-y-3 py-3">
-              {navLinks.map((link) => (
-                <NavLink
-                  key={link.name}
-                  to={link.path}
-                  end={link.path === '/'}
-                  className={({ isActive }) =>
-                    cn(
-                      'font-medium transition-colors hover:text-[rgb(1_127_185)] flex items-center gap-2',
-                      isActive ? 'font-bold text-[#f9f9f9]' : 'text-foreground/80'
-                    )
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.name}
+                to={link.path}
+                end={link.path === '/'}
+                className={({ isActive }) =>
+                  cn(
+                    'font-medium transition-colors hover:text-[rgb(1_127_185)] flex items-center gap-2',
+                    isActive ? 'font-bold text-[#f9f9f9]' : 'text-foreground/80'
+                  )
+                }
+                onClick={() => {
+                  setIsMobileMenuOpen(false)
+                  // Reset edit state when clicking Mappings
+                  if (link.path === '/') {
+                    window.dispatchEvent(new Event('reset-mappings-edit'))
                   }
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <link.icon size={18} />
-                  {link.name}
-                </NavLink>
-              ))}
+                }}
+              >
+                <link.icon size={18} />
+                {link.name}
+              </NavLink>
+            ))}
 
               <Daemon refreshActive={false} />
 
@@ -129,7 +142,14 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
       </AnimatePresence>
 
       <div className="hidden md:flex w-full px-4 items-center">
-        <Link to="/" className="flex-shrink-0 text-foreground/80 font-bold text-xl hover:text-white transition-colors">
+        <Link
+          to="/"
+          onClick={() => {
+            // Dispatch event to reset edit state in MyMappings
+            window.dispatchEvent(new Event('reset-mappings-edit'))
+          }}
+          className="flex-shrink-0 text-foreground/80 font-bold text-xl hover:text-white transition-colors"
+        >
           Clickr
         </Link>
 
@@ -146,6 +166,12 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
                     isActive ? 'font-bold text-[#f9f9f9]' : 'text-foreground/80'
                   )
                 }
+                onClick={() => {
+                  // Reset edit state when clicking Mappings
+                  if (link.path === '/') {
+                    window.dispatchEvent(new Event('reset-mappings-edit'))
+                  }
+                }}
               >
                 <link.icon size={18} />
                 <span className="truncate">{link.name}</span>

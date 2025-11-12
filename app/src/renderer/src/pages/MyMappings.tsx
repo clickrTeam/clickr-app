@@ -127,6 +127,23 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     }
   }, [isAuthenticated, username])
 
+  // Reset edit state when navigating to mappings page (from navbar clicks)
+  // Listen for custom event dispatched by navbar when clicking Mappings/Clickr
+  useEffect(() => {
+    const handleResetEdit = (): void => {
+      if (editedProfileIndex !== null) {
+        // Save changes before resetting, just like the Back button does
+        profileController.onSave()
+        setEditedProfileIndex(null)
+      }
+    }
+
+    window.addEventListener('reset-mappings-edit', handleResetEdit)
+    return () => {
+      window.removeEventListener('reset-mappings-edit', handleResetEdit)
+    }
+  }, [editedProfileIndex])
+
   const confirmDeleteProfile = (profile_index: number): void => {
     toast('Are you sure you want to delete this profile?', {
       action: {
