@@ -2,7 +2,7 @@ import { Profile } from '../../../models/Profile'
 import { Layer } from '../../../models/Layer'
 import { Button } from './ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { toast } from 'sonner'
 import { VisualKeyboard } from './VisualKeyboard/VisualKeyboard'
 import { LayerComponent } from './LayerComponent'
@@ -18,6 +18,8 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
   const [localProfile, setLocalProfile] = useState(profileController.getProfile())
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
+  const [isDeleteConfirming, setIsDeleteConfirming] = useState(false)
+  const deleteButtonRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
   profileController.setLayer(selectedLayerIndex) // Hack to keep the active layer on construct.
@@ -32,29 +34,37 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
   const handleAddLayer = (): void => {
     log.debug('Adding new layer')
     const next = Profile.fromJSON(localProfile.toJSON())
-    next.addLayer('Layer ' + next.layers.length)
+    next.addLayer('Layer ' + (next.layers.length + 1))
 
     setSelectedLayerIndex(next.layers.length - 1)
     setLocalProfile(next)
+    setIsDeleteConfirming(false)
   }
 
   useEffect(() => {
     profileController.profile = localProfile
     profileController.setLayer(selectedLayerIndex)
+    setIsDeleteConfirming(false) // Reset confirmation when layer changes
   }, [localProfile, profileController, selectedLayerIndex])
 
-  const confirmDeleteLayer = (layerNumber: number): void => {
-    toast('Are you sure you want to delete this layer?', {
-      action: {
-        label: 'Delete',
-        onClick: () => handleDeleteLayer(layerNumber)
-      },
-      cancel: {
-        label: 'Cancel',
-        onClick: () => { }
+  // Reset delete confirmation when clicking outside the button
+  useEffect(() => {
+    if (!isDeleteConfirming) return
+
+    const handleClickOutside = (event: MouseEvent): void => {
+      if (
+        deleteButtonRef.current &&
+        !deleteButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsDeleteConfirming(false)
       }
-    })
-  }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isDeleteConfirming])
 
   const handleDeleteLayer = (layerNumber: number): void => {
     log.debug('Deleting layer at index:', layerNumber)
@@ -63,10 +73,20 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
 
     if (!was_successful) {
       toast.error('Error deleting layer.')
+      setIsDeleteConfirming(false)
       return
     }
     setSelectedLayerIndex(prof.layers.length - 1)
     setLocalProfile(prof)
+    setIsDeleteConfirming(false)
+  }
+
+  const handleDeleteClick = (): void => {
+    if (isDeleteConfirming) {
+      handleDeleteLayer(selectedLayerIndex)
+    } else {
+      setIsDeleteConfirming(true)
+    }
   }
 
   const handleDuplicateLayer = (layerNumber: number): void => {
@@ -75,6 +95,7 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
     prof.duplicateLayer(layerNumber)
     setSelectedLayerIndex(prof.layers.length - 1)
     setLocalProfile(prof)
+    setIsDeleteConfirming(false)
   }
 
   const toggleEditor = (): void => setUseVisualKeyboard((v) => !v)
@@ -133,13 +154,20 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
             <Button size="sm" onClick={() => handleDuplicateLayer(selectedLayerIndex)}>
               Duplicate Layer
             </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => confirmDeleteLayer(selectedLayerIndex)}
-            >
-              Delete Layer
-            </Button>
+            <div ref={deleteButtonRef}>
+              <Button
+                variant={isDeleteConfirming ? 'outline' : 'destructive'}
+                size="sm"
+                onClick={handleDeleteClick}
+                className={
+                  isDeleteConfirming
+                    ? 'bg-red-600 hover:bg-red-400 text-white border-red-700 hover:border-red-800 transition-all duration-200 font-medium'
+                    : ''
+                }
+              >
+                {isDeleteConfirming ? 'Are you sure?' : 'Delete Layer'}
+              </Button>
+            </div>
           </div>
         </div>
         {useVisualKeyboard ? (
