@@ -29,6 +29,9 @@ export interface API {
   runKeybinder(): Promise<void>
   stopKeybinder(): Promise<void>
 
+  // Statistics methods
+  getKeyFrequencies(): Promise<{ key: string; count: number }[]>
+
   // Settings methods
   getSettings(): Promise<Settings>
   updateSettings(updates: Partial<Settings>): Promise<Settings>
