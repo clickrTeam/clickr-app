@@ -14,8 +14,8 @@ export interface KeyCount {
 export interface SuggestedRemapping {
   id: string
   type: 'mapping' | 'swap'
-  fromKey?: string // Used for 'mapping' type (fromKey → toKey)
-  toKey?: string // Used for 'mapping' type (fromKey → toKey)
+  fromKey?: string // Used for 'mapping' type (fromKey → toKeys)
+  toKeys?: string[] // Used for 'mapping' type (fromKey → toKeys). Supports up to 10 keys
   swapKey1?: string // Used for 'swap' type (swapKey1 ↔ swapKey2)
   swapKey2?: string // Used for 'swap' type (swapKey1 ↔ swapKey2)
   reason: string
@@ -176,7 +176,7 @@ function Insights(): JSX.Element {
       id: '4',
       type: 'mapping',
       fromKey: 'Fn',
-      toKey: 'Esc',
+      toKeys: ['Esc'],
       reason: 'Easy access to Escape for quick exits.',
       potentialSavings: 1.8,
       color: 'red'
@@ -185,7 +185,7 @@ function Insights(): JSX.Element {
       id: '5',
       type: 'mapping',
       fromKey: 'AltLeft',
-      toKey: 'CtrlLeft + C',
+      toKeys: ['CtrlLeft', 'C'],
       reason: 'Left Alt is rarely used, Left Ctrl is frequently used.',
       potentialSavings: 3.2,
       color: 'yellow'
@@ -194,7 +194,7 @@ function Insights(): JSX.Element {
       id: '6',
       type: 'mapping',
       fromKey: 'Menu',
-      toKey: 'VolumeUp',
+      toKeys: ['VolumeUp'],
       reason: 'Menu key is underused, VolumeUp is frequently used.',
       potentialSavings: 2.8,
       color: 'purple'
@@ -262,7 +262,7 @@ function Insights(): JSX.Element {
               {hoveredRemapping
                 ? hoveredRemapping.type === 'swap'
                   ? `Previewing swap: ${hoveredRemapping.swapKey1} ↔ ${hoveredRemapping.swapKey2}`
-                  : `Previewing: ${hoveredRemapping.fromKey} → ${hoveredRemapping.toKey}`
+                  : `Previewing: ${hoveredRemapping.fromKey} → ${(hoveredRemapping.toKeys || []).join(' + ')}`
                 : 'Hover over a suggestion bubble to preview the remapping'}
             </p>
 

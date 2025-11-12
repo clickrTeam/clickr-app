@@ -9,6 +9,13 @@ interface RemappingBubbleProps {
   isHovered: boolean
 }
 
+// Helper function to get destination keys array from SuggestedRemapping
+// Recommended max: 10 keys per mapping
+const getDestinationKeys = (remapping: SuggestedRemapping): string[] => {
+  if (remapping.type === 'swap') return []
+  return remapping.toKeys || []
+}
+
 const keyColors = {
   red: 'border-red-400 text-red-600',
   blue: 'border-blue-400 text-blue-600',
@@ -75,7 +82,7 @@ const RemappingBubble = ({
     >
       {remapping.type === 'swap'
         ? `${remapping.swapKey1} ↔ ${remapping.swapKey2}`
-        : `${remapping.fromKey} → ${remapping.toKey}`}
+        : `${remapping.fromKey} → ${getDestinationKeys(remapping).join(' + ')}`}
     </motion.div>
   )
 }

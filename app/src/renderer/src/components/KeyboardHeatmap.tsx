@@ -7,6 +7,13 @@ interface KeyboardHeatmapProps {
   hoveredRemapping: SuggestedRemapping | null
 }
 
+// Helper function to get destination keys array from SuggestedRemapping
+// Recommended max: 10 keys per mapping
+const getDestinationKeys = (remapping: SuggestedRemapping | null): string[] => {
+  if (!remapping || remapping.type === 'swap') return []
+  return remapping.toKeys || []
+}
+
 const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProps): JSX.Element => {
   // Create a map for quick lookup
   const keyCountMap = new Map(keyCountData.map((kc) => [kc.key, kc]))
@@ -46,7 +53,9 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
         return 'border-4 border-green-600 animate-pulse shadow-lg shadow-green-600/50'
       }
 
-      if (key === hoveredRemapping.toKey) {
+      // Support multiple destination keys (toKeys array)
+      const toKeys = getDestinationKeys(hoveredRemapping)
+      if (toKeys.includes(key)) {
         return 'border-4 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
       }
     }
@@ -185,7 +194,12 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
               <>
                 <span className="text-green-600">{hoveredRemapping.fromKey}</span>
                 {' → '}
-                <span className="text-blue-600">{hoveredRemapping.toKey}</span>
+                {getDestinationKeys(hoveredRemapping).map((toKey, index) => (
+                  <span key={toKey}>
+                    {index > 0 && <span className="text-gray-600"> + </span>}
+                    <span className="text-blue-600">{toKey}</span>
+                  </span>
+                ))}
               </>
             )}
           </p>
