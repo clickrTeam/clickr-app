@@ -78,10 +78,12 @@ const Register = (): JSX.Element => {
       <div className="w-full max-w-md flex flex-col items-center">
         {/* Animated Keys Header - Centered over form */}
         <div className="h-32 relative w-full mb-6 flex justify-center">
-          <PositionedKeys
-            text="REGISTER"
-            colors={['blue', 'green', 'yellow', 'red', 'purple', 'orange', 'blue', 'green']}
-          />
+          <div className="transform -translate-x-8">
+            <PositionedKeys
+              text="REGISTER"
+              colors={['blue', 'green', 'yellow', 'red', 'purple', 'orange', 'blue', 'green']}
+            />
+          </div>
         </div>
 
         <div className="w-full p-6 bg-white rounded-lg shadow-md ">
