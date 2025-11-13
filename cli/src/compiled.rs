@@ -1,4 +1,7 @@
-use crate::ast::key::KeyIdent;
+use crate::{
+    ast::{self, key::KeyIdent, ConfigData},
+    utils::Span,
+};
 use serde::{Serialize, Serializer};
 
 #[derive(Debug, Serialize)]
@@ -60,10 +63,10 @@ pub enum AdvancedTrigger {
         value: KeyIdent,
     },
     MinimumWait {
-        value: u64,
+        value: usize,
     },
     MaximumWait {
-        value: u64,
+        value: usize,
     },
 }
 
@@ -82,7 +85,7 @@ pub enum Bind {
         value: usize,
     },
     Wait {
-        value: u64,
+        value: usize,
     },
     RunScript {
         interpreter: String,
@@ -96,6 +99,70 @@ pub enum Behavior {
     Capture,
     Release,
     Default,
+}
+
+enum TriggerEntry {
+    KeyUp { key: KeyIdent },
+    KeyDown { key: KeyIdent },
+    Sequence { keys: Vec<KeyIdent> },
+}
+
+enum TriggerEntryMetadata {}
+
+impl ast::Profile {
+    fn compile(self) -> Profile {
+        let config_data = self.config.to_data();
+        let ast::Profile {
+            name,
+            config,
+            layers,
+        } = self;
+        Profile {
+            profile_name: name.value,
+            default_layer: config_data
+                .default_layer
+                .as_ref()
+                .map(|layer_name| {
+                    layers
+                        .iter()
+                        .position(|l| &l.name.value == layer_name)
+                        .expect("default layer should exist after validating the profile")
+                })
+                .unwrap_or(0),
+            layers: layers
+                .into_iter()
+                .map(|l| l.value.compile(&config_data))
+                .collect(),
+        }
+    }
+}
+
+impl ast::Layer {
+    fn compile(self, config: &ConfigData) -> Layer {
+        let remappings_with_source: Vec<(Span, Remapping)> = Vec::new();
+        Layer {
+            layer_name: self.name.value,
+            remappings: self
+                .statements
+                .into_iter()
+                .flat_map(|r| r.value.compile())
+                .collect(),
+        }
+    }
+}
+impl ast::Statement {
+    fn compile(self) -> Vec<Remapping> {
+        todo!()
+    }
+}
+impl ast::Behavior {
+    fn compile(self) -> Behavior {
+        match self {
+            ast::Behavior::Capture => Behavior::Capture,
+            ast::Behavior::Release => Behavior::Release,
+            ast::Behavior::Wait => Behavior::Default,
+        }
+    }
 }
 
 #[rustfmt::skip]

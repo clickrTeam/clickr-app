@@ -1,5 +1,5 @@
 use crate::{
-    ast::{Bind, Config, ConfigEntry, Profile},
+    ast::{Bind, Config, ConfigEntry, Layer, Profile},
     utils::Spanned,
 };
 use miette::{miette, LabeledSpan, Severity};
@@ -232,15 +232,12 @@ impl Config {
     }
 }
 
-impl ConfigEntry {
-    fn get_timeout(&self) -> Option<usize> {
-        match self {
-            ConfigEntry::TapTimeout(t)
-            | ConfigEntry::HoldTime(t)
-            | ConfigEntry::ChordTimeout(t)
-            | ConfigEntry::SequenceTimeout(t)
-            | ConfigEntry::ComboTimeout(t) => Some(t.value),
-            _ => None,
-        }
-    }
+impl Layer {
+    //Things to check
+    // - Duplicate triggers
+    // - invalid trigger lists
+    //      for these we need to convert everrything but  akey into a list of KeyEvents up down
+    //      ident. We then look for identical sequences or overlapping sequences which contain
+    //      differnt behaviors
+    pub fn check(&self, result: &mut Vec<miette::Report>) {}
 }

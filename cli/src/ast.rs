@@ -96,7 +96,7 @@ impl Parse for ConfigEntry {
 }
 
 impl ConfigEntry {
-    fn get_timeout(&self) -> Option<usize> {
+    pub fn get_timeout(&self) -> Option<usize> {
         match self {
             ConfigEntry::TapTimeout(t)
             | ConfigEntry::HoldTime(t)
