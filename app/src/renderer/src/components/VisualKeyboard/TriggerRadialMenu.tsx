@@ -60,8 +60,8 @@ export const TriggerRadialMenu: React.FC<TriggerRadialMenuProps> = ({
                   key={triggerType}
                   className="absolute w-20 h-20 rounded-lg text-white font-semibold text-sm shadow-lg"
                   style={{
-                    left: '50%',
-                    top: '50%',
+                    left: '45%',
+                    top: '220px',
                     background: getTriggerTypeBackground(triggerType)
                   }}
                   initial={{ opacity: 0, x: 0, y: 0 }}
