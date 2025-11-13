@@ -33,15 +33,17 @@ const keyGroups: Record<string, string[]> = {
 }
 
 interface KeyModalProps {
-  onClose: () => void
+  onClose: (as_cancel: boolean) => void
   onAddKey: (key: KeyPressInfo) => void
-  onSelectLayer: (layerIndex: number) => void
+  keyOnly?: boolean
+  onSelectLayer?: (layerIndex: number) => void
   profileController: ProfileController
 }
 
 export const KeyModal: React.FC<KeyModalProps> = ({
   onClose,
   onAddKey,
+  keyOnly,
   onSelectLayer,
   profileController,
 }) => {
@@ -63,7 +65,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
 
   return (
     <div className="vk-key-modal">
-      <div className="vk-key-modal-overlay" onClick={onClose} />
+      <div className="vk-key-modal-overlay" onClick={() => onClose(true)} />
       <div className="vk-key-modal-content">
         <h3>Select Key Category</h3>
 
@@ -80,15 +82,17 @@ export const KeyModal: React.FC<KeyModalProps> = ({
             </button>
           ))}
 
-          <button
-            key="Layers"
-            className={`vk-key-modal-category-btn bg-clickr-light-blue-90 text-white${
-              keyCategory === 'Layers' ? ' active' : ''
-            }`}
-            onClick={() => setKeyCategory('Layers')}
-          >
-            Layers
-          </button>
+          { !keyOnly && (
+            <button
+              key="Layers"
+              className={`vk-key-modal-category-btn bg-clickr-light-blue-90 text-white${
+                keyCategory === 'Layers' ? ' active' : ''
+              }`}
+              onClick={() => setKeyCategory('Layers')}
+            >
+              Layers
+            </button>
+          )}
         </div>
 
         {keyCategory && keyCategory !== 'Layers' && (
@@ -99,7 +103,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
                 className="vk-footer-macro-dropdown-btn"
                 onClick={() => {
                   onAddKey({ key, isDown: true })
-                  onClose()
+                  onClose(false)
                   setKeyCategory(null)
                 }}
               >
@@ -121,8 +125,10 @@ export const KeyModal: React.FC<KeyModalProps> = ({
                     key={idx}
                     className="vk-footer-macro-dropdown-btn"
                     onClick={() => {
-                      onSelectLayer(idx)
-                      onClose()
+                      if (!!onSelectLayer) {
+                        onSelectLayer(idx)
+                      }
+                      onClose(false)
                       setKeyCategory(null)
                     }}
                   >
