@@ -205,7 +205,6 @@ function Insights(): JSX.Element {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isButtonSpinning, setIsButtonSpinning] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [debugData, setDebugData] = useState<string>('')
 
   // Fetch key frequencies from daemon
   const fetchKeyFrequencies = useCallback(async (isManualRefresh = false) => {
@@ -233,8 +232,6 @@ function Insights(): JSX.Element {
       log.info('Fetching key frequencies from daemon...')
       const frequencies = await window.api.getKeyFrequencies()
 
-      // Debug: display raw response
-      setDebugData(JSON.stringify(frequencies, null, 2))
       log.debug('Received frequencies:', frequencies)
 
       if (frequencies && frequencies.length > 0) {
@@ -516,28 +513,6 @@ function Insights(): JSX.Element {
             </div>
           </Card>
         </motion.div>
-
-        {/* Debug Section - Show raw daemon response */}
-        {debugData && (
-          <motion.div
-            className="mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            <Card className="glass-panel p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold">Debug: Raw Daemon Response</h3>
-                <Button variant="outline" size="sm" onClick={() => setDebugData('')}>
-                  Hide
-                </Button>
-              </div>
-              <pre className="text-xs bg-gray-900 text-green-400 p-4 rounded overflow-auto max-h-96 font-mono">
-                {debugData}
-              </pre>
-            </Card>
-          </motion.div>
-        )}
       </div>
     </div>
   )
