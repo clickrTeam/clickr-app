@@ -272,6 +272,7 @@ export class Hold extends Trigger {
   }
   value: string
   wait: number
+  behavior: TimedTriggerBehavior = TimedTriggerBehavior.Default
 
   constructor(value: string, wait: number) {
     super(TriggerType.Hold)
@@ -296,7 +297,20 @@ export class Hold extends Trigger {
   }
 
   toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
-    throw new Error('Method not implemented.')
+    let triggers: LLAdvancedTrigger[] = [];
+    triggers.push({
+      type: "key_press",
+      value: this.value,
+    })
+    triggers.push({
+      type: "minimum_wait",
+      value: this.wait,
+    })
+
+    return {
+      behavior: this.behavior,
+      triggers: triggers,
+    };
   }
 }
 
