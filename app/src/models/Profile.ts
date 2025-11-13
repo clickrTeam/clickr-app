@@ -529,7 +529,7 @@ export class Profile {
    * Processes all shortcut binds and converts them to sequences of press and releases
    * for the lower level profile
    */
-  private processShortcuts(): void {
+  private iterateThroughBinds(): void {
     log.debug(`Checking profile ${this.profile_name} for binds that contain shortcuts
       and converting them to a lower level form.`)
 
@@ -542,29 +542,52 @@ export class Profile {
           bind instanceof B.TapKey
         ) {
           if (Object.values(K.ShortcutAction).includes(bind.value as K.ShortcutAction)) {
+            layer.deleteRemapping(trigger)
+            layer.addRemapping(trigger, this.convertShortcutToLL(bind))
           }
-        } else if (bind instanceof B.SwapLayer) {
-          // Do nothing, layer numbers are OS-independent
-          continue
         }
         // Need recursive call here for array of nested binds
-        else if (bind instanceof B.Macro || bind instanceof B.TimedMacro) {
-          for (const single_bind of bind.binds) {
-            this.processBindRecursive(single_bind, incoming_OS, target_OS)
-          }
-        }
-        // Need recursive call here for nested bind
-        else if (bind instanceof B.Repeat) {
-          this.processBindRecursive(bind.value, incoming_OS, target_OS)
-        } else {
-          log.warn(
-            `Unknown bind type during ${incoming_OS} to ${target_OS} translation. Bind: ${bind.toString()}`
-          )
+        else {
+          const converted = this.processShortcutBindRecursive(bind)
+          layer.deleteRemapping(trigger)
+          layer.addRemapping(trigger, converted)
         }
       }
     }
   }
 
+  /**
+   * Determines if a bind needs to be processed as a shortcut, then calls the appropriate
+   * function if necessary. Will update the bind to be compliant with lower level profiles.
+   * @param bind will be checked to see if it is a shortcut, then converted if necessary
+   * @returns Bind object, converted or not
+   */
+  private processShortcutBindRecursive(bind: B.Bind): B.Bind {
+    if (bind instanceof B.Macro || bind instanceof B.TimedMacro) {
+      for (let i = 0; i < bind.binds.length; i++) {
+        bind.binds[i] = this.processShortcutBindRecursive(bind.binds[i])
+      }
+      return bind
+    }
+    // BASE CASE
+    else if (
+      bind instanceof B.PressKey ||
+      bind instanceof B.ReleaseKey ||
+      bind instanceof B.TapKey
+    ) {
+      return this.convertShortcutToLL(bind)
+    } else {
+      log.info('This bind cannot be processed as a shortcut at this time:', bind)
+      return bind
+    }
+  }
+
+  /**
+   * Performs the conversion from a shortcut like 'Copy' to a sequence of Press and Release
+   * based on operating system
+   * @param higher_level_bind The original bind that is represented at a higher level
+   * @returns A macro that contains the sequence of Press and Release needed.
+   */
   private convertShortcutToLL(higher_level_bind: B.Bind): B.Bind {
     let ll_bind = higher_level_bind
 
@@ -924,6 +947,7 @@ export class Profile {
   }
 
   toLL(): LLProfile {
+    this.iterateThroughBinds()
     return {
       profile_name: this.profile_name,
       default_layer: 0,
