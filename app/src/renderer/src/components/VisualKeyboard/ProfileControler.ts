@@ -48,6 +48,9 @@ export class ProfileController {
 
   set currentBinds(binds: Macro) {
     if (binds === this.currentBinds) return
+    if (!(binds instanceof Macro)) {
+      binds = new Macro([binds])
+    }
     log.debug('Setting currentBinds:', binds)
     this._currentBinds = binds
     if (this.currentTrigger && binds.binds.length > 0) {
