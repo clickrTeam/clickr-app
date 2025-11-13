@@ -25,6 +25,24 @@ export const triggerTypeColors: Record<TriggerType, string> = {
 
 const DEFAULT_COLOR = '#d1d5db'
 
+export function getMacroButtonBg(item: Bind): string {
+  return `${bindTypeColors[item.bind_type as BindType]}80`
+}
+export function getMacroButtonBgT(item: Trigger): string {
+  return `${triggerTypeColors[item.trigger_type as TriggerType]}80`
+}
+export function getTriggerTypeBackground(trigger_type: string): string {
+  return `${triggerTypeColors[trigger_type as TriggerType]}`
+}
+
+export function getDropdownBgT(
+  item: Trigger,
+  opt: TriggerType
+): string {
+  if (!opt) return ''
+  return item.trigger_type === opt ? `${triggerTypeColors[opt]}22` : ''
+}
+
 export function getBindColor(bindings: Array<[Trigger, Bind]>): string {
   if (!bindings || bindings.length === 0) return DEFAULT_COLOR
   const colors = bindings.map(([, bind]) => bindTypeColors[bind.bind_type])
@@ -46,17 +64,6 @@ export function getTriggerColor(mapped: [Trigger, Bind][]): import("csstype").Pr
   )
   return `linear-gradient(60deg, ${stops.join(', ')})`;
 }
-
-// export function getKeyBackground(key: string | undefined, layer: Layer): string {
-//   if (!key) return 'transparent'
-//   const bindingColors = getKeyBindingColors(key, layer)
-//   if (bindingColors.length === 0) return '#d1d5db'
-//   if (bindingColors.length === 1) return bindingColors[0]
-//   const stops = bindingColors.map(
-//     (color: string, i: number) => `${color} ${Math.round((i / bindingColors.length) * 100)}%`
-//   )
-//   return `linear-gradient(135deg, ${stops.join(', ')})`
-// }
 
 export function getKeyClass(
   key: string | undefined,
