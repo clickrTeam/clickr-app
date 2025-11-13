@@ -14,13 +14,24 @@ export enum TriggerType {
   AppFocused = 'app_focus_trigger'
 }
 
-export function getTriggerTypeDisplayName(value: TriggerType | string): string {
-  switch (value) {
+export function getTriggerTypeDisplayName(triggerType: TriggerType | string): string {
+  switch (triggerType) {
     case TriggerType.KeyPress:   return 'Key press';
     case TriggerType.KeyRelease: return 'Key release';
     case TriggerType.TapSequence:return 'Tap sequence';
     case TriggerType.Hold:       return 'Hold';
     case TriggerType.AppFocused: return 'App focused';
+    default:                     return 'Unknown trigger';
+  }
+}
+
+export function getTriggerTypeDescription(triggerType: TriggerType): string | undefined {
+  switch (triggerType) {
+    case TriggerType.KeyPress:   return 'When the key is pushed down.';
+    case TriggerType.KeyRelease: return 'When the key pops up or no longer pushed down.';
+    case TriggerType.TapSequence:return 'When a multiple keys are pressed in a short time. Add 2 of the same keys for a double tap.';
+    case TriggerType.Hold:       return 'When the key is held down for a long enough time.';
+    case TriggerType.AppFocused: return 'When a application or tab is focused.';
     default:                     return 'Unknown trigger';
   }
 }

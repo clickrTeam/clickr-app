@@ -13,7 +13,7 @@ import { ChevronDown } from 'lucide-react'
 import log from 'electron-log'
 import profileController from './ProfileControler'
 import { KeyModal } from './KeyModal'
-import { getMacroButtonBgT, getTriggerTypeBackground } from './Colors'
+import { getMacroButtonBgT } from './Colors'
 
 export const VisualKeyboard = (): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)

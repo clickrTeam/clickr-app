@@ -10,7 +10,6 @@ import log from 'electron-log'
 import Dropdown from './dropdown'
 import profileController from './ProfileControler'
 import { Input } from '../ui/input'
-import { Label } from '@radix-ui/react-label'
 
 const typeOptionsBind: BindType[] = [
   BindType.TapKey,
