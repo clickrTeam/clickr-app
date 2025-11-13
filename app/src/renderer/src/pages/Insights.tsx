@@ -294,13 +294,34 @@ function Insights(): JSX.Element {
         >
           <Card className="glass-panel p-4">
             <h3 className="text-xs font-semibold text-muted-foreground mb-1">Total Keys Pressed</h3>
-            <p className="text-2xl font-bold text-blue-600">50,000</p>
-            <p className="text-xs text-muted-foreground mt-1">13% more than average</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {keyCountData.reduce((sum, kc) => sum + kc.count, 0).toLocaleString()}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {keyCountData.length > 0
+                ? `${keyCountData.length} unique key combinations tracked`
+                : 'No data available'}
+            </p>
           </Card>
           <Card className="glass-panel p-4">
             <h3 className="text-xs font-semibold text-muted-foreground mb-1">Most Used Key</h3>
-            <p className="text-2xl font-bold text-green-600">Space</p>
-            <p className="text-xs text-muted-foreground mt-1">8,500 presses (17.0%)</p>
+            <p className="text-2xl font-bold text-green-600">
+              {(() => {
+                if (keyCountData.length === 0) return 'N/A'
+                const mostUsed = [...keyCountData].sort((a, b) => b.count - a.count)[0]
+                return mostUsed.key
+              })()}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {(() => {
+                if (keyCountData.length === 0) return 'No data available'
+                const totalCount = keyCountData.reduce((sum, kc) => sum + kc.count, 0)
+                const mostUsed = [...keyCountData].sort((a, b) => b.count - a.count)[0]
+                const percentage =
+                  totalCount > 0 ? ((mostUsed.count / totalCount) * 100).toFixed(1) : '0.0'
+                return `${mostUsed.count.toLocaleString()} presses (${percentage}%)`
+              })()}
+            </p>
           </Card>
           <Card className="glass-panel p-4">
             <h3 className="text-xs font-semibold text-muted-foreground mb-1">Efficiency Score</h3>
@@ -420,25 +441,45 @@ function Insights(): JSX.Element {
             <h3 className="text-lg font-bold mb-4">Top 10 Keys</h3>
             <div className="space-y-2">
               {(() => {
-                const totalCount = keyCountData.reduce((sum, kc) => sum + kc.count, 0)
-                return keyCountData.slice(0, 10).map((keyData) => {
-                  const percentage = totalCount > 0 ? (keyData.count / totalCount) * 100 : 0
+                // Sort by count descending and take top 10
+                const topKeys = [...keyCountData].sort((a, b) => b.count - a.count).slice(0, 10)
+                // Find the highest count to scale bars relative to the top key
+                const maxCount = topKeys.length > 0 ? topKeys[0].count : 1
+                return topKeys.map((keyData) => {
+                  // Scale bar width relative to the highest count, capped at 100%
+                  const barWidth =
+                    maxCount > 0 ? Math.min((keyData.count / maxCount) * 100, 100) : 0
+                  // Calculate dynamic font size based on key length
+                  const keyLength = keyData.key.length
+                  const fontSize =
+                    keyLength <= 4
+                      ? 'text-xs'
+                      : keyLength <= 6
+                        ? 'text-[10px]'
+                        : keyLength <= 8
+                          ? 'text-[9px]'
+                          : 'text-[8px]'
                   return (
                     <div key={keyData.key} className="flex items-center gap-3">
-                      <div className="w-12 h-8 flex items-center justify-center rounded border-2 border-blue-600 text-blue-600 font-mono font-bold bg-white/20 text-sm">
-                        {keyData.key.length > 4 ? keyData.key.slice(0, 4) : keyData.key}
+                      <div className="w-12 h-8 flex items-center justify-center rounded border-2 border-blue-600 text-blue-600 font-mono font-bold bg-white/20 overflow-hidden px-1">
+                        <span
+                          className={`${fontSize} leading-tight truncate`}
+                          style={{ maxWidth: '100%' }}
+                        >
+                          {keyData.key}
+                        </span>
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
                           <span className="text-xs font-medium">{keyData.key}</span>
                           <span className="text-xs text-muted-foreground">
-                            {keyData.count} presses
+                            {keyData.count.toLocaleString()} presses
                           </span>
                         </div>
                         <div className="w-full bg-secondary rounded-full h-1.5">
                           <div
                             className="bg-gradient-to-r from-blue-600 to-cyan-500 h-1.5 rounded-full transition-all"
-                            style={{ width: `${percentage * 8}%` }}
+                            style={{ width: `${barWidth}%` }}
                           ></div>
                         </div>
                       </div>
