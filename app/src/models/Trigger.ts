@@ -310,8 +310,8 @@ export class AppFocus extends Trigger {
 
   toJSON(): object {
     return {
-      type: TriggerType.KeyRelease,
-      value: this.app_name
+      type: TriggerType.AppFocused,
+      app_name: this.app_name
     }
   }
 

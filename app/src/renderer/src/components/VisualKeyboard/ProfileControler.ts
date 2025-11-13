@@ -131,6 +131,31 @@ export class ProfileController {
     }
     log.debug('Adding bind:', this.currentBinds, 'to trigger:', this.currentTrigger)
 
+    // Remove any existing remappings that are logically the same trigger (use equals),
+    // to avoid duplicate entries when trigger identity differs but semantics are equal
+    try {
+      const existing = Array.from(this.activeLayer!.remappings.keys()).find((t) => {
+        // prefer using equals if available
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const maybeEquals = (t as any).equals
+        if (typeof maybeEquals === 'function') {
+          return (t as any).equals(this.currentTrigger)
+        }
+        // fallback: shallow compare JSON
+        try {
+          return JSON.stringify(t) === JSON.stringify(this.currentTrigger)
+        } catch (err) {
+          return false
+        }
+      })
+      if (existing) {
+        log.debug('Found existing equivalent trigger, removing before re-adding:', existing)
+        this.activeLayer!.deleteRemapping(existing)
+      }
+    } catch (err) {
+      log.warn('Error while checking for existing triggers to dedupe:', err)
+    }
+
     this.activeLayer!.addRemapping(this.currentTrigger, this.currentBinds)
     this.onSave()
   }
