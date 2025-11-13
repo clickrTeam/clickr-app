@@ -1,76 +1,75 @@
 export type LLProfile = {
-  profile_name: string;
-  default_layer: number;
-  layers: LLLayer[];
-};
+  profile_name: string
+  default_layer: number
+  layers: LLLayer[]
+}
 
 export type LLLayer = {
-  layer_name: string;
-  remappings: LLRemapping[];
-};
+  layer_name: string
+  remappings: LLRemapping[]
+}
 
-export type LLRemapping = (LLBasicRemapping | LLSequenceRemapping);
+export type LLRemapping = LLBasicRemapping | LLSequenceRemapping
 
 export type LLBasicRemapping = {
-  trigger: LLBasicTrigger;
-  binds: LLBind[];
-};
+  trigger: LLBasicTrigger
+  binds: LLBind[]
+}
 
-export type LLBehavior = "capture" | "release" | "default";
+export type LLBehavior = 'capture' | 'release' | 'default'
 export type LLSequenceRemapping = {
-  triggers: LLAdvancedTrigger[];
-  binds: LLBind[];
-  behavior: LLBehavior;
-};
+  triggers: LLAdvancedTrigger[]
+  binds: LLBind[]
+  behavior: LLBehavior
+}
 
+export type LLBasicTrigger = LLKeyPress | LLKeyRelease
 
-export type LLBasicTrigger = LLKeyPress | LLKeyRelease;
-
-export type LLAdvancedTrigger = LLKeyPress | LLKeyRelease | LLMinimumWait | LLMaximumWait;
+export type LLAdvancedTrigger = LLKeyPress | LLKeyRelease | LLMinimumWait | LLMaximumWait
 
 export type LLKeyPress = {
-  type: "key_press";
-  value: string;
-};
+  type: 'key_press'
+  value: string
+}
 
 export type LLKeyRelease = {
-  type: "key_release";
-  value: string;
-};
+  type: 'key_release'
+  value: string
+}
 
 export type LLMinimumWait = {
-  type: "minimum_wait";
-  value: number;
-};
+  type: 'minimum_wait'
+  value: number
+}
 
 export type LLMaximumWait = {
-  type: "maximum_wait";
-  value: number;
-};
+  type: 'maximum_wait'
+  value: number
+}
 
-export type LLBind = LLPressKey | LLReleaseKey | LLSwapLayer | LLWait | LLRunScript;
+export type LLBind = LLPressKey | LLReleaseKey | LLSwapLayer | LLWait | LLRunScript
 
 export type LLPressKey = {
-  type: "press_key";
-  value: string;
-};
+  type: 'press_key'
+  value: string
+}
 
 export type LLReleaseKey = {
-  type: "release_key";
-  value: string;
-};
+  type: 'release_key'
+  value: string
+}
 
 export type LLSwapLayer = {
-  type: "switch_layer";
-  value: number;
-};
+  type: 'switch_layer'
+  value: number
+}
 
 export type LLWait = {
-  type: "wait";
-  value: number;
-};
+  type: 'wait'
+  value: number
+}
 export type LLRunScript = {
-  type: "run_script";
+  type: 'run_script'
   interpreter: string
   script: string
-};
+}

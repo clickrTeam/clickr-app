@@ -271,7 +271,7 @@ export function generateSmallShortcutProfileLinux(): Profile {
 
 export function generateSmallShortcutProfileMac(): Profile {
   const profile = new Profile('macOS Shortcuts')
-  profile.OS = 'Mac'
+  profile.OS = 'macOS'
   profile.addLayer('layer1')
 
   const t1 = new T.KeyPress(Letters.A)
