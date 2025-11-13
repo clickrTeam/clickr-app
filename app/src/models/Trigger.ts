@@ -301,26 +301,33 @@ export class Hold extends Trigger {
 }
 
 export class AppFocus extends Trigger {
+  readonly id: string
   app_name: string
 
-  constructor(app_name: string) {
+  constructor(app_name: string, id?: string) {
     super(TriggerType.AppFocused)
     this.app_name = app_name
+    this.id = id || this.generateId()
+  }
+
+  private generateId(): string {
+    return `app_focus_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
 
   toJSON(): object {
     return {
       type: TriggerType.AppFocused,
+      id: this.id,
       app_name: this.app_name
     }
   }
 
-  static fromJSON(obj: { app_name: string }): AppFocus {
-    return new AppFocus(obj.app_name)
+  static fromJSON(obj: { id?: string; app_name: string }): AppFocus {
+    return new AppFocus(obj.app_name, obj.id)
   }
 
-  equals(other: AppFocus): boolean {
-    return other instanceof AppFocus && this.app_name === other.app_name
+  equals(other: Trigger): boolean {
+    return other instanceof AppFocus && this.id === other.id
   }
 
   toString(): string {

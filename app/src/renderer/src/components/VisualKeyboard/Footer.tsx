@@ -216,8 +216,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
               <div aria-label='AppFocused' className='flex'>
                 <span className="vk-footer-selected-label" title='When this application is focused, or tab is selected.' style={{ minWidth: '112px' }}>On app focus:</span>
                 <Input placeholder={(currentTrigger as AppFocus).app_name} onChange={(e) => {
-                  (currentTrigger as AppFocus).app_name = e.target.value
-                  // profileController.currentTrigger = new AppFocus(e.target.value)
+                  profileController.currentTrigger = new AppFocus(e.target.value, (currentTrigger as AppFocus).id)
                   e.stopPropagation()
                 }} />
               </div>
