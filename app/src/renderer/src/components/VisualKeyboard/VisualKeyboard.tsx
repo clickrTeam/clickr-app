@@ -170,7 +170,18 @@ export const VisualKeyboard = (): JSX.Element => {
         {showLeftover && (
           <div className="flex flex-wrap mt-2" style={{ gap: '0.25rem' }}>
             {leftoverKeys.filter((keyModel) => keyModel[0].trigger_type === T.TriggerType.AppFocused).map((keyModel) => (
-              <button aria-label={keyModel[0].trigger_type + ' leftover-item'} className='vk-footer-macro-btn'>
+              <button
+                aria-label={keyModel[0].trigger_type + ' leftover-item'}
+                className='vk-footer-macro-btn'
+                style={{ background: getMacroButtonBgT(keyModel[0]) }}
+                onClick={(): void => {
+                  profileController.clearMapping()
+                  setSelectedKey(null)
+                  setIsCreatingNewMapping(true)
+                  profileController.currentTrigger = keyModel[0]
+                  profileController.currentBinds = (keyModel[1] as Macro)
+                }}
+              >
                 {(keyModel[0] as T.AppFocus).app_name}
               </button>
             ))}
