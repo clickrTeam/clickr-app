@@ -531,11 +531,12 @@ export class Profile {
    */
   private iterateThroughBinds(): void {
     log.debug(`Checking profile ${this.profile_name} for binds that contain shortcuts
-      and converting them to a lower level form.`)
+    and converting them to a lower level form.`)
 
     for (const layer of this.layers) {
-      for (const [trigger, bind] of layer.remappings) {
-        // Translate Bind keys
+      const remappingsCopy = Array.from(layer.remappings.entries())
+
+      for (const [trigger, bind] of remappingsCopy) {
         if (
           bind instanceof B.PressKey ||
           bind instanceof B.ReleaseKey ||
@@ -545,9 +546,7 @@ export class Profile {
             layer.deleteRemapping(trigger)
             layer.addRemapping(trigger, this.convertShortcutToLL(bind))
           }
-        }
-        // Need recursive call here for array of nested binds
-        else {
+        } else {
           const converted = this.processShortcutBindRecursive(bind)
           layer.deleteRemapping(trigger)
           layer.addRemapping(trigger, converted)
