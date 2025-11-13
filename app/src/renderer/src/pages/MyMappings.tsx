@@ -476,7 +476,12 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
             <Upload size={14} />
             {isAuthenticated ? 'Upload' : 'Login to Upload'}
           </Button>
-          <Button variant="destructive" size="sm" onClick={() => confirmDeleteProfile(item.index)}>
+          <Button
+            variant="destructive"
+            size="sm"
+            className="bg-red-500 text-white"
+            onClick={() => confirmDeleteProfile(item.index)}
+          >
             <Trash size={14} />
           </Button>
         </CardFooter>
@@ -544,6 +549,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
           <Button
             variant="destructive"
             size="sm"
+            className="bg-red-500 text-white"
             onClick={() => {
               if (!isAuthenticated || !username) {
                 toast.error('Please log in to delete mappings')
