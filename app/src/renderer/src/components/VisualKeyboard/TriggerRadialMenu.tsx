@@ -36,12 +36,13 @@ export const TriggerRadialMenu: React.FC<TriggerRadialMenuProps> = ({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-40"
+          className="fixed inset-0 flex justify-center z-40"
           onClick={handleBackdropClick}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
+          style={{ zIndex: 60 }}
         >
           <motion.div
             className="relative w-96 h-96"
@@ -61,7 +62,7 @@ export const TriggerRadialMenu: React.FC<TriggerRadialMenuProps> = ({
                   className="absolute w-20 h-20 rounded-lg text-white font-semibold text-sm shadow-lg"
                   style={{
                     left: '45%',
-                    top: '220px',
+                    top: '520px',
                     background: getTriggerTypeBackground(triggerType)
                   }}
                   initial={{ opacity: 0, x: 0, y: 0 }}
