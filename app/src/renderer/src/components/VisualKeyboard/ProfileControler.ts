@@ -214,12 +214,12 @@ export class ProfileController {
       const bind = this.activeLayer!.getRemapping(trigger)
       log.debug('Found binds for trigger:', bind)
       if (bind instanceof Macro) {
-        this.currentBinds = bind
+        this._currentBinds = bind
       } else if (bind) {
-        this.currentBinds = new Macro([bind])
+        this._currentBinds = new Macro([bind])
       } else {
         log.warn('No bind found for selected key:', selectedKey)
-        this.currentBinds = new Macro([])
+        this._currentBinds = new Macro([])
       }
     } else {
       log.debug('No trigger found for selected key, creating new KeyPress trigger.')
@@ -228,10 +228,12 @@ export class ProfileController {
         log.warn("Profile controller failed to create trigger.")
         return
       }
-      this.currentTrigger = newTrigger
+      this._currentTrigger = newTrigger
       log.warn('No bind found for selected key:', selectedKey)
-      this.currentBinds = new Macro([])
+      this._currentBinds = new Macro([])
     }
+
+    this.notifyStateChange()
   }
 
   getActiveRemappings(): Map<Trigger, Bind> {
