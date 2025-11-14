@@ -129,6 +129,12 @@ export enum KeyedSymbols {
   Slash = '/',
 }
 
+
+export const ENSURE_KEYS: string[] = [Object.values(Letters), Object.values(Digits),
+                               Object.values(Numpad), Object.values(Misc),
+                               Object.values(Function), Object.values(Navigation),
+                               Object.values(Modifier)].flat()
+
 //#endregion
 
 //#region keyless

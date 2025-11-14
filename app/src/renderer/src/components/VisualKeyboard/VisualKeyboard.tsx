@@ -14,6 +14,7 @@ import log from 'electron-log'
 import profileController from './ProfileControler'
 import { KeyModal } from './KeyModal'
 import { getMacroButtonBgT } from './Colors'
+import { ENSURE_KEYS } from '../../../../models/Keys.enum'
 
 export const VisualKeyboard = (): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
@@ -35,6 +36,11 @@ export const VisualKeyboard = (): JSX.Element => {
     const currentKey = keyQueue[0]
 
     if (currentKey.key === '') {
+      setShowPressedKeys([])
+      setKeyQueue((prev) => prev.slice(1))
+      return
+    } else if (!ENSURE_KEYS.includes(currentKey.key)) {
+      log.error("ERROR: ILLEGEAL KEY DETECTED! IGNORING!: ", currentKey.key, ENSURE_KEYS)
       setShowPressedKeys([])
       setKeyQueue((prev) => prev.slice(1))
       return
