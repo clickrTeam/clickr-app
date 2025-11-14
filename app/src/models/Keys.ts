@@ -42,6 +42,20 @@ export enum Digits {
   Digit9 = '9',
 }
 
+export enum KeyedSymbols {
+  Backtick = '`',
+  Dash = '-',
+  Equal = '=',
+  BracketLeft = '[',
+  BracketRight = ']',
+  Backslash = '\\',
+  Semicolon = ';',
+  Quote = "'",
+  Comma = ',',
+  Period = '.',
+  Slash = '/',
+}
+
 export enum Symbols {
   Exclamation = '!',
   At = '@',
@@ -53,17 +67,6 @@ export enum Symbols {
   Asterisk = '*',
   ParenLeft = '(',
   ParenRight = ')',
-  Dash = '-',
-  Equal = '=',
-  Backtick = '`',
-  BracketLeft = '[',
-  BracketRight = ']',
-  Backslash = '\\',
-  Semicolon = ';',
-  Quote = "'",
-  Comma = ',',
-  Period = '.',
-  Slash = '/',
   Underscore = '_',
   Plus = '+',
   Tilde = '~',
@@ -270,8 +273,8 @@ if (current_os === 'macOS') {
   log.warn('Unsupported OS for specific key mappings')
 }
 
-export const keys: string[] = [Object.values(Letters), Object.values(Digits), 
-                               Object.values(Modifier), Object.values(Symbols),
+export const keys: string[] = [Object.values(Letters), Object.values(Digits),
+                               Object.values(Modifier), Object.values(KeyedSymbols),
                                Object.values(Numpad), Object.values(Misc),
                                Object.values(Function), Object.values(Navigation),
                                Object.values(Modifier), os_keys].flat()
