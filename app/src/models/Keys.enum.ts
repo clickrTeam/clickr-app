@@ -1,5 +1,8 @@
 import log from 'electron-log'
 import { detectOS } from './Profile'
+
+//#region keys
+
 export enum Letters {
   A = 'A',
   B = 'B',
@@ -40,44 +43,6 @@ export enum Digits {
   Digit7 = '7',
   Digit8 = '8',
   Digit9 = '9',
-}
-
-export enum KeyedSymbols {
-  Backtick = '`',
-  Dash = '-',
-  Equal = '=',
-  BracketLeft = '[',
-  BracketRight = ']',
-  Backslash = '\\',
-  Semicolon = ';',
-  Quote = "'",
-  Comma = ',',
-  Period = '.',
-  Slash = '/',
-}
-
-export enum Symbols {
-  Exclamation = '!',
-  At = '@',
-  Hash = '#',
-  Dollar = '$',
-  Percent = '%',
-  Caret = '^',
-  Ampersand = '&',
-  Asterisk = '*',
-  ParenLeft = '(',
-  ParenRight = ')',
-  Underscore = '_',
-  Plus = '+',
-  Tilde = '~',
-  BraceLeft = '{',
-  BraceRight = '}',
-  Pipe = '|',
-  Colon = ':',
-  DoubleQuote = '"',
-  LessThan = '<',
-  GreaterThan = '>',
-  Question = '?'
 }
 
 export enum Numpad {
@@ -148,6 +113,48 @@ export enum Modifier {
   ShiftLeft = 'ShiftLeft',
   ShiftRight = 'ShiftRight',
   Fn = 'Fn' // hardware function modifier (macbooks, many laptops)
+}
+
+export enum KeyedSymbols {
+  Backtick = '`',
+  Dash = '-',
+  Equal = '=',
+  BracketLeft = '[',
+  BracketRight = ']',
+  Backslash = '\\',
+  Semicolon = ';',
+  Quote = "'",
+  Comma = ',',
+  Period = '.',
+  Slash = '/',
+}
+
+//#endregion
+
+//#region keyless
+
+export enum Symbols {
+  Exclamation = '!',
+  At = '@',
+  Hash = '#',
+  Dollar = '$',
+  Percent = '%',
+  Caret = '^',
+  Ampersand = '&',
+  Asterisk = '*',
+  ParenLeft = '(',
+  ParenRight = ')',
+  Underscore = '_',
+  Plus = '+',
+  Tilde = '~',
+  BraceLeft = '{',
+  BraceRight = '}',
+  Pipe = '|',
+  Colon = ':',
+  DoubleQuote = '"',
+  LessThan = '<',
+  GreaterThan = '>',
+  Question = '?'
 }
 
 export enum MacKey {
