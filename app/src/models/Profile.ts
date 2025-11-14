@@ -172,10 +172,11 @@ export class Profile {
   /**
    * Deserializes a JSON-compatible object into a Profile instance.
    * @param obj - The JSON object to deserialize.
+   * @param translate Bool to determine if OS translation should occur. Defaults to true.
    * @returns A Profile instance.
    * @throws Error if the JSON is malformed.
    */
-  static fromJSON(obj: any): Profile {
+  static fromJSON(obj: any, translate: boolean = true): Profile {
     // Validate the essential properties
     if (typeof obj !== 'object' || obj === null) {
       log.error('Profile JSON is not an object or is null.')
@@ -197,18 +198,22 @@ export class Profile {
     profile.layers = obj.layers.map((layerObj: any) => Layer.fromJSON(layerObj))
     profile.layer_count = profile.layers.length
 
-    if (profile.OS !== obj.OS) {
-      log.info(
-        `Profile OS "${obj.OS}" does not match current OS "${profile.OS}". Translating keys to current OS.`
+    if (translate) {
+      if (profile.OS !== obj.OS) {
+        log.info(
+          `Profile OS "${obj.OS}" does not match current OS "${profile.OS}". Translating keys to current OS.`
+        )
+        profile.translateToTargetOS(obj.OS, detectOS())
+      } else {
+        log.silly(
+          `Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`
+        )
+      }
+      log.silly(
+        `<<<<<< Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
       )
-      profile.translateToTargetOS(obj.OS, detectOS())
-    } else {
-      log.silly(`Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`)
     }
 
-    log.silly(
-      `<<<<<< Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
-    )
     return profile
   }
 
@@ -529,7 +534,7 @@ export class Profile {
    * Processes all shortcut binds and converts them to sequences of press and releases
    * for the lower level profile
    */
-  private iterateThroughBinds(): void {
+  __iterateThroughBinds(): void {
     log.debug(`Checking profile ${this.profile_name} for binds that contain shortcuts
     and converting them to a lower level form.`)
 
@@ -946,11 +951,13 @@ export class Profile {
   }
 
   toLL(): LLProfile {
-    this.iterateThroughBinds()
+    const copy_profile = Profile.fromJSON(this.toJSON(), false)
+    copy_profile.OS = this.OS
+    copy_profile.__iterateThroughBinds()
     return {
-      profile_name: this.profile_name,
+      profile_name: copy_profile.profile_name,
       default_layer: 0,
-      layers: this.layers.map((l) => l.toLL())
+      layers: copy_profile.layers.map((l) => l.toLL())
     }
   }
 }
