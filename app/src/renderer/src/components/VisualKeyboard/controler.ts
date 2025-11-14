@@ -10,6 +10,10 @@ export const useKeyboardController = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (document.activeElement instanceof HTMLInputElement) {
+        return
+      }
+
       setKeyState({
         isDown: true,
         key: normalizeKey(event)
@@ -19,6 +23,10 @@ export const useKeyboardController = () => {
     }
 
     const handleKeyUp = (event: KeyboardEvent) => {
+      if (document.activeElement instanceof HTMLInputElement) {
+        return
+      }
+
       setKeyState({
         isDown: false,
         key: normalizeKey(event)
