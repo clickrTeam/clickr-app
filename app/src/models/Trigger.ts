@@ -14,8 +14,8 @@ export enum TriggerType {
   AppFocused = 'app_focus_trigger'
 }
 
-export function getTriggerTypeDisplayName(value: TriggerType | string): string {
-  switch (value) {
+export function getTriggerTypeDisplayName(triggerType: TriggerType | string): string {
+  switch (triggerType) {
     case TriggerType.KeyPress:   return 'Key press';
     case TriggerType.KeyRelease: return 'Key release';
     case TriggerType.TapSequence:return 'Tap sequence';
@@ -25,11 +25,26 @@ export function getTriggerTypeDisplayName(value: TriggerType | string): string {
   }
 }
 
-export function createTrigger(type: TriggerType, selectedKey: string | null): Trigger | undefined {
+export function getTriggerTypeDescription(triggerType: TriggerType): string | undefined {
+  switch (triggerType) {
+    case TriggerType.KeyPress:   return 'When the key is pushed down.';
+    case TriggerType.KeyRelease: return 'When the key pops up or no longer pushed down.';
+    case TriggerType.TapSequence:return 'When a multiple keys are pressed in a short time. Add 2 of the same keys for a double tap.';
+    case TriggerType.Hold:       return 'When the key is held down for a long enough time.';
+    case TriggerType.AppFocused: return 'When a application or tab is focused.';
+    default:                     return 'Unknown trigger';
+  }
+}
+
+export function createTrigger(type: TriggerType, selectedKey: string | null, app_name?: string): Trigger | undefined {
   let newTrigger: Trigger
   switch (type) {
     case TriggerType.AppFocused:
-      newTrigger = new AppFocus("test", selectedKey ?? '')
+      if (!app_name) {
+        log.warn('No app name to assign to trigger in VisualKeyboardFooter.')
+        return
+      }
+      newTrigger = new AppFocus(app_name)
       break
     case TriggerType.Hold:
       if (selectedKey === null) {
@@ -268,6 +283,7 @@ export class Hold extends Trigger {
   }
   value: string
   wait: number
+  behavior: TimedTriggerBehavior = TimedTriggerBehavior.Default
 
   constructor(value: string, wait: number) {
     super(TriggerType.Hold)
@@ -292,47 +308,59 @@ export class Hold extends Trigger {
   }
 
   toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
-    throw new Error('Method not implemented.')
+    let triggers: LLAdvancedTrigger[] = [];
+    triggers.push({
+      type: "key_press",
+      value: this.value,
+    })
+    triggers.push({
+      type: "minimum_wait",
+      value: this.wait,
+    })
+
+    return {
+      behavior: this.behavior,
+      triggers: triggers,
+    };
   }
 }
 
-/**
- * This only applies when a certain application is running.
- */
 export class AppFocus extends Trigger {
-  toString(): string {
-    throw new Error('Method not implemented.')
-  }
+  readonly id: string
   app_name: string
-  value: string
 
-  constructor(app_name: string, value: string) {
+  constructor(app_name: string, id?: string) {
     super(TriggerType.AppFocused)
     this.app_name = app_name
-    this.value = value
+    this.id = id || this.generateId()
+  }
+
+  private generateId(): string {
+    return `app_focus_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
 
   toJSON(): object {
     return {
       type: TriggerType.AppFocused,
-      app_name: this.app_name,
-      value: this.value
+      id: this.id,
+      app_name: this.app_name
     }
   }
 
-
-  static fromJSON(obj: { app_name: string; value: string }): AppFocus {
-    return new AppFocus(obj.app_name, obj.value)
+  static fromJSON(obj: { id?: string; app_name: string }): AppFocus {
+    return new AppFocus(obj.app_name, obj.id)
   }
 
   equals(other: Trigger): boolean {
-    return (
-      other instanceof AppFocus && this.app_name === other.app_name && this.value === other.value
-    )
+    return other instanceof AppFocus && this.id === other.id
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
-    throw new Error('Method not implemented.')
+  toString(): string {
+    return `AppFocus: ${this.app_name}`
+  }
+
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
+    return { "type": "app_focus", "app_name": this.app_name };
   }
 }
 

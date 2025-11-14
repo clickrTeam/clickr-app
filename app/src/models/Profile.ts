@@ -257,8 +257,7 @@ export class Profile {
         if (
           trigger instanceof T.KeyPress ||
           trigger instanceof T.KeyRelease ||
-          trigger instanceof T.Hold ||
-          trigger instanceof T.AppFocus
+          trigger instanceof T.Hold
         ) {
           trigger.value = this.processRemapValue(trigger.value, incoming_OS, target_OS)
         } else if (trigger instanceof T.TapSequence) {
