@@ -27,7 +27,7 @@ export const mainRows: KeyLayoutKey[][] = [
     { key: 'F12' }
   ],
   [
-    { key: '`' },
+    { key: 'Grave' },
     { key: '1' },
     { key: '2' },
     { key: '3' },
@@ -38,8 +38,8 @@ export const mainRows: KeyLayoutKey[][] = [
     { key: '8' },
     { key: '9' },
     { key: '0' },
-    { key: '-' },
-    { key: '=' },
+    { key: 'Minus' },
+    { key: 'Equals' },
     { key: 'Backspace', width: 5 }
   ],
   [
@@ -54,9 +54,9 @@ export const mainRows: KeyLayoutKey[][] = [
     { key: 'I' },
     { key: 'O' },
     { key: 'P' },
-    { key: '[' },
-    { key: ']' },
-    { key: '\\', width: 3.5 }
+    { key: 'LeftBracket' },
+    { key: 'RightBracket' },
+    { key: 'Backslash', width: 3.5 }
   ],
   [
     { key: 'CapsLock', width: 4.5 },
@@ -69,12 +69,12 @@ export const mainRows: KeyLayoutKey[][] = [
     { key: 'J' },
     { key: 'K' },
     { key: 'L' },
-    { key: ';' },
-    { key: "'" },
+    { key: 'Semicolon' },
+    { key: 'Apostrophe' },
     { key: 'Enter', width: 5.25 }
   ],
   [
-    { key: 'ShiftLeft', width: 5.75 },
+    { key: 'LeftShift', width: 5.75 },
     { key: 'Z' },
     { key: 'X' },
     { key: 'C' },
@@ -82,14 +82,14 @@ export const mainRows: KeyLayoutKey[][] = [
     { key: 'B' },
     { key: 'N' },
     { key: 'M' },
-    { key: ',' },
-    { key: '.' },
-    { key: '/' },
-    { key: 'ShiftRight', width: 6.5 }
+    { key: 'Comma' },
+    { key: 'Period' },
+    { key: 'Slash' },
+    { key: 'RightShift', width: 6.5 }
   ],
   [
     { key: 'LeftControl', width: 3 },
-    { key: 'Command', width: 3 },
+    { key: 'LeftSuper', width: 3 },
     { key: 'LeftAlt', width: 3 },
     { key: 'Space', width: 14.75 },
     { key: 'RightAlt', width: 3 },
@@ -134,12 +134,14 @@ export const keyShortLabels: Record<string, string> = {
   PageDown: 'PgDn',
   CapsLock: 'Caps',
   Backspace: 'Bksp',
-  ShiftLeft: 'Shift',
-  ShiftRight: 'Shift',
+  LeftShift: 'Shift',
+  RightShift: 'Shift',
   LeftControl: 'Ctrl',
   RightControl: 'Ctrl',
   LeftAlt: 'Alt',
   RightAlt: 'Alt',
+  LeftSuper: 'Win',
+  RightSuper: 'Win',
   NumLock: 'Num',
   NumpadDivide: '/',
   NumpadMultiply: '*',
@@ -157,17 +159,27 @@ export const keyShortLabels: Record<string, string> = {
   Numpad7: '7',
   Numpad8: '8',
   Numpad9: '9',
-  ArrowUp: 'Up',
-  ArrowDown: 'Down',
-  ArrowLeft: 'Left',
-  ArrowRight: 'Right',
-  Command: 'Cmd', // Win
+  ArrowUp: '↑',
+  ArrowDown: '↓',
+  ArrowLeft: '←',
+  ArrowRight: '→',
   Menu: 'Menu',
   Fn: 'Fn',
   Space: 'Space',
   Tab: 'Tab',
-  Enter: 'Enter',
+  Enter: 'Ent',
   Escape: 'Esc',
+  Grave: '`',
+  Minus: '-',
+  Equals: '=',
+  LeftBracket: '[',
+  RightBracket: ']',
+  Backslash: '\\',
+  Semicolon: ';',
+  Apostrophe: "'",
+  Comma: ',',
+  Period: '.',
+  Slash: '/'
 }
 
 export const KEYBOARD_100 = [...mainRows.flat(), ...specialtyRows.flat(), ...numpadRows.flat()]
@@ -192,12 +204,12 @@ export const KEYBOARD_80: KeyLayoutKey[][] = [
   // Home row
   [{ key: 'CapsLock', width: 4.5 }, { key: 'A' }, { key: 'S' }, { key: 'D' }, { key: 'F' },
    { key: 'G' }, { key: 'H' }, { key: 'J' }, { key: 'K' }, { key: 'L' },
-   { key: ';' }, { key: "'" }, { key: 'Enter', width: 5.25 }],
+   { key: 'Semicolon' }, { key: 'Apostrophe' }, { key: 'Enter', width: 5.25 }],
 
   // Bottom letter row
-  [{ key: 'ShiftLeft', width: 5.75 }, { key: 'Z' }, { key: 'X' }, { key: 'C' }, { key: 'V' },
-   { key: 'B' }, { key: 'N' }, { key: 'M' }, { key: ',' }, { key: '.' },
-   { key: '/' }, { key: 'ShiftRight', width: 6.5 }],
+  [{ key: 'LeftShift', width: 5.75 }, { key: 'Z' }, { key: 'X' }, { key: 'C' }, { key: 'V' },
+   { key: 'B' }, { key: 'N' }, { key: 'M' }, { key: 'Comma' }, { key: 'Period' },
+   { key: 'Slash' }, { key: 'RightShift', width: 6.5 }],
 
   // Modifier row (80% keeps arrows and a small nav cluster to the right)
   [{ key: 'CtrlLeft', width: 3 }, { key: 'Win', width: 3 }, { key: 'AltLeft', width: 3 },

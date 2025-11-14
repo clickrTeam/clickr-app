@@ -14,8 +14,8 @@ export const getShortLabel = (key: string): string => {
 // Utility to normalize key names from KeyboardEvent to our key names
 export const normalizeKey = (event: KeyboardEvent): string => {
   if (event.code.startsWith('Numpad')) return event.code
-  if (event.code === 'ShiftLeft') return Modifier.ShiftLeft
-  if (event.code === 'ShiftRight') return Modifier.ShiftRight
+  if (event.code === 'ShiftLeft') return Modifier.LeftShift
+  if (event.code === 'ShiftRight') return Modifier.RightShift
   if (event.code === 'ControlLeft') return Modifier.LeftControl
   if (event.code === 'ControlRight') return Modifier.RightControl
   if (event.code === 'AltLeft') return Modifier.LeftAlt
@@ -32,7 +32,7 @@ export const normalizeKey = (event: KeyboardEvent): string => {
   if (key === 'ArrowLeft') return Navigation.ArrowLeft
   if (key === 'ArrowRight') return Navigation.ArrowRight
   if (key === 'CapsLock') return Navigation.CapsLock
-  if (key === 'Shift') return Modifier.ShiftLeft
+  if (key === 'Shift') return Modifier.LeftShift
   if (key === 'Enter') return Navigation.Enter
   if (key === 'Tab') return Navigation.Tab
   if (key === 'Esc') return Navigation.Escape
