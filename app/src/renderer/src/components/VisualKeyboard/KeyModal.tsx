@@ -13,7 +13,7 @@ import {
   Misc,
   os_keys,
   KeyedSymbols
-} from '../../../../models/Keys'
+} from '../../../../models/Keys.enum'
 import { detectOS } from '../../../../models/Profile'
 import { Layer } from '../../../../models/Layer'
 import { ProfileController } from './ProfileControler'
