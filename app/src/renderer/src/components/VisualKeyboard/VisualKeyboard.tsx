@@ -40,7 +40,7 @@ export const VisualKeyboard = (): JSX.Element => {
       setKeyQueue((prev) => prev.slice(1))
       return
     } else if (!ENSURE_KEYS.includes(currentKey.key)) {
-      log.error("ERROR: ILLEGEAL KEY DETECTED! IGNORING!: ", currentKey.key, ENSURE_KEYS)
+      log.error("ERROR: ILLEGEAL KEY DETECTED! IGNORING!: ", currentKey.key)
       setShowPressedKeys([])
       setKeyQueue((prev) => prev.slice(1))
       return
