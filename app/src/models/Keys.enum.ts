@@ -62,10 +62,6 @@ export enum Numpad {
   NumpadDivide = 'NumpadDivide',
   NumpadDecimal = 'NumpadDecimal',
   NumpadEnter = 'NumpadEnter',
-  NumpadEqual = 'NumpadEqual',
-  NumpadComma = 'NumpadComma',
-  NumpadParenLeft = 'NumpadParenLeft',
-  NumpadParenRight = 'NumpadParenRight',
 }
 
 export enum Misc {
@@ -131,25 +127,22 @@ export enum Modifier {
   LeftAlt = 'LeftAlt',
   RightAlt = 'RightAlt',
   LeftSuper = 'LeftSuper',
-  RightSuper = 'RightSuper',
-  ShiftLeft = 'ShiftLeft',
-  ShiftRight = 'ShiftRight',
-  Fn = 'Fn'
+  RightSuper = 'RightSuper'
 }
 
 
 export enum KeyedSymbols {
-  Backtick = '`',
-  Dash = '-',
-  Equal = '=',
-  BracketLeft = '[',
-  BracketRight = ']',
-  Backslash = '\\',
-  Semicolon = ';',
-  Quote = "'",
-  Comma = ',',
-  Period = '.',
-  Slash = '/',
+  Grave = 'Grave', // AKA backtick
+  Dash = 'Minus',
+  Equal = 'Equals',
+  BracketLeft = 'LeftBracket',
+  BracketRight = 'RightBracket',
+  Backslash = 'Backslash',
+  Semicolon = 'Semicolon',
+  Quote = 'Apostrophe',
+  Comma = 'Comma',
+  Period = 'Period',
+  Slash = 'Slash',
 }
 
 

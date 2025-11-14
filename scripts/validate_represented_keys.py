@@ -24,24 +24,23 @@ import re
 import sys
 from pathlib import Path
 
-# Regex to capture C++ entries like: {"A", KeyCode::A},
+# match C++ entries like: {"A", KeyCode::A},
 CPP_PATTERN = re.compile(
     r'\{\s*["\'](?P<label>[^"\']+)["\']\s*,\s*KeyCode::(?P<key>[A-Za-z0-9_]+)\s*\}\s*,?'
 )
 
-# Regex to capture TS entries like: Numpad5 = 'Numpad5',
-# This allows any single- or multi-character string literal (single or double quoted),
-# and captures escape sequences (simple approach).
-TS_PATTERN = re.compile(
-    r'(?P<key>[A-Za-z0-9_]+)\s*=\s*(?P<quote>["\'])(?P<label>(?:\\.|(?!\2).)*?)\2\s*,?'
-)
+# match TS entries like: Numpad5 = 'Numpad5', or Exclamation = '!'
+# Capture the RHS string literal in group 'label' and the LHS identifier in 'key'.
+TS_PATTERN = re.compile(r'(?P<key>[A-Za-z0-9_]+)\s*=\s*(?P<quote>["\'])(?P<label>(?:\\.|(?!\2).)*?)\2')
+
+
 
 REGION_START = re.compile(r'//\s*#region\s+keys')
 REGION_END = re.compile(r'//\s*#endregion')
 
-def extract_cpp_keys(text):
-    """Return set of key names extracted from KeyCode::... in C++ file."""
-    return {m.group('key') for m in CPP_PATTERN.finditer(text)}
+def extract_cpp_labels(text):
+    """Return set of string labels from C++ entries like {"A", KeyCode::A}."""
+    return {m.group('label') for m in CPP_PATTERN.finditer(text)}
 
 def extract_ts_region(text):
     """Return the substring between //#region keys and //#endregion.
@@ -72,20 +71,20 @@ def unescape_ts_string(s):
     return s
 
 def extract_ts_keys(text):
-    """Return set of key names extracted from TS file (left-hand side enum names),
-    but only within the keys region if present. Also returns a mapping label->key
-    for possible further use.
+    """Return set of string labels extracted from TS file (RHS string literals),
+    but only within the keys region if present. Also returns a mapping label->key.
     """
     region = extract_ts_region(text)
-    keys = set()
+    labels = set()
     label_to_key = {}
     for m in TS_PATTERN.finditer(region):
-        key = m.group('key')
+        lhs = m.group('key') if m.groupdict().get('key') else None
         raw_label = m.group('label')
         label = unescape_ts_string(raw_label)
-        keys.add(key)
-        label_to_key[label] = key
-    return keys, label_to_key
+        labels.add(label)
+        if lhs:
+            label_to_key[label] = lhs
+    return labels, label_to_key
 
 def read_file(path):
     return Path(path).read_text(encoding='utf-8')
@@ -119,11 +118,11 @@ def main():
     cpp_text = read_file(cpp_path)
     ts_text = read_file(ts_path)
 
-    cpp_keys = extract_cpp_keys(cpp_text)
-    ts_keys, ts_label_map = extract_ts_keys(ts_text)
+    cpp_labels = extract_cpp_labels(cpp_text)
+    ts_labels, ts_label_map = extract_ts_keys(ts_text)
 
-    only_cpp = cpp_keys - ts_keys
-    only_ts = ts_keys - cpp_keys
+    only_cpp = cpp_labels - ts_labels      # labels in C++ but not TS
+    only_ts = ts_labels - cpp_labels      # labels in TS but not C++
 
     write_markdown(out_path, only_cpp, only_ts)
 
