@@ -1,5 +1,8 @@
 // Contains layout and label data for VisualKeyboard
 
+import assert from "assert"
+import { ENSURE_KEYS } from "../../../../models/Keys.enum"
+
 type KeyLayoutKey = {
   key: string
   width?: number
@@ -9,7 +12,7 @@ type KeyLayoutKey = {
 
 export const mainRows: KeyLayoutKey[][] = [
   [
-    { key: 'Esc', gapAfter: true },
+    { key: 'Escape', gapAfter: true },
     { key: 'F1' },
     { key: 'F2' },
     { key: 'F3' },
@@ -85,14 +88,14 @@ export const mainRows: KeyLayoutKey[][] = [
     { key: 'ShiftRight', width: 6.5 }
   ],
   [
-    { key: 'CtrlLeft', width: 3 },
-    { key: 'Win', width: 3 },
-    { key: 'AltLeft', width: 3 },
+    { key: 'LeftControl', width: 3 },
+    { key: 'Command', width: 3 },
+    { key: 'LeftAlt', width: 3 },
     { key: 'Space', width: 14.75 },
-    { key: 'AltRight', width: 3 },
+    { key: 'RightAlt', width: 3 },
     { key: 'Fn', width: 3 },
     { key: 'Menu', width: 3 },
-    { key: 'CtrlRight', width: 3 }
+    { key: 'RightControl', width: 3 }
   ]
 ]
 
@@ -101,8 +104,8 @@ export const specialtyRows: KeyLayoutKey[][] = [
   [{ key: 'Insert' }, { key: 'Home' }, { key: 'PageUp' }],
   [{ key: 'Delete' }, { key: 'End' }, { key: 'PageDown' }],
   [{ key: '' }],
-  [{ key: '' }, { key: 'Up' }, { key: '' }],
-  [{ key: 'Left' }, { key: 'Down' }, { key: 'Right' }]
+  [{ key: '' }, { key: 'ArrowUp' }, { key: '' }],
+  [{ key: 'ArrowLeft' }, { key: 'ArrowDown' }, { key: 'ArrowRight' }]
 ]
 
 export const numpadRows: KeyLayoutKey[][] = [
@@ -133,10 +136,10 @@ export const keyShortLabels: Record<string, string> = {
   Backspace: 'Bksp',
   ShiftLeft: 'Shift',
   ShiftRight: 'Shift',
-  CtrlLeft: 'Ctrl',
-  CtrlRight: 'Ctrl',
-  AltLeft: 'Alt',
-  AltRight: 'Alt',
+  LeftControl: 'Ctrl',
+  RightControl: 'Ctrl',
+  LeftAlt: 'Alt',
+  RightAlt: 'Alt',
   NumLock: 'Num',
   NumpadDivide: '/',
   NumpadMultiply: '*',
@@ -158,24 +161,19 @@ export const keyShortLabels: Record<string, string> = {
   ArrowDown: 'Down',
   ArrowLeft: 'Left',
   ArrowRight: 'Right',
-  Win: 'Win',
+  Command: 'Cmd', // Win
   Menu: 'Menu',
   Fn: 'Fn',
   Space: 'Space',
   Tab: 'Tab',
   Enter: 'Enter',
-  Esc: 'Esc',
-  Bksp: 'Bksp',
-  PgUp: 'PgUp',
-  PgDn: 'PgDn',
-  Del: 'Del',
-  Ins: 'Ins'
+  Escape: 'Esc',
 }
 
 export const KEYBOARD_100 = [...mainRows.flat(), ...specialtyRows.flat(), ...numpadRows.flat()]
 export const REPRESENTED_KEYS = KEYBOARD_100.map((k) => k.key).filter((k) => k !== '')
 
-export const KEYBOARD_80 = [
+export const KEYBOARD_80: KeyLayoutKey[][] = [
   // Function row (optional on many 80% layouts; kept compact)
   [{ key: 'Esc', gapAfter: true }, { key: 'F1' }, { key: 'F2' }, { key: 'F3' }, { key: 'F4', gapAfter: true },
    { key: 'F5' }, { key: 'F6' }, { key: 'F7' }, { key: 'F8', gapAfter: true },

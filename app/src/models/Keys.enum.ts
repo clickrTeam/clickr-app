@@ -99,21 +99,44 @@ export enum Function {
 }
 
 export enum Navigation {
-  ArrowUp = 'ArrowUp',
-  ArrowDown = 'ArrowDown',
-  ArrowLeft = 'ArrowLeft',
-  ArrowRight = 'ArrowRight',
+  Escape = 'Escape',
+  Tab = 'Tab',
+  Enter = 'Enter',
+  Backspace = 'Backspace',
+  Space = 'Space',
+  Insert = 'Insert',
+  Delete = 'Delete',
   Home = 'Home',
   End = 'End',
   PageUp = 'PageUp',
-  PageDown = 'PageDown'
+  PageDown = 'PageDown',
+  PrintScreen = 'PrintScreen',
+  Pause = 'Pause',
+  Menu = 'Menu',
+  CapsLock = 'CapsLock',
+  NumLock = 'NumLock',
+  ScrollLock = 'ScrollLock',
+  ArrowUp = 'ArrowUp',
+  ArrowDown = 'ArrowDown',
+  ArrowLeft = 'ArrowLeft',
+  ArrowRight = 'ArrowRight'
 }
 
+
 export enum Modifier {
+  LeftShift = 'LeftShift',
+  RightShift = 'RightShift',
+  LeftControl = 'LeftControl',
+  RightControl = 'RightControl',
+  LeftAlt = 'LeftAlt',
+  RightAlt = 'RightAlt',
+  LeftSuper = 'LeftSuper',
+  RightSuper = 'RightSuper',
   ShiftLeft = 'ShiftLeft',
   ShiftRight = 'ShiftRight',
-  Fn = 'Fn' // hardware function modifier (macbooks, many laptops)
+  Fn = 'Fn'
 }
+
 
 export enum KeyedSymbols {
   Backtick = '`',
@@ -133,7 +156,7 @@ export enum KeyedSymbols {
 export const ENSURE_KEYS: string[] = [Object.values(Letters), Object.values(Digits),
                                Object.values(Numpad), Object.values(Misc),
                                Object.values(Function), Object.values(Navigation),
-                               Object.values(Modifier)].flat()
+                               Object.values(Modifier), Object.values(KeyedSymbols),].flat()
 
 //#endregion
 
