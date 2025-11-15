@@ -15,6 +15,7 @@ import profileController from './ProfileControler'
 import { KeyModal } from './KeyModal'
 import { getMacroButtonBgT } from './Colors'
 import { ENSURE_KEYS } from '../../../../models/Keys.enum'
+import { toast } from 'sonner'
 
 export const VisualKeyboard = (): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
@@ -262,12 +263,15 @@ export const VisualKeyboard = (): JSX.Element => {
         <VisualKeyboardFooter
           selectedKey={selectedKey}
           onClose={(save: boolean) => {
+            if (profileController.currentBinds.binds.length === 0) {
+              toast.warning("Footer closed with no binds, cleared binds not removed.")
+            }
+
             log.debug('Closing VisualKeyboard Footer')
             if (save) profileController.addBind()
             setSelectedKey(null)
             setIsCreatingNewMapping(false)
-            profileController.currentTrigger = new T.KeyPress('UNDEFINED')
-            profileController.currentBinds = new Macro([])
+            profileController.clearMapping()
           }}
         />
       )}

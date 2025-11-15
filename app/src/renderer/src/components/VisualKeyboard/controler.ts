@@ -10,7 +10,7 @@ export const useKeyboardController = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (document.activeElement instanceof HTMLInputElement) {
+      if (document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement) {
         return
       }
 
@@ -20,10 +20,11 @@ export const useKeyboardController = () => {
       })
 
       if (normalizeKey(event) == 'F11') event.preventDefault();
+      if (normalizeKey(event) == 'Tab') event.preventDefault();
     }
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (document.activeElement instanceof HTMLInputElement) {
+      if (document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement) {
         return
       }
 
