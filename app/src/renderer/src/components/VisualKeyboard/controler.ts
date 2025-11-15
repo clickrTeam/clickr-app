@@ -20,6 +20,7 @@ export const useKeyboardController = () => {
       })
 
       if (normalizeKey(event) == 'F11') event.preventDefault();
+      if (normalizeKey(event) == 'Tab') event.preventDefault();
     }
 
     const handleKeyUp = (event: KeyboardEvent) => {

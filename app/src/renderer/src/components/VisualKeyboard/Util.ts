@@ -39,9 +39,11 @@ export const normalizeKey = (event: KeyboardEvent): string => {
   if (key === 'PrintScreen') return Navigation.PrintScreen
   if (key === 'ScrollLock') return Navigation.ScrollLock
   if (key === 'Pause') return Navigation.Pause
+  if (key === 'ContextMenu') return Navigation.Menu
   if (key === '`') return 'Grave'
   if (key === '-') return 'Minus'
   if (key === 'Equal') return 'Equals'
+  if (key === '=') return 'Equals'
   if (key === '[') return 'LeftBracket'
   if (key === ']') return 'RightBracket'
   if (key === '\\') return 'Backslash'
