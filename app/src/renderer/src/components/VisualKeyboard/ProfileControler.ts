@@ -51,7 +51,7 @@ export class ProfileController {
     if (!(binds instanceof Macro)) {
       binds = new Macro([binds])
     }
-    log.debug('Setting currentBinds:', binds)
+    log.silly('Setting currentBinds:', binds);
     this._currentBinds = binds
     if (this.currentTrigger && binds.binds.length > 0) {
       this.addBind()
@@ -65,7 +65,7 @@ export class ProfileController {
 
   set currentTrigger(trigger: Trigger) {
     if (trigger === this.currentTrigger) return
-    log.debug('Setting currentTrigger:', trigger)
+    log.silly('Setting currentTrigger:', trigger)
     this._currentTrigger = trigger
     if (this.currentBinds.binds.length > 0) {
       this.addBind()
@@ -98,25 +98,15 @@ export class ProfileController {
     })
   }
 
-  private saveTimeout: NodeJS.Timeout | null = null
-
   onSave(): void {
     if (!this.profile || this.editedProfileIndex === undefined || !this.onUpSave || !this.editedProfileIndex) {
       log.warn('ProfileController not properly initialized for saving. Aborting onSave.')
       return
     }
-    // Clear any existing timeout
-    if (this.saveTimeout) {
-      clearTimeout(this.saveTimeout)
-    }
 
-    // Set new timeout
-    this.saveTimeout = setTimeout(() => {
-      log.debug(`Profile is being updated and saved. Updated profile: ${this.profile!.profile_name}`)
-      window.api.updateProfile(this.editedProfileIndex!, this.profile!.toJSON())
-      this.onUpSave!(this)
-      this.saveTimeout = null
-    }, 350)
+    log.debug(`Profile is being updated and saved. Updated profile: ${this.profile!.profile_name}`)
+    window.api.updateProfile(this.editedProfileIndex!, this.profile!.toJSON())
+    this.onUpSave!(this)
   }
 
   addBind(): void {
@@ -156,7 +146,7 @@ export class ProfileController {
         this.activeLayer!.deleteRemapping(existing)
       }
     } catch (err) {
-      log.warn('Error while checking for existing triggers to dedupe:', err)
+      log.warn('ERROR while checking for existing triggers to dedupe:', err)
     }
 
     this.activeLayer!.addRemapping(this.currentTrigger, this.currentBinds)
@@ -214,12 +204,12 @@ export class ProfileController {
       const bind = this.activeLayer!.getRemapping(trigger)
       log.debug('Found binds for trigger:', bind)
       if (bind instanceof Macro) {
-        this.currentBinds = bind
+        this._currentBinds = bind
       } else if (bind) {
-        this.currentBinds = new Macro([bind])
+        this._currentBinds = new Macro([bind])
       } else {
         log.warn('No bind found for selected key:', selectedKey)
-        this.currentBinds = new Macro([])
+        this._currentBinds = new Macro([])
       }
     } else {
       log.debug('No trigger found for selected key, creating new KeyPress trigger.')
@@ -228,10 +218,12 @@ export class ProfileController {
         log.warn("Profile controller failed to create trigger.")
         return
       }
-      this.currentTrigger = newTrigger
+      this._currentTrigger = newTrigger
       log.warn('No bind found for selected key:', selectedKey)
-      this.currentBinds = new Macro([])
+      this._currentBinds = new Macro([])
     }
+
+    this.notifyStateChange()
   }
 
   getActiveRemappings(): Map<Trigger, Bind> {
