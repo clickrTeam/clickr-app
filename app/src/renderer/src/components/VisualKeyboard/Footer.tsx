@@ -93,6 +93,12 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       return
     }
 
+    if (type === BindType.Meta_Destroy) {
+      currentBinds.binds.splice(idx, 1)
+      profileController.currentBinds = new Macro(currentBinds.binds)
+      return
+    }
+
     const existing = currentBinds.binds[idx]
     let value: string
     if (
@@ -111,10 +117,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       newBind = new PressKey(value)
     } else if (type === BindType.ReleaseKey) {
       newBind = new ReleaseKey(value)
-    } else if (type === BindType.Meta_Destroy) {
-      currentBinds.binds.splice(idx, 1)
-      profileController.currentBinds = new Macro(currentBinds.binds)
-      return
     } else {
       throw new Error('Unsupported bind type for macro UI')
     }

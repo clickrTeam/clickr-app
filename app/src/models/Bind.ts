@@ -48,7 +48,7 @@ export function getBindDisplayName(bind: Bind): string {
     case BindType.Repeat:
       return `Repeat Bind`
     case BindType.RunScript:
-      return `Run '${ (bind as RunScript).interpreter }' Script`
+      return 'Run-Script'
     default:
       return 'Unknown Bind'
   }

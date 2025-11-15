@@ -3,16 +3,16 @@ import { Trigger, TriggerType } from '../../../../models/Trigger'
 import { Bind, BindType } from '../../../../models/Bind'
 
 export const bindTypeColors: Record<BindType, string> = {
-  [BindType.PressKey]: '#3589f0ff',
+  [BindType.PressKey]: '#3589f0',
   [BindType.ReleaseKey]: '#f87171',
   [BindType.TapKey]: '#34d399',
   [BindType.SwitchLayer]: '#fbbf24',
   [BindType.Macro]: '#a78bfa',
   [BindType.TimedMacro]: '#f472b6',
   [BindType.Repeat]: '#fb7185',
-  [BindType.OpenApp]: '#71fb83ff',
-  [BindType.RunScript]: '#448a8fff',
-  [BindType.Meta_Destroy]: '#cb0f2bff',
+  [BindType.OpenApp]: '#71fb83',
+  [BindType.RunScript]: '#448a8f',
+  [BindType.Meta_Destroy]: '#cb0f2b',
 }
 
 export const triggerTypeColors: Record<TriggerType, string> = {
