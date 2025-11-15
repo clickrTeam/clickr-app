@@ -11,26 +11,26 @@ import {
   ShortcutAction,
   Numpad,
   Misc,
-  os_keys
-} from '../../../../models/Keys'
+  os_keys,
+  KeyedSymbols
+} from '../../../../models/Keys.enum'
 import { detectOS } from '../../../../models/Profile'
 import { Layer } from '../../../../models/Layer'
 import { ProfileController } from './ProfileControler'
 
 const current_OS = detectOS()
 
-const keyGroups: Record<string, string[]> = {
+const keyGroupsBase: Record<string, string[]> = {
   Letters: Object.values(Letters),
   Digits: Object.values(Digits),
   Modifier: Object.values(Modifier),
-  Symbols: Object.values(Symbols),
   Navigation: Object.values(Navigation),
   Function: Object.values(Function),
-  Shortcuts: Object.values(ShortcutAction),
   Numpad: Object.values(Numpad),
   Misc: Object.values(Misc),
   [current_OS + ' Keys']: Object.values(os_keys)
-}
+};
+
 
 interface KeyModalProps {
   onClose: (as_cancel: boolean) => void
@@ -57,6 +57,13 @@ export const KeyModal: React.FC<KeyModalProps> = ({
     }
     return 0
   })()
+
+  const keyGroups: Record<string, string[]> = {
+    ...keyGroupsBase,
+    ...(keyOnly ? {} : { Shortcuts: Object.values(ShortcutAction) }),
+    ...(keyOnly ? { Shortcuts: Object.values(KeyedSymbols) }
+      : { Shortcuts: [...Object.values(Symbols), ...Object.values(KeyedSymbols)] })
+  };
 
   // otherLayers excludes the resolved active layer
   const otherLayers = layers

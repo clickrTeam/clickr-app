@@ -1,5 +1,5 @@
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select'
-import { keys } from '../../../models/Keys'
+import { keys } from '../../../models/Keys.enum'
 
 /**
  * Props for KeySelecter:

@@ -2,7 +2,7 @@
 import { Layer } from './Layer'
 import * as T from './Trigger'
 import * as B from './Bind'
-import { MacKey, WinKey, LinuxKey } from './Keys'
+import { MacKey, WinKey, LinuxKey } from './Keys.enum'
 import log from 'electron-log'
 import { LLProfile } from './LowLevelProfile'
 /**
