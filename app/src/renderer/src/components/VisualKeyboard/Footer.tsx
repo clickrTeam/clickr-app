@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Bind, BindType, getBindDisplayName, getBindTypeDisplayName, Macro, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
+import { Bind, BindType, getBindDisplayName, getBindTypeDisplayName, Macro, PressKey, ReleaseKey, RunScript, TapKey } from '../../../../models/Bind'
 import { KeyPressInfo } from './Model'
 import { getDropdownBgT, getMacroButtonBg, getMacroButtonBgT } from './Colors'
 import './Footer.css'
@@ -93,6 +93,12 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       return
     }
 
+    if (type === BindType.Meta_Destroy) {
+      currentBinds.binds.splice(idx, 1)
+      profileController.currentBinds = new Macro(currentBinds.binds)
+      return
+    }
+
     const existing = currentBinds.binds[idx]
     let value: string
     if (
@@ -111,10 +117,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       newBind = new PressKey(value)
     } else if (type === BindType.ReleaseKey) {
       newBind = new ReleaseKey(value)
-    } else if (type === BindType.Meta_Destroy) {
-      currentBinds.binds.splice(idx, 1)
-      profileController.currentBinds = new Macro(currentBinds.binds)
-      return
     } else {
       throw new Error('Unsupported bind type for macro UI')
     }
@@ -147,6 +149,12 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
 
   function handleAddLayerToMacro(layerIdx: number): void {
     const newMacro = [...currentBinds.binds, new SwapLayer(layerIdx)]
+    profileController.currentBinds = new Macro(newMacro)
+    setShowKeyModal(keyModalType.Closed)
+  }
+
+  function handleAddRunScript(interpreter: string, script: string): void {
+    const newMacro = [...currentBinds.binds, new RunScript(interpreter, script)]
     profileController.currentBinds = new Macro(newMacro)
     setShowKeyModal(keyModalType.Closed)
   }
@@ -270,17 +278,31 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
           <div className="flex">
             <div className="max-w-[60vw] gap-2 flex" style={{ height: '52px', paddingRight: '6px', alignItems: 'center', overflowX: 'auto' }}>
               {currentBinds.binds.map((item: Bind, i: number) => (
-                <Dropdown
-                  options={typeOptionsBind}
-                  currentSelected={item?.bind_type}
-                  handleSelection={(opt: BindType) => handleTypeChange(i, opt)}
-                  getDropdownBg={getMacroButtonBg}
-                  getDisplayName={getBindTypeDisplayName}
-                  openBtnLabel={getBindDisplayName(item)}
-                  openBtnBackground={getMacroButtonBg(item)}
-                  id={`bind-dropdown-${i}`}
-                  extraClass={i === justAddedIndex ? 'vk-bind-just-added vk-wiggle-hover' : ''}
-                ></Dropdown>
+                item.bind_type === BindType.RunScript ? (
+                  <Dropdown
+                    options={[BindType.Meta_Destroy]}
+                    currentSelected={'None'}
+                    handleSelection={(opt: BindType) => handleTypeChange(i, opt)}
+                    getDropdownBg={getMacroButtonBg}
+                    getDisplayName={getBindTypeDisplayName}
+                    openBtnLabel={getBindDisplayName(item)}
+                    openBtnBackground={getMacroButtonBg(item)}
+                    id={`bind-dropdown-${i}`}
+                    extraClass={i === justAddedIndex ? 'vk-bind-just-added vk-wiggle-hover' : ''}
+                  />
+                ) : (
+                  <Dropdown
+                    options={typeOptionsBind}
+                    currentSelected={item?.bind_type}
+                    handleSelection={(opt: BindType) => handleTypeChange(i, opt)}
+                    getDropdownBg={getMacroButtonBg}
+                    getDisplayName={getBindTypeDisplayName}
+                    openBtnLabel={getBindDisplayName(item)}
+                    openBtnBackground={getMacroButtonBg(item)}
+                    id={`bind-dropdown-${i}`}
+                    extraClass={i === justAddedIndex ? 'vk-bind-just-added vk-wiggle-hover' : ''}
+                  />
+                )
               ))}
             </div>
 
@@ -330,6 +352,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
         }
         keyOnly={showKeyModal === keyModalType.Trigger_TapSequence}
         onSelectLayer={handleAddLayerToMacro}
+        onAddRunScriptBind={handleAddRunScript}
         profileController={profileController}
       />
     )}
