@@ -17,7 +17,6 @@ import {
 import { detectOS } from '../../../../models/Profile'
 import { Layer } from '../../../../models/Layer'
 import { ProfileController } from './ProfileControler'
-import { Label } from '@radix-ui/react-label'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { toast } from 'sonner'

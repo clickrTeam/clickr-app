@@ -1,7 +1,7 @@
 // Utility functions for VisualKeyboard
 import log from 'electron-log'
 import { keyShortLabels } from './Layout.const'
-import { KeyedSymbols, Modifier, Navigation } from '../../../../models/Keys.enum'
+import { Modifier, Navigation } from '../../../../models/Keys.enum'
 
 // Helper to get short label or icon
 export const getShortLabel = (key: string): string => {

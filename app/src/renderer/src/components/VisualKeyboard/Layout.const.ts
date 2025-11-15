@@ -1,8 +1,5 @@
 // Contains layout and label data for VisualKeyboard
 
-import assert from "assert"
-import { ENSURE_KEYS } from "../../../../models/Keys.enum"
-
 type KeyLayoutKey = {
   key: string
   width?: number
