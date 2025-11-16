@@ -21,6 +21,7 @@ import { Search, Download, User, Clock, Plus, Upload, Cloud, Trash } from 'lucid
 import { useNavigate } from 'react-router-dom'
 import profileController, { ProfileController } from '@renderer/components/VisualKeyboard/ProfileControler'
 
+
 type UploadedMapping = {
   id: string
   user: string
@@ -60,15 +61,21 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
 
-  function updateProfiles(): void {
-    window.api.getProfiles().then((profiles: object[]) => {
-      log.silly('Got profiles:', profiles)
-      setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
-    })
+  function updateProfiles(): Promise<void> {
+    return new Promise((resolve) => {
+      window.api.getProfiles().then((profiles: object[]) => {
+        log.silly('Got profiles:', profiles)
+        setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
+      })
 
-    window.api.getActiveProfile().then((activeProfile: number | null) => {
-      log.info('Active profile is index: ', activeProfile)
-      setActiveProfileIndex(activeProfile)
+      window.api.getActiveProfile().then((activeProfile: number | null) => {
+        log.info('Active profile is index: ', activeProfile)
+        setActiveProfileIndex(activeProfile)
+        resolve()
+      }).catch(() => {
+        // If getActiveProfile fails, still resolve after a short delay
+        setTimeout(resolve, 100)
+      })
     })
   }
 
@@ -143,6 +150,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
       window.removeEventListener('reset-mappings-edit', handleResetEdit)
     }
   }, [editedProfileIndex])
+
 
   const confirmDeleteProfile = (profile_index: number): void => {
     toast('Are you sure you want to delete this profile?', {
@@ -273,7 +281,9 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     return (
       <div className="space-y-6">
         <ProfileEditor
-          onBack={() => setEditedProfileIndex(null)}
+          onBack={() => {
+            setEditedProfileIndex(null)
+          }}
         />
       </div>
     )

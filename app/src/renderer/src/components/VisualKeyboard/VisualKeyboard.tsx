@@ -11,8 +11,13 @@ import { useKeyboardController } from './controler'
 import { ChevronDown } from 'lucide-react'
 import log from 'electron-log'
 import profileController from './ProfileControler'
+import { SuggestedRemapping } from '../../pages/Insights'
 
-export const VisualKeyboard = (): JSX.Element => {
+interface VisualKeyboardProps {
+  hoveredRemapping?: SuggestedRemapping | null
+}
+
+export const VisualKeyboard = ({ hoveredRemapping = null }: VisualKeyboardProps): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
 
@@ -86,6 +91,7 @@ export const VisualKeyboard = (): JSX.Element => {
               keyModel={keyModel}
               onClick={(): void => setSelectedKey(key)}
               onInspect={setInspectedKey}
+              hoveredRemapping={hoveredRemapping}
             />
           )
         })}
@@ -141,6 +147,7 @@ export const VisualKeyboard = (): JSX.Element => {
                 keyModel={keyModel}
                 onClick={(): void => setSelectedKey(keyModel.key)}
                 onInspect={setInspectedKey}
+                hoveredRemapping={hoveredRemapping}
               />
             ))}
           </div>

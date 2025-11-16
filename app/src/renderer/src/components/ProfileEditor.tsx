@@ -9,6 +9,9 @@ import { LayerComponent } from './LayerComponent'
 import log from 'electron-log'
 import { useNavigate } from 'react-router-dom'
 import profileController from './VisualKeyboard/ProfileControler'
+import { SuggestedRemapping } from '../pages/Insights'
+import { RecommendationsSidebar } from './RecommendationsSidebar'
+import { Sparkles } from 'lucide-react'
 
 interface ProfileEditorProps {
   onBack: () => void
@@ -21,6 +24,31 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
   const [isDeleteConfirming, setIsDeleteConfirming] = useState(false)
   const deleteButtonRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+  const [hoveredRemapping, setHoveredRemapping] = useState<SuggestedRemapping | null>(null)
+  const [recommendations, setRecommendations] = useState<SuggestedRemapping[]>([])
+  const [selectedRecommendationId, setSelectedRecommendationId] = useState<string | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
+
+  // Load recommendations from main process storage on mount
+  useEffect(() => {
+    const loadRecommendations = async (): Promise<void> => {
+      try {
+        // Load from main process storage
+        const stored = await window.api.getRecommendations()
+        const storedId = await window.api.getSelectedRecommendationId()
+
+        if (stored && stored.length > 0) {
+          setRecommendations(stored)
+          setSelectedRecommendationId(storedId)
+          // Don't automatically open sidebar - let user open it manually
+        }
+      } catch (error) {
+        log.error('Failed to load recommendations:', error)
+      }
+    }
+
+    loadRecommendations()
+  }, [])
 
   profileController.setLayer(selectedLayerIndex) // Hack to keep the active layer on construct.
 
@@ -52,10 +80,7 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
     if (!isDeleteConfirming) return
 
     const handleClickOutside = (event: MouseEvent): void => {
-      if (
-        deleteButtonRef.current &&
-        !deleteButtonRef.current.contains(event.target as Node)
-      ) {
+      if (deleteButtonRef.current && !deleteButtonRef.current.contains(event.target as Node)) {
         setIsDeleteConfirming(false)
       }
     }
@@ -100,34 +125,73 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
 
   const toggleEditor = (): void => setUseVisualKeyboard((v) => !v)
 
+  // Delete a recommendation
+  const handleDeleteRecommendation = async (remappingId: string): Promise<void> => {
+    const updatedRecommendations = recommendations.filter((r) => r.id !== remappingId)
+    setRecommendations(updatedRecommendations)
+    await window.api.saveRecommendations(updatedRecommendations)
+
+    if (selectedRecommendationId === remappingId) {
+      setSelectedRecommendationId(null)
+      await window.api.saveSelectedRecommendationId(null)
+    }
+
+    toast.success('Recommendation removed')
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Recommendations Sidebar */}
+      <RecommendationsSidebar
+        recommendations={recommendations}
+        selectedRecommendationId={selectedRecommendationId}
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onHover={setHoveredRemapping}
+        onLeave={() => setHoveredRemapping(null)}
+        onDelete={handleDeleteRecommendation}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{localProfile.profile_name}</h2>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              profileController.onSave()
-              onBack()
-            }}
-          >
-            Back
-          </Button>
-          <Button onClick={toggleEditor}>
-            {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
-          </Button>
-          <Button
-            onClick={() => {
-              const latest = profileController.getProfile()
-              navigate('/training', {
-                state: { profile: latest, layer_index: selectedLayerIndex }
-              })
-            }}
-          >
-            Start Training
-          </Button>
+        <div className="flex flex-col items-end gap-2">
+          {/* Recommendations toggle button - icon only */}
+          {!sidebarOpen && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(true)}
+              className="h-8 w-8"
+              title="Show Recommendations"
+            >
+              <Sparkles className="h-4 w-4" />
+            </Button>
+          )}
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                profileController.onSave()
+                onBack()
+              }}
+            >
+              Back
+            </Button>
+            <Button onClick={toggleEditor}>
+              {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
+            </Button>
+            <Button
+              onClick={() => {
+                const latest = profileController.getProfile()
+                navigate('/training', {
+                  state: { profile: latest, layer_index: selectedLayerIndex }
+                })
+              }}
+            >
+              Start Training
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -173,6 +237,7 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
         {useVisualKeyboard ? (
           <VisualKeyboard
             key={`${localProfile.profile_name}-${selectedLayerIndex}`}
+            hoveredRemapping={hoveredRemapping}
           />
         ) : (
           <div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import KeyboardHeatmap from '../components/KeyboardHeatmap'
 import RemappingBubble from '../components/RemappingBubble'
@@ -6,6 +6,7 @@ import { Card } from '../components/ui/card'
 import { RefreshCw } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import log from 'electron-log'
+import { generateRemappingRecommendations } from '../utils/remappingRecommendations'
 
 // Data interfaces
 export interface KeyCount {
@@ -113,9 +114,9 @@ function Insights(): JSX.Element {
     { key: 'F9', count: 40 },
     { key: 'F10', count: 180 },
     { key: 'F11', count: 300 },
-    { key: 'F12', count: 250 },
+    { key: 'F12', count: 1850 },
     // Rarely used keys
-    { key: 'Esc', count: 400 },
+    { key: 'Esc', count: 2200 },
     { key: 'CapsLock', count: 25 },
     { key: 'Fn', count: 15 },
     { key: 'Menu', count: 30 },
@@ -142,68 +143,27 @@ function Insights(): JSX.Element {
     { key: 'NumLock', count: 10 }
   ])
 
-  const [suggestedRemappings] = useState<SuggestedRemapping[]>([
-    {
-      id: '1',
-      type: 'swap',
-      swapKey1: 'CapsLock',
-      swapKey2: 'CtrlLeft',
-      reason: 'Swap CapsLock and Ctrl for better ergonomics. CapsLock is rarely used.',
-      potentialSavings: 2.5,
-      color: 'blue'
-    },
-    {
-      id: '2',
-      type: 'swap',
-      swapKey1: 'ShiftRight',
-      swapKey2: 'Backspace',
-      reason:
-        'Swap right shift with backspace. Right shift is underused, backspace is high-traffic.',
-      potentialSavings: 4.1,
-      color: 'green'
-    },
-    {
-      id: '3',
-      type: 'swap',
-      swapKey1: 'CtrlRight',
-      swapKey2: 'Enter',
-      reason: 'Swap right Ctrl with Enter. Right Ctrl is rarely used, Enter is frequently needed.',
-      potentialSavings: 3.5,
-      color: 'orange'
-    },
-    {
-      id: '4',
-      type: 'mapping',
-      fromKey: 'Fn',
-      toKeys: ['CtrlLeft', 'ShiftLeft', 'E'],
-      reason: 'Easy access to Escape for quick exits.',
-      potentialSavings: 1.8,
-      color: 'red'
-    },
-    {
-      id: '5',
-      type: 'mapping',
-      fromKey: 'AltLeft',
-      toKeys: ['CtrlLeft', 'C'],
-      reason: 'Left Alt is rarely used, Left Ctrl is frequently used.',
-      potentialSavings: 3.2,
-      color: 'yellow'
-    },
-    {
-      id: '6',
-      type: 'mapping',
-      fromKey: 'Menu',
-      toKeys: ['VolumeUp'],
-      reason: 'Menu key is underused, VolumeUp is frequently used.',
-      potentialSavings: 2.8,
-      color: 'purple'
+  // Generate remapping recommendations based on key usage data
+  const suggestedRemappings = useMemo<SuggestedRemapping[]>(() => {
+    if (keyCountData.length === 0) {
+      return []
     }
-  ])
+
+    try {
+      const recommendations = generateRemappingRecommendations(keyCountData)
+      log.info(`Generated ${recommendations.length} remapping recommendations`)
+      return recommendations
+    } catch (error) {
+      log.error('Error generating remapping recommendations:', error)
+      return []
+    }
+  }, [keyCountData])
 
   const [hoveredRemapping, setHoveredRemapping] = useState<SuggestedRemapping | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isButtonSpinning, setIsButtonSpinning] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | null>(null)
 
   // Fetch key frequencies from daemon
@@ -284,32 +244,36 @@ function Insights(): JSX.Element {
 
         {/* Stats Overview */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           <Card className="glass-panel p-4">
-            <h3 className="text-xs font-semibold text-muted-foreground mb-1">Total Keys Pressed</h3>
-            <p className="text-2xl font-bold text-blue-600">
+            <h3 className="text-xs font-semibold text-muted-foreground mb-1 text-center">
+              Total Keys Pressed
+            </h3>
+            <p className="text-2xl font-bold text-blue-600 text-center">
               {keyCountData.reduce((sum, kc) => sum + kc.count, 0).toLocaleString()}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 text-center">
               {keyCountData.length > 0
                 ? `${keyCountData.length} unique key combinations tracked`
                 : 'No data available'}
             </p>
           </Card>
           <Card className="glass-panel p-4">
-            <h3 className="text-xs font-semibold text-muted-foreground mb-1">Most Used Key</h3>
-            <p className="text-2xl font-bold text-green-600">
+            <h3 className="text-xs font-semibold text-muted-foreground mb-1 text-center">
+              Most Used Key
+            </h3>
+            <p className="text-2xl font-bold text-green-600 text-center">
               {(() => {
                 if (keyCountData.length === 0) return 'N/A'
                 const mostUsed = [...keyCountData].sort((a, b) => b.count - a.count)[0]
                 return mostUsed.key
               })()}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 text-center">
               {(() => {
                 if (keyCountData.length === 0) return 'No data available'
                 const totalCount = keyCountData.reduce((sum, kc) => sum + kc.count, 0)
@@ -318,13 +282,6 @@ function Insights(): JSX.Element {
                   totalCount > 0 ? ((mostUsed.count / totalCount) * 100).toFixed(1) : '0.0'
                 return `${mostUsed.count.toLocaleString()} presses (${percentage}%)`
               })()}
-            </p>
-          </Card>
-          <Card className="glass-panel p-4">
-            <h3 className="text-xs font-semibold text-muted-foreground mb-1">Efficiency Score</h3>
-            <p className="text-2xl font-bold text-yellow-600">78%</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              +12% with suggestions (need to find a way to quantify this metric)
             </p>
           </Card>
         </motion.div>
@@ -371,11 +328,11 @@ function Insights(): JSX.Element {
             </div>
 
             {/* Error/Loading State */}
-            {error && (
+            {/* {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                 {error}
               </div>
-            )}
+            )} */}
             {isLoading && (
               <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-600 text-sm">
                 Loading key frequency data...
@@ -401,6 +358,7 @@ function Insights(): JSX.Element {
                   onHover={(): void => setHoveredRemapping(remapping)}
                   onLeave={(): void => setHoveredRemapping(null)}
                   isHovered={hoveredRemapping?.id === remapping.id}
+                  allRecommendations={suggestedRemappings}
                 />
               ))}
 
@@ -488,26 +446,34 @@ function Insights(): JSX.Element {
           </Card>
 
           <Card className="glass-panel p-6">
-            <h3 className="text-lg font-bold mb-4">Optimization Tips</h3>
-            <div className="space-y-3">
-              <div className="p-3 rounded-lg bg-blue-600/10 border border-blue-600/20">
-                <h4 className="font-semibold text-blue-600 mb-1 text-sm">🎯 Home Row Efficiency</h4>
-                <p className="text-xs text-muted-foreground">
-                  60% of your keystrokes are on the home row. Great job! Consider remapping
-                  rarely-used keys to increase this further.
+            <h3 className="text-lg font-bold mb-4">Tips From Our Team</h3>
+            <div className="space-y-4">
+              <div className="p-4 rounded-md border-2 border-green-400 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer">
+                <h4 className="font-semibold text-foreground mb-2 text-sm">
+                  Start with Keys Close to Home Row
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Keys like Delete, Backspace, and Enter require you to leave the home row. Consider
+                  mapping them to keys on the home row or nearby rows. Look for keys on the right
+                  side of your keyboard that you rarely use.
                 </p>
               </div>
-              <div className="p-3 rounded-lg bg-green-600/10 border border-green-600/20">
-                <h4 className="font-semibold text-green-600 mb-1 text-sm">⚡ Quick Wins</h4>
-                <p className="text-xs text-muted-foreground">
-                  Remapping CapsLock to Ctrl could save you ~2 seconds per minute based on your
-                  usage patterns.
+              <div className="p-4 rounded-md border-2 border-purple-400 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer">
+                <h4 className="font-semibold text-foreground mb-2 text-sm">
+                  Look for Usage Patterns
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Check the heat map for keys that are bright red (high usage) but positioned far
+                  from your fingers. These are prime candidates for remapping. Keys with high usage
+                  that are close together are usually fine to leave as-is.
                 </p>
               </div>
-              <div className="p-3 rounded-lg bg-yellow-600/10 border border-yellow-600/20">
-                <h4 className="font-semibold text-yellow-600 mb-1 text-sm">📊 Track Progress</h4>
-                <p className="text-xs text-muted-foreground">
-                  Your typing efficiency has improved 8% this week. Keep up the great work!
+              <div className="p-4 rounded-md border-2 border-yellow-400 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer">
+                <h4 className="font-semibold text-foreground mb-2 text-sm">Swap Before You Map</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  If you&apos;re using a far-away key frequently, try swapping it with a nearby key
+                  you rarely use. This is often easier to learn than mapping it to a key
+                  combination. Function keys (F1-F12) are great swap candidates.
                 </p>
               </div>
             </div>

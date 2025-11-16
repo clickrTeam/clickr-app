@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { SuggestedRemapping } from '../pages/Insights'
+import { useNavigate } from 'react-router-dom'
 
 interface RemappingBubbleProps {
   remapping: SuggestedRemapping
@@ -7,6 +8,7 @@ interface RemappingBubbleProps {
   onHover: () => void
   onLeave: () => void
   isHovered: boolean
+  allRecommendations?: SuggestedRemapping[]
 }
 
 // Helper function to get destination keys array from SuggestedRemapping
@@ -30,9 +32,9 @@ const bubblePositions = [
   { top: '-5%', left: '10%', delay: 0 }, // Top-left (blue)
   { top: '-10%', left: '45%', delay: 1 }, // Top-middle
   { top: '-5%', right: '8%', delay: 2 }, // Top-right (yellow/orange)
-  { bottom: '15%', left: '5%', delay: 3 }, // Bottom-left (red)
-  { bottom: '5%', left: '40%', delay: 2 }, // Bottom-middle
-  { bottom: '12%', right: '10%', delay: 1 } // Bottom-right (green)
+  { bottom: '8%', left: '5%', delay: 3 }, // Bottom-left (red)
+  { bottom: '3%', left: '40%', delay: 2 }, // Bottom-middle
+  { bottom: '10%', right: '10%', delay: 1 } // Bottom-right (green)
 ]
 
 const RemappingBubble = ({
@@ -40,9 +42,21 @@ const RemappingBubble = ({
   index,
   onHover,
   onLeave,
-  isHovered
+  isHovered,
+  allRecommendations = []
 }: RemappingBubbleProps): JSX.Element => {
   const position = bubblePositions[index % bubblePositions.length]
+  const navigate = useNavigate()
+
+  const handleClick = async (): Promise<void> => {
+    if (allRecommendations.length > 0) {
+      // Save to main process storage so recommendations persist
+      await window.api.saveRecommendations(allRecommendations)
+      await window.api.saveSelectedRecommendationId(remapping.id)
+    }
+    // Navigate to mappings page - recommendations will be loaded from storage when editor opens
+    navigate('/mappings')
+  }
 
   // Floating animation
   const bubbleVariants = {
@@ -71,6 +85,7 @@ const RemappingBubble = ({
       variants={bubbleVariants}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
+      onClick={handleClick}
       whileHover={{
         scale: 1.08,
         y: -5,
@@ -78,6 +93,10 @@ const RemappingBubble = ({
         filter: 'brightness(1.05)',
         zIndex: 30,
         transition: { duration: 0.2, ease: 'easeOut' }
+      }}
+      whileTap={{
+        scale: 0.98,
+        transition: { duration: 0.1 }
       }}
     >
       {remapping.type === 'swap'

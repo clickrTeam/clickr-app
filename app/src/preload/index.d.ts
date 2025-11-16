@@ -49,6 +49,13 @@ export interface API {
   renameMapping(mappingId: string, newName: string): Promise<any>
   updateMappingVisibility(mappingId: string, isPublic: boolean): Promise<any>
   selectImageFile(): Promise<string | null>
+
+  // Recommendations methods
+  getRecommendations(): Promise<any[]>
+  saveRecommendations(recommendations: any[]): Promise<void>
+  clearRecommendations(): Promise<void>
+  getSelectedRecommendationId(): Promise<string | null>
+  saveSelectedRecommendationId(id: string | null): Promise<void>
 }
 
 declare global {

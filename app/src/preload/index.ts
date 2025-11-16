@@ -121,6 +121,23 @@ const api: API = {
   },
   selectImageFile: function (): Promise<string | null> {
     return ipcRenderer.invoke('select-image-file')
+  },
+
+  // Recommendations methods
+  getRecommendations: function (): Promise<any[]> {
+    return ipcRenderer.invoke('get-recommendations')
+  },
+  saveRecommendations: function (recommendations: any[]): Promise<void> {
+    return ipcRenderer.invoke('save-recommendations', recommendations)
+  },
+  clearRecommendations: function (): Promise<void> {
+    return ipcRenderer.invoke('clear-recommendations')
+  },
+  getSelectedRecommendationId: function (): Promise<string | null> {
+    return ipcRenderer.invoke('get-selected-recommendation-id')
+  },
+  saveSelectedRecommendationId: function (id: string | null): Promise<void> {
+    return ipcRenderer.invoke('save-selected-recommendation-id', id)
   }
 }
 
