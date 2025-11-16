@@ -15,9 +15,13 @@ import { Sparkles } from 'lucide-react'
 
 interface ProfileEditorProps {
   onBack: () => void
+  fromInsights?: boolean
 }
 
-export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
+export const ProfileEditor = ({
+  onBack,
+  fromInsights = false
+}: ProfileEditorProps): JSX.Element => {
   const [localProfile, setLocalProfile] = useState(profileController.getProfile())
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0)
   const [useVisualKeyboard, setUseVisualKeyboard] = useState(true)
@@ -40,7 +44,10 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
         if (stored && stored.length > 0) {
           setRecommendations(stored)
           setSelectedRecommendationId(storedId)
-          // Don't automatically open sidebar - let user open it manually
+          // Only auto-open sidebar if navigation came from Insights page
+          if (fromInsights) {
+            setSidebarOpen(true)
+          }
         }
       } catch (error) {
         log.error('Failed to load recommendations:', error)
@@ -48,7 +55,7 @@ export const ProfileEditor = ({ onBack }: ProfileEditorProps): JSX.Element => {
     }
 
     loadRecommendations()
-  }, [])
+  }, [fromInsights])
 
   profileController.setLayer(selectedLayerIndex) // Hack to keep the active layer on construct.
 

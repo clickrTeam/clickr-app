@@ -54,8 +54,9 @@ const RemappingBubble = ({
       await window.api.saveRecommendations(allRecommendations)
       await window.api.saveSelectedRecommendationId(remapping.id)
     }
-    // Navigate to mappings page - recommendations will be loaded from storage when editor opens
-    navigate('/mappings')
+    // Navigate to mappings page with state indicating we came from Insights
+    // This will trigger a toast asking user to pick which mapping to modify
+    navigate('/mappings', { state: { fromInsights: true } })
   }
 
   // Floating animation

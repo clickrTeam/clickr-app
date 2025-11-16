@@ -113,7 +113,7 @@ export const RecommendationsSidebar = ({
                               className="w-full h-7 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                             >
                               <Check className="h-3 w-3 mr-1" />
-                              Applied
+                              Applied/Remove
                             </Button>
                           </div>
                         </div>
@@ -164,7 +164,7 @@ export const RecommendationsSidebar = ({
                         className="w-full h-7 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                       >
                         <Check className="h-3 w-3 mr-1" />
-                        Applied
+                        Applied/Remove
                       </Button>
                     </div>
                     </motion.div>
