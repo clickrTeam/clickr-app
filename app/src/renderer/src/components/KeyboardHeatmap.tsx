@@ -26,15 +26,51 @@ const getMissingKeys = (remapping: SuggestedRemapping | null): string[] => {
   return destinationKeys.filter((key) => !REPRESENTED_KEYS.includes(key))
 }
 
+// Mapping from layout key names to data key names (binder format)
+// This allows us to display all data without modifying it
+const layoutToDataKeyMap: Record<string, string> = {
+  Escape: 'Esc',
+  Grave: '`',
+  Minus: '-',
+  Equals: '=',
+  LeftBracket: '[',
+  RightBracket: ']',
+  Backslash: '\\',
+  Semicolon: ';',
+  Apostrophe: "'",
+  Comma: ',',
+  Period: '.',
+  Slash: '/',
+  LeftShift: 'ShiftLeft',
+  RightShift: 'ShiftRight',
+  LeftControl: 'CtrlLeft',
+  RightControl: 'CtrlRight',
+  LeftAlt: 'AltLeft',
+  RightAlt: 'AltRight',
+  LeftSuper: 'Win',
+  RightSuper: 'Win',
+  ArrowUp: 'Up',
+  ArrowDown: 'Down',
+  ArrowLeft: 'Left',
+  ArrowRight: 'Right'
+}
+
+// Helper function to get the data key name from layout key name
+// If no mapping exists, return the layout key name as-is
+const getDataKeyName = (layoutKeyName: string): string => {
+  return layoutToDataKeyMap[layoutKeyName] || layoutKeyName
+}
+
 const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProps): JSX.Element => {
-  // Create a map for quick lookup
+  // Create a map for quick lookup - use data keys as-is, no modification
   const keyCountMap = new Map(keyCountData.map((kc) => [kc.key, kc]))
 
   // Calculate total count once for percentage calculations
   const totalCount = keyCountData.reduce((sum, kc) => sum + kc.count, 0)
 
   // Get the max count for color intensity calculation
-  const maxCount = Math.max(...keyCountData.map((kc) => kc.count))
+  // Handle empty array case to prevent errors
+  const maxCount = keyCountData.length > 0 ? Math.max(...keyCountData.map((kc) => kc.count)) : 1
 
   // Function to get heat color based on count
   const getHeatColor = (count: number): string => {
@@ -97,7 +133,9 @@ const KeyboardHeatmap = ({ keyCountData, hoveredRemapping }: KeyboardHeatmapProp
       )
     }
 
-    const keyCount = keyCountMap.get(keyData.key)
+    // Look up the count using the data key name (may differ from layout key name)
+    const dataKeyName = getDataKeyName(keyData.key)
+    const keyCount = keyCountMap.get(dataKeyName) || keyCountMap.get(keyData.key)
     const count = keyCount?.count || 0
     const heatColor = getHeatColor(count)
     const remappingStyle = getRemappingStyle(keyData.key)
