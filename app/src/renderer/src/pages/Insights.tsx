@@ -234,7 +234,7 @@ function Insights(): JSX.Element {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent leading-tight pb-1">
             Keyboard Insights
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -299,32 +299,41 @@ function Insights(): JSX.Element {
                 <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                   Keyboard Heatmap
                 </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {hoveredRemapping
+                    ? hoveredRemapping.type === 'swap'
+                      ? `Previewing swap: ${hoveredRemapping.swapKey1} ↔ ${hoveredRemapping.swapKey2}`
+                      : `Previewing: ${hoveredRemapping.fromKey} → ${(hoveredRemapping.toKeys || []).join(' + ')}`
+                    : 'Hover over a suggestion bubble to preview the remapping'}
+                </p>
               </div>
               {/* Refresh Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  // Start spinning immediately for visual feedback
-                  setIsButtonSpinning(true)
-                  fetchKeyFrequencies(true)
-                }}
-                disabled={isRefreshing || isLoading}
-                className="ml-4"
-              >
-                <motion.div
-                  animate={{
-                    rotate: isRefreshing || isButtonSpinning ? 360 : 0
+              <div className="flex flex-col items-center ml-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    // Start spinning immediately for visual feedback
+                    setIsButtonSpinning(true)
+                    fetchKeyFrequencies(true)
                   }}
-                  transition={{
-                    duration: 0.6,
-                    repeat: isRefreshing || isButtonSpinning ? Infinity : 0,
-                    ease: 'linear'
-                  }}
+                  disabled={isRefreshing || isLoading}
                 >
-                  <RefreshCw className="h-4 w-4" />
-                </motion.div>
-              </Button>
+                  <motion.div
+                    animate={{
+                      rotate: isRefreshing || isButtonSpinning ? 360 : 0
+                    }}
+                    transition={{
+                      duration: 0.6,
+                      repeat: isRefreshing || isButtonSpinning ? Infinity : 0,
+                      ease: 'linear'
+                    }}
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </motion.div>
+                </Button>
+                <p className="text-xs text-muted-foreground mt-1">Refresh key data</p>
+              </div>
             </div>
 
             {/* Error/Loading State */}
@@ -338,14 +347,6 @@ function Insights(): JSX.Element {
                 Loading key frequency data...
               </div>
             )}
-
-            <p className="text-sm text-muted-foreground mb-4">
-              {hoveredRemapping
-                ? hoveredRemapping.type === 'swap'
-                  ? `Previewing swap: ${hoveredRemapping.swapKey1} ↔ ${hoveredRemapping.swapKey2}`
-                  : `Previewing: ${hoveredRemapping.fromKey} → ${(hoveredRemapping.toKeys || []).join(' + ')}`
-                : 'Hover over a suggestion bubble to preview the remapping'}
-            </p>
 
             {/* Container for keyboard with overlaid bubbles */}
             <div className="relative min-h-[500px] py-8">
@@ -368,7 +369,12 @@ function Insights(): JSX.Element {
               </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-center gap-4 text-xs">
+            <p className="text-sm text-muted-foreground text-center">
+              Click on a suggestion bubble above to navigate to the mappings screen and apply the
+              remapping
+            </p>
+
+            <div className=" flex items-center justify-center gap-4 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded bg-gradient-to-r from-blue-200 to-blue-300"></div>
                 <span>Low Usage</span>

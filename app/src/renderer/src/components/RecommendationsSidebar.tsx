@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect } from 'react'
 import { SuggestedRemapping } from '../pages/Insights'
 import { ChevronLeft, ChevronRight, Sparkles, Check } from 'lucide-react'
 import { Button } from './ui/button'
@@ -37,6 +38,13 @@ export const RecommendationsSidebar = ({
   onLeave,
   onDelete
 }: RecommendationsSidebarProps): JSX.Element => {
+  // Clear hover state when recommendations become empty
+  useEffect(() => {
+    if (recommendations.length === 0) {
+      onLeave()
+    }
+  }, [recommendations.length, onLeave])
+
   return (
     <AnimatePresence>
       {isOpen ? (
@@ -59,6 +67,10 @@ export const RecommendationsSidebar = ({
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
+
+            <p className="text-sm text-muted-foreground mb-4">
+              Apply a recommendation manually, then remove it to see the next suggestion.
+            </p>
 
             {recommendations.length > 0 ? (
               <div className="space-y-3">

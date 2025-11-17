@@ -146,6 +146,12 @@ export const ProfileEditor = ({
       await window.api.saveSelectedRecommendationId(null)
     }
 
+    // Clear hover state if the deleted recommendation was being hovered
+    // or if there are no recommendations left
+    if (updatedRecommendations.length === 0 || hoveredRemapping?.id === remappingId) {
+      setHoveredRemapping(null)
+    }
+
     toast.success('Recommendation removed')
   }
 
@@ -165,7 +171,29 @@ export const ProfileEditor = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{localProfile.profile_name}</h2>
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              profileController.onSave()
+              onBack()
+            }}
+          >
+            Back
+          </Button>
+          <Button onClick={toggleEditor}>
+            {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
+          </Button>
+          <Button
+            onClick={() => {
+              const latest = profileController.getProfile()
+              navigate('/training', {
+                state: { profile: latest, layer_index: selectedLayerIndex }
+              })
+            }}
+          >
+            Start Training
+          </Button>
           {/* Recommendations toggle button - icon only */}
           {!sidebarOpen && (
             <Button
@@ -178,30 +206,6 @@ export const ProfileEditor = ({
               <Sparkles className="h-4 w-4" />
             </Button>
           )}
-          <div className="space-x-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                profileController.onSave()
-                onBack()
-              }}
-            >
-              Back
-            </Button>
-            <Button onClick={toggleEditor}>
-              {useVisualKeyboard ? 'Traditional Editor' : 'Visual Editor'}
-            </Button>
-            <Button
-              onClick={() => {
-                const latest = profileController.getProfile()
-                navigate('/training', {
-                  state: { profile: latest, layer_index: selectedLayerIndex }
-                })
-              }}
-            >
-              Start Training
-            </Button>
-          </div>
         </div>
       </div>
 

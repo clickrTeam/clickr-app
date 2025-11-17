@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Profile } from '../../../models/Profile'
 import log from 'electron-log'
 import { toast } from 'sonner'
@@ -18,7 +18,7 @@ import { Badge } from '@renderer/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Input } from '@renderer/components/ui/input'
 import { Search, Download, User, Clock, Plus, Upload, Cloud, Trash } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import profileController, { ProfileController } from '@renderer/components/VisualKeyboard/ProfileControler'
 
 
@@ -45,6 +45,7 @@ interface MyMappingsProps {
 
 function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element {
   const navigate = useNavigate()
+  const location = useLocation()
 
   // Local mappings state
   const [profiles, setProfiles] = useState<Profile[] | null>(null)
@@ -60,6 +61,9 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
   // UI state
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  
+  // Ref to track if toast has been shown to prevent duplicates
+  const toastShownRef = useRef(false)
 
   function updateProfiles(): Promise<void> {
     return new Promise((resolve) => {
@@ -150,6 +154,23 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
       window.removeEventListener('reset-mappings-edit', handleResetEdit)
     }
   }, [editedProfileIndex])
+
+  // Show toast when navigating from Insights page
+  useEffect(() => {
+    const state = location.state as { fromInsights?: boolean } | null
+    if (state?.fromInsights && !toastShownRef.current) {
+      toast.info('Please select a mapping to apply the remapping recommendation', {
+        duration: 8000
+      })
+      toastShownRef.current = true
+      // Clear the state to prevent showing the toast again on re-renders
+      window.history.replaceState({}, '')
+    }
+    // Reset the ref when location changes (new navigation)
+    if (!state?.fromInsights) {
+      toastShownRef.current = false
+    }
+  }, [location.state])
 
 
   const confirmDeleteProfile = (profile_index: number): void => {

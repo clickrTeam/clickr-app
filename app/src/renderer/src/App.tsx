@@ -66,7 +66,7 @@ function App(): JSX.Element {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white w-full h-full">
+    <div className="flex flex-col min-h-screen bg-gray-50 w-full h-full">
       <Navbar isAuthenticated={isAuthenticated} username={username} logout={logout} />
 
       {/* Add padding-top to account for fixed navbar */}
