@@ -2,7 +2,7 @@
 import { Layer } from './Layer'
 import * as T from './Trigger'
 import * as B from './Bind'
-import { MacKey, WinKey, LinuxKey } from './Keys'
+import { MacKey, WinKey, LinuxKey } from './Keys.enum'
 import log from 'electron-log'
 import { LLProfile } from './LowLevelProfile'
 /**
@@ -252,8 +252,7 @@ export class Profile {
         if (
           trigger instanceof T.KeyPress ||
           trigger instanceof T.KeyRelease ||
-          trigger instanceof T.Hold ||
-          trigger instanceof T.AppFocus
+          trigger instanceof T.Hold
         ) {
           trigger.value = this.processRemapValue(trigger.value, incoming_OS, target_OS)
         } else if (trigger instanceof T.TapSequence) {

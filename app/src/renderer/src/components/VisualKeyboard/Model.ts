@@ -19,6 +19,7 @@ export interface KeyTileModel {
   keyRef?: HTMLButtonElement | null
   isDown?: boolean // true if the key is currently pressed
   isSelected?: boolean
+  gridRowSpan: number
 }
 
 export interface VisualKeyboardModel {
@@ -28,7 +29,7 @@ export interface VisualKeyboardModel {
 }
 
 export function buildVisualKeyboardModel(
-  allKeys: Array<{ key: string; width?: number; gapAfter?: boolean }>,
+  allKeys: Array<{ key: string; width?: number; gapAfter?: boolean; gridRowSpan?: number }>,
   profileController: ProfileController,
   pressedKeys: string[] = [],
   selectedKey: string | null = null
@@ -46,7 +47,7 @@ export function buildVisualKeyboardModel(
       unmapped.push([trigger, bind])
     }
   }
-  for (const { key, width, gapAfter } of allKeys) {
+  for (const { key, width, gapAfter, gridRowSpan } of allKeys) {
     const isDown = pressedKeys.includes(key)
     const isSelected = selectedKey === key
     let className = getKeyClass(key, [], [])
@@ -73,7 +74,8 @@ export function buildVisualKeyboardModel(
       mapped,
       displayWidth: `${width || 2.25}rem`,
       isDown,
-      isSelected
+      isSelected,
+      gridRowSpan: gridRowSpan ?? 1
     }
   }
 
@@ -89,7 +91,8 @@ export function buildVisualKeyboardModel(
       mapped,
       displayWidth: '2.5rem',
       isDown: false,
-      isSelected: false
+      isSelected: false,
+      gridRowSpan: 1
     })
   }
 

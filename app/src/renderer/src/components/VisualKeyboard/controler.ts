@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { KeyPressInfo } from './Model'
-import { normalizeKey } from '../VisualKeyboardUtil'
+import { normalizeKey } from './Util'
 
 export const useKeyboardController = () => {
   const [keyState, setKeyState] = useState<KeyPressInfo>({
@@ -10,15 +10,24 @@ export const useKeyboardController = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      event.preventDefault()
-      event.stopPropagation()
+      if (document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement) {
+        return
+      }
+
       setKeyState({
         isDown: true,
         key: normalizeKey(event)
       })
+
+      if (normalizeKey(event) == 'F11') event.preventDefault();
+      if (normalizeKey(event) == 'Tab') event.preventDefault();
     }
 
     const handleKeyUp = (event: KeyboardEvent) => {
+      if (document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement) {
+        return
+      }
+
       setKeyState({
         isDown: false,
         key: normalizeKey(event)

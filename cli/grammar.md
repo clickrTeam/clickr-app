@@ -24,8 +24,8 @@
 <lhs> = <advanced_key>
       | chord( [<key>, ...], <behavior>, <timeout> )
       | sequence( [<key>, ...], <behavior>, <timeout> )
-      | tap( <key> )
-      | hold( <key> )
+      | tap( <key>, <behavior>, <timeout> )
+      | hold( <key>, <behavior>, <timeout> )
       | combo( [<advanced_key>, ...], <behavior>, <timeout> )
 
 <advanced_key> = <key>

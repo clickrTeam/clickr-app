@@ -25,7 +25,7 @@ export function getBindTypeDisplayName(value: BindType | string): string {
     case BindType.TapKey:     return 'Tap key';
     case BindType.SwitchLayer:return 'Switch layer';
     case BindType.Macro:      return 'Macro';
-    case BindType.AppOpen:    return 'Open App';
+    case BindType.RunScript:    return 'Run Script';
     case BindType.Meta_Destroy: return 'Remove Bind';
     default:                  return 'Unknown bind';
   }
@@ -47,8 +47,8 @@ export function getBindDisplayName(bind: Bind): string {
       return `Timed Macro (${ (bind as TimedMacro).binds.length } actions)`
     case BindType.Repeat:
       return `Repeat Bind`
-    case BindType.AppOpen:
-      return `Open App: ${ (bind as OpenApp).app_name }`
+    case BindType.RunScript:
+      return 'Run-Script'
     default:
       return 'Unknown Bind'
   }

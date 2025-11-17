@@ -1,7 +1,7 @@
-import React from 'react'
+import React, {useEffect, useMemo, useState} from 'react'
 import { getShortLabel } from './Util'
 import { KeyTileModel } from './Model'
-import { getBindColor } from './Colors'
+import { getTriggerColor } from './Colors'
 import { SuggestedRemapping } from '../../pages/Insights'
 import './KeyTile.css'
 
@@ -42,6 +42,23 @@ const getRemappingStyle = (key: string, hoveredRemapping: SuggestedRemapping | n
 }
 
 export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onInspect, hoveredRemapping = null }) => {
+  const [mounted, setMounted] = useState(false)
+
+  // Stable-ish per-key delay so tiles don't all animate at once
+  const delay = useMemo(() => {
+    const s = keyModel.key || ''
+    let h = 0
+    for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i)
+    const d = Math.abs(h) % 300
+    return d
+  }, [keyModel.key])
+
+  useEffect(() => {
+    // small timeout ensures mount transition is applied
+    const t = setTimeout(() => setMounted(true), 20)
+    return () => clearTimeout(t)
+  }, [])
+
   if (keyModel.key === '') {
     return (
       <span className="flex items-center">
@@ -66,16 +83,21 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onInspect, 
   const remappingStyle = getRemappingStyle(keyModel.key, hoveredRemapping)
 
   return (
-    <span className="flex items-center">
+    <span className="flex items-center" style={{ transform: `translateY(${((keyModel.gridRowSpan - 1) * 22)}px)` }}>
       <button
         ref={(el) => {
           keyModel.keyRef = el
         }}
         type="button"
-        className={`${keyModel.className} ${remappingStyle || ''}`}
+  className={`${`${keyModel.className} ${remappingStyle || ''}`} vk-wiggle-hover`}
         style={{
-          minWidth: keyModel.displayWidth,
-          background: getBindColor(keyModel.mapped)
+          width: keyModel.displayWidth,
+          background: getTriggerColor(keyModel.mapped),
+          opacity: mounted ? 1 : 0,
+          transform: `translateY(${(mounted ? 0 : 6)}px)`,
+          transition: `opacity 360ms ease ${delay}ms, transform 360ms cubic-bezier(.2,.9,.2,1) ${delay}ms`,
+          minHeight: `calc(${keyModel.gridRowSpan}00% + ${(keyModel.gridRowSpan - 1) * 4}px)`,
+          overflow: 'clip'
         }}
         onClick={onClick}
         onMouseEnter={() => onInspect(keyModel)}

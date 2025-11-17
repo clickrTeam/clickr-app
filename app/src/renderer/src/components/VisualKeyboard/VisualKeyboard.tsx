@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Card } from '../ui/card'
-import { mainRows, specialtyRows, numpadRows, KEYBOARD_100 as KEYBOARD_100 } from './Layout.const'
+import { mainRows, specialtyRows, numpadRows, KEYBOARD_100 } from './Layout.const'
 import { InspectPopover } from './InspectPopover'
 import { VisualKeyboardFooter } from './Footer'
 import { Macro, PressKey, ReleaseKey, TapKey } from '../../../../models/Bind'
@@ -8,6 +8,7 @@ import { KeyTile } from './KeyTile'
 import * as T from '../../../../models/Trigger'
 import { buildVisualKeyboardModel, KeyPressInfo, KeyTileModel, VisualKeyboardModel } from './Model'
 import { useKeyboardController } from './controler'
+import { TriggerRadialMenu } from './TriggerRadialMenu'
 import { ChevronDown } from 'lucide-react'
 import log from 'electron-log'
 import profileController from './ProfileControler'
@@ -16,10 +17,17 @@ import { SuggestedRemapping } from '../../pages/Insights'
 interface VisualKeyboardProps {
   hoveredRemapping?: SuggestedRemapping | null
 }
+import { KeyModal } from './KeyModal'
+import { getMacroButtonBgT } from './Colors'
+import { ENSURE_KEYS } from '../../../../models/Keys.enum'
+import { toast } from 'sonner'
 
 export const VisualKeyboard = ({ hoveredRemapping = null }: VisualKeyboardProps): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const [isCreatingNewMapping, setIsCreatingNewMapping] = useState(false)
+  const [showNewTriggerRadial, setShowNewTriggerRadial] = useState(false)
+  const [showNewMappingKeyModal, setShowNewMappingKeyModal] = useState(false)
 
   const onKey: KeyPressInfo = useKeyboardController()
   const [keyQueue, setKeyQueue] = useState<KeyPressInfo[]>([])
@@ -37,6 +45,11 @@ export const VisualKeyboard = ({ hoveredRemapping = null }: VisualKeyboardProps)
       setShowPressedKeys([])
       setKeyQueue((prev) => prev.slice(1))
       return
+    } else if (!ENSURE_KEYS.includes(currentKey.key)) {
+      log.error("ERROR: ILLEGEAL KEY DETECTED! IGNORING!: ", currentKey.key)
+      setShowPressedKeys([])
+      setKeyQueue((prev) => prev.slice(1))
+      return
     } else if (currentKey.isDown) {
       setShowPressedKeys((prev: string[]) =>
         prev.includes(currentKey.key) ? prev : [...prev, currentKey.key]
@@ -45,7 +58,7 @@ export const VisualKeyboard = ({ hoveredRemapping = null }: VisualKeyboardProps)
       setShowPressedKeys((prev: string[]) => prev.filter((k) => k !== currentKey.key))
     }
 
-    if (selectedKey) {
+    if (selectedKey || isCreatingNewMapping) {
       const existingBinds = [...profileController.currentBinds.binds]
       if (currentKey.isDown) {
         profileController.currentBinds = new Macro([...existingBinds, new PressKey(currentKey.key)])
@@ -68,8 +81,44 @@ export const VisualKeyboard = ({ hoveredRemapping = null }: VisualKeyboardProps)
   }, [keyQueue, profileController])
 
   useEffect(() => {
-    profileController.setSelectedKey(selectedKey)
+    if (showNewMappingKeyModal) {
+      return
+    }
+    profileController.setSelectedKey(selectedKey, profileController.radialSelectedTriggerType)
+    log.debug("reseting radialSelectedTriggerType as used: ", profileController.radialSelectedTriggerType)
+    profileController.radialSelectedTriggerType = T.TriggerType.KeyPress
   }, [selectedKey])
+
+  const handleTriggerTypeSelected = (triggerType: T.TriggerType) => {
+    log.debug('handleTriggerTypeSelected: ', triggerType)
+    setShowNewTriggerRadial(false)
+    profileController.clearMapping()
+    profileController.radialSelectedTriggerType = triggerType
+    switch (triggerType) {
+      case T.TriggerType.KeyPress:
+        setShowNewMappingKeyModal(true)
+        return
+      case T.TriggerType.KeyRelease:
+        setShowNewMappingKeyModal(true)
+        return
+      case T.TriggerType.Hold:
+        setShowNewMappingKeyModal(true)
+        return
+      case T.TriggerType.AppFocused:
+        setIsCreatingNewMapping(true)
+        setSelectedKey(null)
+        profileController.currentTrigger = new T.AppFocus("App Name")
+        return
+      case T.TriggerType.TapSequence:
+        setIsCreatingNewMapping(true)
+        setSelectedKey(null)
+        profileController.currentTrigger = new T.TapSequence([])
+        return
+      default:
+        log.warn("handleTriggerTypeSelected: undefined radial output.")
+        return
+    }
+  }
 
   const [showPressedKeys, setShowPressedKeys] = useState<string[]>([])
 
@@ -122,24 +171,54 @@ export const VisualKeyboard = ({ hoveredRemapping = null }: VisualKeyboardProps)
               className={`h-4 w-4 transform transition-transform duration-150 ${showLeftover ? 'rotate-180' : 'rotate-0'}`}
             />
           </button>
+          <button
+            className="p-1 bg-indigo-200 rounded-full hover:bg-indigo-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ml-2"
+            onClick={() => setShowNewTriggerRadial((prev) => !prev)}
+            aria-label={'Add New Mapping'}
+            title={'Add New Mapping'}
+          >
+            <span className="text-sm font-semibold text-indigo-700">+</span>
+          </button>
         </div>
         {showLeftover && (
           <div className="flex flex-wrap mt-2" style={{ gap: '0.25rem' }}>
-            {leftoverKeys.filter((keyModel) => keyModel[0] instanceof T.AppFocus).map((keyModel) => (
-              <div>
+            {leftoverKeys.filter((keyModel) => keyModel[0].trigger_type === T.TriggerType.AppFocused).map((keyModel) => (
+              <button
+                aria-label={keyModel[0].trigger_type + ' leftover-item'}
+                className='vk-footer-macro-btn'
+                style={{ background: getMacroButtonBgT(keyModel[0]) }}
+                onClick={(): void => {
+                  profileController.clearMapping()
+                  setSelectedKey(null)
+                  setIsCreatingNewMapping(true)
+                  profileController.currentTrigger = keyModel[0]
+                  profileController.currentBinds = (keyModel[1] as Macro)
+                }}
+              >
                 {(keyModel[0] as T.AppFocus).app_name}
-              </div>
+              </button>
+            ))}
+            {leftoverKeys.filter((keyModel) => keyModel[0].trigger_type === T.TriggerType.TapSequence).map((keyModel) => (
+              <button
+                aria-label={keyModel[0].trigger_type + ' leftover-item'}
+                className='vk-footer-macro-btn'
+                style={{ background: getMacroButtonBgT(keyModel[0]) }}
+                onClick={(): void => {
+                  profileController.clearMapping()
+                  setSelectedKey(null)
+                  setIsCreatingNewMapping(true)
+                  profileController.currentTrigger = keyModel[0]
+                  profileController.currentBinds = (keyModel[1] as Macro)
+                }}
+              >
+                {(keyModel[0] as T.TapSequence).key_time_pairs.map((pair) => pair[0]).join('+')}
+              </button>
             ))}
             {leftoverKeys.filter((keyModel) => keyModel[0] instanceof T.KeyPress ||
                    keyModel[0] instanceof T.KeyRelease ||
                    keyModel[0] instanceof T.Hold).map((keyModel) => (
-              <div>
+              <div aria-label={keyModel[0].trigger_type + ' leftover-item'} className='vk-footer-macro-btn'>
                 {(keyModel[0] as any).value}
-              </div>
-            ))}
-            {leftoverKeys.filter((keyModel) => keyModel[0] instanceof T.TapSequence).map((keyModel) => (
-              <div>
-                {(keyModel[0] as T.TapSequence).key_time_pairs.map((pair) => pair[0]).join('+')}
               </div>
             ))}
             {visualKeyboardModel.unmappedKeyModels.map((keyModel) => (
@@ -155,31 +234,55 @@ export const VisualKeyboard = ({ hoveredRemapping = null }: VisualKeyboardProps)
       </div>
     )
   }
+
   return (
     <div className='flex flex-col gap-4'>
-    <Card
-      className="p-4 bg-neutral-100 overflow-auto flex flex-row items-start"
-      style={{ position: 'relative', width: 'fit-content', alignSelf: 'center' }}
-    >
-      {renderInspectPopover()}
-      <div className="flex flex-col">{mainRows.map(renderRow)}</div>
-      <div className="flex flex-col">{specialtyRows.map(renderRow)}</div>
-      <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
-
-      <VisualKeyboardFooter
-        selectedKey={selectedKey}
-        onClose={(save: boolean) => {
-          log.debug('Footer onClose called with save =', save);
-          if (save) {
-            profileController.addBind();
-          }
-          setSelectedKey(null)
-          profileController.currentTrigger = new T.KeyPress('UNDEFINED')
-          profileController.currentBinds = new Macro([])
-        }}
+      <TriggerRadialMenu
+        isOpen={showNewTriggerRadial}
+        onSelectTrigger={handleTriggerTypeSelected}
+        onClose={() => setShowNewTriggerRadial(false)}
       />
-    </Card>
-    {renderLeftoverKeys()}
+      {showNewMappingKeyModal && (
+        <KeyModal
+          onClose={(as_cancel: boolean) => {
+            setShowNewMappingKeyModal(false)
+            if (as_cancel) {
+              log.debug("reseting radialSelectedTriggerType as cancel")
+              profileController.radialSelectedTriggerType = T.TriggerType.KeyPress
+            }
+          }}
+          onAddKey={(key: KeyPressInfo) => { setSelectedKey(key.key) }}
+          keyOnly={true}
+          profileController={profileController}
+        />
+      )}
+      <Card
+        className="p-4 bg-neutral-100 overflow-auto flex flex-row items-start"
+        style={{ position: 'relative', width: 'fit-content', alignSelf: 'center' }}
+      >
+        {renderInspectPopover()}
+        <div className="flex flex-col">{mainRows.map(renderRow)}</div>
+        <div className="flex flex-col">{specialtyRows.map(renderRow)}</div>
+        <div className="flex flex-col">{numpadRows.map(renderRow)}</div>
+      </Card>
+
+      {(isCreatingNewMapping || selectedKey) && (
+        <VisualKeyboardFooter
+          selectedKey={selectedKey}
+          onClose={(save: boolean) => {
+            if (profileController.currentBinds.binds.length === 0) {
+              toast.warning("Footer closed with no binds, cleared binds not removed.")
+            }
+
+            log.debug('Closing VisualKeyboard Footer')
+            if (save) profileController.addBind()
+            setSelectedKey(null)
+            setIsCreatingNewMapping(false)
+            profileController.clearMapping()
+          }}
+        />
+      )}
+      {renderLeftoverKeys()}
     </div>
   )
 }
