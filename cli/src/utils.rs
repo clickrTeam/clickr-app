@@ -72,6 +72,8 @@ pub struct Spanned<T> {
     pub span: Span,
 }
 
+impl<T: Copy> Copy for Spanned<T> {}
+
 impl<T> Spanned<T> {
     /// Construct a new spanned value from a value and a span
     pub fn new(value: T, span: Span) -> Self {
