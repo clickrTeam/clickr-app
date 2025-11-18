@@ -16,6 +16,7 @@ import {
   FormMessage
 } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
+import PositionedKeys from '@renderer/components/PositionedKeys'
 
 const formSchema = z
   .object({
@@ -69,101 +70,112 @@ const Register = (): JSX.Element => {
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-center"
+      className="flex flex-col items-center justify-center bg-gray-50 min-h-screen"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h1 className="text-2xl font-bold mb-6 text-black">Register</h1>
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md ">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      className="w-full p-2 border rounded-md"
-                      placeholder="Enter your username"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+      <div className="w-full max-w-md flex flex-col items-center">
+        {/* Animated Keys Header - Centered over form */}
+        <div className="h-32 relative w-full mb-6 flex justify-center">
+          <div className="transform -translate-x-8">
+            <PositionedKeys
+              text="REGISTER"
+              colors={['blue', 'green', 'yellow', 'red', 'purple', 'orange', 'blue', 'green']}
             />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      className="w-full p-2 border rounded-md"
-                      placeholder="Enter your email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      className="w-full p-2 border rounded-md"
-                      placeholder="Enter your password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      className="w-full p-2 border rounded-md"
-                      placeholder="Confirm your password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Registering...' : 'Register'}
-            </Button>
-          </form>
-        </Form>
-        <div className="mt-6 text-center text-sm">
-          <span className="text-muted-foreground">Already have an account?</span>{' '}
-          <Link to="/login" className="text-cyan-600 hover:underline">
-            Login
-          </Link>
+          </div>
+        </div>
+
+        <div className="w-full p-6 bg-white rounded-lg shadow-md ">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Enter your username"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Enter your email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Enter your password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Confirm your password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="submit"
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Registering...' : 'Register'}
+              </Button>
+            </form>
+          </Form>
+          <div className="mt-6 text-center text-sm">
+            <span className="text-muted-foreground">Already have an account?</span>{' '}
+            <Link to="/login" className="text-cyan-600 hover:underline">
+              Login
+            </Link>
+          </div>
         </div>
       </div>
     </motion.div>

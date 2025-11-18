@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 function Home(): JSX.Element {
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center">
+    <div className="flex flex-col items-center justify-center h-full text-center bg-gray-50">
       <h1 className="text-3xl font-bold text-cyan-600 mb-24">Welcome to Clickr</h1>
 
       <div className="flex space-x-12 mt-10">

@@ -4,6 +4,8 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerProfileHandlers } from './ipc/profile-ipc'
 import { registerApiHandlers } from './ipc/api-ipc'
 import { registerSettingsHandlers } from './ipc/settings-ipc'
+import { registerStatsHandlers } from './ipc/stats-ipc'
+import { registerRecommendationsHandlers } from './ipc/recommendations-ipc'
 import { isKeybinderRunning, registerDeamonManagerHandlers, runKeybinder } from './services/daemon-manager'
 import log from 'electron-log'
 import { handleFirstRun } from './services/one-time-intialization.service'
@@ -94,6 +96,8 @@ app.whenReady().then(() => {
   registerDeamonManagerHandlers() // Register daemon manager handlers
   registerApiHandlers() // Register our new API handlers
   registerSettingsHandlers() // Register settings handlers
+  registerStatsHandlers() // Register statistics handlers
+  registerRecommendationsHandlers() // Register recommendations handlers
   createWindow()
 
   app.on('activate', function () {

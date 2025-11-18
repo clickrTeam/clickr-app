@@ -51,7 +51,7 @@ function Training(): JSX.Element {
   }
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center p-8">
+    <div className="relative h-full w-full flex flex-col items-center p-8 bg-gray-50 min-h-screen">
       <div className="fixed top-4 left-4 z-50">
         <Button variant="outline" onClick={(): void => goHome()}>
           Home
