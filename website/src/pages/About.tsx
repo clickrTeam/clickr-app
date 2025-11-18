@@ -8,17 +8,18 @@ import {
   Globe, 
   Download, 
   BookOpen,
-  Linkedin,
   Mail,
   ArrowRight
 } from "lucide-react";
+import { FaLinkedin } from "react-icons/fa6";
+
 import ScreenshotCarousel from "@/components/ScreenshotCarousel";
 
 const About = () => {
   const technologies = [
     {
       name: "Electron",
-      description: "Cross-platform desktop application framework enabling native performance with web technologies",
+      description: "Cross platform desktop application framework enabling native performance with web technologies",
       icon: <Code2 className="h-8 w-8 text-clickr-blue" />,
     },
     {
@@ -28,50 +29,55 @@ const About = () => {
     },
     {
       name: "C++ Keybinder",
-      description: "High-performance native core providing zero-latency keyboard remapping across all platforms",
+      description: "High performance native core providing zero latency keyboard remapping across all platforms",
       icon: <Globe className="h-8 w-8 text-clickr-blue" />,
     },
   ];
 
   const teamMembers = [
     {
-      name: "Bode",
-      role: "Front End & Database",
+      name: "Bode Packer",
+      role: "Front End Implementation & Database Design",
       bio: "TODO: Add 150-250 word biography describing degree, research/project affiliations (including capstone), interests, etc.",
-      email: "TODO: Add email address",
-      linkedin: "TODO: Add LinkedIn URL",
+      email: "bjackpacke@gmail.com",
+      linkedin: "https://www.linkedin.com/in/bode-packer/",
+      imagePath: "headshots/bode.jpeg",
       imageSide: "left" as const,
     },
     {
-      name: "Ryan",
-      role: "Linux & Training Game",
+      name: "Ryan Dalrymple",
+      role: "Linux Implementation & Training Game",
       bio: "TODO: Add 150-250 word biography describing degree, research/project affiliations (including capstone), interests, etc.",
       email: "TODO: Add email address",
       linkedin: "TODO: Add LinkedIn URL",
+      imagePath: null,
       imageSide: "right" as const,
     },
     {
-      name: "Tim",
+      name: "Tim Blamires",
       role: "Keybinder & CLI",
       bio: "TODO: Add 150-250 word biography describing degree, research/project affiliations (including capstone), interests, etc.",
       email: "TODO: Add email address",
-      linkedin: "TODO: Add LinkedIn URL",
+      linkedin: "https://www.linkedin.com/in/timblamires/",
+      imagePath: null,
       imageSide: "left" as const,
     },
     {
-      name: "Hayden",
+      name: "Hayden Hilterbrand",
       role: "Linux Implementation",
       bio: "TODO: Add 150-250 word biography describing degree, research/project affiliations (including capstone), interests, etc.",
       email: "TODO: Add email address",
-      linkedin: "TODO: Add LinkedIn URL",
+      linkedin: "https://www.linkedin.com/in/hayden-hilterbrand-517617365/",
+      imagePath: null,
       imageSide: "right" as const,
     },
     {
-      name: "Luke",
-      role: "Visual Keyboard & Windows Validation",
+      name: "Luke Hamling",
+      role: "Windows Implementation & Visual Keyboard",
       bio: "TODO: Add 150-250 word biography describing degree, research/project affiliations (including capstone), interests, etc.",
       email: "TODO: Add email address",
-      linkedin: "TODO: Add LinkedIn URL",
+      linkedin: "https://www.linkedin.com/in/luke-hamling-bb3aa1174/",
+      imagePath: null,
       imageSide: "left" as const,
     },
   ];
@@ -113,7 +119,7 @@ const About = () => {
               About Clickr
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-              Revolutionizing keyboard customization through cross-platform innovation
+              Revolutionizing keyboard customization through cross platform innovation
             </p>
           </motion.div>
         </div>
@@ -134,17 +140,17 @@ const About = () => {
             </h2>
             <div className="prose prose-lg max-w-none">
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                Clickr is a comprehensive cross-platform keyboard remapping solution that empowers users 
+                Clickr is a comprehensive cross platform keyboard remapping solution that empowers users 
                 to customize their keyboard experience across Windows, macOS, and Linux. The application 
                 addresses the fundamental challenge of keyboard customization by providing a seamless, 
                 cloud-synchronized experience that works consistently across all major operating systems.
               </p>
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
                 At its core, Clickr solves the problem of fragmented keyboard remapping solutions that 
-                are typically platform-specific and lack cloud synchronization. Users can now create 
+                are typically platform specific and lack cloud synchronization. Users can now create 
                 keyboard profiles on one device and seamlessly access them on another, regardless of 
                 the operating system. This is particularly valuable for developers, power users, and 
-                accessibility-focused individuals who work across multiple platforms.
+                accessibility focused individuals who work across multiple platforms.
               </p>
             </div>
           </motion.div>
@@ -250,12 +256,22 @@ const About = () => {
                 >
                   {/* Image */}
                   <div className="flex-shrink-0 w-48 h-48 md:w-64 md:h-64">
-                    <Card className="border-2 border-dashed border-muted-foreground/30 h-full">
-                      <CardContent className="p-8 flex items-center justify-center h-full">
-                        <div className="text-center">
-                          <div className="text-6xl mb-2">👤</div>
-                          <p className="text-sm text-muted-foreground">Headshot Placeholder</p>
-                        </div>
+                    <Card className="border-2 border-gray-200 h-full overflow-hidden">
+                      <CardContent className="p-0 h-full">
+                        {member.imagePath ? (
+                          <img
+                            src={member.imagePath}
+                            alt={`${member.name} headshot`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="p-8 flex items-center justify-center h-full">
+                            <div className="text-center">
+                              <div className="text-6xl mb-2">👤</div>
+                              <p className="text-sm text-muted-foreground">Headshot Placeholder</p>
+                            </div>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   </div>
@@ -286,7 +302,7 @@ const About = () => {
                               rel="noopener noreferrer"
                               className="flex items-center gap-2 text-clickr-blue hover:underline"
                             >
-                              <Linkedin className="h-4 w-4" />
+                              <FaLinkedin className="h-4 w-4" />
                               <span>LinkedIn</span>
                             </a>
                           )}
@@ -302,7 +318,7 @@ const About = () => {
       </section>
 
       {/* Tutorial Link */}
-      <section className="py-16 bg-slate-50">
+      <section className="py-16 bg-gradient-to-t from-clickr-light-blue/40 via-clickr-light-blue/20 to-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -311,14 +327,14 @@ const About = () => {
             transition={{ duration: 0.6 }}
             className="max-w-3xl mx-auto text-center"
           >
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-6 ">
               <BookOpen className="h-12 w-12 text-clickr-blue" />
             </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Learn How to Use Clickr
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Ready to get started? Check out our comprehensive tutorial to learn 
+              Ready to get started? Check out our detailed tutorial to learn 
               how to create profiles, customize key mappings, and sync across devices.
             </p>
             <Button size="lg" asChild className="gap-2">

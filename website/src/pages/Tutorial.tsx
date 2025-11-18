@@ -1,10 +1,9 @@
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
-  ArrowLeft, 
   Play, 
   Download, 
   Settings, 
@@ -26,7 +25,7 @@ const Tutorial = () => {
     {
       number: 1,
       title: "Download and Install",
-      description: "Download Clickr from the navigation bar. The download button automatically detects your operating system (Windows, macOS, or Linux) and provides the appropriate installer. Run the installer and follow the setup wizard to complete installation.",
+      description: "Download Clickr Desktop from the navigation bar. The download button automatically detects your operating system (Windows, macOS, or Linux) and provides the appropriate installer. Run the installer and follow the setup wizard to complete installation.",
       icon: <Download className="h-6 w-6 text-clickr-blue" />,
     },
     {
@@ -134,7 +133,7 @@ const Tutorial = () => {
     });
     
     // Determine if card should start left or right (alternating)
-    const isEven = index % 2 === 0;
+    const isEven = index % 2 === 1;
     const offsetAmount = 250; // How far off-center
     const stopPosition = offsetAmount * 0;
     
@@ -209,12 +208,6 @@ const Tutorial = () => {
             transition={{ duration: 0.6 }}
             className="max-w-4xl mx-auto"
           >
-            <Button variant="ghost" asChild className="mb-6">
-              <Link to="/about" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to About
-              </Link>
-            </Button>
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gradient">
               Clickr Tutorial
             </h1>
@@ -321,7 +314,7 @@ const Tutorial = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-tr from-clickr-blue/10 to-clickr-light-blue/5">
+      <section className="py-16 bg-gradient-to-t from-clickr-light-blue/40 via-clickr-light-blue/10 to-gray-50 ">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -3,24 +3,19 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const screenshots = [
   {
-    src: "/about/clickr screenshots/clickr-app-ss.png",
-    alt: "Clickr Application Interface",
-    title: "Main Application",
-  },
-  {
-    src: "/about/clickr screenshots/clickr-community-ss.png",
-    alt: "Clickr Community Features",
-    title: "Community Hub",
-  },
-  {
     src: "/about/clickr screenshots/clickr-game-ss.png",
     alt: "Clickr Training Game",
     title: "Training Game",
   },
   {
-    src: "/about/clickr screenshots/clickr-insights-ss.png",
-    alt: "Clickr Insights Dashboard",
-    title: "Insights & Analytics",
+    src: "/about/Architecture-Diagram.png",
+    alt: "Clickr System Architecture",
+    title: "System Architecture",
+  },
+  {
+    src: "/about/clickr screenshots/clickr-app-ss.png",
+    alt: "Clickr Application Interface",
+    title: "Main Application",
   },
   {
     src: "/about/clickr screenshots/clickr-mappings-ss.png",
@@ -28,14 +23,19 @@ const screenshots = [
     title: "Key Mappings",
   },
   {
+    src: "/about/clickr screenshots/clickr-community-ss.png",
+    alt: "Clickr Community Features",
+    title: "Community Hub",
+  },
+  {
     src: "/about/clickr screenshots/clickr-settings-ss.png",
     alt: "Clickr Settings",
     title: "Settings",
   },
   {
-    src: "/about/Architecture-Diagram.png",
-    alt: "Clickr System Architecture",
-    title: "System Architecture",
+    src: "/about/clickr screenshots/clickr-insights-ss.png",
+    alt: "Clickr Insights Dashboard",
+    title: "Insights & Analytics",
   },
 ];
 
