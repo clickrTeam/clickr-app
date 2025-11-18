@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 #[rustfmt::skip]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum KeyIdent {
     // Letters
     A, B, C, D, E, F, G, H, I, J, K, L, M,
