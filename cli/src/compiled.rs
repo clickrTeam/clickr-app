@@ -1,3 +1,4 @@
+#![allow(unstable_name_collisions)]
 use itertools::Itertools;
 use std::collections::HashMap;
 
@@ -225,16 +226,6 @@ struct SequenceTrie {
     span: Span,
 }
 
-impl SequenceTrie {
-    fn new(behavior: Behavior, span: Span) -> Self {
-        SequenceTrie {
-            next: HashMap::new(),
-            behavior: behavior,
-            span: span,
-        }
-    }
-}
-
 impl ast::Layer {
     fn compile(self, config: &ConfigData, layers: HashMap<String, usize>) -> miette::Result<Layer> {
         let mut state = LayerCompilationState {
@@ -267,7 +258,7 @@ impl ast::Statement {
     fn compile(statment: Spanned<Self>, state: &mut LayerCompilationState) -> Vec<Remapping> {
         match &statment.lhs.value {
             ast::Trigger::Key(trigger_key) => {
-                if let Some(result) = ast::Statement::try_key_swap(&statment, state) {
+                if let Some(result) = ast::Statement::try_key_swap(&statment) {
                     return result;
                 }
 
@@ -423,39 +414,34 @@ impl ast::Statement {
         }
     }
 
-    fn try_key_swap(
-        statment: &Spanned<Self>,
-        state: &mut LayerCompilationState,
-    ) -> Option<Vec<Remapping>> {
-        if let ast::Trigger::Key(trigger_key) = statment.lhs.value {
-            if statment.rhs.len() == 1 {
-                if let ast::Bind::Key(bind_key) = statment.rhs[0].value {
-                    if let (Some(trigger_key_ident), Some(bind_key_ident)) = (
-                        trigger_key.value.is_basic_key(),
-                        bind_key.value.is_basic_key(),
-                    ) {
-                        let remappings = vec![
-                            Remapping::Basic(BasicRemapping {
-                                trigger: BasicTrigger::KeyPress {
-                                    value: trigger_key_ident,
-                                },
-                                binds: vec![Bind::PressKey {
-                                    value: bind_key_ident,
-                                }],
-                            }),
-                            Remapping::Basic(BasicRemapping {
-                                trigger: BasicTrigger::KeyRelease {
-                                    value: trigger_key_ident,
-                                },
-                                binds: vec![Bind::ReleaseKey {
-                                    value: bind_key_ident,
-                                }],
-                            }),
-                        ];
-                        return Some(remappings);
-                    }
-                }
-            }
+    fn try_key_swap(statment: &Spanned<Self>) -> Option<Vec<Remapping>> {
+        if let ast::Trigger::Key(trigger_key) = statment.lhs.value
+            && statment.rhs.len() == 0
+            && let ast::Bind::Key(bind_key) = statment.rhs[0].value
+            && let (Some(trigger_key_ident), Some(bind_key_ident)) = (
+                trigger_key.value.is_basic_key(),
+                bind_key.value.is_basic_key(),
+            )
+        {
+            let remappings = vec![
+                Remapping::Basic(BasicRemapping {
+                    trigger: BasicTrigger::KeyPress {
+                        value: trigger_key_ident,
+                    },
+                    binds: vec![Bind::PressKey {
+                        value: bind_key_ident,
+                    }],
+                }),
+                Remapping::Basic(BasicRemapping {
+                    trigger: BasicTrigger::KeyRelease {
+                        value: trigger_key_ident,
+                    },
+                    binds: vec![Bind::ReleaseKey {
+                        value: bind_key_ident,
+                    }],
+                }),
+            ];
+            return Some(remappings);
         }
         None
     }

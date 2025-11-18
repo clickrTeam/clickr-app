@@ -50,14 +50,10 @@ fn main() {
             ClientError::Io(err) => eprintln!("File Error: {}", err),
             ClientError::Parse(report) => eprintln!("{:?}", report), // Already formatted
             ClientError::Validation => {
-                // The library already printed the detailed miette errors.
-                // We just need to ensure the exit code is set.
                 eprintln!("Failed due to profile errors.");
             }
             ClientError::Ipc(ipc_err) => {
-                if !matches!(ipc_err, clickr_cli::ipc::IpcError::Connection(_)) {
-                    eprintln!("Daemon Communication Error: {}", ipc_err);
-                }
+                eprintln!("Daemon Communication Error: {}", ipc_err);
             }
         }
         exit(1);

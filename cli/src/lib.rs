@@ -12,7 +12,6 @@ pub mod lex;
 pub mod parse;
 pub mod utils;
 
-use crate::ast::Profile;
 use crate::ipc::send_profile;
 use crate::lex::Lexer;
 use crate::parse::{Parse, TokenStream};
@@ -89,7 +88,7 @@ pub fn check_profile(profile_path: &str) -> Result<(), ClientError> {
 
 pub fn load_profile(profile_path: &str) -> Result<(), ClientError> {
     let (profile, contents) = parse_profile(profile_path)?;
-    let mut reports = profile.check();
+    let reports = profile.check();
     let initial_error_count = reports
         .iter()
         .filter(|r| r.severity() == Some(Severity::Error))
@@ -113,7 +112,7 @@ pub fn load_profile(profile_path: &str) -> Result<(), ClientError> {
             Ok(())
         }
         Err(compile_err) => {
-            let (errors, warnings) = print_reports(vec![compile_err], profile_path, contents);
+            print_reports(vec![compile_err], profile_path, contents);
             eprintln!("Profile failed compilation check. Aborting load.");
             Err(ClientError::Validation)
         }

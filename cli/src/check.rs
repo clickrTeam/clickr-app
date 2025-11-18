@@ -1,5 +1,5 @@
 use crate::{
-    ast::{Bind, Config, ConfigEntry, Layer, Profile},
+    ast::{Bind, Config, ConfigEntry, Profile},
     utils::Spanned,
 };
 use miette::{miette, LabeledSpan, Severity};
@@ -230,14 +230,4 @@ impl Config {
             }
         }
     }
-}
-
-impl Layer {
-    //Things to check
-    // - Duplicate triggers
-    // - invalid trigger lists
-    //      for these we need to convert everrything but  akey into a list of KeyEvents up down
-    //      ident. We then look for identical sequences or overlapping sequences which contain
-    //      differnt behaviors
-    pub fn check(&self, result: &mut Vec<miette::Report>) {}
 }
