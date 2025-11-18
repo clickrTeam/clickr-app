@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Profile } from '../../../models/Profile'
 import log from 'electron-log'
 import { toast } from 'sonner'
@@ -17,9 +17,10 @@ import { Button } from '@renderer/components/ui/button'
 import { Badge } from '@renderer/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Input } from '@renderer/components/ui/input'
-import { Search, Download, User, Clock, Plus, Upload, Cloud } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Search, Download, User, Clock, Plus, Upload, Cloud, Trash } from 'lucide-react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import profileController, { ProfileController } from '@renderer/components/VisualKeyboard/ProfileControler'
+
 
 type UploadedMapping = {
   id: string
@@ -44,6 +45,7 @@ interface MyMappingsProps {
 
 function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element {
   const navigate = useNavigate()
+  const location = useLocation()
 
   // Local mappings state
   const [profiles, setProfiles] = useState<Profile[] | null>(null)
@@ -59,16 +61,25 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
   // UI state
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  
+  // Ref to track if toast has been shown to prevent duplicates
+  const toastShownRef = useRef(false)
 
-  function updateProfiles(): void {
-    window.api.getProfiles().then((profiles: object[]) => {
-      log.silly('Got profiles:', profiles)
-      setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
-    })
+  function updateProfiles(): Promise<void> {
+    return new Promise((resolve) => {
+      window.api.getProfiles().then((profiles: object[]) => {
+        log.silly('Got profiles:', profiles)
+        setProfiles(profiles.map((profile) => Profile.fromJSON(profile)))
+      })
 
-    window.api.getActiveProfile().then((activeProfile: number | null) => {
-      log.info('Active profile is index: ', activeProfile)
-      setActiveProfileIndex(activeProfile)
+      window.api.getActiveProfile().then((activeProfile: number | null) => {
+        log.info('Active profile is index: ', activeProfile)
+        setActiveProfileIndex(activeProfile)
+        resolve()
+      }).catch(() => {
+        // If getActiveProfile fails, still resolve after a short delay
+        setTimeout(resolve, 100)
+      })
     })
   }
 
@@ -126,6 +137,41 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
       setUserMappings([])
     }
   }, [isAuthenticated, username])
+
+  // Reset edit state when navigating to mappings page (from navbar clicks)
+  // Listen for custom event dispatched by navbar when clicking Mappings/Clickr
+  useEffect(() => {
+    const handleResetEdit = (): void => {
+      if (editedProfileIndex !== null) {
+        // Save changes before resetting, just like the Back button does
+        profileController.onSave()
+        setEditedProfileIndex(null)
+      }
+    }
+
+    window.addEventListener('reset-mappings-edit', handleResetEdit)
+    return () => {
+      window.removeEventListener('reset-mappings-edit', handleResetEdit)
+    }
+  }, [editedProfileIndex])
+
+  // Show toast when navigating from Insights page
+  useEffect(() => {
+    const state = location.state as { fromInsights?: boolean } | null
+    if (state?.fromInsights && !toastShownRef.current) {
+      toast.info('Please select a mapping to apply the remapping recommendation', {
+        duration: 8000
+      })
+      toastShownRef.current = true
+      // Clear the state to prevent showing the toast again on re-renders
+      window.history.replaceState({}, '')
+    }
+    // Reset the ref when location changes (new navigation)
+    if (!state?.fromInsights) {
+      toastShownRef.current = false
+    }
+  }, [location.state])
+
 
   const confirmDeleteProfile = (profile_index: number): void => {
     toast('Are you sure you want to delete this profile?', {
@@ -256,14 +302,16 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
     return (
       <div className="space-y-6">
         <ProfileEditor
-          onBack={() => setEditedProfileIndex(null)}
+          onBack={() => {
+            setEditedProfileIndex(null)
+          }}
         />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen pt-8 pb-16">
+    <div className="min-h-screen pt-8 pb-16 bg-gray-50">
       <div className="container mx-auto px-4">
         <motion.div
           className="max-w-6xl mx-auto"
@@ -459,8 +507,13 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
             <Upload size={14} />
             {isAuthenticated ? 'Upload' : 'Login to Upload'}
           </Button>
-          <Button variant="destructive" size="sm" onClick={() => confirmDeleteProfile(item.index)}>
-            Delete
+          <Button
+            variant="destructive"
+            size="sm"
+            className="bg-red-500 text-white"
+            onClick={() => confirmDeleteProfile(item.index)}
+          >
+            <Trash size={14} />
           </Button>
         </CardFooter>
       </Card>
@@ -527,6 +580,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
           <Button
             variant="destructive"
             size="sm"
+            className="bg-red-500 text-white"
             onClick={() => {
               if (!isAuthenticated || !username) {
                 toast.error('Please log in to delete mappings')
@@ -554,7 +608,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
               })
             }}
           >
-            Delete
+            <Trash size={14} />
           </Button>
         </CardFooter>
       </Card>

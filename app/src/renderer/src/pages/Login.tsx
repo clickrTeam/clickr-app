@@ -16,6 +16,7 @@ import {
   FormMessage
 } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
+import PositionedKeys from '@renderer/components/PositionedKeys'
 
 const formSchema = z.object({
   username: z.string().min(1, { message: 'Username is required' }),
@@ -64,65 +65,73 @@ const Login = ({ login: handleLogin }: LoginProps): JSX.Element => {
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-center"
+      className="flex flex-col items-center justify-center bg-gray-50 min-h-screen"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h1 className="text-2xl font-bold mb-6 text-black">Login</h1>
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md ">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      className="w-full p-2 border rounded-md"
-                      placeholder="Enter your username"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      className="w-full p-2 border rounded-md"
-                      placeholder="Enter your password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Logging in...' : 'Login'}
-            </Button>
-          </form>
-        </Form>
-        <div className="mt-6 text-center text-sm">
-          <span className="text-muted-foreground">Don&apos;t have an account?</span>{' '}
-          <Link to="/register" className="text-cyan-600 hover:underline">
-            Register
-          </Link>
+      <div className="w-full max-w-md flex flex-col items-center">
+        {/* Animated Keys Header - Centered over form */}
+        <div className="h-32 relative w-full mb-6 flex justify-center">
+          <div className="transform -translate-x-8">
+            <PositionedKeys text="LOGIN" colors={['blue', 'green', 'yellow', 'red', 'purple']} />
+          </div>
+        </div>
+
+        <div className="w-full p-6 bg-white rounded-lg shadow-md ">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Enter your username"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Enter your password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="submit"
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Logging in...' : 'Login'}
+              </Button>
+            </form>
+          </Form>
+          <div className="mt-6 text-center text-sm">
+            <span className="text-muted-foreground">Don&apos;t have an account?</span>{' '}
+            <Link to="/register" className="text-cyan-600 hover:underline">
+              Register
+            </Link>
+          </div>
         </div>
       </div>
     </motion.div>

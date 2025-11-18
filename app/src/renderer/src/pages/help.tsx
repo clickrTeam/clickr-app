@@ -327,7 +327,7 @@ const Help: React.FC = () => {
   }, [location.pathname])
 
   return (
-    <div className="h-full w-full flex bg-neutral-50">
+    <div className="h-full w-full flex bg-gray-50">
       <aside className="w-64 min-w-[200px] border-r border-neutral-200 bg-white p-4 flex flex-col gap-3">
         <Link to="/" className="block text-sm text-neutral-600 hover:underline pb-2">
           ← Return to Home

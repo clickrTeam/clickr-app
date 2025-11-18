@@ -64,3 +64,43 @@ button:disabled {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 #f3f4f6;
 }
+
+/* Custom animation for remapping hover - only animates shadow, not the entire element */
+@keyframes remapping-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(147, 51, 234, 0.5), 0 0 16px rgba(147, 51, 234, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(147, 51, 234, 0.7), 0 0 24px rgba(147, 51, 234, 0.5);
+  }
+}
+
+@keyframes remapping-pulse-green {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(22, 163, 74, 0.5), 0 0 16px rgba(22, 163, 74, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(22, 163, 74, 0.7), 0 0 24px rgba(22, 163, 74, 0.5);
+  }
+}
+
+@keyframes remapping-pulse-blue {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.5), 0 0 16px rgba(37, 99, 235, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.7), 0 0 24px rgba(37, 99, 235, 0.5);
+  }
+}
+
+.vk-key.remapping-pulse-purple {
+  animation: remapping-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.vk-key.remapping-pulse-green {
+  animation: remapping-pulse-green 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.vk-key.remapping-pulse-blue {
+  animation: remapping-pulse-blue 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

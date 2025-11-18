@@ -271,7 +271,7 @@ const MappingDetail = (): JSX.Element => {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-24 pb-16 bg-gray-50">
       <div className="container mx-auto px-4">
         <motion.div
           className="max-w-4xl mx-auto mb-12"

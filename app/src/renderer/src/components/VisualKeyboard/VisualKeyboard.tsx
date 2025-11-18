@@ -12,12 +12,17 @@ import { TriggerRadialMenu } from './TriggerRadialMenu'
 import { ChevronDown } from 'lucide-react'
 import log from 'electron-log'
 import profileController from './ProfileControler'
+import { SuggestedRemapping } from '../../pages/Insights'
+
+interface VisualKeyboardProps {
+  hoveredRemapping?: SuggestedRemapping | null
+}
 import { KeyModal } from './KeyModal'
 import { getMacroButtonBgT } from './Colors'
 import { ENSURE_KEYS } from '../../../../models/Keys.enum'
 import { toast } from 'sonner'
 
-export const VisualKeyboard = (): JSX.Element => {
+export const VisualKeyboard = ({ hoveredRemapping = null }: VisualKeyboardProps): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [isCreatingNewMapping, setIsCreatingNewMapping] = useState(false)
@@ -135,6 +140,7 @@ export const VisualKeyboard = (): JSX.Element => {
               keyModel={keyModel}
               onClick={(): void => setSelectedKey(key)}
               onInspect={setInspectedKey}
+              hoveredRemapping={hoveredRemapping}
             />
           )
         })}
@@ -220,6 +226,7 @@ export const VisualKeyboard = (): JSX.Element => {
                 keyModel={keyModel}
                 onClick={(): void => setSelectedKey(keyModel.key)}
                 onInspect={setInspectedKey}
+                hoveredRemapping={hoveredRemapping}
               />
             ))}
           </div>
