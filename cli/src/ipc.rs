@@ -1,0 +1,96 @@
+use interprocess::{
+    local_socket::{prelude::*, Name},
+    os::unix::local_socket::FilesystemUdSocket,
+};
+use serde::{Deserialize, Serialize};
+use std::io::{BufRead, BufReader, BufWriter, Write};
+use thiserror::Error;
+
+use crate::compiled::Profile;
+
+#[derive(Debug, Error)]
+pub enum IpcError {
+    #[error("Socket connection error: {0}")]
+    Connection(#[from] std::io::Error),
+
+    #[error("JSON serialization/deserialization error: {0}")]
+    Json(#[from] serde_json::Error),
+
+    #[error("Daemon returned an error: {0}")]
+    Daemon(String),
+}
+
+#[cfg(windows)]
+const PIPE_PATH: &str = r"\\.\pipe\clickr";
+
+#[cfg(not(windows))]
+const PIPE_PATH: &str = "/tmp/clickr.sock";
+
+fn get_socket_name() -> Result<Name<'static>, IpcError> {
+    #[cfg(windows)]
+    return Ok(PIPE_PATH.to_ns_name::<NamespacedUdSocket>()?);
+
+    #[cfg(not(windows))]
+    return Ok(PIPE_PATH.to_fs_name::<FilesystemUdSocket>()?);
+}
+
+#[derive(Serialize)]
+struct IpcMessage<'a> {
+    #[serde(rename = "type")]
+    msg_type: &'static str,
+    profile: &'a Profile,
+}
+
+#[derive(Deserialize)]
+struct IpcResponse {
+    status: String,
+    error: Option<String>,
+}
+
+pub fn send_profile(profile: &Profile) -> Result<(), IpcError> {
+    let message = IpcMessage {
+        msg_type: "load_profile",
+        profile,
+    };
+    let message_string = serde_json::to_string(&message)?;
+
+    let stream = match LocalSocketStream::connect(get_socket_name()?) {
+        Ok(stream) => stream,
+        Err(e) => return Err(IpcError::Connection(e)),
+    };
+
+    {
+        let mut writer = BufWriter::new(&stream);
+        writer.write_all(message_string.as_bytes())?;
+        writer.write_all(b"\n")?;
+        writer.flush()?;
+
+        let mut reader = BufReader::new(&stream);
+        let mut response_buf = String::new();
+
+        if reader.read_line(&mut response_buf)? == 0 {
+            return Err(IpcError::Daemon(
+                "Connection closed by daemon before response.".to_string(),
+            ));
+        }
+
+        let response: IpcResponse = serde_json::from_str(&response_buf)?;
+
+        if response.status != "ok" {
+            let error_msg = response
+                .error
+                .unwrap_or_else(|| "Unknown daemon error".to_string());
+            return Err(IpcError::Daemon(error_msg));
+        }
+
+        Ok(())
+    }
+}
+
+// Attempt to connect using the platform-specific path
+pub fn check_connection() -> Result<(), IpcError> {
+    match LocalSocketStream::connect(get_socket_name()?) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(IpcError::Connection(e)),
+    }
+}
