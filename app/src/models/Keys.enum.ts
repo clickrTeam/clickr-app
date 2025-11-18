@@ -207,6 +207,7 @@ export enum WinKey {
   Menu = 'Menu', // Application key (context menu)
   PauseBreak = 'PauseBreak',
   Insert = 'Insert',
+  PrintScreen = 'PrintScreen',
   // OEM keys and extras (naming varies by layout)
   OEM1 = 'OEM1',
   OEM2 = 'OEM2',
@@ -234,6 +235,7 @@ export enum LinuxKey {
   AltLeft = 'AltLeft',
   AltRight = 'AltRight',
   Compose = 'Compose',
+  SysReq = 'SysReq',
   // Common X11 extras
   XF86AudioPlay = 'XF86AudioPlay',
   XF86AudioNext = 'XF86AudioNext',

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Profile } from '../../../models/Profile'
 import { Button } from '@renderer/components/ui/button'
@@ -22,8 +22,6 @@ function Training(): JSX.Element {
   const [difficulty, setDifficulty] = useState<number>(3) // 1..10
   const [, setScore] = useState<number>(0)
   const [highScore, setHighScore] = useState<number>(0)
-  const [typingText, setTypingText] = useState<string>('')
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   const [showHowTo, setShowHowTo] = useState<boolean>(false)
   const [muteSound, setMuteSound] = useState<boolean>(incomingMuteSound ?? false)
@@ -123,18 +121,6 @@ function Training(): JSX.Element {
               Mute Sound
             </label>
           </div>
-        </div>
-
-        <div className="w-full">
-          <div className="text-center text-gray-600 mb-2">Try out your Profile.</div>
-          <textarea
-            id="typing"
-            ref={textareaRef}
-            value={typingText}
-            onChange={(e): void => setTypingText(e.target.value)}
-            placeholder="Type here to practice..."
-            className="w-full min-h-[240px] p-3 border rounded resize-vertical focus:outline-cyan-500 bg-white text-black"
-          />
         </div>
       </div>
 
