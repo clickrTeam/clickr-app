@@ -228,7 +228,7 @@ const About = () => {
       </section>
 
       {/* Download Blurb */}
-      <section className="py-16 bg-gradient-to-tr from-clickr-blue/10 to-clickr-light-blue/5">
+      <section className="py-16 bg-gradient-to-b from-gray-50  via-clickr-light-blue/35 to-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -15,6 +15,7 @@ import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Tutorial from "./pages/Tutorial";
+import Sandbox from "./pages/Sandbox";
 import { AuthProvider } from "./contexts/AuthContext";
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
             <Route path="/tutorial" element={<Tutorial />} />
+            <Route path="/sandbox" element={<Sandbox />} />
             <Route path="/community" element={<Community />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

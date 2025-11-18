@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -13,6 +14,14 @@ import {
 } from "lucide-react";
 
 const Tutorial = () => {
+  // Helper function to convert hex to rgba
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   const steps = [
     {
       number: 1,
@@ -61,25 +70,131 @@ const Tutorial = () => {
     "The Keybinder daemon runs independently, so remapping works even when the app is closed",
   ];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+  // 6 Clickr colors for borders and shadows
+  const clickrColors = [
+    { 
+      name: "blue", 
+      border: "border-clickr-blue", 
+      text: "text-clickr-blue",
+      bg: "bg-clickr-blue/10",
+      color: "#1EAEDB"
     },
-  };
+    { 
+      name: "orange", 
+      border: "border-clickr-orange", 
+      text: "text-clickr-orange",
+      bg: "bg-clickr-orange/10",
+      color: "#FF9800"
+    },
+    { 
+      name: "red", 
+      border: "border-clickr-red", 
+      text: "text-clickr-red",
+      bg: "bg-clickr-red/10",
+      color: "#FF5252"
+    },
+    { 
+      name: "yellow", 
+      border: "border-clickr-yellow", 
+      text: "text-clickr-yellow",
+      bg: "bg-clickr-yellow/10",
+      color: "#FFD740"
+    },
+    { 
+      name: "green", 
+      border: "border-clickr-green", 
+      text: "text-clickr-green",
+      bg: "bg-clickr-green/10",
+      color: "#4CAF50"
+    },
+    { 
+      name: "purple", 
+      border: "border-clickr-purple", 
+      text: "text-clickr-purple",
+      bg: "bg-clickr-purple/10",
+      color: "#9C27B0"
+    },
+  ];
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-      },
-    },
+  // Scrollable card component with off-center animation
+  const ScrollableCard = ({ 
+    step, 
+    index, 
+    color 
+  }: { 
+    step: typeof steps[0]; 
+    index: number; 
+    color: typeof clickrColors[0] 
+  }) => {
+    const ref = useRef<HTMLDivElement>(null);
+    
+    const { scrollYProgress } = useScroll({
+      target: ref,
+      offset: ["start 0.8", "start 0.4"]
+    });
+    
+    // Determine if card should start left or right (alternating)
+    const isEven = index % 2 === 0;
+    const offsetAmount = 250; // How far off-center
+    const stopPosition = offsetAmount * 0;
+    
+    // Transform based on scroll progress - complete sooner but keep same speed
+    const x = useTransform(
+      scrollYProgress,
+      [0, 0.5, 1], // Complete animation at 50% scroll progress (sooner)
+      [isEven ? -offsetAmount : offsetAmount, isEven ? -stopPosition : stopPosition, isEven ? -stopPosition : stopPosition]
+    );
+    
+    const opacity = useTransform(
+      scrollYProgress,
+      [0, 0.2, 0.5, 1],
+      [0.4, 1, 1, 1]
+    );
+    
+    return (
+      <motion.div 
+        ref={ref}
+        style={{ 
+          x,
+          opacity
+        }}
+        className="w-full"
+      >
+        <Card 
+          className={`border-2 ${color.border} transition-all duration-300`}
+          style={{
+            boxShadow: `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px ${hexToRgba(color.color, 0.25)}, 0 10px 15px -3px ${hexToRgba(color.color, 0.2)}`
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = `0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px ${hexToRgba(color.color, 0.4)}, 0 20px 25px -5px ${hexToRgba(color.color, 0.3)}`;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px ${hexToRgba(color.color, 0.25)}, 0 10px 15px -3px ${hexToRgba(color.color, 0.2)}`;
+          }}
+        >
+          <CardContent className="p-6">
+            <div className="flex items-start gap-6">
+              <div className="flex-shrink-0">
+                <div className={`w-12 h-12 rounded-full ${color.bg} flex items-center justify-center`}>
+                  <div className={`text-2xl font-bold ${color.text}`}>
+                    {step.number}
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={color.text}>{step.icon}</div>
+                  <h3 className="text-xl font-bold">{step.title}</h3>
+                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
   };
 
   return (
@@ -139,7 +254,7 @@ const Tutorial = () => {
       </section>
 
       {/* Step-by-Step Guide */}
-      <section className="py-16 bg-slate-50">
+      <section className="py-8 bg-slate-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -152,40 +267,19 @@ const Tutorial = () => {
               Step-by-Step Guide
             </h2>
             
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="space-y-8"
-            >
-              {steps.map((step, index) => (
-                <motion.div key={index} variants={itemVariants}>
-                  <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-6">
-                        <div className="flex-shrink-0">
-                          <div className="w-12 h-12 rounded-full bg-clickr-blue/10 flex items-center justify-center">
-                            <div className="text-2xl font-bold text-clickr-blue">
-                              {step.number}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="text-clickr-blue">{step.icon}</div>
-                            <h3 className="text-xl font-bold">{step.title}</h3>
-                          </div>
-                          <p className="text-muted-foreground leading-relaxed">
-                            {step.description}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
+            <div className="space-y-5">
+              {steps.map((step, index) => {
+                const color = clickrColors[index % clickrColors.length];
+                return (
+                  <ScrollableCard 
+                    key={index}
+                    step={step}
+                    index={index}
+                    color={color}
+                  />
+                );
+              })}
+            </div>
           </motion.div>
         </div>
       </section>

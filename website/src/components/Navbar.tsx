@@ -98,6 +98,7 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
     { name: "Tutorial", path: "/tutorial" },
+    { name: "Sandbox", path: "/sandbox" },
     { name: "Community", path: "/community" },
     { name: "My Mappings", path: "/my-mappings" },
   ];
