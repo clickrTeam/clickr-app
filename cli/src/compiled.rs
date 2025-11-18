@@ -1,7 +1,11 @@
+use itertools::Itertools;
+use std::collections::HashMap;
+
 use crate::{
     ast::{self, key::KeyIdent, ConfigData},
-    utils::Span,
+    utils::{Span, Spanned},
 };
+use miette::{LabeledSpan, Severity};
 use serde::{Serialize, Serializer};
 
 #[derive(Debug, Serialize)]
@@ -24,21 +28,20 @@ pub enum Remapping {
     Sequence(SequenceRemapping),
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Eq, PartialEq, Hash)]
 pub struct BasicRemapping {
     pub trigger: BasicTrigger,
     pub binds: Vec<Bind>,
-    pub behavior: Behavior,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Eq, PartialEq, Hash)]
 pub struct SequenceRemapping {
     pub triggers: Vec<AdvancedTrigger>,
     pub binds: Vec<Bind>,
     pub behavior: Behavior,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone, Copy, Eq, PartialEq, Hash)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum BasicTrigger {
     KeyPress {
@@ -51,7 +54,7 @@ pub enum BasicTrigger {
     },
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone, Copy, Eq, PartialEq, Hash)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum AdvancedTrigger {
     KeyPress {
@@ -70,7 +73,7 @@ pub enum AdvancedTrigger {
     },
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Eq, PartialEq, Hash)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Bind {
     PressKey {
@@ -93,7 +96,7 @@ pub enum Bind {
     },
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone, Copy, Eq, PartialEq, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum Behavior {
     Capture,
@@ -101,23 +104,21 @@ pub enum Behavior {
     Default,
 }
 
-enum TriggerEntry {
-    KeyUp { key: KeyIdent },
-    KeyDown { key: KeyIdent },
-    Sequence { keys: Vec<KeyIdent> },
-}
-
-enum TriggerEntryMetadata {}
-
 impl ast::Profile {
-    fn compile(self) -> Profile {
-        let config_data = self.config.to_data();
+    pub fn compile(self) -> miette::Result<Profile> {
         let ast::Profile {
             name,
             config,
             layers,
         } = self;
-        Profile {
+        let config_data = config.to_data();
+
+        let layer_names: HashMap<String, usize> = layers
+            .iter()
+            .enumerate()
+            .map(|(i, l)| (l.name.value.clone(), i))
+            .collect();
+        Ok(Profile {
             profile_name: name.value,
             default_layer: config_data
                 .default_layer
@@ -131,28 +132,332 @@ impl ast::Profile {
                 .unwrap_or(0),
             layers: layers
                 .into_iter()
-                .map(|l| l.value.compile(&config_data))
-                .collect(),
+                .map(|l| l.value.compile(&config_data, layer_names.clone()))
+                .collect::<Result<Vec<_>, _>>()?,
+        })
+    }
+}
+
+struct LayerCompilationState {
+    basic_remappings: HashMap<BasicTrigger, Span>,
+    sequence_remappings: HashMap<AdvancedTrigger, SequenceTrie>,
+    config: ConfigData,
+    layers: HashMap<String, usize>,
+}
+impl LayerCompilationState {
+    fn try_insert_remappings(
+        &mut self,
+        remappings: &[Remapping],
+        span: Span,
+    ) -> miette::Result<()> {
+        for remapping in remappings {
+            match remapping {
+                Remapping::Basic(basic_remapping) => {
+                    match self.basic_remappings.entry(basic_remapping.trigger) {
+                        std::collections::hash_map::Entry::Occupied(occupied_entry) => {
+                            return Err(conflicting_binds(*occupied_entry.get(), span))
+                        }
+                        std::collections::hash_map::Entry::Vacant(vacant_entry) => {
+                            vacant_entry.insert_entry(span);
+                        }
+                    }
+                }
+                Remapping::Sequence(SequenceRemapping {
+                    triggers,
+                    binds: _,
+                    behavior,
+                }) => {
+                    if triggers.is_empty() {
+                        return Err(miette::miette!(
+                            severity = Severity::Error,
+                            labels = vec![LabeledSpan::new(
+                                Some("empty sequence found here".to_string()),
+                                span.start(),
+                                span.end()
+                            ),],
+                            "empty sequences not allowed"
+                        ));
+                    }
+
+                    let mut created_new = false;
+                    let mut current_trie = &mut self.sequence_remappings;
+                    for (i, trigger) in triggers.iter().enumerate() {
+                        // Ingore timers
+                        match trigger {
+                            AdvancedTrigger::KeyPress { .. } => (),
+                            AdvancedTrigger::KeyRelease { .. } => (),
+                            _ => continue,
+                        };
+                        let next_node = current_trie.entry(*trigger).or_insert_with(|| {
+                            created_new = true;
+                            SequenceTrie {
+                                next: HashMap::new(),
+                                behavior: *behavior,
+                                span,
+                            }
+                        });
+                        if &next_node.behavior != behavior {
+                            return Err(conflicting_binds(next_node.span, span));
+                        }
+
+                        if i == triggers.len() - 1 {
+                            if !created_new {
+                                return Err(conflicting_binds(next_node.span, span));
+                            }
+                        } else {
+                            if !created_new && next_node.next.is_empty() {
+                                return Err(conflicting_binds(next_node.span, span));
+                            }
+                        }
+
+                        current_trie = &mut next_node.next;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+struct SequenceTrie {
+    next: HashMap<AdvancedTrigger, SequenceTrie>,
+    behavior: Behavior,
+    span: Span,
+}
+
+impl SequenceTrie {
+    fn new(behavior: Behavior, span: Span) -> Self {
+        SequenceTrie {
+            next: HashMap::new(),
+            behavior: behavior,
+            span: span,
         }
     }
 }
 
 impl ast::Layer {
-    fn compile(self, config: &ConfigData) -> Layer {
-        let remappings_with_source: Vec<(Span, Remapping)> = Vec::new();
-        Layer {
+    fn compile(self, config: &ConfigData, layers: HashMap<String, usize>) -> miette::Result<Layer> {
+        let mut state = LayerCompilationState {
+            basic_remappings: HashMap::new(),
+            sequence_remappings: HashMap::new(),
+            config: config.clone(),
+            layers: layers.clone(),
+        };
+
+        Ok(Layer {
             layer_name: self.name.value,
             remappings: self
                 .statements
                 .into_iter()
-                .flat_map(|r| r.value.compile())
+                .map(|statement| {
+                    let span = statement.span;
+                    let remappings = ast::Statement::compile(statement, &mut state);
+                    state
+                        .try_insert_remappings(&remappings, span)
+                        .map(|_| remappings)
+                })
+                .collect::<Result<Vec<_>, _>>()?
+                .into_iter()
+                .flatten()
                 .collect(),
-        }
+        })
     }
 }
 impl ast::Statement {
-    fn compile(self) -> Vec<Remapping> {
-        todo!()
+    fn compile(statment: Spanned<Self>, state: &mut LayerCompilationState) -> Vec<Remapping> {
+        match &statment.lhs.value {
+            ast::Trigger::Key(trigger_key) => {
+                if let Some(result) = ast::Statement::try_key_swap(&statment, state) {
+                    return result;
+                }
+
+                match trigger_key.value {
+                    ast::Key::Unspecified(key) => vec![
+                        Remapping::Basic(BasicRemapping {
+                            trigger: BasicTrigger::KeyPress { value: key.value },
+                            binds: ast::Bind::compile(&statment.rhs, state),
+                        }),
+                        Remapping::Basic(BasicRemapping {
+                            trigger: BasicTrigger::KeyRelease { value: key.value },
+                            binds: vec![],
+                        }),
+                    ],
+                    ast::Key::Down(key) => {
+                        vec![Remapping::Basic(BasicRemapping {
+                            trigger: BasicTrigger::KeyPress { value: key.value },
+                            binds: ast::Bind::compile(&statment.rhs, state),
+                        })]
+                    }
+                    ast::Key::Up(key) => {
+                        vec![Remapping::Basic(BasicRemapping {
+                            trigger: BasicTrigger::KeyRelease { value: key.value },
+                            binds: ast::Bind::compile(&statment.rhs, state),
+                        })]
+                    }
+                }
+            }
+            ast::Trigger::Tap(key, behavior, timeout) => {
+                vec![Remapping::Sequence(SequenceRemapping {
+                    triggers: vec![
+                        AdvancedTrigger::KeyPress { value: key.value },
+                        AdvancedTrigger::MaximumWait {
+                            value: timeout
+                                .as_deref()
+                                .copied()
+                                .unwrap_or(state.config.tap_timeout),
+                        },
+                        AdvancedTrigger::KeyRelease { value: key.value },
+                    ],
+                    binds: ast::Bind::compile(&statment.rhs, state),
+                    behavior: ast::Behavior::compile(
+                        behavior
+                            .as_deref()
+                            .copied()
+                            .unwrap_or(state.config.default_behavior),
+                    ),
+                })]
+            }
+            ast::Trigger::Hold(key, behavior, timeout) => {
+                vec![Remapping::Sequence(SequenceRemapping {
+                    triggers: vec![
+                        AdvancedTrigger::KeyPress { value: key.value },
+                        AdvancedTrigger::MinimumWait {
+                            value: timeout
+                                .as_deref()
+                                .copied()
+                                .unwrap_or(state.config.hold_time),
+                        },
+                    ],
+                    binds: ast::Bind::compile(&statment.rhs, state),
+                    behavior: ast::Behavior::compile(
+                        behavior
+                            .as_deref()
+                            .copied()
+                            .unwrap_or(state.config.default_behavior),
+                    ),
+                })]
+            }
+            ast::Trigger::Chord(keys, behavior, timeout) => {
+                vec![Remapping::Sequence(SequenceRemapping {
+                    triggers: keys
+                        .iter()
+                        .map(|k| AdvancedTrigger::KeyPress { value: k.value })
+                        .intersperse_with(|| AdvancedTrigger::MaximumWait {
+                            value: timeout
+                                .as_deref()
+                                .copied()
+                                .unwrap_or(state.config.chord_timeout),
+                        })
+                        .collect(),
+
+                    binds: ast::Bind::compile(&statment.rhs, state),
+                    behavior: ast::Behavior::compile(
+                        behavior
+                            .as_deref()
+                            .copied()
+                            .unwrap_or(state.config.default_behavior),
+                    ),
+                })]
+            }
+            ast::Trigger::Sequence(keys, behavior, timeout) => {
+                vec![Remapping::Sequence(SequenceRemapping {
+                    triggers: keys
+                        .iter()
+                        .flat_map(|k| {
+                            [
+                                AdvancedTrigger::KeyPress { value: k.value },
+                                AdvancedTrigger::KeyRelease { value: k.value },
+                            ]
+                        })
+                        .intersperse_with(|| AdvancedTrigger::MaximumWait {
+                            value: timeout
+                                .as_deref()
+                                .copied()
+                                .unwrap_or(state.config.sequence_timeout),
+                        })
+                        .collect(),
+
+                    binds: ast::Bind::compile(&statment.rhs, state),
+                    behavior: ast::Behavior::compile(
+                        behavior
+                            .as_deref()
+                            .copied()
+                            .unwrap_or(state.config.default_behavior),
+                    ),
+                })]
+            }
+            ast::Trigger::Combo(keys, behavior, timeout) => {
+                vec![Remapping::Sequence(SequenceRemapping {
+                    triggers: keys
+                        .iter()
+                        .flat_map(|specified_key| match specified_key.value {
+                            ast::Key::Unspecified(key) => [
+                                Some(AdvancedTrigger::KeyPress { value: key.value }),
+                                Some(AdvancedTrigger::KeyRelease { value: key.value }),
+                            ],
+                            ast::Key::Down(key) => {
+                                [Some(AdvancedTrigger::KeyPress { value: key.value }), None]
+                            }
+                            ast::Key::Up(key) => {
+                                [Some(AdvancedTrigger::KeyRelease { value: key.value }), None]
+                            }
+                        })
+                        .flatten()
+                        .intersperse_with(|| AdvancedTrigger::MaximumWait {
+                            value: timeout
+                                .as_deref()
+                                .copied()
+                                .unwrap_or(state.config.combo_timeout),
+                        })
+                        .collect(),
+
+                    binds: ast::Bind::compile(&statment.rhs, state),
+                    behavior: ast::Behavior::compile(
+                        behavior
+                            .as_deref()
+                            .copied()
+                            .unwrap_or(state.config.default_behavior),
+                    ),
+                })]
+            }
+        }
+    }
+
+    fn try_key_swap(
+        statment: &Spanned<Self>,
+        state: &mut LayerCompilationState,
+    ) -> Option<Vec<Remapping>> {
+        if let ast::Trigger::Key(trigger_key) = statment.lhs.value {
+            if statment.rhs.len() == 1 {
+                if let ast::Bind::Key(bind_key) = statment.rhs[0].value {
+                    if let (Some(trigger_key_ident), Some(bind_key_ident)) = (
+                        trigger_key.value.is_basic_key(),
+                        bind_key.value.is_basic_key(),
+                    ) {
+                        let remappings = vec![
+                            Remapping::Basic(BasicRemapping {
+                                trigger: BasicTrigger::KeyPress {
+                                    value: trigger_key_ident,
+                                },
+                                binds: vec![Bind::PressKey {
+                                    value: bind_key_ident,
+                                }],
+                            }),
+                            Remapping::Basic(BasicRemapping {
+                                trigger: BasicTrigger::KeyRelease {
+                                    value: trigger_key_ident,
+                                },
+                                binds: vec![Bind::ReleaseKey {
+                                    value: bind_key_ident,
+                                }],
+                            }),
+                        ];
+                        return Some(remappings);
+                    }
+                }
+            }
+        }
+        None
     }
 }
 impl ast::Behavior {
@@ -163,6 +468,78 @@ impl ast::Behavior {
             ast::Behavior::Wait => Behavior::Default,
         }
     }
+}
+impl ast::Bind {
+    fn compile(binds: &[Spanned<ast::Bind>], state: &mut LayerCompilationState) -> Vec<Bind> {
+        let mut result_binds = Vec::new();
+        for bind in binds {
+            match &bind.value {
+                ast::Bind::Key(key) => match key.value {
+                    ast::Key::Unspecified(key_ident) => {
+                        result_binds.push(Bind::PressKey {
+                            value: key_ident.value,
+                        });
+                        result_binds.push(Bind::ReleaseKey {
+                            value: key_ident.value,
+                        });
+                    }
+                    ast::Key::Down(key_ident) => {
+                        result_binds.push(Bind::PressKey {
+                            value: key_ident.value,
+                        });
+                    }
+                    ast::Key::Up(key_ident) => {
+                        result_binds.push(Bind::ReleaseKey {
+                            value: key_ident.value,
+                        });
+                    }
+                },
+                ast::Bind::None => (),
+                ast::Bind::ChangeLayer(layer_name) => result_binds.push(Bind::SwitchLayer {
+                    value: *state
+                        .layers
+                        .get(&layer_name.value)
+                        .expect("layer must exist after checking the profile"),
+                }),
+                ast::Bind::Run {
+                    interpreter,
+                    script,
+                } => result_binds.push(Bind::RunScript {
+                    interpreter: interpreter.value.clone(),
+                    script: script.value.clone(),
+                }),
+                ast::Bind::OpenApp(Spanned { value: name, .. }) => {
+                    #[cfg(target_os = "macos")]
+                    let (interpreter, script) =
+                        ("sh".to_string(), format!(r#"open -a "{}""#, name));
+
+                    #[cfg(target_os = "linux")]
+                    let (interpreter, script) = ("sh".to_string(), name.clone());
+
+                    #[cfg(target_os = "windows")]
+                    let (interpreter, script) =
+                        ("cmd.exe".to_string(), format!(r#"start "" "{}""#, name));
+
+                    result_binds.push(Bind::RunScript {
+                        interpreter,
+                        script,
+                    });
+                }
+            }
+        }
+        result_binds
+    }
+}
+
+fn conflicting_binds(fst: Span, snd: Span) -> miette::Report {
+    miette::miette!(
+        severity = Severity::Error,
+        labels = vec![
+            LabeledSpan::new(None, fst.start(), fst.end()),
+            LabeledSpan::new(None, snd.start(), snd.end()),
+        ],
+        "Conflicting statments"
+    )
 }
 
 #[rustfmt::skip]
