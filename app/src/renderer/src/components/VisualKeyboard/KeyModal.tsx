@@ -32,8 +32,7 @@ const keyGroupsBase: Record<string, string[]> = {
   Numpad: Object.values(Numpad),
   Misc: Object.values(Misc),
   [current_OS + ' Keys']: Object.values(os_keys)
-};
-
+}
 
 interface KeyModalProps {
   onClose: (as_cancel: boolean) => void
@@ -50,7 +49,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
   keyOnly,
   onSelectLayer,
   onAddRunScriptBind,
-  profileController,
+  profileController
 }) => {
   const layers = profileController.getProfile().layers
   const currentLayerIndex = profileController.activeLayer!.layer_number
@@ -69,9 +68,10 @@ export const KeyModal: React.FC<KeyModalProps> = ({
   const keyGroups: Record<string, string[]> = {
     ...keyGroupsBase,
     ...(keyOnly ? {} : { Shortcuts: Object.values(ShortcutAction) }),
-    ...(keyOnly ? { Shortcuts: Object.values(KeyedSymbols) }
-      : { Shortcuts: [...Object.values(Symbols), ...Object.values(KeyedSymbols)] })
-  };
+    ...(keyOnly
+      ? { Symbols: Object.values(KeyedSymbols) }
+      : { Symbols: [...Object.values(Symbols), ...Object.values(KeyedSymbols)] })
+  }
 
   // otherLayers excludes the resolved active layer
   const otherLayers = layers
@@ -97,7 +97,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
             </button>
           ))}
 
-          { !keyOnly && (
+          {!keyOnly && (
             <button
               key="Layers"
               className={`vk-key-modal-category-btn bg-clickr-light-blue-90 text-white${
@@ -108,7 +108,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
               Layers
             </button>
           )}
-          { !keyOnly && (
+          {!keyOnly && (
             <button
               key="RunScript"
               className={`vk-key-modal-category-btn bg-clickr-light-blue-90 text-white${
@@ -151,7 +151,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
                     key={idx}
                     className="vk-footer-macro-dropdown-btn"
                     onClick={() => {
-                      if (!!onSelectLayer) {
+                      if (onSelectLayer) {
                         onSelectLayer(idx)
                       }
                       onClose(false)
@@ -169,15 +169,31 @@ export const KeyModal: React.FC<KeyModalProps> = ({
         {keyCategory === 'RunScript' && (
           <div className="vk-key-modal-dropdown">
             <div className="grid w-full max-w-sm items-center gap-3">
-              <Input placeholder="Interpretor Name" onChange={(e) => { setInterpretor(e.target.value) }} />
-              <Textarea placeholder="Type your script here" onChange={(e) => { setScript(e.target.value) }} />
-              <button onClick={() => {
-                if (!!script && !!interpretor && !!onAddRunScriptBind) {
-                  onAddRunScriptBind(script, interpretor)
-                } else {
-                  toast.warning("Run Script Bind missing script or language, please provide or add a diffrent bind.")
-                }
-              }}>Add this bind</button>
+              <Input
+                placeholder="Interpretor Name"
+                onChange={(e) => {
+                  setInterpretor(e.target.value)
+                }}
+              />
+              <Textarea
+                placeholder="Type your script here"
+                onChange={(e) => {
+                  setScript(e.target.value)
+                }}
+              />
+              <button
+                onClick={() => {
+                  if (!!script && !!interpretor && !!onAddRunScriptBind) {
+                    onAddRunScriptBind(script, interpretor)
+                  } else {
+                    toast.warning(
+                      'Run Script Bind missing script or language, please provide or add a diffrent bind.'
+                    )
+                  }
+                }}
+              >
+                Add this bind
+              </button>
             </div>
           </div>
         )}

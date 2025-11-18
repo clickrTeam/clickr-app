@@ -4,7 +4,7 @@
  */
 import { Profile } from '../src/models/Profile'
 import * as utils from './test_utils/test_utils'
-import { MacKey, WinKey, LinuxKey, Letters, Digits, Function } from '../src/models/Keys'
+import { MacKey, WinKey, LinuxKey, Letters, Digits, Function } from '../src/models/Keys.enum'
 import * as T from '../src/models/Trigger'
 import * as B from '../src/models/Bind'
 

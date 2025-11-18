@@ -294,7 +294,39 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       {
         id: 'layer-navigation',
         heading: 'Layer Navigation',
-        body: <p>create layer hub. TODO: Finish this section</p>
+        body: (
+          <p>
+            It may be helpful to create a Layer hub". This is a layer that only contains layer
+            swapping binds to other layers. This way, from any layer (other than the layer hub) you
+            can have a single button to switch to the layer hub. Then on a layer hub, you can use
+            the numbers to switch to Layer 1, Layer 2, ... etc. This can simplify navigation for
+            you.
+          </p>
+        )
+      },
+      {
+        id: 'shortcuts',
+        heading: 'Shortcuts',
+        body: (
+          <>
+            <p>
+              When creating a bind that represents a common shortcut such as Copy or Paste, you
+              should use the premade Shortcut option instead of mapping it yourself by creating a
+              Ctrl + C bind. The reason for this is that Clickr will be able to more easily
+              translate these predefined shortcuts between different operating systems. In order to
+              do this:
+            </p>
+            <ol>
+              <li>Navigate to the layer editing page.</li>
+              <li>Select the key you want to assign to a shortcut.</li>
+              <li>
+                Click the + button at the bottom of the screen to open a menu with different key
+                types.
+              </li>
+              <li>Click on Shortcuts and then select the shortcut you want to use. </li>
+            </ol>
+          </>
+        )
       }
     ]
   }

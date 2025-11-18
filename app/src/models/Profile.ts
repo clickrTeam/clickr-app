@@ -2,7 +2,7 @@
 import { Layer } from './Layer'
 import * as T from './Trigger'
 import * as B from './Bind'
-import { MacKey, WinKey, LinuxKey } from './Keys.enum'
+import * as K from './Keys.enum'
 import log from 'electron-log'
 import { LLProfile } from './LowLevelProfile'
 /**
@@ -172,10 +172,11 @@ export class Profile {
   /**
    * Deserializes a JSON-compatible object into a Profile instance.
    * @param obj - The JSON object to deserialize.
+   * @param translate Bool to determine if OS translation should occur. Defaults to true.
    * @returns A Profile instance.
    * @throws Error if the JSON is malformed.
    */
-  static fromJSON(obj: any): Profile {
+  static fromJSON(obj: any, translate: boolean = true): Profile {
     // Validate the essential properties
     if (typeof obj !== 'object' || obj === null) {
       log.error('Profile JSON is not an object or is null.')
@@ -197,18 +198,22 @@ export class Profile {
     profile.layers = obj.layers.map((layerObj: any) => Layer.fromJSON(layerObj))
     profile.layer_count = profile.layers.length
 
-    if (profile.OS !== obj.OS) {
-      log.info(
-        `Profile OS "${obj.OS}" does not match current OS "${profile.OS}". Translating keys to current OS.`
+    if (translate) {
+      if (profile.OS !== obj.OS) {
+        log.info(
+          `Profile OS "${obj.OS}" does not match current OS "${profile.OS}". Translating keys to current OS.`
+        )
+        profile.translateToTargetOS(obj.OS, detectOS())
+      } else {
+        log.silly(
+          `Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`
+        )
+      }
+      log.silly(
+        `<<<<<< Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
       )
-      profile.translateToTargetOS(obj.OS, detectOS())
-    } else {
-      log.silly(`Profile OS "${obj.OS}" matches current OS "${profile.OS}". No translation needed.`)
     }
 
-    log.silly(
-      `<<<<<< Deserialization of profile "${profile.profile_name}" completed with ${profile.layer_count} layers.`
-    )
     return profile
   }
 
@@ -345,10 +350,10 @@ export class Profile {
   private linuxToWindows(old_value: string): string {
     let new_value = old_value
 
-    if (old_value === LinuxKey.SuperLeft) {
-      new_value = WinKey.WinLeft
-    } else if (old_value === LinuxKey.SuperRight) {
-      new_value = WinKey.WinRight
+    if (old_value === K.LinuxKey.SuperLeft) {
+      new_value = K.WinKey.WinLeft
+    } else if (old_value === K.LinuxKey.SuperRight) {
+      new_value = K.WinKey.WinRight
     } else {
       log.info(`No translation needed for Linux key ${old_value} to Windows.`)
     }
@@ -366,19 +371,19 @@ export class Profile {
     let new_value = old_value
 
     // Translate Linux-specific keys to macOS equivalents
-    if (old_value === LinuxKey.SuperLeft) {
-      new_value = MacKey.CommandLeft
-    } else if (old_value === LinuxKey.SuperRight) {
-      new_value = MacKey.CommandRight
+    if (old_value === K.LinuxKey.SuperLeft) {
+      new_value = K.MacKey.CommandLeft
+    } else if (old_value === K.LinuxKey.SuperRight) {
+      new_value = K.MacKey.CommandRight
     }
     /// @todo This is a problem, because there are two Ctrl keys on Linux, but only one Control key on macOS.
     /// possible solutions include not allowing both Ctrl keys to be mapped in the UI (having them both be Ctrl), or mapping both to Control on macOS.
-    else if (old_value === LinuxKey.CtrlLeft || old_value === LinuxKey.CtrlRight) {
-      new_value = MacKey.Control
-    } else if (old_value === LinuxKey.AltLeft) {
-      new_value = MacKey.OptionLeft
-    } else if (old_value === LinuxKey.AltRight) {
-      new_value = MacKey.OptionRight
+    else if (old_value === K.LinuxKey.CtrlLeft || old_value === K.LinuxKey.CtrlRight) {
+      new_value = K.MacKey.Control
+    } else if (old_value === K.LinuxKey.AltLeft) {
+      new_value = K.MacKey.OptionLeft
+    } else if (old_value === K.LinuxKey.AltRight) {
+      new_value = K.MacKey.OptionRight
     } else {
       log.info(`No translation needed for Linux key ${old_value} to macOS.`)
     }
@@ -395,10 +400,10 @@ export class Profile {
   private windowsToLinux(old_value: string): string {
     let new_value = old_value
 
-    if (old_value === WinKey.WinLeft) {
-      new_value = LinuxKey.SuperLeft
-    } else if (old_value === WinKey.WinRight) {
-      new_value = LinuxKey.SuperRight
+    if (old_value === K.WinKey.WinLeft) {
+      new_value = K.LinuxKey.SuperLeft
+    } else if (old_value === K.WinKey.WinRight) {
+      new_value = K.LinuxKey.SuperRight
     } else {
       log.info(`No translation needed for Windows key ${old_value} to Linux.`)
     }
@@ -416,19 +421,19 @@ export class Profile {
     let new_value = old_value
 
     // Check all Windows-specific keys and translate them to macOS equivalents
-    if (old_value === WinKey.WinLeft) {
-      new_value = MacKey.CommandLeft
-    } else if (old_value === WinKey.WinRight) {
-      new_value = MacKey.CommandRight
+    if (old_value === K.WinKey.WinLeft) {
+      new_value = K.MacKey.CommandLeft
+    } else if (old_value === K.WinKey.WinRight) {
+      new_value = K.MacKey.CommandRight
     }
     /// @todo This is a problem, because there are two Ctrl keys on Windows, but only one Control key on macOS.
     /// possible solutions include not allowing both Ctrl keys to be mapped in the UI (having them both be Ctrl), or mapping both to Control on macOS.
-    else if (old_value === WinKey.CtrlLeft || old_value === WinKey.CtrlRight) {
-      new_value = MacKey.Control
-    } else if (old_value === WinKey.AltLeft) {
-      new_value = MacKey.OptionLeft
-    } else if (old_value === WinKey.AltRight) {
-      new_value = MacKey.OptionRight
+    else if (old_value === K.WinKey.CtrlLeft || old_value === K.WinKey.CtrlRight) {
+      new_value = K.MacKey.Control
+    } else if (old_value === K.WinKey.AltLeft) {
+      new_value = K.MacKey.OptionLeft
+    } else if (old_value === K.WinKey.AltRight) {
+      new_value = K.MacKey.OptionRight
     } else {
       log.info(`No translation needed for Windows key ${old_value} to macOS.`)
     }
@@ -446,17 +451,17 @@ export class Profile {
     let new_value = old_value
 
     // Translate macOS-specific keys to Windows equivalents
-    if (old_value === MacKey.CommandLeft) {
-      new_value = LinuxKey.SuperLeft
-    } else if (old_value === MacKey.CommandRight) {
-      new_value = LinuxKey.SuperRight
-    } else if (old_value === MacKey.Control) {
+    if (old_value === K.MacKey.CommandLeft) {
+      new_value = K.LinuxKey.SuperLeft
+    } else if (old_value === K.MacKey.CommandRight) {
+      new_value = K.LinuxKey.SuperRight
+    } else if (old_value === K.MacKey.Control) {
       /// @todo Since macOS only has one Control key, default to left Control on Windows. This is not a great solution.
-      new_value = LinuxKey.CtrlLeft
-    } else if (old_value === MacKey.OptionLeft) {
-      new_value = LinuxKey.AltLeft
-    } else if (old_value === MacKey.OptionRight) {
-      new_value = LinuxKey.AltRight
+      new_value = K.LinuxKey.CtrlLeft
+    } else if (old_value === K.MacKey.OptionLeft) {
+      new_value = K.LinuxKey.AltLeft
+    } else if (old_value === K.MacKey.OptionRight) {
+      new_value = K.LinuxKey.AltRight
     } else {
       log.info(`No translation needed for macOS key ${old_value} to Windows.`)
     }
@@ -474,17 +479,17 @@ export class Profile {
     let new_value = old_value
 
     // Translate macOS-specific keys to Windows equivalents
-    if (old_value === MacKey.CommandLeft) {
-      new_value = WinKey.WinLeft
-    } else if (old_value === MacKey.CommandRight) {
-      new_value = WinKey.WinRight
-    } else if (old_value === MacKey.Control) {
+    if (old_value === K.MacKey.CommandLeft) {
+      new_value = K.WinKey.WinLeft
+    } else if (old_value === K.MacKey.CommandRight) {
+      new_value = K.WinKey.WinRight
+    } else if (old_value === K.MacKey.Control) {
       /// @todo Since macOS only has one Control key, default to left Control on Windows. This is not a great solution.
-      new_value = WinKey.CtrlLeft
-    } else if (old_value === MacKey.OptionLeft) {
-      new_value = WinKey.AltLeft
-    } else if (old_value === MacKey.OptionRight) {
-      new_value = WinKey.AltRight
+      new_value = K.WinKey.CtrlLeft
+    } else if (old_value === K.MacKey.OptionLeft) {
+      new_value = K.WinKey.AltLeft
+    } else if (old_value === K.MacKey.OptionRight) {
+      new_value = K.WinKey.AltRight
     } else {
       log.info(`No translation needed for macOS key ${old_value} to Windows.`)
     }
@@ -523,9 +528,436 @@ export class Profile {
       )
     }
   }
-  toLL(): LLProfile {
-    return { profile_name: this.profile_name, default_layer: 0, layers: this.layers.map((l) => l.toLL()) }
 
+  /**
+   * Processes all shortcut binds and converts them to sequences of press and releases
+   * for the lower level profile
+   */
+  __iterateThroughBinds(): void {
+    log.debug(`Checking profile ${this.profile_name} for binds that contain shortcuts
+    and converting them to a lower level form.`)
+
+    for (const layer of this.layers) {
+      const remappingsCopy = Array.from(layer.remappings.entries())
+
+      for (const [trigger, bind] of remappingsCopy) {
+        if (
+          bind instanceof B.PressKey ||
+          bind instanceof B.ReleaseKey ||
+          bind instanceof B.TapKey
+        ) {
+          if (Object.values(K.ShortcutAction).includes(bind.value as K.ShortcutAction)) {
+            layer.deleteRemapping(trigger)
+            layer.addRemapping(trigger, this.convertShortcutToLL(bind))
+          }
+        } else {
+          const converted = this.processShortcutBindRecursive(bind)
+          layer.deleteRemapping(trigger)
+          layer.addRemapping(trigger, converted)
+        }
+      }
+    }
+  }
+
+  /**
+   * Determines if a bind needs to be processed as a shortcut, then calls the appropriate
+   * function if necessary. Will update the bind to be compliant with lower level profiles.
+   * @param bind will be checked to see if it is a shortcut, then converted if necessary
+   * @returns Bind object, converted or not
+   */
+  private processShortcutBindRecursive(bind: B.Bind): B.Bind {
+    if (bind instanceof B.Macro || bind instanceof B.TimedMacro) {
+      for (let i = 0; i < bind.binds.length; i++) {
+        bind.binds[i] = this.processShortcutBindRecursive(bind.binds[i])
+      }
+      return bind
+    }
+    // BASE CASE
+    else if (
+      bind instanceof B.PressKey ||
+      bind instanceof B.ReleaseKey ||
+      bind instanceof B.TapKey
+    ) {
+      return this.convertShortcutToLL(bind)
+    } else {
+      log.info('This bind cannot be processed as a shortcut at this time:', bind)
+      return bind
+    }
+  }
+
+  /**
+   * Performs the conversion from a shortcut like 'Copy' to a sequence of Press and Release
+   * based on operating system
+   * @param higher_level_bind The original bind that is represented at a higher level
+   * @returns A macro that contains the sequence of Press and Release needed.
+   */
+  private convertShortcutToLL(higher_level_bind: B.Bind): B.Bind {
+    let ll_bind = higher_level_bind
+
+    const ctrl =
+      this.OS === 'Windows'
+        ? K.WinKey.CtrlLeft
+        : this.OS === 'Linux'
+          ? K.LinuxKey.CtrlLeft
+          : this.OS === 'macOS'
+            ? K.MacKey.CommandLeft
+            : K.WinKey.CtrlLeft
+
+    const shift = K.Modifier.LeftShift
+    const alt =
+      this.OS === 'Windows'
+        ? K.WinKey.AltLeft
+        : this.OS === 'Linux'
+          ? K.LinuxKey.AltLeft
+          : this.OS === 'macOS'
+            ? K.MacKey.OptionLeft
+            : K.WinKey.AltLeft
+
+    const prntscrn =
+      this.OS === 'Windows'
+        ? K.WinKey.PrintScreen
+        : this.OS === 'Linus'
+          ? K.LinuxKey.SysReq
+          : 'No Key Avaliable'
+
+    if (
+      higher_level_bind instanceof B.TapKey ||
+      higher_level_bind instanceof B.PressKey ||
+      higher_level_bind instanceof B.ReleaseKey
+    ) {
+      switch (higher_level_bind.value) {
+        case K.ShortcutAction.Copy:
+          log.info('Converting Copy to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.C),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.C)
+          ])
+          break
+
+        case K.ShortcutAction.Paste:
+          log.info('Converting Paste to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.V),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.V)
+          ])
+          break
+
+        case K.ShortcutAction.Cut:
+          log.info('Converting Cut to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.X),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.X)
+          ])
+          break
+
+        case K.ShortcutAction.Undo:
+          log.info('Converting Undo to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.Z),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.Z)
+          ])
+          break
+
+        case K.ShortcutAction.Redo:
+          log.info('Converting Redo to lower level')
+          if (this.OS === 'macOS') {
+            ll_bind = new B.Macro([
+              new B.PressKey(ctrl),
+              new B.PressKey(shift),
+              new B.PressKey(K.Letters.Z),
+              new B.ReleaseKey(ctrl),
+              new B.ReleaseKey(shift),
+              new B.ReleaseKey(K.Letters.Z)
+            ])
+          } else {
+            ll_bind = new B.Macro([
+              new B.PressKey(ctrl),
+              new B.PressKey(K.Letters.Y),
+              new B.ReleaseKey(ctrl),
+              new B.ReleaseKey(K.Letters.Y)
+            ])
+          }
+          break
+
+        case K.ShortcutAction.SelectAll:
+          log.info('Converting SelectAll to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.A),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.A)
+          ])
+          break
+
+        case K.ShortcutAction.DeleteLine:
+          log.info('Converting DeleteLine to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(shift),
+            new B.PressKey(K.Letters.K),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(shift),
+            new B.ReleaseKey(K.Letters.K)
+          ])
+          break
+
+        case K.ShortcutAction.Find:
+          log.info('Converting Find to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.F),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.F)
+          ])
+          break
+
+        case K.ShortcutAction.FindNext:
+          log.info('Converting FindNext to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.G),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.G)
+          ])
+          break
+
+        case K.ShortcutAction.Replace:
+          log.info('Converting Replace to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(shift),
+            new B.PressKey(K.Letters.H),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(shift),
+            new B.ReleaseKey(K.Letters.H)
+          ])
+          break
+
+        case K.ShortcutAction.GoToLine:
+          log.info('Converting GoToLine to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.G),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.G)
+          ])
+          break
+
+        case K.ShortcutAction.MoveToLineStart:
+          log.info('Converting MoveToLineStart to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(K.Navigation.Home),
+            new B.ReleaseKey(K.Navigation.Home)
+          ])
+          break
+
+        case K.ShortcutAction.MoveToLineEnd:
+          log.info('Converting MoveToLineEnd to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(K.Navigation.End),
+            new B.ReleaseKey(K.Navigation.End)
+          ])
+          break
+
+        case K.ShortcutAction.MoveWordLeft:
+          log.info('Converting MoveWordLeft to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Navigation.ArrowLeft),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Navigation.ArrowLeft)
+          ])
+          break
+
+        case K.ShortcutAction.MoveWordRight:
+          log.info('Converting MoveWordRight to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Navigation.ArrowRight),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Navigation.ArrowRight)
+          ])
+          break
+
+        case K.ShortcutAction.NewFile:
+          log.info('Converting NewFile to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.N),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.N)
+          ])
+          break
+
+        case K.ShortcutAction.OpenFile:
+          log.info('Converting OpenFile to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.O),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.O)
+          ])
+          break
+
+        case K.ShortcutAction.Save:
+          log.info('Converting Save to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.S),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.S)
+          ])
+          break
+
+        case K.ShortcutAction.SaveAs:
+          log.info('Converting SaveAs to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(shift),
+            new B.PressKey(K.Letters.S),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(shift),
+            new B.ReleaseKey(K.Letters.S)
+          ])
+          break
+
+        case K.ShortcutAction.Print:
+          log.info('Converting Print to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.P),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.P)
+          ])
+          break
+
+        case K.ShortcutAction.CloseWindow:
+          log.info('Converting CloseWindow to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.W),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.W)
+          ])
+          break
+
+        case K.ShortcutAction.QuitApp:
+          log.info('Converting QuitApp to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.Q),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.Q)
+          ])
+          break
+
+        case K.ShortcutAction.PrintScreen:
+          log.info('Converting PrintScreen to lower level')
+          if (this.OS === 'macOS') {
+            ll_bind = new B.Macro([
+              new B.PressKey(shift),
+              new B.PressKey(K.MacKey.CommandLeft),
+              new B.PressKey(K.Digits.Digit3),
+              new B.ReleaseKey(shift),
+              new B.ReleaseKey(K.MacKey.CommandLeft),
+              new B.ReleaseKey(K.Digits.Digit3)
+            ])
+          } else {
+            ll_bind = new B.Macro([new B.PressKey(prntscrn), new B.ReleaseKey(prntscrn)])
+          }
+          break
+
+        case K.ShortcutAction.NewTab:
+          log.info('Converting NewTab to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.T),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.T)
+          ])
+          break
+
+        case K.ShortcutAction.CloseTab:
+          log.info('Converting CloseTab to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.W),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.W)
+          ])
+          break
+
+        case K.ShortcutAction.ReopenTab:
+          log.info('Converting ReopenTab to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(shift),
+            new B.PressKey(K.Letters.T),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(shift),
+            new B.ReleaseKey(K.Letters.T)
+          ])
+          break
+
+        case K.ShortcutAction.Refresh:
+          log.info('Converting Refresh to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.R),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.R)
+          ])
+          break
+
+        case K.ShortcutAction.OpenDevTools:
+          log.info('Converting OpenDevTools to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(shift),
+            new B.PressKey(this.OS === 'macOS' ? alt : K.Letters.I),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(shift),
+            new B.ReleaseKey(this.OS === 'macOS' ? alt : K.Letters.I)
+          ])
+          break
+
+        case K.ShortcutAction.FocusAddressBar:
+          log.info('Converting FocusAddressBar to lower level')
+          ll_bind = new B.Macro([
+            new B.PressKey(ctrl),
+            new B.PressKey(K.Letters.L),
+            new B.ReleaseKey(ctrl),
+            new B.ReleaseKey(K.Letters.L)
+          ])
+          break
+
+        default:
+          log.info(`Unknown shortcut: ${higher_level_bind.value}, returning original bind.`)
+      }
+    } else {
+      log.info('Bind type does not contain a shortcut value')
+    }
+
+    return ll_bind
+  }
+
+  toLL(): LLProfile {
+    const copy_profile = Profile.fromJSON(this.toJSON(), false)
+    copy_profile.OS = this.OS
+    copy_profile.__iterateThroughBinds()
+    return {
+      profile_name: copy_profile.profile_name,
+      default_layer: 0,
+      layers: copy_profile.layers.map((l) => l.toLL())
+    }
   }
 }
 
