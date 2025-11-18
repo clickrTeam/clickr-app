@@ -10,7 +10,7 @@ import {
   Digits,
   Function,
   ShortcutAction
-} from '../../src/models/Keys'
+} from '../../src/models/Keys.enum'
 import * as T from '../../src/models/Trigger'
 import * as B from '../../src/models/Bind'
 

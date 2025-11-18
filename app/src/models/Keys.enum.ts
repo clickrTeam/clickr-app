@@ -1,5 +1,8 @@
 import log from 'electron-log'
 import { detectOS } from './Profile'
+
+//#region keys
+
 export enum Letters {
   A = 'A',
   B = 'B',
@@ -42,41 +45,6 @@ export enum Digits {
   Digit9 = '9',
 }
 
-export enum Symbols {
-  Exclamation = '!',
-  At = '@',
-  Hash = '#',
-  Dollar = '$',
-  Percent = '%',
-  Caret = '^',
-  Ampersand = '&',
-  Asterisk = '*',
-  ParenLeft = '(',
-  ParenRight = ')',
-  Dash = '-',
-  Equal = '=',
-  Backtick = '`',
-  BracketLeft = '[',
-  BracketRight = ']',
-  Backslash = '\\',
-  Semicolon = ';',
-  Quote = "'",
-  Comma = ',',
-  Period = '.',
-  Slash = '/',
-  Underscore = '_',
-  Plus = '+',
-  Tilde = '~',
-  BraceLeft = '{',
-  BraceRight = '}',
-  Pipe = '|',
-  Colon = ':',
-  DoubleQuote = '"',
-  LessThan = '<',
-  GreaterThan = '>',
-  Question = '?'
-}
-
 export enum Numpad {
   Numpad0 = 'Numpad0',
   Numpad1 = 'Numpad1',
@@ -94,10 +62,6 @@ export enum Numpad {
   NumpadDivide = 'NumpadDivide',
   NumpadDecimal = 'NumpadDecimal',
   NumpadEnter = 'NumpadEnter',
-  NumpadEqual = 'NumpadEqual',
-  NumpadComma = 'NumpadComma',
-  NumpadParenLeft = 'NumpadParenLeft',
-  NumpadParenRight = 'NumpadParenRight',
 }
 
 export enum Misc {
@@ -131,20 +95,88 @@ export enum Function {
 }
 
 export enum Navigation {
-  ArrowUp = 'ArrowUp',
-  ArrowDown = 'ArrowDown',
-  ArrowLeft = 'ArrowLeft',
-  ArrowRight = 'ArrowRight',
+  Escape = 'Escape',
+  Tab = 'Tab',
+  Enter = 'Enter',
+  Backspace = 'Backspace',
+  Space = 'Space',
+  Insert = 'Insert',
+  Delete = 'Delete',
   Home = 'Home',
   End = 'End',
   PageUp = 'PageUp',
-  PageDown = 'PageDown'
+  PageDown = 'PageDown',
+  PrintScreen = 'PrintScreen',
+  Pause = 'Pause',
+  Menu = 'Menu',
+  CapsLock = 'CapsLock',
+  NumLock = 'NumLock',
+  ScrollLock = 'ScrollLock',
+  ArrowUp = 'ArrowUp',
+  ArrowDown = 'ArrowDown',
+  ArrowLeft = 'ArrowLeft',
+  ArrowRight = 'ArrowRight'
 }
 
+
 export enum Modifier {
-  ShiftLeft = 'ShiftLeft',
-  ShiftRight = 'ShiftRight',
-  Fn = 'Fn' // hardware function modifier (macbooks, many laptops)
+  LeftShift = 'LeftShift',
+  RightShift = 'RightShift',
+  LeftControl = 'LeftControl',
+  RightControl = 'RightControl',
+  LeftAlt = 'LeftAlt',
+  RightAlt = 'RightAlt',
+  LeftSuper = 'LeftSuper',
+  RightSuper = 'RightSuper'
+}
+
+
+export enum KeyedSymbols {
+  Grave = 'Grave', // AKA backtick
+  Dash = 'Minus',
+  Equal = 'Equals',
+  BracketLeft = 'LeftBracket',
+  BracketRight = 'RightBracket',
+  Backslash = 'Backslash',
+  Semicolon = 'Semicolon',
+  Quote = 'Apostrophe',
+  Comma = 'Comma',
+  Period = 'Period',
+  Slash = 'Slash',
+}
+
+
+export const ENSURE_KEYS: string[] = [Object.values(Letters), Object.values(Digits),
+                               Object.values(Numpad), Object.values(Misc),
+                               Object.values(Function), Object.values(Navigation),
+                               Object.values(Modifier), Object.values(KeyedSymbols),].flat()
+
+//#endregion
+
+//#region keyless
+
+export enum Symbols {
+  Exclamation = '!',
+  At = '@',
+  Hash = '#',
+  Dollar = '$',
+  Percent = '%',
+  Caret = '^',
+  Ampersand = '&',
+  Asterisk = '*',
+  ParenLeft = '(',
+  ParenRight = ')',
+  Underscore = '_',
+  Plus = '+',
+  Tilde = '~',
+  BraceLeft = '{',
+  BraceRight = '}',
+  Pipe = '|',
+  Colon = ':',
+  DoubleQuote = '"',
+  LessThan = '<',
+  GreaterThan = '>',
+  Question = '?'
 }
 
 export enum MacKey {
@@ -272,8 +304,8 @@ if (current_os === 'macOS') {
   log.warn('Unsupported OS for specific key mappings')
 }
 
-export const keys: string[] = [Object.values(Letters), Object.values(Digits), 
-                               Object.values(Modifier), Object.values(Symbols),
+export const keys: string[] = [Object.values(Letters), Object.values(Digits),
+                               Object.values(Modifier), Object.values(KeyedSymbols),
                                Object.values(Numpad), Object.values(Misc),
                                Object.values(Function), Object.values(Navigation),
                                Object.values(Modifier), os_keys].flat()

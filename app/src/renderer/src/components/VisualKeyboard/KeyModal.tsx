@@ -11,22 +11,24 @@ import {
   ShortcutAction,
   Numpad,
   Misc,
-  os_keys
-} from '../../../../models/Keys'
+  os_keys,
+  KeyedSymbols
+} from '../../../../models/Keys.enum'
 import { detectOS } from '../../../../models/Profile'
 import { Layer } from '../../../../models/Layer'
 import { ProfileController } from './ProfileControler'
+import { Input } from '../ui/input'
+import { Textarea } from '../ui/textarea'
+import { toast } from 'sonner'
 
 const current_OS = detectOS()
 
-const keyGroups: Record<string, string[]> = {
+const keyGroupsBase: Record<string, string[]> = {
   Letters: Object.values(Letters),
   Digits: Object.values(Digits),
   Modifier: Object.values(Modifier),
-  Symbols: Object.values(Symbols),
   Navigation: Object.values(Navigation),
   Function: Object.values(Function),
-  Shortcuts: Object.values(ShortcutAction),
   Numpad: Object.values(Numpad),
   Misc: Object.values(Misc),
   [current_OS + ' Keys']: Object.values(os_keys)
@@ -37,6 +39,7 @@ interface KeyModalProps {
   onAddKey: (key: KeyPressInfo) => void
   keyOnly?: boolean
   onSelectLayer?: (layerIndex: number) => void
+  onAddRunScriptBind?: (interpreter: string, script: string) => void
   profileController: ProfileController
 }
 
@@ -45,10 +48,14 @@ export const KeyModal: React.FC<KeyModalProps> = ({
   onAddKey,
   keyOnly,
   onSelectLayer,
-  profileController,
+  onAddRunScriptBind,
+  profileController
 }) => {
   const layers = profileController.getProfile().layers
   const currentLayerIndex = profileController.activeLayer!.layer_number
+
+  const [interpretor, setInterpretor] = useState<string | undefined>()
+  const [script, setScript] = useState<string | undefined>()
 
   const [keyCategory, setKeyCategory] = useState<string | null>(null)
   const resolvedActiveLayerIndex = ((): number => {
@@ -57,6 +64,14 @@ export const KeyModal: React.FC<KeyModalProps> = ({
     }
     return 0
   })()
+
+  const keyGroups: Record<string, string[]> = {
+    ...keyGroupsBase,
+    ...(keyOnly ? {} : { Shortcuts: Object.values(ShortcutAction) }),
+    ...(keyOnly
+      ? { Symbols: Object.values(KeyedSymbols) }
+      : { Symbols: [...Object.values(Symbols), ...Object.values(KeyedSymbols)] })
+  }
 
   // otherLayers excludes the resolved active layer
   const otherLayers = layers
@@ -82,7 +97,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
             </button>
           ))}
 
-          { !keyOnly && (
+          {!keyOnly && (
             <button
               key="Layers"
               className={`vk-key-modal-category-btn bg-clickr-light-blue-90 text-white${
@@ -93,9 +108,20 @@ export const KeyModal: React.FC<KeyModalProps> = ({
               Layers
             </button>
           )}
+          {!keyOnly && (
+            <button
+              key="RunScript"
+              className={`vk-key-modal-category-btn bg-clickr-light-blue-90 text-white${
+                keyCategory === 'RunScript' ? ' active' : ''
+              }`}
+              onClick={() => setKeyCategory('RunScript')}
+            >
+              Script
+            </button>
+          )}
         </div>
 
-        {keyCategory && keyCategory !== 'Layers' && (
+        {keyCategory && keyCategory !== 'Layers' && keyCategory !== 'RunScript' && (
           <div className="vk-key-modal-dropdown">
             {keyGroups[keyCategory].map((key) => (
               <button
@@ -125,7 +151,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({
                     key={idx}
                     className="vk-footer-macro-dropdown-btn"
                     onClick={() => {
-                      if (!!onSelectLayer) {
+                      if (onSelectLayer) {
                         onSelectLayer(idx)
                       }
                       onClose(false)
@@ -137,6 +163,38 @@ export const KeyModal: React.FC<KeyModalProps> = ({
                 )
               })
             )}
+          </div>
+        )}
+
+        {keyCategory === 'RunScript' && (
+          <div className="vk-key-modal-dropdown">
+            <div className="grid w-full max-w-sm items-center gap-3">
+              <Input
+                placeholder="Interpretor Name"
+                onChange={(e) => {
+                  setInterpretor(e.target.value)
+                }}
+              />
+              <Textarea
+                placeholder="Type your script here"
+                onChange={(e) => {
+                  setScript(e.target.value)
+                }}
+              />
+              <button
+                onClick={() => {
+                  if (!!script && !!interpretor && !!onAddRunScriptBind) {
+                    onAddRunScriptBind(script, interpretor)
+                  } else {
+                    toast.warning(
+                      'Run Script Bind missing script or language, please provide or add a diffrent bind.'
+                    )
+                  }
+                }}
+              >
+                Add this bind
+              </button>
+            </div>
           </div>
         )}
       </div>

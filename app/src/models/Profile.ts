@@ -2,7 +2,7 @@
 import { Layer } from './Layer'
 import * as T from './Trigger'
 import * as B from './Bind'
-import * as K from './Keys'
+import * as K from './Keys.enum'
 import log from 'electron-log'
 import { LLProfile } from './LowLevelProfile'
 /**
@@ -603,7 +603,7 @@ export class Profile {
             ? K.MacKey.CommandLeft
             : K.WinKey.CtrlLeft
 
-    const shift = K.Modifier.ShiftLeft
+    const shift = K.Modifier.LeftShift
     const alt =
       this.OS === 'Windows'
         ? K.WinKey.AltLeft
@@ -671,7 +671,7 @@ export class Profile {
           if (this.OS === 'macOS') {
             ll_bind = new B.Macro([
               new B.PressKey(ctrl),
-              new B.PressKey(K.Modifier.ShiftLeft),
+              new B.PressKey(shift),
               new B.PressKey(K.Letters.Z),
               new B.ReleaseKey(ctrl),
               new B.ReleaseKey(shift),
