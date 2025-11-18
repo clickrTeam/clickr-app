@@ -404,11 +404,19 @@ impl Parse for Bind {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Key {
     Unspecified(Spanned<KeyIdent>),
     Down(Spanned<KeyIdent>),
     Up(Spanned<KeyIdent>),
+}
+impl Key {
+    pub fn is_basic_key(self) -> Option<KeyIdent> {
+        match self {
+            Key::Unspecified(k) => Some(k.value),
+            _ => None,
+        }
+    }
 }
 
 impl Parse for Key {
