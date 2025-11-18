@@ -12,6 +12,7 @@ import {
   Mail,
   ArrowRight
 } from "lucide-react";
+import ScreenshotCarousel from "@/components/ScreenshotCarousel";
 
 const About = () => {
   const technologies = [
@@ -150,46 +151,8 @@ const About = () => {
         </div>
       </section>
 
-      {/* Screenshots/Diagrams Placeholder */}
-      <section className="py-16 bg-slate-50">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="max-w-6xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
-              Application Screenshots & Architecture
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <Card className="border-2 border-dashed border-muted-foreground/30">
-                <CardContent className="p-12 flex items-center justify-center min-h-[300px]">
-                  <div className="text-center">
-                    <div className="text-4xl mb-4">📸</div>
-                    <p className="text-muted-foreground">Screenshot Placeholder</p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Add application screenshots here
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-2 border-dashed border-muted-foreground/30">
-                <CardContent className="p-12 flex items-center justify-center min-h-[300px]">
-                  <div className="text-center">
-                    <div className="text-4xl mb-4">📊</div>
-                    <p className="text-muted-foreground">Architecture Diagram Placeholder</p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Add system architecture diagram here
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Screenshots/Diagrams Carousel */}
+      <ScreenshotCarousel />
 
       {/* Technologies */}
       <section className="py-16 bg-background">
