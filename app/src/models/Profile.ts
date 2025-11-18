@@ -39,8 +39,7 @@ export class Profile {
     this.layers = []
     this.layer_count = 0
 
-    this.addLayer('layer 0')
-    this.addLayer('layer 0')
+    this.addLayer('Default')
     this.OS = detectOS()
     if (this.OS === 'Unknown') {
       this.OS = 'Error: Unknown OS'
