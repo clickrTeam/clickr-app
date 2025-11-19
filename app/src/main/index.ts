@@ -9,6 +9,7 @@ import { registerRecommendationsHandlers } from './ipc/recommendations-ipc'
 import { isKeybinderRunning, registerDeamonManagerHandlers, runKeybinder } from './services/daemon-manager'
 import log from 'electron-log'
 import { handleFirstRun } from './services/one-time-intialization.service'
+import { settingsStore } from './services/settings-store'
 
 // Handle EPIPE errors gracefully (broken pipe when console is closed)
 process.stdout.on('error', (error: NodeJS.ErrnoException) => {
@@ -112,9 +113,11 @@ app.whenReady().then(() => {
 app.on('ready', async () => {
   if (await isKeybinderRunning()) {
     log.info('Keybinder is already running.')
-  } else {
+  } else if (settingsStore.getSettings().autoStartKeybinder) {
     log.info('Keybinder is not running. Starting keybinder...')
     runKeybinder()
+  } else {
+    log.info('Keybinder run on startup is disabled.')
   }
 })
 // Quit when all windows are closed, except on macOS. There, it's common
