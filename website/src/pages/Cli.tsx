@@ -104,6 +104,29 @@ const CLI = () => {
           </motion.div>
         </div>
       </section>
+    
+    {/* Example Section */}
+    <section className="py-16 bg-background">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl mx-auto"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+            Examples
+          </h2>
+          <div className="prose prose-lg max-w-none">
+            <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+              @Tim Blamires: I can add a carousel like the one in about to this section if you think images would convey the point effectively.
+            </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
 
       {/* Features Section */}
       <section className="py-16 bg-background">
@@ -142,7 +165,7 @@ const CLI = () => {
       </section>
 
       {/* Download Section */}
-      <section className="py-16 bg-gradient-to-b from-gray-50 via-clickr-light-blue/35 to-gray-50">
+      <section className="py-16 bg-gradient-to-b from-gray-50 via-clickr-light-blue/40 to-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -168,9 +191,10 @@ const CLI = () => {
                   <div className="flex justify-center mb-4">
                     <Terminal className="h-16 w-16 text-clickr-blue" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">CLI</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Install via Cargo, Rust's package manager
+                  <h3 className="text-2xl font-bold mb-2">CLI</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Remap in any modern terminal <br /> 
+                    <span className="text-sm text-muted-foreground/80">(Bash, Zsh, PowerShell, etc.)</span>
                   </p>
                   <Button className="w-full" variant="outline" asChild>
                     <a
@@ -187,12 +211,9 @@ const CLI = () => {
             </div>
 
             <div className="text-center">
-              <p className="text-muted-foreground mb-4">
-                Install via binary hosted on Cloudflare
-              </p>
               <Button variant="outline" className="gap-2" asChild>
                 <a
-                  href="https://capstone.cs.utah.edu/clickr"
+                  href="https://capstone.cs.utah.edu/clickr/clickr-app/-/tree/main/cli?ref_type=heads&ref=main"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
