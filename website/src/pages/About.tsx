@@ -62,15 +62,6 @@ const About = () => {
       imageSide: "left" as const,
     },
     {
-      name: "Hayden Hilterbrand",
-      role: "Linux Implementation",
-      bio: "TODO: Add 150-250 word biography describing degree, research/project affiliations (including capstone), interests, etc.",
-      email: "hayden.hilterbrand@gmail.com",
-      linkedin: "https://www.linkedin.com/in/hayden-hilterbrand-517617365/",
-      imagePath: "headshots/hayden.jpg",
-      imageSide: "right" as const,
-    },
-    {
       name: "Luke Hamling",
       role: "Windows Implementation & Visual Keyboard",
       bio: "Hey, I'm Luke! I'm a Computer Science major here at the University of Utah. I am working on this app to help with some repetition within work and video game shortcuts. I have previously worked on a Magic The Gathering analysis data project. I am a swimmer and video gamer, and love spending time with family. I am a Eagle Scout and have built my own PC with duel booted Windows and Linux. I love learning about the forefront of computer technology from computer vision to the latest npm vulnerabity. I enjoy technical analysis of video games that often include optimizations and niche complete paths. While coding I like to focus on details apparent to end users. I like to aim myself at all issues and push on important ones, and more importantly I want to have something that works for the user and if possible leaves them impressed. ~ Luke Hamling",
@@ -79,6 +70,15 @@ const About = () => {
       imagePath: "headshots/luke.jpg",
       imageSide: "left" as const,
     },
+    {
+      name: "Hayden Hilterbrand",
+      role: "Linux Implementation",
+      bio: "TODO: Add 150-250 word biography describing degree, research/project affiliations (including capstone), interests, etc.",
+      email: "hayden.hilterbrand@gmail.com",
+      linkedin: "https://www.linkedin.com/in/hayden-hilterbrand-517617365/",
+      imagePath: "headshots/hayden.jpg",
+      imageSide: "right" as const,
+    }
   ];
 
   const containerVariants = {
