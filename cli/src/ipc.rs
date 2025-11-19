@@ -1,7 +1,4 @@
-use interprocess::{
-    local_socket::{prelude::*, Name},
-    os::unix::local_socket::FilesystemUdSocket,
-};
+use interprocess::local_socket::{prelude::*, GenericFilePath, Name};
 use serde::{Deserialize, Serialize};
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use thiserror::Error;
@@ -27,11 +24,7 @@ const PIPE_PATH: &str = r"\\.\pipe\clickr";
 const PIPE_PATH: &str = "/tmp/clickr.sock";
 
 fn get_socket_name() -> Result<Name<'static>, IpcError> {
-    #[cfg(windows)]
-    return Ok(PIPE_PATH.to_ns_name::<NamespacedUdSocket>()?);
-
-    #[cfg(not(windows))]
-    return Ok(PIPE_PATH.to_fs_name::<FilesystemUdSocket>()?);
+    Ok(PIPE_PATH.to_fs_name::<GenericFilePath>()?)
 }
 
 #[derive(Serialize)]

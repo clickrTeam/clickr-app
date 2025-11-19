@@ -1,0 +1,11 @@
+profile "Simple Profile"
+
+config {
+    default_layer = "base"
+}
+
+layer "base" {
+  1 = open_app("Google Chrome")
+  capslock = ctrlleft
+  tap(capslock, release, 200) = esc
+}
