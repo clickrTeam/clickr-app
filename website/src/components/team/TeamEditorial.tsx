@@ -34,7 +34,7 @@ const EditorialMember = ({ member, index }: { member: TeamMember; index: number 
   const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
 
   return (
-    <section ref={targetRef} className="min-h-screen flex items-center justify-center py-24 relative">
+    <section ref={targetRef} className="min-h-screen flex items-center justify-center pt-12 pb-6 lg:pt-24 lg:pb-8 relative">
       <div className="container mx-auto px-4">
         <motion.div 
           style={{ opacity, scale }}
