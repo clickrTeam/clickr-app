@@ -12,6 +12,7 @@ import MyMappings from "./pages/MyMappings";
 import MappingDetail from "./pages/MappingDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import CLI from "./pages/Cli";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Tutorial from "./pages/Tutorial";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/tutorial" element={<Tutorial />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/cli" element={<CLI />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/community/mapping/:id" element={<MappingDetail />} />

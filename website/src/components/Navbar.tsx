@@ -95,11 +95,13 @@ const Navbar = () => {
   };
 
   const navLinks = [
+    { name: "CLI", path: "/cli" },
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
     { name: "Tutorial", path: "/tutorial" },
     { name: "Community", path: "/community" },
     { name: "My Mappings", path: "/my-mappings" },
+
   ];
 
   const isActive = (path: string) => {
