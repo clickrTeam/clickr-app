@@ -1,5 +1,5 @@
 use crate::{
-    ast::keys::KeyIdent,
+    ast::key::KeyIdent,
     lex::TokenType,
     parse::{
         expect_tokens, next_match, parse_optional_trigger_args, parse_sequence_trailing,
@@ -9,7 +9,7 @@ use crate::{
 };
 use miette::{miette, LabeledSpan, Severity};
 
-mod keys;
+pub mod key;
 
 #[derive(Debug, Clone)]
 pub struct Profile {
@@ -92,6 +92,19 @@ impl Parse for ConfigEntry {
                 ))
             }
         })
+    }
+}
+
+impl ConfigEntry {
+    pub fn get_timeout(&self) -> Option<usize> {
+        match self {
+            ConfigEntry::TapTimeout(t)
+            | ConfigEntry::HoldTime(t)
+            | ConfigEntry::ChordTimeout(t)
+            | ConfigEntry::SequenceTimeout(t)
+            | ConfigEntry::ComboTimeout(t) => Some(t.value),
+            _ => None,
+        }
     }
 }
 
@@ -257,6 +270,7 @@ impl Parse for Trigger {
         match ts.peek_type() {
             Some(TokenType::Ident)
             | Some(TokenType::StringLit)
+            | Some(TokenType::IntLit)
             | Some(TokenType::Caret)
             | Some(TokenType::Underscore) => Ok(Trigger::Key(Key::parse_spanned(ts)?)),
             Some(TokenType::Chord) => {
@@ -391,11 +405,19 @@ impl Parse for Bind {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Key {
     Unspecified(Spanned<KeyIdent>),
     Down(Spanned<KeyIdent>),
     Up(Spanned<KeyIdent>),
+}
+impl Key {
+    pub fn is_basic_key(self) -> Option<KeyIdent> {
+        match self {
+            Key::Unspecified(k) => Some(k.value),
+            _ => None,
+        }
+    }
 }
 
 impl Parse for Key {
@@ -421,6 +443,9 @@ impl Parse for KeyIdent {
                 str_token,
                 (&str_with_quotes[1..str_with_quotes.len() - 1]).parse(),
             )
+        } else if next_match!(ts, TokenType::IntLit) {
+            let [int_token] = expect_tokens(ts, [TokenType::IntLit])?;
+            (int_token, int_token.bytes().parse())
         } else {
             let [ident_token] = expect_tokens(ts, [TokenType::Ident])?;
             (ident_token, ident_token.bytes().parse())
