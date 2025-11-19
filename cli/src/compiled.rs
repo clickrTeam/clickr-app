@@ -67,10 +67,10 @@ pub enum AdvancedTrigger {
         value: KeyIdent,
     },
     MinimumWait {
-        value: usize,
+        duration: usize,
     },
     MaximumWait {
-        value: usize,
+        duration: usize,
     },
 }
 
@@ -292,7 +292,7 @@ impl ast::Statement {
                     triggers: vec![
                         AdvancedTrigger::KeyPress { value: key.value },
                         AdvancedTrigger::MaximumWait {
-                            value: timeout
+                            duration: timeout
                                 .as_deref()
                                 .copied()
                                 .unwrap_or(state.config.tap_timeout),
@@ -313,7 +313,7 @@ impl ast::Statement {
                     triggers: vec![
                         AdvancedTrigger::KeyPress { value: key.value },
                         AdvancedTrigger::MinimumWait {
-                            value: timeout
+                            duration: timeout
                                 .as_deref()
                                 .copied()
                                 .unwrap_or(state.config.hold_time),
@@ -334,7 +334,7 @@ impl ast::Statement {
                         .iter()
                         .map(|k| AdvancedTrigger::KeyPress { value: k.value })
                         .intersperse_with(|| AdvancedTrigger::MaximumWait {
-                            value: timeout
+                            duration: timeout
                                 .as_deref()
                                 .copied()
                                 .unwrap_or(state.config.chord_timeout),
@@ -361,7 +361,7 @@ impl ast::Statement {
                             ]
                         })
                         .intersperse_with(|| AdvancedTrigger::MaximumWait {
-                            value: timeout
+                            duration: timeout
                                 .as_deref()
                                 .copied()
                                 .unwrap_or(state.config.sequence_timeout),
@@ -395,7 +395,7 @@ impl ast::Statement {
                         })
                         .flatten()
                         .intersperse_with(|| AdvancedTrigger::MaximumWait {
-                            value: timeout
+                            duration: timeout
                                 .as_deref()
                                 .copied()
                                 .unwrap_or(state.config.combo_timeout),
@@ -416,7 +416,7 @@ impl ast::Statement {
 
     fn try_key_swap(statment: &Spanned<Self>) -> Option<Vec<Remapping>> {
         if let ast::Trigger::Key(trigger_key) = statment.lhs.value
-            && statment.rhs.len() == 0
+            && statment.rhs.len() == 1
             && let ast::Bind::Key(bind_key) = statment.rhs[0].value
             && let (Some(trigger_key_ident), Some(bind_key_ident)) = (
                 trigger_key.value.is_basic_key(),
@@ -550,16 +550,25 @@ impl KeyIdent {
             F11 => "F11", F12 => "F12",
 
             // Modifiers
-            ShiftLeft => "ShiftLeft", ShiftRight => "ShiftRight",
-            CtrlLeft => if cfg!(target_os = "macos") { "Control" } else { "CtrlLeft" },
-            CtrlRight => if cfg!(target_os = "macos") { "Control" } else { "CtrlRight" },
-            AltLeft => if cfg!(target_os = "macos") { "OptionLeft" } else { "AltLeft" },
-            AltRight => if cfg!(target_os = "macos") { "OptionRight" } else { "AltRight" },
-            MetaLeft => if cfg!(target_os = "macos") { "CommandLeft" } else { "WinLeft" },
-            MetaRight => if cfg!(target_os = "macos") { "CommandRight" } else { "WinRight" },
+            ShiftLeft => "LeftShift", ShiftRight => "RightShift",
+            CtrlLeft => "LeftControl" ,
+            CtrlRight => "RightControl",
+            //TODO: keycodes are like this in the clickr applications
+            // CtrlLeft => if cfg!(target_os = "macos") { "Control" } else { "CtrlLeft" },
+            // CtrlRight => if cfg!(target_os = "macos") { "Control" } else { "CtrlRight" },
+            // AltLeft => if cfg!(target_os = "macos") { "OptionLeft" } else { "AltLeft" },
+            // AltRight => if cfg!(target_os = "macos") { "OptionRight" } else { "AltRight" },
+            // MetaLeft => if cfg!(target_os = "macos") { "CommandLeft" } else { "WinLeft" },
+            // MetaRight => if cfg!(target_os = "macos") { "CommandRight" } else { "WinRight" },
+            // MetaLeft => if cfg!(target_os = "macos") { "CommandLeft" } else { "WinLeft" },
+            // MetaRight => if cfg!(target_os = "macos") { "CommandRight" } else { "WinRight" },
+            AltLeft => "LeftAlt" ,
+            AltRight =>  "RightAlt",
+            MetaLeft => "LeftSuper",
+            MetaRight => "RightSuper",
 
             // Navigation / editing
-            Esc => "Esc", Tab => "Tab", CapsLock => "CapsLock", Enter => "Enter",
+            Esc => "Escape", Tab => "Tab", CapsLock => "CapsLock", Enter => "Enter",
             Backspace => "Backspace", Space => "Space",
             Insert => "Insert", Delete => "Delete", Home => "Home", End => "End",
             PageUp => "PageUp", PageDown => "PageDown",
