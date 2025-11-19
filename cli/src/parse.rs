@@ -113,15 +113,17 @@ impl<'a> Iterator for TokenStream<'a> {
 
     /// Returns the next token from the peeked queue or the lexer.
     fn next(&mut self) -> Option<Self::Item> {
-        let next = self.peeked.pop_front().or_else(|| self.lexer.next());
-        let next_type = next.map(|t| t.kind());
-        let prev_token_type = self.prev_token.map(|t| t.kind());
-        if next_type == Some(TokenType::Newline) && prev_token_type == Some(TokenType::Newline) {
-            self.next()
-        } else {
+        self.peeked.pop_front().or_else(|| loop {
+            let next = self.lexer.next();
+            let next_type = next.map(|t| t.kind());
+            let prev_token_type = self.prev_token.map(|t| t.kind());
+            if next_type == Some(TokenType::Newline) && prev_token_type == Some(TokenType::Newline)
+            {
+                continue;
+            }
             self.prev_token = next;
-            next
-        }
+            break next;
+        })
     }
 }
 
@@ -154,7 +156,8 @@ impl<'a> TokenStream<'a> {
         assert!(forward != 0);
 
         for _ in self.peeked.len()..forward {
-            self.peeked.push_back(self.lexer.next()?);
+            let next = self.next()?;
+            self.peeked.push_back(next);
         }
         self.peeked.get(forward - 1)
     }
