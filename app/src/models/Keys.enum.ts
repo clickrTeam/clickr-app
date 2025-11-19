@@ -42,7 +42,7 @@ export enum Digits {
   Digit6 = '6',
   Digit7 = '7',
   Digit8 = '8',
-  Digit9 = '9',
+  Digit9 = '9'
 }
 
 export enum Numpad {
@@ -61,14 +61,14 @@ export enum Numpad {
   NumpadMultiply = 'NumpadMultiply',
   NumpadDivide = 'NumpadDivide',
   NumpadDecimal = 'NumpadDecimal',
-  NumpadEnter = 'NumpadEnter',
+  NumpadEnter = 'NumpadEnter'
 }
 
 export enum Misc {
   CapsLock = 'CapsLock',
   NumLock = 'NumLock',
   ScrollLock = 'ScrollLock',
-  Pause = 'Pause',
+  Pause = 'Pause'
 }
 
 export enum Function {
@@ -118,7 +118,6 @@ export enum Navigation {
   ArrowRight = 'ArrowRight'
 }
 
-
 export enum Modifier {
   LeftShift = 'LeftShift',
   RightShift = 'RightShift',
@@ -129,7 +128,6 @@ export enum Modifier {
   LeftSuper = 'LeftSuper',
   RightSuper = 'RightSuper'
 }
-
 
 export enum KeyedSymbols {
   Grave = 'Grave', // AKA backtick
@@ -142,14 +140,19 @@ export enum KeyedSymbols {
   Quote = 'Apostrophe',
   Comma = 'Comma',
   Period = 'Period',
-  Slash = 'Slash',
+  Slash = 'Slash'
 }
 
-
-export const ENSURE_KEYS: string[] = [Object.values(Letters), Object.values(Digits),
-                               Object.values(Numpad), Object.values(Misc),
-                               Object.values(Function), Object.values(Navigation),
-                               Object.values(Modifier), Object.values(KeyedSymbols),].flat()
+export const ENSURE_KEYS: string[] = [
+  Object.values(Letters),
+  Object.values(Digits),
+  Object.values(Numpad),
+  Object.values(Misc),
+  Object.values(Function),
+  Object.values(Navigation),
+  Object.values(Modifier),
+  Object.values(KeyedSymbols)
+].flat()
 
 //#endregion
 
@@ -287,7 +290,7 @@ export enum ShortcutAction {
   OpenDevTools = 'OpenDevTools', // mac: ⌘+Option+I, win/linux: Ctrl+Shift+I
   FocusAddressBar = 'FocusAddressBar' // mac: ⌘+L, win/linux: Ctrl+L
 }
-let current_os = detectOS()
+const current_os = detectOS()
 export let os_keys: string[] = []
 
 if (current_os === 'macOS') {
@@ -304,8 +307,141 @@ if (current_os === 'macOS') {
   log.warn('Unsupported OS for specific key mappings')
 }
 
-export const keys: string[] = [Object.values(Letters), Object.values(Digits),
-                               Object.values(Modifier), Object.values(KeyedSymbols),
-                               Object.values(Numpad), Object.values(Misc),
-                               Object.values(Function), Object.values(Navigation),
-                               Object.values(Modifier), os_keys].flat()
+export const keys: string[] = [
+  Object.values(Letters),
+  Object.values(Digits),
+  Object.values(Modifier),
+  Object.values(KeyedSymbols),
+  Object.values(Numpad),
+  Object.values(Misc),
+  Object.values(Function),
+  Object.values(Navigation),
+  Object.values(Modifier),
+  os_keys
+].flat()
+
+/**
+ * Maps enum values to the actual KeyboardEvent.key string
+ * that TypeScript key listeners will receive.
+ */
+export function mapEnumToKey(enumValue: string): string {
+  const keyMap: Record<string, string> = {
+    // KeyedSymbols
+    Grave: '`',
+    Minus: '-',
+    Equals: '=',
+    LeftBracket: '[',
+    RightBracket: ']',
+    Backslash: '\\',
+    Semicolon: ';',
+    Apostrophe: "'",
+    Comma: ',',
+    Period: '.',
+    Slash: '/',
+
+    // Digits
+    '0': '0',
+    '1': '1',
+    '2': '2',
+    '3': '3',
+    '4': '4',
+    '5': '5',
+    '6': '6',
+    '7': '7',
+    '8': '8',
+    '9': '9',
+
+    // Letters
+    A: 'a',
+    B: 'b',
+    C: 'c',
+    D: 'd',
+    E: 'e',
+    F: 'f',
+    G: 'g',
+    H: 'h',
+    I: 'i',
+    J: 'j',
+    K: 'k',
+    L: 'l',
+    M: 'm',
+    N: 'n',
+    O: 'o',
+    P: 'p',
+    Q: 'q',
+    R: 'r',
+    S: 's',
+    T: 't',
+    U: 'u',
+    V: 'v',
+    W: 'w',
+    X: 'x',
+    Y: 'y',
+    Z: 'z',
+
+    // Navigation
+    Escape: 'Escape',
+    Tab: 'Tab',
+    Enter: 'Enter',
+    Backspace: 'Backspace',
+    Space: ' ',
+    Insert: 'Insert',
+    Delete: 'Delete',
+    Home: 'Home',
+    End: 'End',
+    PageUp: 'PageUp',
+    PageDown: 'PageDown',
+    PrintScreen: 'PrintScreen',
+    Pause: 'Pause',
+    Menu: 'ContextMenu',
+    CapsLock: 'CapsLock',
+    NumLock: 'NumLock',
+    ScrollLock: 'ScrollLock',
+    ArrowUp: 'ArrowUp',
+    ArrowDown: 'ArrowDown',
+    ArrowLeft: 'ArrowLeft',
+    ArrowRight: 'ArrowRight',
+
+    // Function keys
+    F1: 'F1',
+    F2: 'F2',
+    F3: 'F3',
+    F4: 'F4',
+    F5: 'F5',
+    F6: 'F6',
+    F7: 'F7',
+    F8: 'F8',
+    F9: 'F9',
+    F10: 'F10',
+    F11: 'F11',
+    F12: 'F12',
+    F13: 'F13',
+    F14: 'F14',
+    F15: 'F15',
+    F16: 'F16',
+    F17: 'F17',
+    F18: 'F18',
+    F19: 'F19',
+    F20: 'F20',
+
+    // Numpad
+    Numpad0: '0',
+    Numpad1: '1',
+    Numpad2: '2',
+    Numpad3: '3',
+    Numpad4: '4',
+    Numpad5: '5',
+    Numpad6: '6',
+    Numpad7: '7',
+    Numpad8: '8',
+    Numpad9: '9',
+    NumpadAdd: '+',
+    NumpadSubtract: '-',
+    NumpadMultiply: '*',
+    NumpadDivide: '/',
+    NumpadDecimal: '.',
+    NumpadEnter: 'Enter'
+  }
+
+  return keyMap[enumValue] ?? enumValue
+}
