@@ -231,16 +231,3 @@ impl Config {
         }
     }
 }
-
-impl ConfigEntry {
-    fn get_timeout(&self) -> Option<usize> {
-        match self {
-            ConfigEntry::TapTimeout(t)
-            | ConfigEntry::HoldTime(t)
-            | ConfigEntry::ChordTimeout(t)
-            | ConfigEntry::SequenceTimeout(t)
-            | ConfigEntry::ComboTimeout(t) => Some(t.value),
-            _ => None,
-        }
-    }
-}
