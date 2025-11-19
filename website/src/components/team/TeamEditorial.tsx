@@ -25,12 +25,11 @@ const EditorialMember = ({ member, index }: { member: TeamMember; index: number 
     offset: ["start end", "end start"],
   });
 
-  // Adjusted opacity transform to fade out sooner at the end
   // [0, 0.2, 0.8, 1] -> fade in quickly, stay visible, then fade out before fully leaving
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.7, 1, 1, 0.7]);
   
-  // Parallax effect for text - increased movement for more pronounced effect
+  // Parallax effect for text (moves with the scroll)
   const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
 
   return (
