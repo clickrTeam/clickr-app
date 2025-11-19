@@ -163,8 +163,7 @@ function Insights(): JSX.Element {
   const [isLoading, setIsLoading] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isButtonSpinning, setIsButtonSpinning] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [error, setError] = useState<string | null>(null)
+  const [_error, setError] = useState<string | null>(null)
 
   // Fetch key frequencies from daemon
   const fetchKeyFrequencies = useCallback(async (isManualRefresh = false) => {
