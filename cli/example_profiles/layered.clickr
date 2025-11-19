@@ -7,11 +7,11 @@ config {
 layer "base" {
     # This is a comment
     hold(esc) = [t, i, m]
-    _caps = layer("apps")
+    _capslock = layer("apps")
 }
 
 layer "apps" {
     g     = open_app("Google Chrome")
     t     = open_app("Terminal")
-    ^caps = layer("apps")
+    ^capslock = layer("apps")
 }

@@ -1,0 +1,50 @@
+profile "ExampleProfile"
+
+config {
+    default_layer = "base"
+    default_behavior = capture
+    tap_timeout = 150
+    hold_time = 300
+    chord_timeout = 200
+    sequence_timeout = 400
+    combo_timeout = 500
+}
+
+layer "base" {
+    # Single key LHS
+    a = b
+    ^b = c
+    _esc = esc
+
+    # Tap and hold
+    tap(a, capture, 150) = run("bash", "echo tapped a")
+    hold(b, release, 300) = run("bash", "echo held b")
+
+    # Chord, sequence, combo
+    chord([a,b], wait, 200) = layer("fn")
+    sequence([a,b,c], capture, 400) = [^b, run("python", "script.py")]
+    combo([a,^b,esc], release, 500) = [layer("symbols"), open_app("Calculator")]
+
+    # Single RHS actions
+    esc = open_app("Notes")
+    space = none
+}
+
+layer "fn" {
+    a = layer("base")
+    tap(b, capture, 150) = run("bash", "echo fn tap b")
+    hold(esc, release, 300) = a
+    chord([a,esc], wait, 200) = layer("symbols")
+    sequence([b,esc], capture, 400) = [run("bash", "ls"), ^a]
+    combo([^a,b], release, 500) = [layer("base"), open_app("Terminal")]
+}
+
+layer "symbols" {
+    ^a = b
+    _b = c
+    tap(esc, capture, 150) = none
+    hold(space, release, 300) = a
+    chord([esc,space], wait, 200) = layer("base")
+    sequence([a,b], capture, 400) = [layer("fn"), run("bash", "date")]
+    combo([a,^b,space], release, 500) = [open_app("Calculator"), ^esc]
+}
