@@ -42,7 +42,7 @@ pub struct SequenceRemapping {
     pub behavior: Behavior,
 }
 
-#[derive(Debug, Serialize, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum BasicTrigger {
     KeyPress {
@@ -52,6 +52,9 @@ pub enum BasicTrigger {
     KeyRelease {
         #[serde(serialize_with = "serialize_key")]
         value: KeyIdent,
+    },
+    AppFocused {
+        app_name: String,
     },
 }
 
@@ -154,7 +157,7 @@ impl LayerCompilationState {
         for remapping in remappings {
             match remapping {
                 Remapping::Basic(basic_remapping) => {
-                    match self.basic_remappings.entry(basic_remapping.trigger) {
+                    match self.basic_remappings.entry(basic_remapping.trigger.clone()) {
                         std::collections::hash_map::Entry::Occupied(occupied_entry) => {
                             return Err(conflicting_binds(*occupied_entry.get(), span))
                         }
@@ -286,6 +289,14 @@ impl ast::Statement {
                         })]
                     }
                 }
+            }
+            ast::Trigger::AppFocused(app_name) => {
+                vec![Remapping::Basic(BasicRemapping {
+                    trigger: BasicTrigger::AppFocused {
+                        app_name: app_name.value.clone(),
+                    },
+                    binds: ast::Bind::compile(&statment.rhs, state),
+                })]
             }
             ast::Trigger::Tap(key, behavior, timeout) => {
                 vec![Remapping::Sequence(SequenceRemapping {
