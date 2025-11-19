@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const screenshots = [
   {
@@ -40,6 +41,7 @@ const screenshots = [
 ];
 
 const ScreenshotCarousel = () => {
+  const isMobile = useIsMobile();
   const transition = {
     duration: 120,
     ease: "linear",
@@ -47,6 +49,57 @@ const ScreenshotCarousel = () => {
     repeatType: "loop" as const,
   };
 
+  // Mobile view: Grid layout with smaller images
+  if (isMobile) {
+    // Shift array: 2nd element becomes first, 1st element becomes last
+    const shiftedScreenshots = [...screenshots.slice(1), screenshots[0]];
+    
+    return (
+      <section className="py-12 bg-slate-50">
+        <div className="container mx-auto px-4 text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gradient">
+            Application Screenshots & Architecture
+          </h2>
+          <p className="text-base md:text-lg text-muted-foreground">
+            Explore Clickr's application interface and system architecture
+          </p>
+        </div>
+
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+            {shiftedScreenshots.map((screenshot, idx) => (
+              <motion.div
+                key={`${screenshot.title}-${idx}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
+                <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow border-2 h-full">
+                  <CardContent className="p-0 flex flex-col">
+                    <div className="aspect-square overflow-hidden bg-white">
+                      <img
+                        src={screenshot.src}
+                        alt={screenshot.alt}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="p-3 bg-white border-t">
+                      <h3 className="text-sm font-semibold text-center">
+                        {screenshot.title}
+                      </h3>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Desktop view: Continuous scrolling carousel
   return (
     <section className="py-16 bg-slate-50 overflow-hidden">
       <div className="container mx-auto px-4 text-center mb-12">
