@@ -270,6 +270,7 @@ impl Parse for Trigger {
         match ts.peek_type() {
             Some(TokenType::Ident)
             | Some(TokenType::StringLit)
+            | Some(TokenType::IntLit)
             | Some(TokenType::Caret)
             | Some(TokenType::Underscore) => Ok(Trigger::Key(Key::parse_spanned(ts)?)),
             Some(TokenType::Chord) => {
@@ -442,6 +443,9 @@ impl Parse for KeyIdent {
                 str_token,
                 (&str_with_quotes[1..str_with_quotes.len() - 1]).parse(),
             )
+        } else if next_match!(ts, TokenType::IntLit) {
+            let [int_token] = expect_tokens(ts, [TokenType::IntLit])?;
+            (int_token, int_token.bytes().parse())
         } else {
             let [ident_token] = expect_tokens(ts, [TokenType::Ident])?;
             (ident_token, ident_token.bytes().parse())
