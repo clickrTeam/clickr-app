@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useRef, useState } from 'react'
 import log from 'electron-log'
 import { Profile } from '../../../models/Profile'
+import { mapEnumToKey } from '../../../models/Keys.enum'
 import { Layer } from '../../../models/Layer'
 import { background_music } from './audio_controller'
 import lose_life_sound_file from '../assets/game_sounds/lose_life.mp3'
@@ -216,7 +217,7 @@ function FallingBoxes({
             typeof trigger.value === 'string'
           ) {
             bindValues.push(innerBind.value.toUpperCase())
-            trigValues.push(trigger.value.toLowerCase())
+            trigValues.push(trigger.value)
           } else if (
             'layer_number' in innerBind &&
             typeof innerBind.layer_number === 'number' &&
@@ -225,13 +226,14 @@ function FallingBoxes({
           ) {
             const display_value = `Swap to ${profile.layers[innerBind.layer_number].layer_name}`
             bindValues.push(display_value)
-            trigValues.push(trigger.value.toLowerCase())
+            trigValues.push(trigger.value)
           }
         }
       }
     })
     bindValuesRef.current = bindValues
     trigValuesRef.current = trigValues
+    log.info('Trigger values in layer for game: ', trigValues)
   }, [currentLayer, profile.layers])
 
   useEffect(() => {
@@ -360,7 +362,8 @@ function FallingBoxes({
       let bestDistance = Infinity
       for (let i = 0; i < boxes.length; i++) {
         const b = boxes[i]
-        if (b.correctKey === key) {
+        const convertedBoxKey = mapEnumToKey(b.correctKey).toLowerCase()
+        if (convertedBoxKey === key) {
           const distance = Math.abs(height - 60 - b.y)
           if (distance < bestDistance) {
             bestDistance = distance
