@@ -8,12 +8,11 @@ import {
   Globe, 
   Download, 
   BookOpen,
-  Mail,
   ArrowRight
 } from "lucide-react";
-import { FaLinkedin } from "react-icons/fa6";
 
 import ScreenshotCarousel from "@/components/ScreenshotCarousel";
+import { TeamEditorial } from "@/components/team/TeamEditorial";
 
 const About = () => {
   const technologies = [
@@ -38,7 +37,7 @@ const About = () => {
     {
       name: "Bode Packer",
       role: "Front End Implementation & Database Design",
-      bio: "TODO: Add 150-250 word biography describing degree, research/project affiliations (including capstone), interests, etc.",
+      bio: "Being a computer science major at the University of Utah has been a truly incredible experience and has shaped the developer I’ve become. Over the past four years, I’ve focused in on AI/ML workloads and effective full stack development. I genuinely believe the future of AI is bright, not bleak, as it empowers developers and leaders to improve both productivity and communication. Working on Clickr this year has notably refined my UI skills, challenging me to create interfaces that are not only visually engaging but also effective at conveying required information. One of my favorite quotes from a professor still resonates with me: “It doesn’t matter if your application lacks some functions compared to the competition; if it looks better, it is better.” The more I work on this project, the truer this sentiment becomes. Living in Utah, I also love to escape into the mountains to backcountry ski, ice climb, and raft whenever I can!",
       email: "bjackpacke@gmail.com",
       linkedin: "https://www.linkedin.com/in/bode-packer/",
       imagePath: "headshots/bode.jpeg",
@@ -197,7 +196,7 @@ const About = () => {
       </section>
 
       {/* Download Blurb */}
-      <section className="py-16 bg-gradient-to-b from-gray-50  via-clickr-light-blue/35 to-gray-50">
+      <section className="py-16 bg-gradient-to-b from-gray-50  via-clickr-light-blue/45 to-clickr-light-blue/30">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -226,96 +225,8 @@ const About = () => {
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="max-w-6xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-              Our Team
-            </h2>
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="space-y-16"
-            >
-              {teamMembers.map((member, index) => (
-                <motion.div
-                  key={index}
-                  variants={itemVariants}
-                  className={`flex flex-col ${
-                    member.imageSide === "left" ? "md:flex-row" : "md:flex-row-reverse"
-                  } items-center gap-8`}
-                >
-                  {/* Image */}
-                  <div className="flex-shrink-0 w-48 h-48 md:w-64 md:h-64">
-                    <Card className="border-2 border-gray-200 h-full overflow-hidden">
-                      <CardContent className="p-0 h-full">
-                        {member.imagePath ? (
-                          <img
-                            src={member.imagePath}
-                            alt={`${member.name} headshot`}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="p-8 flex items-center justify-center h-full">
-                            <div className="text-center">
-                              <div className="text-6xl mb-2">👤</div>
-                              <p className="text-sm text-muted-foreground">Headshot Placeholder</p>
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Bio */}
-                  <div className="flex-1">
-                    <Card className="border-none shadow-lg">
-                      <CardContent className="p-8">
-                        <h3 className="text-2xl font-bold mb-2">{member.name}</h3>
-                        <p className="text-clickr-blue font-semibold mb-4">{member.role}</p>
-                        <p className="text-muted-foreground mb-6 leading-relaxed">
-                          {member.bio}
-                        </p>
-                        <div className="flex flex-wrap gap-4">
-                          {member.email !== "TODO: Add email address" && (
-                            <a
-                              href={`mailto:${member.email}`}
-                              className="flex items-center gap-2 text-clickr-blue hover:underline"
-                            >
-                              <Mail className="h-4 w-4" />
-                              <span>Email</span>
-                            </a>
-                          )}
-                          {member.linkedin !== "TODO: Add LinkedIn URL" && (
-                            <a
-                              href={member.linkedin}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-clickr-blue hover:underline"
-                            >
-                              <FaLinkedin className="h-4 w-4" />
-                              <span>LinkedIn</span>
-                            </a>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Team Section - Editorial View */}
+      <TeamEditorial members={teamMembers} />
 
       {/* Tutorial Link */}
       <section className="py-16 bg-gradient-to-t from-clickr-light-blue/40 via-clickr-light-blue/20 to-gray-50">
