@@ -201,8 +201,8 @@ export enum MacKey {
 }
 
 export enum WinKey {
-  WinLeft = 'WinLeft', // Windows / Super / Meta
-  WinRight = 'WinRight',
+  WinLeft = Modifier.LeftSuper, // Windows / Super / Meta
+  WinRight = Modifier.RightSuper,
   LeftControl = 'LeftControl',
   RightControl = 'RightControl',
   LeftAlt = 'LeftAlt',
