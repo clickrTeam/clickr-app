@@ -11,6 +11,7 @@ const sections = [
   { id: 'configuration', title: 'Configuration' },
   { id: 'layers', title: 'Layers' },
   { id: 'statements', title: 'Statements' },
+  { id: 'behavior', title: 'Behavior' },
   { id: 'triggers', title: 'Triggers' },
   { id: 'binds', title: 'Binds' },
   { id: 'keys', title: 'Keys' },
@@ -107,13 +108,13 @@ layer "gaming" {
                     The <code className="inline-code">config</code> block allows you to set global parameters for your profile.
                   </p>
                   <ul>
-                    <li><code className="inline-code">default_layer</code>: The name of the layer that is active when the profile starts.</li>
+                    <li><code className="inline-code">default_layer</code>: The name of the layer that is active when the profile starts. Defaults to the frist layer defined if omitted.</li>
                     <li><code className="inline-code">default_behavior</code>: The default behavior for triggers. Can be <code className="inline-code">capture</code>, <code className="inline-code">release</code>, or <code className="inline-code">wait</code>.</li>
-                    <li><code className="inline-code">tap_timeout</code>: The maximum duration in milliseconds to recognize a tap.</li>
-                    <li><code className="inline-code">hold_time</code>: The minimum duration in milliseconds to recognize a hold.</li>
-                    <li><code className="inline-code">chord_timeout</code>: The maximum time in milliseconds between keys in a chord.</li>
-                    <li><code className="inline-code">sequence_timeout</code>: The maximum time in milliseconds between keys in a sequence.</li>
-                    <li><code className="inline-code">combo_timeout</code>: The maximum time in milliseconds for complex combos.</li>
+                    <li><code className="inline-code">tap_timeout</code>: The maximum duration in milliseconds to recognize a tap. Defaults to 200ms.</li>
+                    <li><code className="inline-code">hold_time</code>: The minimum duration in milliseconds to recognize a hold. Defaults to 200ms.</li>
+                    <li><code className="inline-code">chord_timeout</code>: The maximum time in milliseconds between keys in a chord. Defaults to 200ms.</li>
+                    <li><code className="inline-code">sequence_timeout</code>: The maximum time in milliseconds between keys in a sequence. Defaults to 200ms.</li>
+                    <li><code className="inline-code">combo_timeout</code>: The maximum time in milliseconds for complex combos. Defaults to 200ms.</li>
                   </ul>
                   <CodeBlock code={`config {
     default_layer = "base"
@@ -135,14 +136,14 @@ layer "gaming" {
     # Pressing 'a' sends 'b'
     a = b
     # Hold down caps lock to switch to the "symbols" layer
-    hold(caps_lock) = layer("symbols")
+    hold(capslock) = layer("symbols")
 }
 
 layer "symbols" {
-    # While in the "symbols" layer, pressing 'a' sends '!'
-    a = "!"
+    # While in the "symbols" layer, pressing 'a' sends 'c'
+    a = c
     # Release caps lock to go back to the "base" layer
-    ^caps_lock = layer("base")
+    ^capslock = layer("base")
 }`} />
                 </CardContent>
               </Card>
@@ -156,18 +157,53 @@ layer "symbols" {
                     A statement is the basic building block of a layer. It consists of a trigger on the left-hand side and a bind on the right-hand side, separated by an equals sign.
                   </p>
                   <CodeBlock code={`<trigger> = <bind>`} />
-                  <h3 className="text-2xl font-bold mt-4">Conflicting Statements</h3>
+                  <h5 className="text-xl font-bold mt-4">Conflicting Statements</h5>
                   <p>
-                    You cannot have duplicate triggers within the same layer. If you define the same trigger more than once, the compiler will raise an error.
+                    You cannot have duplicate triggers within the same layer. If you define the same trigger more than once, the CLI will raise an error.
                   </p>
-                  <h3 className="text-2xl font-bold mt-4">Duplicate Config Entries</h3>
+                </CardContent>
+              </Card>
+              <Card id="behavior" className="scroll-mt-24 bg-slate-50">
+                <CardHeader>
+                  <CardTitle>Behavior</CardTitle>
+                </CardHeader>
+                <CardContent>
                   <p>
-                    If you define the same configuration entry more than once, the compiler will emit a warning and the last entry will be used.
+                    The <code className="inline-code">behavior</code> parameter controls how Clickr handles
+                    the underlying key events when a trigger is processed.
                   </p>
-                  <h3 className="text-2xl font-bold mt-4">Duplicate Layer Names</h3>
+                  <ul>
+                    <li>
+                      <code className="inline-code">capture</code>: key events are captured (not output
+                      immediately). If the trigger fails, the captured events are released normally.
+                    </li>
+                    <li>
+                      <code className="inline-code">wait</code>: key events are captured and only emitted
+                      if the trigger succeeds. If it fails, the events are discarded.
+                    </li>
+                    <li>
+                      <code className="inline-code">release</code>: key events are always output immediately,
+                      regardless of whether the chord, sequence, combo, tap, or hold succeeds or fails.
+                    </li>
+                  </ul>
                   <p>
-                    Layer names must be unique. If you define two layers with the same name, the compiler will raise an error.
+                    All complex triggers — <code className="inline-code">chord</code>,{' '}
+                    <code className="inline-code">sequence</code>,{' '}
+                    <code className="inline-code">combo</code>,{' '}
+                    <code className="inline-code">tap</code>, and{' '}
+                    <code className="inline-code">hold</code> — optionally accept both a{' '}
+                    <code className="inline-code">behavior</code> override and a{' '}
+                    <code className="inline-code">timeout</code>. If omitted, Clickr uses the
+                    profile's <code className="inline-code">default_behavior</code> and the appropriate
+                    timeout setting from the config block.
                   </p>
+                  <CodeBlock
+                    code={`chord([a, b], release, 300) = c
+sequence([a, b, c], capture, 500) = d
+combo([_a, ^b], wait, 400) = e
+tap(a, release, 200) = f
+hold(a, capture, 300) = g`}
+                  />
                 </CardContent>
               </Card>
 
@@ -180,10 +216,10 @@ layer "symbols" {
                     Triggers define what causes a bind to occur. Clickr supports a variety of trigger types.
                   </p>
                   <h3 className="text-2xl font-bold mt-4">Simple Key</h3>
-                  <p>A simple key press. You can also use prefixes for press (<code className="inline-code">^</code>) and release (<code className="inline-code">_</code>).</p>
+                  <p>A simple key press. You can also use prefixes for press (<code className="inline-code">_</code>) and release (<code className="inline-code">^</code>).</p>
                   <CodeBlock code={`a = b
-^a = b # Trigger on press
-_a = b # Trigger on release`} />
+_a = b # Trigger on press
+^a = b # Trigger on release`} />
 
                   <h3 className="text-2xl font-bold mt-4">Hold</h3>
                   <p>Holding a key for a specified duration.</p>
@@ -220,9 +256,9 @@ _a = b # Trigger on release`} />
                     Binds are what happen when a trigger is activated. You can assign a single bind or a list of binds to a trigger.
                   </p>
                   <h3 className="text-2xl font-bold mt-4">Send a Key</h3>
-                  <p>Send a key press, with optional press (<code className="inline-code">^</code>) or release (<code className="inline-code">_</code>) modifiers.</p>
+                  <p>Send a key press, with optional press (<code className="inline-code">_</code>) or release (<code className="inline-code">^</code>) modifiers.</p>
                   <CodeBlock code={`a = b
-a = [^shift, b, _shift] # Sends Shift+B`} />
+a = [_shift, b, ^shift] # Sends Shift+B`} />
 
                   <h3 className="text-2xl font-bold mt-4">Switch Layer</h3>
                   <p>Switch to a different layer.</p>
