@@ -97,8 +97,8 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
-    { name: "CLI", path: "/cli" },
     { name: "Tutorial", path: "/tutorial" },
+    { name: "CLI", path: "/cli" },
     { name: "Community", path: "/community" },
     { name: "My Mappings", path: "/my-mappings" },
 
