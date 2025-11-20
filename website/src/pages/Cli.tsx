@@ -205,8 +205,19 @@ layer "base" {
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
               Powerful command-line tool for creating and managing keyboard profiles
             </p>
+            <div
+              className="flex items-center justify-center gap-4"
+            >
+              <Button variant="outline" size="lg" asChild className="gap-2">
+                <Link to="/cli-docs">
+                  <BookOpen className="h-4 w-4" />
+                  Documentation
+                </Link>
+              </Button>
+            </div>
           </motion.div>
         </div>
+        
       </section>
 
       {/* Overview Section */}

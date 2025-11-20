@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { CodeBlock } from '@/components/CodeBlock';
@@ -19,17 +19,94 @@ const sections = [
 
 const CliDocs = () => {
   const [activeSection, setActiveSection] = useState('introduction');
+  const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    const scrollRatio = scrollTop / (scrollHeight - clientHeight);
+  const scrollToSection = (sectionId: string) => {
+    const element = sectionRefs.current[sectionId];
+    if (!element) return;
 
-    const sectionIndex = Math.min(
-      sections.length - 1,
-      Math.floor(scrollRatio * sections.length)
-    );
-    setActiveSection(sections[sectionIndex].id);
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - 96; // 96px = 24 * 4 (scroll-mt-24)
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth',
+    });
   };
+
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    const sectionVisibility = new Map<string, number>();
+
+    // Helper function to update active section based on visibility
+    const updateActiveSection = () => {
+      let maxVisibility = 0;
+      let mostVisibleSection = 'introduction';
+
+      sectionVisibility.forEach((visibility, sectionId) => {
+        if (visibility > maxVisibility) {
+          maxVisibility = visibility;
+          mostVisibleSection = sectionId;
+        }
+      });
+
+      if (maxVisibility > 0) {
+        setActiveSection(mostVisibleSection);
+      }
+    };
+
+    // Create an Intersection Observer for each section
+    sections.forEach((section) => {
+      const element = sectionRefs.current[section.id];
+      if (!element) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            // Use intersectionRatio which is more accurate
+            // Also consider the position - prefer sections near the top of viewport
+            const rect = entry.boundingClientRect;
+            const viewportHeight = window.innerHeight;
+            
+            // Calculate a score that favors sections in the upper portion of viewport
+            let visibilityScore = entry.intersectionRatio;
+            
+            if (entry.isIntersecting) {
+              // Boost score if section is in the upper portion of viewport
+              const topPosition = rect.top;
+              const bottomPosition = rect.bottom;
+              const centerY = (topPosition + bottomPosition) / 2;
+              const viewportCenter = viewportHeight / 2;
+              
+              // Higher score for sections closer to the top of viewport
+              if (centerY < viewportCenter) {
+                visibilityScore *= 1.5;
+              }
+              
+              sectionVisibility.set(section.id, visibilityScore);
+            } else {
+              sectionVisibility.set(section.id, 0);
+            }
+          });
+          
+          // Update active section after processing all entries
+          updateActiveSection();
+        },
+        {
+          rootMargin: '-10% 0px -50% 0px', // Trigger when section enters upper portion of viewport
+          threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+        }
+      );
+
+      observer.observe(element);
+      observers.push(observer);
+    });
+
+    // Cleanup observers on unmount
+    return () => {
+      observers.forEach((observer) => observer.disconnect());
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,29 +119,34 @@ const CliDocs = () => {
                   key={section.id}
                   href={`#${section.id}`}
                   className={cn(
-                    'text-lg font-medium',
+                    'text-lg font-medium cursor-pointer transition-colors',
                     activeSection === section.id
                       ? 'text-clickr-blue'
-                      : 'text-muted-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
                   )}
-                  onClick={() => setActiveSection(section.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollToSection(section.id);
+                    setActiveSection(section.id);
+                  }}
                 >
                   {section.title}
                 </a>
               ))}
             </nav>
           </aside>
-          <main
-            className="w-3/4"
-            onScroll={handleScroll}
-          >
+          <main className="w-3/4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="space-y-8"
             >
-              <Card id="introduction" className="scroll-mt-24 bg-slate-50">
+              <Card
+                id="introduction"
+                ref={(el) => (sectionRefs.current['introduction'] = el)}
+                className="scroll-mt-24 bg-slate-50"
+              >
                 <CardHeader>
                   <CardTitle>Introduction</CardTitle>
                 </CardHeader>
@@ -75,7 +157,11 @@ const CliDocs = () => {
                 </CardContent>
               </Card>
 
-              <Card id="profile-structure" className="scroll-mt-24 bg-slate-50">
+              <Card
+                id="profile-structure"
+                ref={(el) => (sectionRefs.current['profile-structure'] = el)}
+                className="scroll-mt-24 bg-slate-50"
+              >
                 <CardHeader>
                   <CardTitle>Profile Structure</CardTitle>
                 </CardHeader>
@@ -99,7 +185,11 @@ layer "gaming" {
                 </CardContent>
               </Card>
 
-              <Card id="configuration" className="scroll-mt-24 bg-slate-50">
+              <Card
+                id="configuration"
+                ref={(el) => (sectionRefs.current['configuration'] = el)}
+                className="scroll-mt-24 bg-slate-50"
+              >
                 <CardHeader>
                   <CardTitle>Configuration</CardTitle>
                 </CardHeader>
@@ -124,7 +214,11 @@ layer "gaming" {
                 </CardContent>
               </Card>
 
-              <Card id="layers" className="scroll-mt-24 bg-slate-50">
+              <Card
+                id="layers"
+                ref={(el) => (sectionRefs.current['layers'] = el)}
+                className="scroll-mt-24 bg-slate-50"
+              >
                 <CardHeader>
                   <CardTitle>Layers</CardTitle>
                 </CardHeader>
@@ -148,7 +242,11 @@ layer "symbols" {
                 </CardContent>
               </Card>
 
-              <Card id="statements" className="scroll-mt-24 bg-slate-50">
+              <Card
+                id="statements"
+                ref={(el) => (sectionRefs.current['statements'] = el)}
+                className="scroll-mt-24 bg-slate-50"
+              >
                 <CardHeader>
                   <CardTitle>Statements</CardTitle>
                 </CardHeader>
@@ -163,7 +261,11 @@ layer "symbols" {
                   </p>
                 </CardContent>
               </Card>
-              <Card id="behavior" className="scroll-mt-24 bg-slate-50">
+              <Card
+                id="behavior"
+                ref={(el) => (sectionRefs.current['behavior'] = el)}
+                className="scroll-mt-24 bg-slate-50"
+              >
                 <CardHeader>
                   <CardTitle>Behavior</CardTitle>
                 </CardHeader>
@@ -207,7 +309,11 @@ hold(a, capture, 300) = g`}
                 </CardContent>
               </Card>
 
-              <Card id="triggers" className="scroll-mt-24 bg-slate-50">
+              <Card
+                id="triggers"
+                ref={(el) => (sectionRefs.current['triggers'] = el)}
+                className="scroll-mt-24 bg-slate-50"
+              >
                 <CardHeader>
                   <CardTitle>Triggers</CardTitle>
                 </CardHeader>
@@ -247,38 +353,46 @@ _a = b # Trigger on press
                 </CardContent>
               </Card>
 
-              <Card id="binds" className="scroll-mt-24 bg-slate-50">
+              <Card
+                id="binds"
+                ref={(el) => (sectionRefs.current['binds'] = el)}
+                className="scroll-mt-24 bg-slate-50"
+              >
                 <CardHeader>
                   <CardTitle>Binds</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>
+                  <p className="mb-2">
                     Binds are what happen when a trigger is activated. You can assign a single bind or a list of binds to a trigger.
                   </p>
                   <h3 className="text-2xl font-bold mt-4">Send a Key</h3>
-                  <p>Send a key press, with optional press (<code className="inline-code">_</code>) or release (<code className="inline-code">^</code>) modifiers.</p>
+                  <p className="mb-2">Send a key press, with optional press (<code className="inline-code">_</code>) or release (<code className="inline-code">^</code>) modifiers.</p>
                   <CodeBlock code={`a = b
 a = [_shift, b, ^shift] # Sends Shift+B`} />
 
                   <h3 className="text-2xl font-bold mt-4">Switch Layer</h3>
-                  <p>Switch to a different layer.</p>
+                  <p className="mb-2">Switch to a different layer.</p>
                   <CodeBlock code={`a = layer("gaming")`} />
 
                   <h3 className="text-2xl font-bold mt-4">Open Application</h3>
-                  <p>Launch an application.</p>
+                  <p className="mb-2">Launch an application.</p>
                   <CodeBlock code={`a = open_app("Spotify")`} />
 
                   <h3 className="text-2xl font-bold mt-4">Run a Script</h3>
-                  <p>Execute a shell script.</p>
+                  <p className="mb-2">Execute a shell script.</p>
                   <CodeBlock code={`a = run("bash", "echo 'Hello, World!'")`} />
 
                   <h3 className="text-2xl font-bold mt-4">None</h3>
-                  <p>Do nothing. This is useful for disabling a key.</p>
+                  <p className="mb-2">Do nothing. This is useful for disabling a key.</p>
                   <CodeBlock code={`a = none`} />
                 </CardContent>
               </Card>
 
-              <Card id="keys" className="scroll-mt-24 bg-slate-50">
+              <Card
+                id="keys"
+                ref={(el) => (sectionRefs.current['keys'] = el)}
+                className="scroll-mt-24 bg-slate-50"
+              >
                 <CardHeader>
                   <CardTitle>Keys</CardTitle>
                 </CardHeader>
