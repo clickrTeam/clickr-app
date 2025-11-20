@@ -30,7 +30,7 @@ check_cmd() {
 check_cmd "curl" || err "You need curl to run this script."
 
 # The release to download from.
-RELEASE_NAME="cli-v0.1.0"
+RELEASE_NAME="cli-v0.2.0"
 
 # Determine the operating system and asset name.
 OS="$(uname -s)"

@@ -24,7 +24,7 @@ function Err {
 # ==============================================================================
 
 # The release to download from.
-$releaseName = "cli-v0.1.0"
+$releaseName = "cli-v0.2.0"
 
 # The asset name for Windows.
 $assetName = "clickr-windows-x86_64.exe"
