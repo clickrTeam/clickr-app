@@ -239,6 +239,7 @@ impl Parse for Statement {
 #[derive(Debug, Clone)]
 pub enum Trigger {
     Key(Spanned<Key>),
+    AppFocused(Spanned<String>),
     Chord(
         Box<[Spanned<KeyIdent>]>,
         Option<Spanned<Behavior>>,
@@ -273,6 +274,12 @@ impl Parse for Trigger {
             | Some(TokenType::IntLit)
             | Some(TokenType::Caret)
             | Some(TokenType::Underscore) => Ok(Trigger::Key(Key::parse_spanned(ts)?)),
+            Some(TokenType::AppFocused) => {
+                expect_tokens(ts, [TokenType::AppFocused, TokenType::LParen])?;
+                let app_name = String::parse_spanned(ts)?;
+                expect_tokens(ts, [TokenType::RParen])?;
+                Ok(Trigger::AppFocused(app_name))
+            }
             Some(TokenType::Chord) => {
                 expect_tokens(ts, [TokenType::Chord, TokenType::LParen])?;
                 let keys = parse_square_bracket_list(ts)?;
