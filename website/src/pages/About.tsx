@@ -2,11 +2,11 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { 
-  Code2, 
-  Zap, 
-  Globe, 
-  Download, 
+import {
+  Code2,
+  Zap,
+  Globe,
+  Download,
   BookOpen,
   ArrowRight
 } from "lucide-react";
@@ -55,8 +55,8 @@ const About = () => {
     {
       name: "Tim Blamires",
       role: "Keybinder & CLI",
-      bio: "TODO: Add 150-250 word biography describing degree, research/project affiliations (including capstone), interests, etc.",
-      email: "TODO: Add email address",
+      bio: " I’m a Computer Science major at the University of Utah with a strong interest in systems work, especially operating systems, compilers, and database systems. Before joining the Clickr team, I interned as a TRMC STEM student and later at Lucid Software, gaining experience that helped shape how I approach writing clean, dependable code. For this project, I focused on the Keybinder and CLI, enjoying the challenge of designing the logic that makes keyboard customization feel smooth and intuitive. Outside of school, I love snowboarding and spending time in the mountains, and I’m always excited to learn more about the lower-level parts of computing that keep everything running. Being part of Clickr has been a great chance to collaborate, refine practical skills, and help build a tool that makes everyday computing a little more efficient and enjoyable.",
+      email: "tblamires22@gmail.com",
       linkedin: "https://www.linkedin.com/in/timblamires/",
       imagePath: "headshots/tim.jpg",
       imageSide: "left" as const,
@@ -139,16 +139,16 @@ const About = () => {
             </h2>
             <div className="prose prose-lg max-w-none">
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                Clickr is a comprehensive cross platform keyboard remapping solution that empowers users 
-                to customize their keyboard experience across Windows, macOS, and Linux. The application 
-                addresses the fundamental challenge of keyboard customization by providing a seamless, 
+                Clickr is a comprehensive cross platform keyboard remapping solution that empowers users
+                to customize their keyboard experience across Windows, macOS, and Linux. The application
+                addresses the fundamental challenge of keyboard customization by providing a seamless,
                 cloud-synchronized experience that works consistently across all major operating systems.
               </p>
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                At its core, Clickr solves the problem of fragmented keyboard remapping solutions that 
-                are typically platform specific and lack cloud synchronization. Users can now create 
-                keyboard profiles on one device and seamlessly access them on another, regardless of 
-                the operating system. This is particularly valuable for developers, power users, and 
+                At its core, Clickr solves the problem of fragmented keyboard remapping solutions that
+                are typically platform specific and lack cloud synchronization. Users can now create
+                keyboard profiles on one device and seamlessly access them on another, regardless of
+                the operating system. This is particularly valuable for developers, power users, and
                 accessibility focused individuals who work across multiple platforms.
               </p>
             </div>
@@ -212,10 +212,10 @@ const About = () => {
               Get Started with Clickr
             </h2>
             <p className="text-lg text-muted-foreground mb-6">
-              Clickr is available for download directly from the navigation bar. 
-              The application supports Windows, macOS, and Linux, with automatic 
-              platform detection to provide the correct installer for your system. 
-              Once installed, you can create keyboard profiles, sync them across 
+              Clickr is available for download directly from the navigation bar.
+              The application supports Windows, macOS, and Linux, with automatic
+              platform detection to provide the correct installer for your system.
+              Once installed, you can create keyboard profiles, sync them across
               devices, and start customizing your keyboard experience immediately.
             </p>
             <p className="text-muted-foreground">
@@ -245,7 +245,7 @@ const About = () => {
               Learn How to Use Clickr
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Ready to get started? Check out our detailed tutorial to learn 
+              Ready to get started? Check out our detailed tutorial to learn
               how to create profiles, customize key mappings, and sync across devices.
             </p>
             <Button size="lg" asChild className="gap-2">
