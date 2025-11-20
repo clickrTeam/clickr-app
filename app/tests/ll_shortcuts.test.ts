@@ -19,9 +19,9 @@ describe('Basic Low Level Shortcut', () => {
     }
 
     expect(remapA.binds).toEqual([
-      { type: 'press_key', value: 'CtrlLeft' },
+      { type: 'press_key', value: 'LeftControl' },
       { type: 'press_key', value: 'C' },
-      { type: 'release_key', value: 'CtrlLeft' },
+      { type: 'release_key', value: 'LeftControl' },
       { type: 'release_key', value: 'C' }
     ])
 
@@ -32,13 +32,13 @@ describe('Basic Low Level Shortcut', () => {
     }
 
     expect(remapB.binds).toEqual([
-      { type: 'press_key', value: 'CtrlLeft' },
+      { type: 'press_key', value: 'LeftControl' },
       { type: 'press_key', value: 'X' },
-      { type: 'release_key', value: 'CtrlLeft' },
+      { type: 'release_key', value: 'LeftControl' },
       { type: 'release_key', value: 'X' },
-      { type: 'press_key', value: 'CtrlLeft' },
+      { type: 'press_key', value: 'LeftControl' },
       { type: 'press_key', value: 'V' },
-      { type: 'release_key', value: 'CtrlLeft' },
+      { type: 'release_key', value: 'LeftControl' },
       { type: 'release_key', value: 'V' }
     ])
   })
@@ -54,9 +54,9 @@ describe('Basic Low Level Shortcut', () => {
     }
 
     expect(remapA.binds).toEqual([
-      { type: 'press_key', value: 'CtrlLeft' },
+      { type: 'press_key', value: 'LeftControl' },
       { type: 'press_key', value: 'C' },
-      { type: 'release_key', value: 'CtrlLeft' },
+      { type: 'release_key', value: 'LeftControl' },
       { type: 'release_key', value: 'C' }
     ])
 
@@ -67,13 +67,13 @@ describe('Basic Low Level Shortcut', () => {
     }
 
     expect(remapB.binds).toEqual([
-      { type: 'press_key', value: 'CtrlLeft' },
+      { type: 'press_key', value: 'LeftControl' },
       { type: 'press_key', value: 'X' },
-      { type: 'release_key', value: 'CtrlLeft' },
+      { type: 'release_key', value: 'LeftControl' },
       { type: 'release_key', value: 'X' },
-      { type: 'press_key', value: 'CtrlLeft' },
+      { type: 'press_key', value: 'LeftControl' },
       { type: 'press_key', value: 'V' },
-      { type: 'release_key', value: 'CtrlLeft' },
+      { type: 'release_key', value: 'LeftControl' },
       { type: 'release_key', value: 'V' }
     ])
   })

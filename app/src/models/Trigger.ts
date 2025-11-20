@@ -16,27 +16,43 @@ export enum TriggerType {
 
 export function getTriggerTypeDisplayName(triggerType: TriggerType | string): string {
   switch (triggerType) {
-    case TriggerType.KeyPress:   return 'Key press';
-    case TriggerType.KeyRelease: return 'Key release';
-    case TriggerType.TapSequence:return 'Tap sequence';
-    case TriggerType.Hold:       return 'Hold';
-    case TriggerType.AppFocused: return 'App focused';
-    default:                     return 'Unknown trigger';
+    case TriggerType.KeyPress:
+      return 'Key press'
+    case TriggerType.KeyRelease:
+      return 'Key release'
+    case TriggerType.TapSequence:
+      return 'Tap sequence'
+    case TriggerType.Hold:
+      return 'Hold'
+    case TriggerType.AppFocused:
+      return 'App focused'
+    default:
+      return 'Unknown trigger'
   }
 }
 
 export function getTriggerTypeDescription(triggerType: TriggerType): string | undefined {
   switch (triggerType) {
-    case TriggerType.KeyPress:   return 'When the key is pushed down.';
-    case TriggerType.KeyRelease: return 'When the key pops up or no longer pushed down.';
-    case TriggerType.TapSequence:return 'When a multiple keys are pressed in a short time. Add 2 of the same keys for a double tap.';
-    case TriggerType.Hold:       return 'When the key is held down for a long enough time.';
-    case TriggerType.AppFocused: return 'When a application or tab is focused.';
-    default:                     return 'Unknown trigger';
+    case TriggerType.KeyPress:
+      return 'When the key is pushed down.'
+    case TriggerType.KeyRelease:
+      return 'When the key pops up or no longer pushed down.'
+    case TriggerType.TapSequence:
+      return 'When a multiple keys are pressed in a short time. Add 2 of the same keys for a double tap.'
+    case TriggerType.Hold:
+      return 'When the key is held down for a long enough time.'
+    case TriggerType.AppFocused:
+      return 'When a application or tab is focused.'
+    default:
+      return 'Unknown trigger'
   }
 }
 
-export function createTrigger(type: TriggerType, selectedKey: string | null, app_name?: string): Trigger | undefined {
+export function createTrigger(
+  type: TriggerType,
+  selectedKey: string | null,
+  app_name?: string
+): Trigger | undefined {
   let newTrigger: Trigger
   switch (type) {
     case TriggerType.AppFocused:
@@ -100,7 +116,7 @@ export abstract class Trigger {
   }
 
   abstract toJSON(): object
-  abstract toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior }
+  abstract toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior }
   abstract equals(other: Trigger): boolean
   abstract toString(): string
 }
@@ -135,8 +151,8 @@ export class KeyPress extends Trigger {
     return `Press: ${this.value}`
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
-    return { "type": "key_press", "value": this.value };
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
+    return { type: 'key_press', value: this.value }
   }
 }
 
@@ -170,8 +186,8 @@ export class KeyRelease extends Trigger {
     return `Release: ${this.value}`
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
-    return { "type": "key_release", "value": this.value };
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
+    return { type: 'key_release', value: this.value }
   }
 }
 
@@ -250,27 +266,27 @@ export class TapSequence extends Trigger {
     return `Tap: ${this.key_time_pairs.map((key) => key[0]).join(' + ')}`
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
-    let triggers: LLAdvancedTrigger[] = [];
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
+    const triggers: LLAdvancedTrigger[] = []
     for (const [key, time] of this.key_time_pairs) {
       triggers.push({
-        type: "key_press",
-        value: key,
+        type: 'key_press',
+        value: key
       })
       triggers.push({
-        type: "key_release",
-        value: key,
+        type: 'key_release',
+        value: key
       })
       triggers.push({
-        type: "maximum_wait",
-        value: time,
+        type: 'maximum_wait',
+        duration: time
       })
     }
 
     return {
       behavior: this.behavior,
-      triggers: triggers,
-    };
+      triggers: triggers
+    }
   }
 }
 
@@ -308,20 +324,20 @@ export class Hold extends Trigger {
   }
 
   toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
-    let triggers: LLAdvancedTrigger[] = [];
+    const triggers: LLAdvancedTrigger[] = []
     triggers.push({
-      type: "key_press",
-      value: this.value,
+      type: 'key_press',
+      value: this.value
     })
     triggers.push({
-      type: "minimum_wait",
-      value: this.wait,
+      type: 'minimum_wait',
+      duration: this.wait
     })
 
     return {
       behavior: this.behavior,
-      triggers: triggers,
-    };
+      triggers: triggers
+    }
   }
 }
 
@@ -359,8 +375,8 @@ export class AppFocus extends Trigger {
     return `AppFocus: ${this.app_name}`
   }
 
-  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[], behavior: LLBehavior } {
-    return { "type": "app_focus", "app_name": this.app_name };
+  toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
+    return { type: 'app_focus', app_name: this.app_name }
   }
 }
 
