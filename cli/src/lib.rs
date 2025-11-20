@@ -12,7 +12,7 @@ pub mod lex;
 pub mod parse;
 pub mod utils;
 
-use crate::ipc::send_profile;
+use crate::ipc::{send_pause, send_profile, send_resume};
 use crate::lex::Lexer;
 use crate::parse::{Parse, TokenStream};
 
@@ -117,6 +117,22 @@ pub fn load_profile(profile_path: &str) -> Result<(), ClientError> {
             Err(ClientError::Validation)
         }
     }
+}
+
+/// Requests the key binder to pauses remappings
+pub fn pause_keybinder() -> Result<(), ClientError> {
+    println!("Pausing keybinder...");
+    send_pause()?;
+    println!("Keybinder successfully paused.");
+    Ok(())
+}
+
+/// Requests the key binder to resume remappings
+pub fn resume_keybinder() -> Result<(), ClientError> {
+    println!("Resuming keybinder...");
+    send_resume()?;
+    println!("Keybinder successfully resumed ...");
+    Ok(())
 }
 
 /// Checks the status of the daemon by attempting a connection to the local socket.
