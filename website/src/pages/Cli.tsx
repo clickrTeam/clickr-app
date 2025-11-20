@@ -1,13 +1,21 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Terminal, 
-  Download, 
-  Code2, 
-  Zap, 
-  FileCode
+import { CodeBlock } from "@/components/CodeBlock";
+import { ExampleCarousel } from "@/components/ExampleCarousel";
+import {
+  Terminal,
+  Download,
+  Code2,
+  Zap,
+  FileCode,
+  BookOpen,
+  ArrowRight
 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useOS, OperatingSystem } from "@/hooks/use-os";
+import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 const CLI = () => {
   const features = [
@@ -27,6 +35,122 @@ const CLI = () => {
       icon: <Zap className="h-8 w-8 text-clickr-blue" />,
     },
   ];
+
+  const examples = [
+    {
+      title: "Simple Key Swap",
+      code: `profile "Simple Key Swap"
+
+config {
+    default_layer = "base"
+}
+
+# This layer swaps the 'a' and 'b' keys.
+# Pressing 'a' will output 'b', and pressing 'b' will output 'a'.
+layer "base" {
+    a = b
+    b = a
+}`
+    },
+    {
+      title: "Caps Lock as Esc/Ctrl",
+      code: `profile "Caps Lock as Esc/Ctrl"
+
+config {
+    default_layer = "base"
+}
+
+# This profile remaps the caps lock key to be a dual-function key.
+# Tapping caps lock sends 'esc'.
+# Holding caps lock makes it act as 'ctrl'.
+layer "base" {
+    caps_lock = tap(esc, ctrl)
+}`
+    },
+    {
+      title: "Vim Style Navigation",
+      code: `profile "Vim Style Navigation"
+
+config {
+    default_layer = "base"
+}
+
+# This profile creates a navigation layer for Vim-style arrow keys.
+# Hold down the semicolon key to activate the "nav" layer.
+layer "base" {
+    hold(semicolon) = layer("nav")
+}
+
+# While semicolon is held down, you can use h, j, k, l as arrow keys.
+layer "nav" {
+    h = left
+    j = down
+    k = up
+    l = right
+    # Release semicolon to return to the "base" layer.
+    ^semicolon = layer("base")
+}`
+    },
+    {
+      title: "Numpad Layer",
+      code: `profile "Numpad Layer"
+
+config {
+    default_layer = "base"
+}
+
+# This profile turns a block of keys into a numpad.
+# Hold down the alt key to activate the "numpad" layer.
+layer "base" {
+    hold(alt) = layer("numpad")
+}
+
+# While alt is held down, the u, i, o, j, k, l, m, ,, . keys
+# act as a numpad.
+layer "numpad" {
+    u = 7
+    i = 8
+    o = 9
+    j = 4
+    k = 5
+    l = 6
+    m = 1
+    , = 2
+    . = 3
+    # Release alt to return to the "base" layer.
+    ^alt = layer("base")
+}`
+    },
+    {
+      title: "Key Sequence",
+      code: `profile "Key Sequence"
+
+config {
+    default_layer = "base"
+}
+
+# This profile triggers an action when a sequence of keys is pressed.
+layer "base" {
+    # Press 'i', then 'd', then 'd' to output "deleting line".
+    sequence([i, d, d]) = "deleting line"
+}`
+    },
+    {
+      title: "Key Chord",
+      code: `profile "Key Chord"
+
+config {
+    default_layer = "base"
+}
+
+# This profile triggers an action when a chord of keys is held down.
+layer "base" {
+    # Press and hold 'j' and 'k' at the same time to exit the current layer.
+    chord([j, k]) = exit()
+}`
+    }
+  ];
+
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -49,11 +173,22 @@ const CLI = () => {
     },
   };
 
+  const detectedOS = useOS();
+  const [selectedOS, setSelectedOS] = useState<OperatingSystem | 'linux'>('macos');
+
+  useEffect(() => {
+    if (detectedOS === 'windows') {
+      setSelectedOS('windows');
+    } else {
+      setSelectedOS('macos');
+    }
+  }, [detectedOS]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative pt-24 pb-20 overflow-hidden">
-        <div className="absolute inset-0 -top-24 bg-gradient-to-b from-clickr-light-blue/60 via-clickr-light-blue/30 to-gray-50" />
+        <div className="absolute inset-0 -top-24 h-[calc(100%+24px)] bg-gradient-to-b from-clickr-light-blue/60 via-clickr-light-blue/30 to-transparent" />
         <div className="container mx-auto px-4 relative z-10 pt-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -89,23 +224,53 @@ const CLI = () => {
             </h2>
             <div className="prose prose-lg max-w-none">
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                The Clickr CLI is a powerful command-line interface for creating, validating, and managing 
-                keyboard remapping profiles. Built with Rust for performance and reliability, the CLI provides 
-                a text-based DSL (Domain-Specific Language) that makes it easy to define complex keyboard layouts 
+                The Clickr CLI is a powerful command-line interface for creating, validating, and managing
+                keyboard remapping profiles. Built with Rust for performance and reliability, the CLI provides
+                a text-based DSL (Domain-Specific Language) that makes it easy to define complex keyboard layouts
                 with layers, chords, sequences, and advanced key behaviors.
               </p>
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                Whether you're a developer looking to version control your keyboard configurations, a power user 
-                who prefers text-based tools, or someone who wants to automate profile creation, the Clickr CLI 
-                offers a flexible and efficient solution. Profiles created with the CLI can be validated, shared, 
+                Whether you're a developer looking to version control your keyboard configurations, a power user
+                who prefers text-based tools, or someone who wants to automate profile creation, the Clickr CLI
+                offers a flexible and efficient solution. Profiles created with the CLI can be validated, shared,
                 and imported into the Clickr desktop application.
               </p>
             </div>
           </motion.div>
         </div>
       </section>
-    
+
+      {/* Documentation Section */}
+      <section className="py-16 bg-gradient-to-t from-clickr-light-blue/40 via-clickr-light-blue/20 to-background">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <div className="flex justify-center mb-6 ">
+              <BookOpen className="h-12 w-12 text-clickr-blue" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              CLI Documentation
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Explore the full capabilities of the Clickr CLI. Our documentation provides a comprehensive guide to the profile structure, advanced features, and more.
+            </p>
+            <Button size="lg" asChild className="gap-2">
+              <Link to="/cli-docs">
+                View Documentation
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
     {/* Example Section */}
+    {/*
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <motion.div
@@ -118,14 +283,11 @@ const CLI = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
             Examples
           </h2>
-          <div className="prose prose-lg max-w-none">
-            <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-              @Tim Blamires: I can add a carousel like the one in about to this section if you think images would convey the point effectively.
-            </p>
-            </div>
+          <ExampleCarousel examples={examples} />
           </motion.div>
         </div>
       </section>
+    */}
 
 
       {/* Features Section */}
@@ -183,34 +345,50 @@ const CLI = () => {
             <p className="text-lg text-muted-foreground mb-8 text-center">
               Get the Clickr CLI tool to start creating keyboard profiles from the command line.
             </p>
-            
-            {/* Single CLI Card */}
-            <div className="flex justify-center mb-8">
-              <Card className="border-none shadow-lg hover:shadow-xl transition-shadow w-full max-w-md">
-                <CardContent className="p-8 text-center">
-                  <div className="flex justify-center mb-4">
-                    <Terminal className="h-16 w-16 text-clickr-blue" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2">CLI</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Remap in any modern terminal <br /> 
-                    <span className="text-sm text-muted-foreground/80">(Bash, Zsh, PowerShell, etc.)</span>
-                  </p>
-                  <Button className="w-full" variant="outline" asChild>
-                    <a
-                      href="https://pub-88623f5677af473299bdb0e0cb10017e.r2.dev/clickr-cli"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download CLI
-                    </a>
-                  </Button>
-                </CardContent>
-              </Card>
+
+            <div className="flex justify-center mb-4">
+              <div className="p-1 rounded-lg bg-gray-200 flex items-center">
+                <Button
+                  variant={selectedOS === 'macos' ? 'default' : 'ghost'}
+                  onClick={() => setSelectedOS('macos')}
+                  className={cn('rounded-md', { 'shadow-md': selectedOS === 'macos' })}
+                >
+                  macOS & Linux
+                </Button>
+                <Button
+                  variant={selectedOS === 'windows' ? 'default' : 'ghost'}
+                  onClick={() => setSelectedOS('windows')}
+                  className={cn('rounded-md', { 'shadow-md': selectedOS === 'windows' })}
+                >
+                  Windows
+                </Button>
+              </div>
             </div>
 
-            <div className="text-center">
+            <Card className="border-none shadow-lg">
+              <CardContent className="p-8 text-center">
+                {selectedOS === 'macos' && (
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">macOS & Linux</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Run the following command in your terminal to install the CLI.
+                    </p>
+                    <CodeBlock code="curl -sSL https://keyclickr.com/cli/install.sh | bash" />
+                  </div>
+                )}
+                {selectedOS === 'windows' && (
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">Windows</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Run the following command in PowerShell to install the CLI.
+                    </p>
+                    <CodeBlock code="iwr https://keyclickr.com/cli/install.ps1 -useb | iex" />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <div className="text-center mt-8">
               <Button variant="outline" className="gap-2" asChild>
                 <a
                   href="https://capstone.cs.utah.edu/clickr/clickr-app/-/tree/main/cli?ref_type=heads&ref=main"

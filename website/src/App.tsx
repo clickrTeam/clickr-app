@@ -16,6 +16,7 @@ import CLI from "./pages/Cli";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Tutorial from "./pages/Tutorial";
+import CliDocs from "./pages/CliDocs";
 import { AuthProvider } from "./contexts/AuthContext";
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/tutorial" element={<Tutorial />} />
             <Route path="/community" element={<Community />} />
             <Route path="/cli" element={<CLI />} />
+            <Route path="/cli-docs" element={<CliDocs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/community/mapping/:id" element={<MappingDetail />} />
