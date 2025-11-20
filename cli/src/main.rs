@@ -4,7 +4,7 @@ use std::process::exit;
 use clickr_cli::{
     check_profile,
     cli::{ClickrArgs, ClickrSubcommand},
-    get_status, load_profile, ClientError,
+    get_status, load_profile, pause_keybinder, resume_keybinder, ClientError,
 };
 
 fn main() {
@@ -34,14 +34,8 @@ fn main() {
             println!("'show' is not yet implemented.");
             Ok(())
         }
-        ClickrSubcommand::Pause {} => {
-            println!("'pause' is not yet implemented.");
-            Ok(())
-        }
-        ClickrSubcommand::Resume {} => {
-            println!("'resume' is not yet implemented.");
-            Ok(())
-        }
+        ClickrSubcommand::Pause {} => pause_keybinder(),
+        ClickrSubcommand::Resume {} => resume_keybinder(),
     };
 
     // Centralized error handling

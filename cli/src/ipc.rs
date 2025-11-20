@@ -1,5 +1,6 @@
 use interprocess::local_socket::{prelude::*, GenericFilePath, Name};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use thiserror::Error;
 
@@ -28,7 +29,7 @@ fn get_socket_name() -> Result<Name<'static>, IpcError> {
 }
 
 #[derive(Serialize)]
-struct IpcMessage<'a> {
+struct SetProfileIpcMessage<'a> {
     #[serde(rename = "type")]
     msg_type: &'static str,
     profile: &'a Profile,
@@ -40,44 +41,57 @@ struct IpcResponse {
     error: Option<String>,
 }
 
-pub fn send_profile(profile: &Profile) -> Result<(), IpcError> {
-    let message = IpcMessage {
-        msg_type: "load_profile",
-        profile,
-    };
-    let message_string = serde_json::to_string(&message)?;
-
+fn send_message(message_string: String) -> Result<(), IpcError> {
+    assert!(!message_string.contains("\n"));
     let stream = match LocalSocketStream::connect(get_socket_name()?) {
         Ok(stream) => stream,
         Err(e) => return Err(IpcError::Connection(e)),
     };
 
-    {
-        let mut writer = BufWriter::new(&stream);
-        writer.write_all(message_string.as_bytes())?;
-        writer.write_all(b"\n")?;
-        writer.flush()?;
+    let mut writer = BufWriter::new(&stream);
+    writer.write_all(message_string.as_bytes())?;
+    writer.write_all(b"\n")?;
+    writer.flush()?;
 
-        let mut reader = BufReader::new(&stream);
-        let mut response_buf = String::new();
+    let mut reader = BufReader::new(&stream);
+    let mut response_buf = String::new();
 
-        if reader.read_line(&mut response_buf)? == 0 {
-            return Err(IpcError::Daemon(
-                "Connection closed by daemon before response.".to_string(),
-            ));
-        }
-
-        let response: IpcResponse = serde_json::from_str(&response_buf)?;
-
-        if response.status != "ok" {
-            let error_msg = response
-                .error
-                .unwrap_or_else(|| "Unknown daemon error".to_string());
-            return Err(IpcError::Daemon(error_msg));
-        }
-
-        Ok(())
+    if reader.read_line(&mut response_buf)? == 0 {
+        return Err(IpcError::Daemon(
+            "Connection closed by daemon before response.".to_string(),
+        ));
     }
+
+    let response: IpcResponse = serde_json::from_str(&response_buf)?;
+
+    if response.status != "ok" {
+        let error_msg = response
+            .error
+            .unwrap_or_else(|| "Unknown daemon error".to_string());
+        return Err(IpcError::Daemon(error_msg));
+    }
+
+    Ok(())
+}
+
+pub fn send_profile(profile: &Profile) -> Result<(), IpcError> {
+    let message = SetProfileIpcMessage {
+        msg_type: "load_profile",
+        profile,
+    };
+    send_message(serde_json::to_string(&message)?)
+}
+
+/// Requests the key binder to pauses remappings
+pub fn send_pause() -> Result<(), IpcError> {
+    let message = json!({"type" : "pause"});
+    send_message(serde_json::to_string(&message)?)
+}
+
+/// Requests the key binder to resume remappings
+pub fn send_resume() -> Result<(), IpcError> {
+    let message = json!({"type" : "resume"});
+    send_message(serde_json::to_string(&message)?)
 }
 
 // Attempt to connect using the platform-specific path
