@@ -320,7 +320,7 @@ export class Hold extends Trigger {
   }
 
   equals(other: Trigger): boolean {
-    return other instanceof Hold && this.value === other.value && this.wait === other.wait
+    return other instanceof Hold && this.value === other.value
   }
 
   toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
