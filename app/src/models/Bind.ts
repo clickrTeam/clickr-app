@@ -20,31 +20,31 @@ export enum BindType {
 
 export function getBindTypeDisplayName(value: BindType | string): string {
   switch (value) {
-    case BindType.PressKey:   return 'Key press';
+    case BindType.PressKey: return 'Key press';
     case BindType.ReleaseKey: return 'Key release';
-    case BindType.TapKey:     return 'Tap key';
-    case BindType.SwitchLayer:return 'Switch layer';
-    case BindType.Macro:      return 'Macro';
-    case BindType.RunScript:    return 'Run Script';
+    case BindType.TapKey: return 'Tap key';
+    case BindType.SwitchLayer: return 'Switch layer';
+    case BindType.Macro: return 'Macro';
+    case BindType.RunScript: return 'Run Script';
     case BindType.Meta_Destroy: return 'Remove Bind';
-    default:                  return 'Unknown bind';
+    default: return 'Unknown bind';
   }
 }
 
 export function getBindDisplayName(bind: Bind): string {
   switch (bind.bind_type) {
     case BindType.PressKey:
-      return `${ (bind as PressKey).value }`
+      return `${(bind as PressKey).value}`
     case BindType.ReleaseKey:
-      return `${ (bind as ReleaseKey).value }`
+      return `${(bind as ReleaseKey).value}`
     case BindType.TapKey:
-      return `${ (bind as TapKey).value }`
+      return `${(bind as TapKey).value}`
     case BindType.SwitchLayer:
-      return `${ (bind as SwapLayer).layer_number }`
+      return `${(bind as SwapLayer).layer_number}`
     case BindType.Macro:
-      return `${ (bind as Macro).binds.length }`
+      return `${(bind as Macro).binds.length}`
     case BindType.TimedMacro:
-      return `Timed Macro (${ (bind as TimedMacro).binds.length } actions)`
+      return `Timed Macro (${(bind as TimedMacro).binds.length} actions)`
     case BindType.Repeat:
       return `Repeat Bind`
     case BindType.RunScript:
@@ -401,12 +401,34 @@ export class OpenApp extends Bind {
   }
 
   toLL(): LLBind[] {
-    //TODO: generlize to other operating systems
-    return [{
-      type: "run_script",
-      script: `open -a "${this.app_name}"`,
-      interpreter: "bash",
-    }]
+    let interpreter: string;
+    let script: string;
+
+    // macOS
+    if (process.platform === "darwin") {
+      interpreter = "sh";
+      script = `open -a "${this.app_name}"`;
+    }
+
+    // Linux
+    else if (process.platform === "linux") {
+      interpreter = "sh";
+      script = this.app_name;
+    }
+
+    // Windows
+    else {
+      interpreter = "cmd.exe";
+      script = `start "" "${this.app_name}"`;
+    }
+
+    return [
+      {
+        type: "run_script",
+        interpreter,
+        script,
+      },
+    ];
   }
 }
 
