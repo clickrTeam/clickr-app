@@ -70,17 +70,15 @@ layer "base" {
     {
       title: "Vim Style Navigation",
       code: `profile "Vim Style Navigation"
-
 config {
     default_layer = "base"
 }
-
-# This profile creates a navigation layer for Vim-style arrow keys.
+# This profile creates a navigation layer for Vim-style arrow keys. 
 # Hold down the semicolon key to activate the "nav" layer.
+
 layer "base" {
     hold(semicolon) = layer("nav")
 }
-
 # While semicolon is held down, you can use h, j, k, l as arrow keys.
 layer "nav" {
     h = left
@@ -250,7 +248,29 @@ layer "base" {
           </motion.div>
         </div>
       </section>
-
+    {/* Example Section */}
+    <section className="py-16 bg-background">
+    <div className="container mx-auto px-4">
+        <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="max-w-4xl mx-auto"
+        >
+        <h2 className="text-3xl md:text-4xl font-bold mb-2 text-center text-clickr-blue">
+            Example Profiles
+        </h2>
+        <p className="text-lg text-muted-foreground mb-8 text-center">
+        See real-world examples of keyboard profiles created with the Clickr CLI.
+        </p>
+        </motion.div>
+    </div>
+    <div className="w-screen overflow-hidden ml-[calc((100vw-100%)/-2)] mr-[calc((100vw-100%)/-2)]">
+        <ExampleCarousel examples={examples} />
+    </div>
+    </section>
+   
       {/* Documentation Section */}
       <section className="py-16 bg-gradient-to-t from-clickr-light-blue/40 via-clickr-light-blue/20 to-background">
         <div className="container mx-auto px-4">
@@ -279,26 +299,6 @@ layer "base" {
           </motion.div>
         </div>
       </section>
-
-    {/* Example Section */}
-    {/*
-    <section className="py-16 bg-background">
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-4xl mx-auto"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-            Examples
-          </h2>
-          <ExampleCarousel examples={examples} />
-          </motion.div>
-        </div>
-      </section>
-    */}
 
 
       {/* Features Section */}
