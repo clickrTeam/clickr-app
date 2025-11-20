@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { SuggestedRemapping } from '../pages/Insights'
 import { useNavigate } from 'react-router-dom'
+import { easeInOut } from 'framer-motion'
 
 interface RemappingBubbleProps {
   remapping: SuggestedRemapping
@@ -58,7 +59,6 @@ const RemappingBubble = ({
     // This will trigger a toast asking user to pick which mapping to modify
     navigate('/mappings', { state: { fromInsights: true } })
   }
-
   // Floating animation
   const bubbleVariants = {
     float: {
@@ -67,8 +67,9 @@ const RemappingBubble = ({
       transition: {
         duration: 4,
         delay: position.delay,
+        repeatType: 'loop' as const,
         repeat: Infinity,
-        ease: 'easeInOut'
+        ease: easeInOut
       }
     }
   }

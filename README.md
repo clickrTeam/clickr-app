@@ -1,4 +1,3 @@
-
 # Clickr Frontend
 
 This repository contains the frontend code for the Clickr application, including both the Electron-based desktop app and the web version.
