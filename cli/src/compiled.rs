@@ -532,8 +532,8 @@ fn conflicting_binds(fst: Span, snd: Span) -> miette::Report {
     miette::miette!(
         severity = Severity::Error,
         labels = vec![
-            LabeledSpan::new(None, fst.start(), fst.end()),
-            LabeledSpan::new(None, snd.start(), snd.end()),
+            LabeledSpan::new(None, fst.start(), fst.len()),
+            LabeledSpan::new(None, snd.start(), snd.len()),
         ],
         "Conflicting statments"
     )
