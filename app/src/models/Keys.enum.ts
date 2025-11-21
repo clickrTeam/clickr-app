@@ -201,12 +201,12 @@ export enum MacKey {
 }
 
 export enum WinKey {
-  WinLeft = 'WinLeft', // Windows / Super / Meta
-  WinRight = 'WinRight',
-  CtrlLeft = 'CtrlLeft',
-  CtrlRight = 'CtrlRight',
-  AltLeft = 'AltLeft',
-  AltRight = 'AltRight',
+  WinLeft = Modifier.LeftSuper, // Windows / Super / Meta
+  WinRight = Modifier.RightSuper,
+  LeftControl = 'LeftControl',
+  RightControl = 'RightControl',
+  LeftAlt = 'LeftAlt',
+  RightAlt = 'RightAlt',
   Menu = 'Menu', // Application key (context menu)
   PauseBreak = 'PauseBreak',
   Insert = 'Insert',
@@ -231,12 +231,12 @@ export enum WinKey {
 }
 
 export enum LinuxKey {
-  SuperLeft = 'SuperLeft', // often the Windows key
-  SuperRight = 'SuperRight',
-  CtrlLeft = 'CtrlLeft',
-  CtrlRight = 'CtrlRight',
-  AltLeft = 'AltLeft',
-  AltRight = 'AltRight',
+  LeftSuper = 'LeftSuper',
+  RightSuper = 'RightSuper',
+  LeftControl = 'LeftControl',
+  RightControl = 'RightControl',
+  LeftAlt = 'LeftAlt',
+  RightAlt = 'RightAlt',
   Compose = 'Compose',
   SysReq = 'SysReq',
   // Common X11 extras

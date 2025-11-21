@@ -25,8 +25,8 @@ export const normalizeKey = (event: KeyboardEvent): string => {
   if (key === ' ') return Navigation.Space
   if (key === 'Control') return Modifier.LeftControl
   if (key === 'Alt') return Modifier.LeftAlt
-  if (key === 'Meta') return 'Command'
-  if (key === 'OS') return 'Command'
+  if (key === 'Meta') return Modifier.LeftSuper
+  if (key === 'OS') return Modifier.LeftSuper
   if (key === 'ArrowUp') return Navigation.ArrowUp
   if (key === 'ArrowDown') return Navigation.ArrowDown
   if (key === 'ArrowLeft') return Navigation.ArrowLeft

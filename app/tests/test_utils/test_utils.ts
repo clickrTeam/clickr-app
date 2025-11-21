@@ -78,10 +78,16 @@ export function generateWindowsProfile(): Profile {
   // WinKey as binds (output)
   win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit1), new B.TapKey(WinKey.WinLeft))
   win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit2), new B.TapKey(WinKey.WinRight))
-  win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit3), new B.TapKey(WinKey.CtrlLeft))
-  win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit4), new B.TapKey(WinKey.CtrlRight))
-  win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit5), new B.TapKey(WinKey.AltLeft))
-  win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit6), new B.TapKey(WinKey.AltRight))
+  win_profile.layers[0].addRemapping(
+    new T.KeyPress(Digits.Digit3),
+    new B.TapKey(WinKey.LeftControl)
+  )
+  win_profile.layers[0].addRemapping(
+    new T.KeyPress(Digits.Digit4),
+    new B.TapKey(WinKey.RightControl)
+  )
+  win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit5), new B.TapKey(WinKey.LeftAlt))
+  win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit6), new B.TapKey(WinKey.RightAlt))
   win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit7), new B.TapKey(WinKey.Menu))
   win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit8), new B.TapKey(WinKey.PauseBreak))
   win_profile.layers[0].addRemapping(new T.KeyPress(Digits.Digit9), new B.TapKey(WinKey.Insert))
@@ -111,10 +117,16 @@ export function generateWindowsProfile(): Profile {
   win_profile.layers[0].addRemapping(new T.KeyPress(Function.F1), new B.SwapLayer(1))
   win_profile.layers[1].addRemapping(new T.KeyPress(Digits.Digit1), new B.TapKey(WinKey.WinLeft))
   win_profile.layers[1].addRemapping(new T.KeyPress(Digits.Digit2), new B.TapKey(WinKey.WinRight))
-  win_profile.layers[1].addRemapping(new T.KeyPress(Digits.Digit3), new B.TapKey(WinKey.CtrlLeft))
-  win_profile.layers[1].addRemapping(new T.KeyPress(Digits.Digit4), new B.TapKey(WinKey.CtrlRight))
-  win_profile.layers[1].addRemapping(new T.KeyPress(Digits.Digit5), new B.TapKey(WinKey.AltLeft))
-  win_profile.layers[1].addRemapping(new T.KeyPress(Digits.Digit6), new B.TapKey(WinKey.AltRight))
+  win_profile.layers[1].addRemapping(
+    new T.KeyPress(Digits.Digit3),
+    new B.TapKey(WinKey.LeftControl)
+  )
+  win_profile.layers[1].addRemapping(
+    new T.KeyPress(Digits.Digit4),
+    new B.TapKey(WinKey.RightControl)
+  )
+  win_profile.layers[1].addRemapping(new T.KeyPress(Digits.Digit5), new B.TapKey(WinKey.LeftAlt))
+  win_profile.layers[1].addRemapping(new T.KeyPress(Digits.Digit6), new B.TapKey(WinKey.RightAlt))
   win_profile.layers[1].addRemapping(new T.KeyPress(Digits.Digit7), new B.TapKey(WinKey.Menu))
   win_profile.layers[1].addRemapping(new T.KeyPress(WinKey.WinLeft), new B.TapKey(Letters.A))
 
@@ -129,27 +141,27 @@ export function generateLinuxProfile(): Profile {
   // LinuxKey as binds (output)
   linux_profile.layers[0].addRemapping(
     new T.KeyPress(Digits.Digit1),
-    new B.TapKey(LinuxKey.SuperLeft)
+    new B.TapKey(LinuxKey.LeftSuper)
   )
   linux_profile.layers[0].addRemapping(
     new T.KeyPress(Digits.Digit2),
-    new B.TapKey(LinuxKey.SuperRight)
+    new B.TapKey(LinuxKey.RightSuper)
   )
   linux_profile.layers[0].addRemapping(
     new T.KeyPress(Digits.Digit3),
-    new B.TapKey(LinuxKey.CtrlLeft)
+    new B.TapKey(LinuxKey.LeftControl)
   )
   linux_profile.layers[0].addRemapping(
     new T.KeyPress(Digits.Digit4),
-    new B.TapKey(LinuxKey.CtrlRight)
+    new B.TapKey(LinuxKey.RightControl)
   )
   linux_profile.layers[0].addRemapping(
     new T.KeyPress(Digits.Digit5),
-    new B.TapKey(LinuxKey.AltLeft)
+    new B.TapKey(LinuxKey.LeftAlt)
   )
   linux_profile.layers[0].addRemapping(
     new T.KeyPress(Digits.Digit6),
-    new B.TapKey(LinuxKey.AltRight)
+    new B.TapKey(LinuxKey.RightAlt)
   )
   linux_profile.layers[0].addRemapping(
     new T.KeyPress(Digits.Digit7),
@@ -191,33 +203,33 @@ export function generateLinuxProfile(): Profile {
   linux_profile.layers[0].addRemapping(new T.KeyPress(Function.F1), new B.SwapLayer(1))
   linux_profile.layers[1].addRemapping(
     new T.KeyPress(Digits.Digit1),
-    new B.TapKey(LinuxKey.SuperLeft)
+    new B.TapKey(LinuxKey.LeftSuper)
   )
   linux_profile.layers[1].addRemapping(
     new T.KeyPress(Digits.Digit2),
-    new B.TapKey(LinuxKey.SuperRight)
+    new B.TapKey(LinuxKey.RightSuper)
   )
   linux_profile.layers[1].addRemapping(
     new T.KeyPress(Digits.Digit3),
-    new B.TapKey(LinuxKey.CtrlLeft)
+    new B.TapKey(LinuxKey.LeftControl)
   )
   linux_profile.layers[1].addRemapping(
     new T.KeyPress(Digits.Digit4),
-    new B.TapKey(LinuxKey.CtrlRight)
+    new B.TapKey(LinuxKey.RightControl)
   )
   linux_profile.layers[1].addRemapping(
     new T.KeyPress(Digits.Digit5),
-    new B.TapKey(LinuxKey.AltLeft)
+    new B.TapKey(LinuxKey.LeftAlt)
   )
   linux_profile.layers[1].addRemapping(
     new T.KeyPress(Digits.Digit6),
-    new B.TapKey(LinuxKey.AltRight)
+    new B.TapKey(LinuxKey.RightAlt)
   )
   linux_profile.layers[1].addRemapping(
     new T.KeyPress(Digits.Digit7),
     new B.TapKey(LinuxKey.Compose)
   )
-  linux_profile.layers[1].addRemapping(new T.KeyPress(LinuxKey.SuperLeft), new B.TapKey(Letters.A))
+  linux_profile.layers[1].addRemapping(new T.KeyPress(LinuxKey.LeftSuper), new B.TapKey(Letters.A))
 
   return linux_profile
 }
