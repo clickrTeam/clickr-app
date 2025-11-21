@@ -98,13 +98,22 @@ const api: API = {
   getUserProfile: function (username: string): Promise<any> {
     return ipcRenderer.invoke('get-user-profile', username)
   },
-  updateUserProfile: function (username: string, profileData: { email?: string; profile_image?: string }): Promise<any> {
+  updateUserProfile: function (
+    username: string,
+    profileData: { email?: string; profile_image?: string }
+  ): Promise<any> {
     return ipcRenderer.invoke('update-user-profile', username, profileData)
   },
-  updateUserPreferences: function (username: string, preferences: { default_mapping_visibility?: 'public' | 'private' }): Promise<any> {
+  updateUserPreferences: function (
+    username: string,
+    preferences: { default_mapping_visibility?: 'public' | 'private' }
+  ): Promise<any> {
     return ipcRenderer.invoke('update-user-preferences', username, preferences)
   },
-  changePassword: function (username: string, passwordData: { current_password: string; new_password: string; confirm_password: string }): Promise<any> {
+  changePassword: function (
+    username: string,
+    passwordData: { current_password: string; new_password: string; confirm_password: string }
+  ): Promise<any> {
     return ipcRenderer.invoke('change-password', username, passwordData)
   },
   deleteAccount: function (username: string, password: string): Promise<any> {
@@ -146,6 +155,10 @@ if (process.contextIsolated) {
   try {
     // Safe exposure of Electron APIs in the renderer process
     contextBridge.exposeInMainWorld('electron', electronAPI)
+    contextBridge.exposeInMainWorld('daemon', {
+      pause: () => ipcRenderer.invoke('daemon:pause'),
+      resume: () => ipcRenderer.invoke('daemon:resume')
+    })
     contextBridge.exposeInMainWorld('api', api)
   } catch (error) {
     log.error('Error when exposing Electron APIs in the renderer process: ', error)

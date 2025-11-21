@@ -62,5 +62,9 @@ declare global {
   interface Window {
     electron: ElectronAPI
     api: API
+    daemon: {
+      pause: () => Promise<any>
+      resume: () => Promise<any>
+    }
   }
 }
