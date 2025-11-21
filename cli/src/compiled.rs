@@ -532,8 +532,8 @@ fn conflicting_binds(fst: Span, snd: Span) -> miette::Report {
     miette::miette!(
         severity = Severity::Error,
         labels = vec![
-            LabeledSpan::new(None, fst.start(), fst.end()),
-            LabeledSpan::new(None, snd.start(), snd.end()),
+            LabeledSpan::new(None, fst.start(), fst.len()),
+            LabeledSpan::new(None, snd.start(), snd.len()),
         ],
         "Conflicting statments"
     )
@@ -588,9 +588,9 @@ impl KeyIdent {
             Up => "ArrowUp", Down => "ArrowDown", Left => "ArrowLeft", Right => "ArrowRight",
 
             // Symbols
-            Minus => "-", Equals => "=", LeftBracket => "[", RightBracket => "]",
-            Backslash => "\\", Semicolon => ";", Quote => "'", Comma => ",",
-            Period => ".", Slash => "/", Grave => "`",
+            Minus => "Minus", Equals => "Equals", LeftBracket => "LeftBracket", RightBracket => "RightBracket",
+            Backslash => "Backslash", Semicolon => "Semicolon", Quote => "Apostrophe", Comma => "Comma",
+            Period => "Period", Slash => "Slash", Grave => "Grave",
         }
     }
 }
