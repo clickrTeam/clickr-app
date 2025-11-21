@@ -30,7 +30,7 @@ check_cmd() {
 check_cmd "curl" || err "You need curl to run this script."
 
 # The release to download from.
-RELEASE_NAME="cli-v0.2.0"
+RELEASE_NAME="cli-v0.3.0"
 
 # Determine the operating system and asset name.
 OS="$(uname -s)"
@@ -61,7 +61,7 @@ DOWNLOAD_URL="https://github.com/clickrTeam/clickr-app/releases/download/${RELEA
 INSTALL_DIR="/usr/local/bin"
 
 # Set the binary name.
-BINARY_NAME="clickr"
+BINARY_NAME="clickr-cli"
 
 # Download the binary.
 log "Downloading $BINARY_NAME from release $RELEASE_NAME..."

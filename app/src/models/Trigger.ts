@@ -376,7 +376,7 @@ export class AppFocus extends Trigger {
   }
 
   toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
-    return { type: 'app_focus', app_name: this.app_name }
+    return { type: 'app_focused', app_name: this.app_name }
   }
 }
 

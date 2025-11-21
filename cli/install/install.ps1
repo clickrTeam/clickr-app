@@ -24,7 +24,7 @@ function Err {
 # ==============================================================================
 
 # The release to download from.
-$releaseName = "cli-v0.2.0"
+$releaseName = "cli-v0.3.0"
 
 # The asset name for Windows.
 $assetName = "clickr-windows-x86_64.exe"
@@ -34,7 +34,7 @@ $downloadUrl = "https://github.com/clickrTeam/clickr-app/releases/download/${rel
 
 # Set the installation directory.
 $installDir = "$env:USERPROFILE\.clickr\bin"
-$binaryName = "clickr.exe"
+$binaryName = "clickr-cli.exe"
 $binaryPath = Join-Path $installDir $binaryName
 
 # Create the installation directory if it doesn't exist.
