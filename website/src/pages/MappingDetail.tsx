@@ -42,6 +42,8 @@ type Trigger = {
 type Bind = {
   type: string;
   value?: string | number;
+  binds?: Bind[];
+  layer_number?: number;
 };
 
 type Remapping = {
@@ -131,6 +133,45 @@ const MappingDetail = () => {
       lastEdited = `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
     }
     return lastEdited;
+  };
+
+  const formatBindDisplay = (bind: Bind, layers: Layer[]): string => {
+    // If it's a macro with binds array, unwrap it (similar to FallingBoxes.tsx)
+    if (bind.type === "macro" && bind.binds && Array.isArray(bind.binds) && bind.binds.length > 0) {
+      // For single bind macros, show the inner bind
+      if (bind.binds.length === 1) {
+        const innerBind = bind.binds[0];
+        if (innerBind.value !== undefined && typeof innerBind.value === "string") {
+          return `${innerBind.type}: ${innerBind.value.toUpperCase()}`;
+        } else if (innerBind.layer_number !== undefined || (innerBind.value !== undefined && typeof innerBind.value === "number")) {
+          const layerNum = innerBind.layer_number ?? innerBind.value as number;
+          const layer = layers.find(l => l.layer_number === layerNum);
+          const layerName = layer ? layer.layer_name : `Layer ${layerNum}`;
+          return `${innerBind.type}: Swap to ${layerName}`;
+        } else {
+          return `${innerBind.type}`;
+        }
+      } else {
+        // Multiple binds in macro
+        return `Macro: ${bind.binds.length} actions`;
+      }
+    }
+    
+    // Handle SwapLayer (switch_layer) - layer_number might be in value field
+    if (bind.type === "switch_layer") {
+      const layerNum = bind.layer_number ?? bind.value as number;
+      const layer = layers.find(l => l.layer_number === layerNum);
+      const layerName = layer ? layer.layer_name : `Layer ${layerNum}`;
+      return `${bind.type}: Swap to ${layerName}`;
+    }
+    
+    // Standard bind with value
+    if (bind.value !== undefined) {
+      return `${bind.type}: ${bind.value}`;
+    }
+    
+    // Fallback to just the type
+    return bind.type;
   };
 
   if (isLoading) {
@@ -415,10 +456,7 @@ const MappingDetail = () => {
                                 variant="outline"
                                 className="font-mono text-xs"
                               >
-                                {remap.bind.type}
-                                {remap.bind.value
-                                  ? `: ${remap.bind.value}`
-                                  : ""}
+                                {formatBindDisplay(remap.bind, remappings)}
                               </Badge>
                             </td>
                           </motion.tr>

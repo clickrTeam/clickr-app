@@ -1,0 +1,265 @@
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import {
+  Code2,
+  Zap,
+  Globe,
+  Download,
+  BookOpen,
+  ArrowRight
+} from "lucide-react";
+
+import ScreenshotCarousel from "@/components/ScreenshotCarousel";
+import { TeamEditorial } from "@/components/team/TeamEditorial";
+
+const About = () => {
+  const technologies = [
+    {
+      name: "Electron",
+      description: "Cross platform desktop application framework enabling native performance with web technologies",
+      icon: <Code2 className="h-8 w-8 text-clickr-blue" />,
+    },
+    {
+      name: "React",
+      description: "Modern JavaScript library for building responsive and interactive user interfaces",
+      icon: <Zap className="h-8 w-8 text-clickr-blue" />,
+    },
+    {
+      name: "C++ Keybinder",
+      description: "High performance native core providing zero latency keyboard remapping across all platforms",
+      icon: <Globe className="h-8 w-8 text-clickr-blue" />,
+    },
+  ];
+
+  const teamMembers = [
+    {
+      name: "Bode Packer",
+      role: "Front End Implementation & Database Design",
+      bio: "Being a computer science major at the University of Utah has been a truly incredible experience and has helped create the developer I’ve become. Over the past four years, I’ve specialized in ML data analysis, effective full stack development, and creating safe AI tooling. I genuinely believe the future of AI is bright, not bleak, as it allows developers and leaders to improve both productivity and communication. Working on Clickr this year has definitely refined my UI skills, and has challenged me to create interfaces that are not only visually engaging but also effective at conveying the required information. One of my favorite quotes from a professor still holds true: “It doesn’t matter if your application lacks some functions compared to the competition; if it looks better, it is better.” The more I work on this project, the more understand his sentiment. Living in Utah, I also love to escape into the mountains to backcountry ski, ice climb, and raft whenever I can!",
+      email: "bjackpacke@gmail.com",
+      linkedin: "https://www.linkedin.com/in/bode-packer/",
+      imagePath: "headshots/bode.jpeg",
+      imageSide: "left" as const,
+    },
+    {
+      name: "Ryan Dalrymple",
+      role: "Linux Implementation & Training Game",
+      bio: "After an enlistment in the USMC, I attended the University of Utah to study Computer Science with an emphasis in AI, Robotics, and Information. I think that keyboard customization is something that is overlooked but could really help most people with productivity and comfort. I hope our software can help you feel more comfortable when using a keyboard! ~ Ryan Dalrymple",
+      email: "ryan.d235711@gmail.com",
+      linkedin: "TODO: Add LinkedIn URL",
+      imagePath: "headshots/ryan.jpg",
+      imageSide: "right" as const,
+    },
+    {
+      name: "Tim Blamires",
+      role: "Keybinder & CLI",
+      bio: "I'm a Computer Science major at the University of Utah with a strong interest in systems work, especially operating systems, compilers, and database systems. Before joining the Clickr team, I interned as a TRMC STEM student and later at Lucid Software, gaining experience that helped shape how I approach writing clean, dependable code. For this project, I focused on the Keybinder and CLI, enjoying the challenge of designing the logic that makes keyboard customization feel smooth and intuitive. Outside of school, I love snowboarding and spending time in the mountains, and I’m always excited to learn more about the lower-level parts of computing that keep everything running. Being part of Clickr has been a great chance to collaborate, refine practical skills, and help build a tool that makes everyday computing a little more efficient and enjoyable.",
+      email: "tblamires22@gmail.com",
+      linkedin: "https://www.linkedin.com/in/timblamires/",
+      imagePath: "headshots/tim.jpg",
+      imageSide: "left" as const,
+    },
+    {
+      name: "Luke Hamling",
+      role: "Windows Implementation & Visual Keyboard",
+      bio: "Hey, I'm Luke! I'm a Computer Science major here at the University of Utah. I am working on this app to help with some repetition within work and video game shortcuts. I have previously worked on a Magic The Gathering analysis data project. I am a swimmer and video gamer, and love spending time with family. I am a Eagle Scout and have built my own PC with duel booted Windows and Linux. I love learning about the forefront of computer technology from computer vision to the latest npm vulnerabity. I enjoy technical analysis of video games that often include optimizations and niche complete paths. While coding I like to focus on details apparent to end users. I like to aim myself at all issues and push on important ones, and more importantly I want to have something that works for the user and if possible leaves them impressed. ~ Luke Hamling",
+      email: "luke.william.hamling@gmail.com",
+      linkedin: "https://www.linkedin.com/in/luke-hamling-bb3aa1174/",
+      imagePath: "headshots/luke.jpeg",
+      imageSide: "left" as const,
+    },
+    {
+      name: "Hayden Hilterbrand",
+      role: "Linux Implementation",
+      bio: "TODO: Add 150-250 word biography describing degree, research/project affiliations (including capstone), interests, etc.",
+      email: "hayden.hilterbrand@gmail.com",
+      linkedin: "https://www.linkedin.com/in/hayden-hilterbrand-517617365/",
+      imagePath: "headshots/hayden.jpeg",
+      imageSide: "right" as const,
+    }
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+      },
+    },
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <section className="relative pt-24 pb-20 overflow-hidden">
+        <div className="absolute inset-0 -top-24 bg-gradient-to-b from-clickr-light-blue/60 via-clickr-light-blue/30 to-gray-50" />
+        <div className="container mx-auto px-4 relative z-10 pt-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gradient">
+              About Clickr
+            </h1>
+            <p className="text-xl md:text-2xl text-muted-foreground mb-8">
+              Revolutionizing keyboard customization through cross platform innovation
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Project Overview */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-4xl mx-auto"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
+              Project Overview
+            </h2>
+            <div className="prose prose-lg max-w-none">
+              <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                Clickr is a comprehensive cross platform keyboard remapping solution that empowers users
+                to customize their keyboard experience across Windows, macOS, and Linux. The application
+                addresses the fundamental challenge of keyboard customization by providing a seamless,
+                cloud-synchronized experience that works consistently across all major operating systems.
+              </p>
+              <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                At its core, Clickr solves the problem of fragmented keyboard remapping solutions that
+                are typically platform specific and lack cloud synchronization. Users can now create
+                keyboard profiles on one device and seamlessly access them on another, regardless of
+                the operating system. This is particularly valuable for developers, power users, and
+                accessibility focused individuals who work across multiple platforms.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Screenshots/Diagrams Carousel */}
+      <ScreenshotCarousel />
+
+      {/* Technologies */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-6xl mx-auto"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+              Technologies
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {technologies.map((tech, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
+                  <Card className="h-full border-none shadow-lg hover:shadow-xl transition-shadow">
+                    <CardContent className="p-8 text-center">
+                      <div className="flex justify-center mb-4">{tech.icon}</div>
+                      <h3 className="text-2xl font-bold mb-3">{tech.name}</h3>
+                      <p className="text-muted-foreground">{tech.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Download Blurb */}
+      <section className="py-16 bg-gradient-to-b from-gray-50  via-clickr-light-blue/45 to-clickr-light-blue/30">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <div className="flex justify-center mb-6">
+              <Download className="h-12 w-12 text-clickr-blue" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Get Started with Clickr
+            </h2>
+            <p className="text-lg text-muted-foreground mb-6">
+              Clickr is available for download directly from the navigation bar.
+              The application supports Windows, macOS, and Linux, with automatic
+              platform detection to provide the correct installer for your system.
+              Once installed, you can create keyboard profiles, sync them across
+              devices, and start customizing your keyboard experience immediately.
+            </p>
+            <p className="text-muted-foreground">
+              Look for the download button in the top navigation bar to get started.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Team Section - Editorial View */}
+      <TeamEditorial members={teamMembers} />
+
+      {/* Tutorial Link */}
+      <section className="py-16 bg-gradient-to-t from-clickr-light-blue/40 via-clickr-light-blue/20 to-gray-50">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <div className="flex justify-center mb-6 ">
+              <BookOpen className="h-12 w-12 text-clickr-blue" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Learn How to Use Clickr
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Ready to get started? Check out our detailed tutorial to learn
+              how to create profiles, customize key mappings, and sync across devices.
+            </p>
+            <Button size="lg" asChild className="gap-2">
+              <Link to="/tutorial">
+                View Tutorial
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default About;
+
