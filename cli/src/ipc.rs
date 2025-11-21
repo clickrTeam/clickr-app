@@ -64,7 +64,7 @@ fn send_message(message_string: String) -> Result<(), IpcError> {
 
     let response: IpcResponse = serde_json::from_str(&response_buf)?;
 
-    if response.status != "ok" {
+    if response.status != "ok" && response.status != "success" {
         let error_msg = response
             .error
             .unwrap_or_else(|| "Unknown daemon error".to_string());
