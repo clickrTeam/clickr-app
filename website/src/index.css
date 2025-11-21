@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.inline-code {
+  @apply bg-slate-200 px-1.5 py-0.5 rounded-md;
+}
+
 @layer base {
   :root {
     --background: 210 40% 98%;

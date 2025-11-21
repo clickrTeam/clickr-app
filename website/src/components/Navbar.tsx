@@ -96,8 +96,12 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", path: "/" },
+    { name: "About", path: "/about" },
+    { name: "Tutorial", path: "/tutorial" },
+    { name: "CLI", path: "/cli" },
     { name: "Community", path: "/community" },
     { name: "My Mappings", path: "/my-mappings" },
+
   ];
 
   const isActive = (path: string) => {
@@ -127,10 +131,12 @@ const Navbar = () => {
                   key={link.name}
                   to={link.path}
                   className={cn(
-                    "font-medium transition-colors hover:text-clickr-blue",
+                    "font-medium transition-colors",
                     isActive(link.path)
-                      ? "text-clickr-blue"
-                      : "text-foreground/80"
+                      ? scrolled
+                        ? "text-white"
+                        : "text-clickr-blue"
+                      : "text-foreground/80 hover:text-clickr-blue"
                   )}
                 >
                   {link.name}

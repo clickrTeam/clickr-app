@@ -59,13 +59,13 @@ The `profile` defines the top-level configuration for a keyboard layout. It incl
 
 The `config` block sets global parameters for the profile:
 
-- **default_layer**: the layer that is active when the profile starts.  
-- **default_behavior**: default behavior for triggers (capture, release, or wait).  
-- **tap_timeout**: maximum duration in milliseconds to recognize a tap.  
-- **hold_time**: minimum duration in milliseconds to recognize a hold.  
-- **chord_timeout**: maximum time in milliseconds between keys in a chord.  
-- **sequence_timeout**: maximum time in milliseconds between keys in a sequence.  
-- **combo_timeout**: maximum time in milliseconds for complex combos.  
+- **default_layer**: the layer that is active when the profile starts.
+- **default_behavior**: default behavior for triggers (capture, release, or wait).
+- **tap_timeout**: maximum duration in milliseconds to recognize a tap.
+- **hold_time**: minimum duration in milliseconds to recognize a hold.
+- **chord_timeout**: maximum time in milliseconds between keys in a chord.
+- **sequence_timeout**: maximum time in milliseconds between keys in a sequence.
+- **combo_timeout**: maximum time in milliseconds for complex combos.
 - **advanced**: a boolean flag to enable advanced features.
 
 ---
@@ -74,9 +74,9 @@ The `config` block sets global parameters for the profile:
 
 Behavior controls how key events are handled in chords, sequences, and combos:
 
-- **capture**: key events are kept even if the chord/combo fails.  
-- **release**: key events are discarded if the chord/combo fails.  
-- **wait**: keys are captured and released if the chord/combo fails.
+- **capture**: key events are kept even if the chord/combo fails.
+- **release**: key events are discarded if the chord/combo fails.
+- **wait**: keys are always emitted regardless if the trigger fails.
 
 ---
 
@@ -109,9 +109,9 @@ The LHS defines triggers for actions:
 
 An advanced key can be:
 
-- **key**: standard key behavior (press and release).  
-- **^key**: triggers on press only.  
-- **_key**: triggers on release only.
+- **key**: standard key behavior (press and release).
+- **_key**: triggers on press only.
+- **^key**: triggers on release only.
 
 ---
 
@@ -141,10 +141,10 @@ Actions specify what happens when a trigger is activated:
 
 ## Other
 
-- Comments: `#` can be used to turn the remainder of a line into a comment.  
-- Newlines are significant. Blocks (like `config` and `layer`) must be properly structured across lines. You cannot freely add newlines; they define statement boundaries.  
-- Indentation within a block matters and must be consistent for readability and correct parsing.  
-- Spaces and tabs within a single line are mostly fine.  
+- Comments: `#` can be used to turn the remainder of a line into a comment.
+- Newlines are significant. Blocks (like `config` and `layer`) must be properly structured across lines. You cannot freely add newlines; they define statement boundaries.
+- Indentation within a block matters and must be consistent for readability and correct parsing.
+- Spaces and tabs within a single line are mostly fine.
 - Consistent use of newlines and indentation is required to avoid syntax errors.
 
 ---
