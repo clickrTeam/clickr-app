@@ -18,19 +18,19 @@ jobs:
             arch: x86_64
             runs-on: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            executable-name: clickr
+            executable-name: clickr-cli
             artifact-name: clickr-linux-x86_64
           - os: windows
             arch: x86_64
             runs-on: windows-latest
             target: x86_64-pc-windows-msvc
-            executable-name: clickr.exe
+            executable-name: clickr-cli.exe
             artifact-name: clickr-windows-x86_64
           - os: macos
             arch: arm64
             runs-on: macos-14
             target: aarch64-apple-darwin
-            executable-name: clickr
+            executable-name: clickr-cli
             artifact-name: clickr-macos-arm64
 
     steps:
