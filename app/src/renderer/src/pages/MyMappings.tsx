@@ -61,7 +61,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
   // UI state
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  
+
   // Ref to track if toast has been shown to prevent duplicates
   const toastShownRef = useRef(false)
 
@@ -304,6 +304,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
         <ProfileEditor
           onBack={() => {
             setEditedProfileIndex(null)
+            onSave(profileController)
           }}
         />
       </div>

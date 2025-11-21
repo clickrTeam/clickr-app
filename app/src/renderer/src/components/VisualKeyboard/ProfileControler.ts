@@ -31,6 +31,10 @@ export class ProfileController {
   }
 
   setup(_profile: Profile, _editedProfileIndex: number, _onUpSave: (profileController: ProfileController) => void) {
+    if (this.profile?.profile_name == _profile.profile_name) {
+      log.debug('ProfileControler already has this profile loaded ignoring.')
+      return
+    }
     this.profile = _profile
     this.editedProfileIndex = _editedProfileIndex
     this.onUpSave = _onUpSave
@@ -200,7 +204,7 @@ export class ProfileController {
     if (cur_triggers.length > 0) {
       const [trigger, _bind] = cur_triggers[0]
       log.debug('Found trigger for selected key:', trigger)
-      this.currentTrigger = trigger
+      this._currentTrigger = trigger
       const bind = this.activeLayer!.getRemapping(trigger)
       log.debug('Found binds for trigger:', bind)
       if (bind instanceof Macro) {
@@ -238,13 +242,13 @@ export class ProfileController {
     return this.profile!
   }
 
-  getMappings(selectedKey: string | null): Array<[Trigger, Bind]> {
+  getMappings(selectedKey: string | null): [Trigger, Bind][] {
     if (!selectedKey) return []
     return Array.from(this.activeLayer!.remappings.entries())
       .filter(([trigger, _bind]) => {
         const triggerKey = (trigger as { value?: string }).value
         return typeof triggerKey === 'string' && triggerKey === selectedKey
-      })
+      }) ?? []
   }
 
   changeTrigger(newTrigger: Trigger) {
