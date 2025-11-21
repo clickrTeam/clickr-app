@@ -384,7 +384,7 @@ layer "base" {
                     <p className="text-muted-foreground mb-4">
                       Run the following command in your terminal to install the CLI.
                     </p>
-                    <CodeBlock code="curl -sSL https://keyclickr.com/cli/install.sh | bash" />
+                    <CodeBlock code="curl -sSL https://keyclickr.com/cli/install.sh | sudo bash" />
                   </div>
                 )}
                 {selectedOS === 'windows' && (

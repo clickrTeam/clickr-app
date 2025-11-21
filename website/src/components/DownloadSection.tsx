@@ -3,6 +3,12 @@ import { Button } from "./ui/button";
 import { FiDownload } from "react-icons/fi";
 import { FaApple, FaWindows, FaLinux, FaGitlab } from "react-icons/fa6";
 
+// Download file names and base URL (matching Navbar component)
+const WIN_DOWNLOAD: string = "clickr-windows.exe";
+const MAC_DOWNLOAD: string = "clickr-macos.dmg";
+const LINUX_DOWNLOAD: string = "clickr.run";
+const BASE_URL: string = "https://pub-88623f5677af473299bdb0e0cb10017e.r2.dev";
+
 const DownloadSection = () => {
   return (
     <section className="py-20 bg-primary/5">
@@ -37,7 +43,7 @@ const DownloadSection = () => {
               For Windows 10 and above
             </p>
             <Button className="w-full" asChild>
-              <a href="#download-windows">
+              <a href={`${BASE_URL}/${WIN_DOWNLOAD}`} download={WIN_DOWNLOAD}>
                 <FiDownload className="mr-2 h-4 w-4" />
                 Download
               </a>
@@ -60,7 +66,7 @@ const DownloadSection = () => {
               For macOS 11.0 and above
             </p>
             <Button className="w-full" asChild>
-              <a href="#download-mac">
+              <a href={`${BASE_URL}/${MAC_DOWNLOAD}`} download={MAC_DOWNLOAD}>
                 <FiDownload className="mr-2 h-4 w-4" />
                 Download
               </a>
@@ -83,7 +89,7 @@ const DownloadSection = () => {
               For most major distributions
             </p>
             <Button className="w-full" asChild>
-              <a href="#download-linux">
+              <a href={`${BASE_URL}/${LINUX_DOWNLOAD}`} download={LINUX_DOWNLOAD}>
                 <FiDownload className="mr-2 h-4 w-4" />
                 Download
               </a>

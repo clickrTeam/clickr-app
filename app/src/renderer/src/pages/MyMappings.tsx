@@ -61,7 +61,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
   // UI state
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  
+
   // Ref to track if toast has been shown to prevent duplicates
   const toastShownRef = useRef(false)
 
@@ -304,6 +304,7 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
         <ProfileEditor
           onBack={() => {
             setEditedProfileIndex(null)
+            onSave(profileController)
           }}
         />
       </div>
@@ -565,7 +566,11 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
         </CardContent>
 
         <CardFooter className="border-t pt-4 flex justify-end gap-2 px-4">
-          <Button variant="secondary" size="sm" onClick={() => navigate(`/mapping/${mapping.id}`)}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => navigate(`/mapping/${mapping.id}`, { state: { from: 'mappings' } })}
+          >
             Edit
           </Button>
           <Button

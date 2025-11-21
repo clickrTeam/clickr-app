@@ -51,7 +51,7 @@ const Navbar = () => {
 
   // TODO: Change these to the actual download files
   const WIN_DOWNLOAD: string = "clickr-windows.exe";
-  const MAC_DOWNLOAD: string = "clickr-macos.dmg";
+  const MAC_DOWNLOAD: string = "clickr-mac.zip";
   const LINUX_DOWNLOAD: string = "clickr.run";
 
   const getDownloadLink = () => {

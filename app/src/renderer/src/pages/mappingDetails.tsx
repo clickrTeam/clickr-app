@@ -12,7 +12,8 @@ import {
   TriangleAlert,
   Heart,
   Share,
-  Tag
+  Tag,
+  Globe
 } from 'lucide-react'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
@@ -29,7 +30,7 @@ import {
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
 import log from 'electron-log'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 
 type Trigger = {
   type: string
@@ -78,12 +79,16 @@ type MappingDetails = {
 const MappingDetail = (): JSX.Element => {
   const { mappingId } = useParams<{ mappingId: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const [mapping, setMapping] = useState<MappingDetails>()
   const [isLoading, setIsLoading] = useState(true)
   const [remappings, setRemappings] = useState<Layer[]>([])
   const [isCreating, setIsCreating] = useState(false)
   const [newMappingTags, setNewMappingTags] = useState<string[]>([])
   const [currentUsername, setCurrentUsername] = useState<string | null>(null)
+
+  // Determine where we came from based on location state
+  const fromPage = (location.state as { from?: string })?.from || 'community'
 
   useEffect(() => {
     const fetchMapping = async (): Promise<void> => {
@@ -270,6 +275,30 @@ const MappingDetail = (): JSX.Element => {
     }
   }
 
+  const handleUpdateVisibility = async (): Promise<void> => {
+    if (!mapping || !currentUsername) {
+      return
+    }
+
+    try {
+      const newVisibility = !mapping.is_public
+      await window.api.updateMappingVisibility(mapping.id, newVisibility)
+
+      // Refresh the mapping data
+      const updatedMapping = await window.api.fetchSpecificMapping(mapping.id)
+      setMapping(updatedMapping)
+
+      toast.success(`Mapping ${newVisibility ? 'published' : 'hidden'} successfully`, {
+        style: { background: '#22c55e', color: 'white' }
+      })
+    } catch (error) {
+      log.error('Failed to update mapping visibility: ', error)
+      toast.error('Failed to update mapping visibility', {
+        style: { background: '#ef4444', color: 'white' }
+      })
+    }
+  }
+
   return (
     <div className="min-h-screen pt-24 pb-16 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -281,11 +310,11 @@ const MappingDetail = (): JSX.Element => {
         >
           <div className="mb-8">
             <button
-              onClick={() => navigate('/community')}
+              onClick={() => navigate(fromPage === 'mappings' ? '/' : '/community')}
               className="text-muted-foreground hover:text-foreground flex items-center mb-4"
             >
               <ArrowLeft size={16} className="mr-2" />
-              Back to Community
+              {fromPage === 'mappings' ? 'Back to My Mappings' : 'Back to Community'}
             </button>
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -298,31 +327,17 @@ const MappingDetail = (): JSX.Element => {
               </div>
 
               <div className="flex gap-2">
-                {/* {isFromCommunity && !isOwnMapping ? ( */}
-                {true ? (
-                  // Community mapping buttons (not owned by current user)
+                {currentUsername && mapping.user === currentUsername ? (
+                  // Personal mapping buttons (owned by current user)
                   <>
-                    <Button size="sm" variant="outline" className="gap-1">
-                      <Heart size={14} /> Like
-                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       className="gap-1"
-                      onClick={() => mapping && copyToClipboard(mapping.id)}
+                      onClick={handleUpdateVisibility}
                     >
-                      <Share size={14} /> Share
+                      <Globe size={14} /> {mapping.is_public ? 'Hide' : 'Publish'}
                     </Button>
-                    <Button size="sm" className="gap-1" onClick={() => importMapping()}>
-                      <Download size={14} /> Import
-                    </Button>
-                    <Button size="sm" variant="destructive" className="gap-1">
-                      <TriangleAlert size={14} /> Report
-                    </Button>
-                  </>
-                ) : (
-                  // Personal mapping buttons (owned by current user)
-                  <>
                     <Dialog open={isCreating} onOpenChange={setIsCreating}>
                       <DialogTrigger asChild>
                         <Button size="sm" variant="outline" className="gap-1">
@@ -407,6 +422,27 @@ const MappingDetail = (): JSX.Element => {
                       disabled={!mapping}
                     >
                       <Download size={14} /> Download
+                    </Button>
+                  </>
+                ) : (
+                  // Community mapping buttons (not owned by current user)
+                  <>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Heart size={14} /> Like
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1"
+                      onClick={() => mapping && copyToClipboard(mapping.id)}
+                    >
+                      <Share size={14} /> Share
+                    </Button>
+                    <Button size="sm" className="gap-1" onClick={() => importMapping()}>
+                      <Download size={14} /> Import
+                    </Button>
+                    <Button size="sm" variant="destructive" className="gap-1">
+                      <TriangleAlert size={14} /> Report
                     </Button>
                   </>
                 )}
