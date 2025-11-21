@@ -588,9 +588,9 @@ impl KeyIdent {
             Up => "ArrowUp", Down => "ArrowDown", Left => "ArrowLeft", Right => "ArrowRight",
 
             // Symbols
-            Minus => "-", Equals => "=", LeftBracket => "[", RightBracket => "]",
-            Backslash => "\\", Semicolon => ";", Quote => "'", Comma => ",",
-            Period => ".", Slash => "/", Grave => "`",
+            Minus => "Minus", Equals => "Equals", LeftBracket => "LeftBracket", RightBracket => "RightBracket",
+            Backslash => "Backslash", Semicolon => "Semicolon", Quote => "Apostrophe", Comma => "Comma",
+            Period => "Period", Slash => "Slash", Grave => "Grave",
         }
     }
 }
