@@ -30,19 +30,11 @@ export class ProfileController {
     this._radialSelectedTriggerType = trigger_type
   }
 
-<<<<<<< HEAD
-  setup(
-    _profile: Profile,
-    _editedProfileIndex: number,
-    _onUpSave: (profileController: ProfileController) => void
-  ) {
-=======
   setup(_profile: Profile, _editedProfileIndex: number, _onUpSave: (profileController: ProfileController) => void) {
     if (this.profile?.profile_name == _profile.profile_name) {
       log.debug('ProfileControler already has this profile loaded ignoring.')
       return
     }
->>>>>>> main
     this.profile = _profile
     this.editedProfileIndex = _editedProfileIndex
     this.onUpSave = _onUpSave
