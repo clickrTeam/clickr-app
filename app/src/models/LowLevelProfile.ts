@@ -43,7 +43,7 @@ export type LLKeyRelease = {
 }
 
 export type LLAppFocus = {
-  type: 'app_focus'
+  type: 'app_focused'
   app_name: string
 }
 
