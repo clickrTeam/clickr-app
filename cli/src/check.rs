@@ -1,29 +1,165 @@
 use crate::{
-    ast::{Config, ConfigEntry, Profile},
+    ast::{Bind, Config, ConfigEntry, Profile},
     utils::Spanned,
 };
 use miette::{miette, LabeledSpan, Severity};
-use std::{collections::HashMap, mem::discriminant};
-
-#[derive(Debug, Default)]
-pub struct CheckResult {
-    pub warnings: Vec<miette::Report>,
-    pub errors: Vec<miette::Report>,
-}
+use std::{
+    collections::{hash_map::Entry, HashMap},
+    mem::discriminant,
+};
 
 const LARGE_TIMEOUT_WARNING_THRESHOLD: usize = 5_000;
 
 impl Profile {
-    pub fn check(&self) -> CheckResult {
-        let mut check_results = CheckResult::default();
-        self.config.check(self, &mut check_results);
+    pub fn check(&self) -> Vec<miette::Report> {
+        let mut result = vec![];
+        self.config.check(self, &mut result);
+        self.check_layers(&mut result);
 
-        check_results
+        result
+    }
+
+    fn check_layers(&self, result: &mut Vec<miette::Report>) {
+        if self.layers.is_empty() {
+            result.push(miette!(
+                severity = Severity::Error,
+                "Profile must contain at least 1 layer",
+            ));
+            return;
+        }
+
+        let mut seen: HashMap<&str, &Spanned<_>> = HashMap::new();
+        let mut name_to_index: HashMap<&str, usize> = HashMap::new();
+        let mut found_duplicate = false;
+
+        for (i, layer) in self.layers.iter().enumerate() {
+            let name = layer.name.as_str();
+            name_to_index.insert(name, i);
+
+            if let Some(original) = seen.get(name) {
+                result.push(miette!(
+                    severity = Severity::Error,
+                    labels = vec![
+                        LabeledSpan::new(
+                            Some("original layer definition".to_string()),
+                            original.span.start(),
+                            original.span.len()
+                        ),
+                        LabeledSpan::new(
+                            Some("duplicate layer definition".to_string()),
+                            layer.span.start(),
+                            layer.span.len()
+                        ),
+                    ],
+                    "Duplicate layer name '{}'",
+                    name
+                ));
+                found_duplicate = true;
+            } else {
+                seen.insert(name, layer);
+            }
+        }
+
+        let mut graph: Vec<Vec<usize>> = Vec::with_capacity(self.layers.len());
+        for layer in self.layers.iter() {
+            graph.push(
+                layer
+                    .value
+                    .statements
+                    .iter()
+                    .flat_map(|s| &s.rhs)
+                    .filter_map(|s| match &s.value {
+                        Bind::ChangeLayer(s) => {
+                            let name = s.as_str();
+                            match name_to_index.entry(name) {
+                                Entry::Occupied(entry) => Some(*entry.get()),
+                                Entry::Vacant(_) => {
+                                    result.push(miette!(
+                                        severity = Severity::Error,
+                                        labels = vec![LabeledSpan::new(
+                                            Some(format!("unknown layer: {}", s.value)),
+                                            s.span.start(),
+                                            s.span.len()
+                                        ),],
+                                        "reference to undefined layer"
+                                    ));
+                                    None
+                                }
+                            }
+                        }
+                        _ => None,
+                    })
+                    .collect(),
+            );
+        }
+
+        let default_layer = self.config.entries.iter().find_map(|c| match &c.value {
+            ConfigEntry::DefaultLayer(default_layer) => Some(default_layer),
+            _ => None,
+        });
+
+        let default_layer_idx = match default_layer {
+            Some(s) if !name_to_index.contains_key(s.as_str()) => {
+                result.push(miette!(
+                    severity = Severity::Error,
+                    labels = vec![LabeledSpan::new(
+                        Some(format!("unknown layer: {}", s.value)),
+                        s.span.start(),
+                        s.span.len()
+                    ),],
+                    "default layer not found"
+                ));
+                return;
+            }
+            Some(s) => name_to_index[s.as_str()],
+            None => 0,
+        };
+
+        // Don't look for unreachable layers if there are duplicates
+        if found_duplicate {
+            return;
+        }
+
+        let unreachable_layers = Profile::find_unreachable_layers(&graph, default_layer_idx);
+        for layer_idx in unreachable_layers {
+            let layer = &self.layers[layer_idx];
+            result.push(miette!(
+                severity = Severity::Warning,
+                labels = vec![LabeledSpan::new(
+                    Some(format!("unreachable layer: {}", layer.name.value)),
+                    layer.span.start(),
+                    layer.span.len()
+                ),],
+                help = "Add a remapping to switch to this layer",
+                "Layer can never be reached"
+            ))
+        }
+    }
+
+    fn find_unreachable_layers(graph: &[Vec<usize>], start: usize) -> Vec<usize> {
+        let mut visited = vec![false; graph.len()];
+        let mut stack = vec![start];
+        visited[start] = true;
+
+        while let Some(node) = stack.pop() {
+            for &neighbor in &graph[node] {
+                if !visited[neighbor] {
+                    visited[neighbor] = true;
+                    stack.push(neighbor);
+                }
+            }
+        }
+
+        visited
+            .iter()
+            .enumerate()
+            .filter_map(|(i, &v)| if !v { Some(i) } else { None })
+            .collect()
     }
 }
 
 impl Config {
-    pub fn check(&self, profile: &Profile, results: &mut CheckResult) {
+    pub fn check(&self, profile: &Profile, result: &mut Vec<miette::Report>) {
         let mut seen: HashMap<_, &Spanned<ConfigEntry>> = HashMap::new();
         let mut default_layer_name = None;
 
@@ -32,7 +168,7 @@ impl Config {
 
             if let Some(original) = seen.get(&disc) {
                 // Duplicate found: report both original and repeated
-                results.warnings.push(miette!(
+                result.push(miette!(
                     severity = Severity::Warning,
                     labels = vec![
                         LabeledSpan::new(
@@ -59,7 +195,7 @@ impl Config {
 
             // Large timeout warning
             if let Some(timeout) = entry.get_timeout() && timeout >= LARGE_TIMEOUT_WARNING_THRESHOLD {
-                results.warnings.push(miette!(
+                result.push(miette!(
                     severity = Severity::Warning,
                     labels = vec![LabeledSpan::new(
                         Some("timeout exceeds recommended threshold".to_string()),
@@ -78,10 +214,10 @@ impl Config {
             let exists = profile
                 .layers
                 .iter()
-                .any(|layer| layer.value.name.value == layer_name.value);
+                .any(|layer| layer.name.value == layer_name.value);
 
             if !exists {
-                results.errors.push(miette!(
+                result.push(miette!(
                     severity = Severity::Error,
                     labels = vec![LabeledSpan::new(
                         Some("default_layer not found in profile".to_string()),
@@ -92,19 +228,6 @@ impl Config {
                     layer_name.value
                 ));
             }
-        }
-    }
-}
-
-impl ConfigEntry {
-    fn get_timeout(&self) -> Option<usize> {
-        match self {
-            ConfigEntry::TapTimeout(t)
-            | ConfigEntry::HoldTime(t)
-            | ConfigEntry::ChordTimeout(t)
-            | ConfigEntry::SequenceTimeout(t)
-            | ConfigEntry::ComboTimeout(t) => Some(t.value),
-            _ => None,
         }
     }
 }

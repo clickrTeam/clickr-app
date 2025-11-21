@@ -102,6 +102,7 @@ export const KeyTile: React.FC<KeyTileProps> = ({ keyModel, onClick, onInspect, 
         onClick={onClick}
         onMouseEnter={() => onInspect(keyModel)}
         onMouseLeave={() => onInspect(null)}
+        disabled={keyModel.key == 'Fn'}
       >
         {keyModel.displayKey ? (
           <b>{getShortLabel(keyModel.displayKey)}</b>

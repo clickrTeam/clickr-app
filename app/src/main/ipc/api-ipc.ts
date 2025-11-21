@@ -121,7 +121,7 @@ export function registerApiHandlers(): void {
     //TODO: Temparary hack
     const entireMapping = {
       name: mappingData.profile_name,
-      description: 'TODO',
+      description: `${mappingData.layer_count} layers`,
       mappings: mappingData,
       isActive: false,
       is_public: true,

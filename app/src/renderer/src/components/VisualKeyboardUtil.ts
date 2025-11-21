@@ -1,5 +1,4 @@
 // Utility functions for VisualKeyboard
-import log from 'electron-log'
 import { keyShortLabels } from './VisualKeyboard/Layout.const'
 
 // Helper to get short label or icon

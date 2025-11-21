@@ -14,37 +14,44 @@ export enum BindType {
   RunScript = 'run_script',
   AppOpen = 'app_open_bind',
   // Meta bind type for destroying existing binds/triggers
-  Meta_Destroy = "Meta_Destroy"
+  Meta_Destroy = 'Meta_Destroy'
 }
-
 
 export function getBindTypeDisplayName(value: BindType | string): string {
   switch (value) {
-    case BindType.PressKey:   return 'Key press';
-    case BindType.ReleaseKey: return 'Key release';
-    case BindType.TapKey:     return 'Tap key';
-    case BindType.SwitchLayer:return 'Switch layer';
-    case BindType.Macro:      return 'Macro';
-    case BindType.RunScript:    return 'Run Script';
-    case BindType.Meta_Destroy: return 'Remove Bind';
-    default:                  return 'Unknown bind';
+    case BindType.PressKey:
+      return 'Key press'
+    case BindType.ReleaseKey:
+      return 'Key release'
+    case BindType.TapKey:
+      return 'Tap key'
+    case BindType.SwitchLayer:
+      return 'Switch layer'
+    case BindType.Macro:
+      return 'Macro'
+    case BindType.RunScript:
+      return 'Run Script'
+    case BindType.Meta_Destroy:
+      return 'Remove Bind'
+    default:
+      return 'Unknown bind'
   }
 }
 
 export function getBindDisplayName(bind: Bind): string {
   switch (bind.bind_type) {
     case BindType.PressKey:
-      return `${ (bind as PressKey).value }`
+      return `${(bind as PressKey).value}`
     case BindType.ReleaseKey:
-      return `${ (bind as ReleaseKey).value }`
+      return `${(bind as ReleaseKey).value}`
     case BindType.TapKey:
-      return `${ (bind as TapKey).value }`
+      return `${(bind as TapKey).value}`
     case BindType.SwitchLayer:
-      return `${ (bind as SwapLayer).layer_number }`
+      return `${(bind as SwapLayer).layer_number}`
     case BindType.Macro:
-      return `${ (bind as Macro).binds.length }`
+      return `${(bind as Macro).binds.length}`
     case BindType.TimedMacro:
-      return `Timed Macro (${ (bind as TimedMacro).binds.length } actions)`
+      return `Timed Macro (${(bind as TimedMacro).binds.length} actions)`
     case BindType.Repeat:
       return `Repeat Bind`
     case BindType.RunScript:
@@ -104,7 +111,7 @@ export class PressKey extends Bind {
   }
 
   toLL(): LLBind[] {
-    return [{ type: "press_key", value: this.value }]
+    return [{ type: 'press_key', value: this.value }]
   }
 }
 
@@ -138,7 +145,7 @@ export class ReleaseKey extends Bind {
   }
 
   toLL(): LLBind[] {
-    return [{ type: "release_key", value: this.value }]
+    return [{ type: 'release_key', value: this.value }]
   }
 }
 
@@ -173,7 +180,10 @@ export class TapKey extends Bind {
   }
 
   toLL(): LLBind[] {
-    return [{ type: "press_key", value: this.value }, { type: "release_key", value: this.value }]
+    return [
+      { type: 'press_key', value: this.value },
+      { type: 'release_key', value: this.value }
+    ]
   }
 }
 
@@ -211,7 +221,7 @@ export class Macro extends Bind {
   }
 
   toLL(): LLBind[] {
-    return this.binds.map((b) => b.toLL()).flat();
+    return this.binds.map((b) => b.toLL()).flat()
   }
 }
 
@@ -254,13 +264,12 @@ export class TimedMacro extends Bind {
   }
 
   toLL(): LLBind[] {
-    let binds: LLBind[] = [];
+    const binds: LLBind[] = []
     for (let i = 0; i < binds.length; i++) {
-      binds.push(...this.binds[i].toLL());
-      if (i < this.times.length)
-        binds.push({ type: "wait", value: this.times[i] });
+      binds.push(...this.binds[i].toLL())
+      if (i < this.times.length) binds.push({ type: 'wait', duration: this.times[i] })
     }
-    return binds;
+    return binds
   }
 }
 
@@ -366,7 +375,7 @@ export class SwapLayer extends Bind {
   }
 
   toLL(): LLBind[] {
-    return [{ type: "switch_layer", value: this.layer_number }]
+    return [{ type: 'switch_layer', value: this.layer_number }]
   }
 }
 
@@ -397,16 +406,18 @@ export class OpenApp extends Bind {
   }
 
   toString(): string {
-    return "Open: " + this.app_name
+    return 'Open: ' + this.app_name
   }
 
   toLL(): LLBind[] {
     //TODO: generlize to other operating systems
-    return [{
-      type: "run_script",
-      script: `open -a "${this.app_name}"`,
-      interpreter: "bash",
-    }]
+    return [
+      {
+        type: 'run_script',
+        script: `open -a "${this.app_name}"`,
+        interpreter: 'bash'
+      }
+    ]
   }
 }
 
@@ -414,8 +425,7 @@ export class RunScript extends Bind {
   script: string
   interpreter: string
 
-  constructor(script: string, interpreter: string
-  ) {
+  constructor(script: string, interpreter: string) {
     super(BindType.RunScript)
     this.script = script
     this.interpreter = interpreter
@@ -425,28 +435,34 @@ export class RunScript extends Bind {
     return {
       type: BindType.RunScript,
       script: this.script,
-      interpreter: this.interpreter,
+      interpreter: this.interpreter
     }
   }
 
-  static fromJSON(obj: { script: string, interpreter: string }): RunScript {
+  static fromJSON(obj: { script: string; interpreter: string }): RunScript {
     return new RunScript(obj.script, obj.interpreter)
   }
 
   equals(other: Bind): boolean {
-    return other instanceof RunScript && this.interpreter === other.interpreter && this.script == other.script
+    return (
+      other instanceof RunScript &&
+      this.interpreter === other.interpreter &&
+      this.script == other.script
+    )
   }
 
   toString(): string {
-    return `Run ${this.interpreter} script:  ${this.script}`;
+    return `Run ${this.interpreter} script:  ${this.script}`
   }
 
   toLL(): LLBind[] {
-    return [{
-      type: "run_script",
-      script: this.script,
-      interpreter: this.interpreter,
-    }]
+    return [
+      {
+        type: 'run_script',
+        script: this.script,
+        interpreter: this.interpreter
+      }
+    ]
   }
 }
 

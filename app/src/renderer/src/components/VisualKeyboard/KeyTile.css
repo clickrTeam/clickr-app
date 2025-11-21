@@ -23,6 +23,14 @@ button:disabled {
   border-color: light-dark(rgba(118, 118, 118, 0.3), rgba(195, 195, 195, 0.3)) !important;
 }
 
+button.vk-key:disabled {
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  background-color: rgb(209, 213, 219) !important;
+  color: inherit !important;
+  border-color: transparent !important;
+}
+
 /* subtle focus/visual helpers for alignment */
 .vk-key { box-sizing: border-box; }
 

@@ -1,5 +1,5 @@
 use crate::{
-    ast::keys::KeyIdent,
+    ast::key::KeyIdent,
     lex::TokenType,
     parse::{
         expect_tokens, next_match, parse_optional_trigger_args, parse_sequence_trailing,
@@ -9,7 +9,7 @@ use crate::{
 };
 use miette::{miette, LabeledSpan, Severity};
 
-mod keys;
+pub mod key;
 
 #[derive(Debug, Clone)]
 pub struct Profile {
@@ -95,21 +95,85 @@ impl Parse for ConfigEntry {
     }
 }
 
+impl ConfigEntry {
+    pub fn get_timeout(&self) -> Option<usize> {
+        match self {
+            ConfigEntry::TapTimeout(t)
+            | ConfigEntry::HoldTime(t)
+            | ConfigEntry::ChordTimeout(t)
+            | ConfigEntry::SequenceTimeout(t)
+            | ConfigEntry::ComboTimeout(t) => Some(t.value),
+            _ => None,
+        }
+    }
+}
+
+impl Config {
+    pub fn to_data(&self) -> ConfigData {
+        let mut data = ConfigData::default();
+
+        for entry in self.entries.iter().rev() {
+            match &entry.value {
+                ConfigEntry::DefaultLayer(v) => data.default_layer = Some(v.value.clone()),
+                ConfigEntry::DefaultBehavior(v) => data.default_behavior = v.value,
+                ConfigEntry::TapTimeout(v) => data.tap_timeout = v.value,
+                ConfigEntry::HoldTime(v) => data.hold_time = v.value,
+                ConfigEntry::ChordTimeout(v) => data.chord_timeout = v.value,
+                ConfigEntry::SequenceTimeout(v) => data.sequence_timeout = v.value,
+                ConfigEntry::ComboTimeout(v) => data.combo_timeout = v.value,
+                ConfigEntry::Advanced(v) => data.advanced = *v,
+            }
+        }
+
+        data
+    }
+}
+
+const DEFULT_TIMEOUT: usize = 200;
+
 #[derive(Debug, Clone)]
+pub struct ConfigData {
+    pub default_layer: Option<String>,
+    pub default_behavior: Behavior,
+    pub tap_timeout: usize,
+    pub hold_time: usize,
+    pub chord_timeout: usize,
+    pub sequence_timeout: usize,
+    pub combo_timeout: usize,
+    pub advanced: bool,
+}
+
+impl Default for ConfigData {
+    fn default() -> Self {
+        Self {
+            default_layer: None,
+            default_behavior: Behavior::default(),
+            tap_timeout: DEFULT_TIMEOUT,
+            hold_time: DEFULT_TIMEOUT,
+            chord_timeout: DEFULT_TIMEOUT,
+            sequence_timeout: DEFULT_TIMEOUT,
+            combo_timeout: DEFULT_TIMEOUT,
+            advanced: false,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default)]
 pub enum Behavior {
     Capture,
     Release,
+    #[default]
     Wait,
 }
 
 impl Parse for Behavior {
     fn parse(ts: &mut TokenStream<'_>) -> miette::Result<Self> {
-        let next_token = ts.peek();
+        let next_token = ts.next();
         match next_token.map(|t| t.kind()) {
             Some(TokenType::Capture) => Ok(Behavior::Capture),
             Some(TokenType::Release) => Ok(Behavior::Release),
             Some(TokenType::Wait) => Ok(Behavior::Wait),
-            Some(t) => {
+            Some(_) => {
                 return Err(miette!(
                     severity = Severity::Error,
                     labels = vec![LabeledSpan::new(
@@ -175,6 +239,7 @@ impl Parse for Statement {
 #[derive(Debug, Clone)]
 pub enum Trigger {
     Key(Spanned<Key>),
+    AppFocused(Spanned<String>),
     Chord(
         Box<[Spanned<KeyIdent>]>,
         Option<Spanned<Behavior>>,
@@ -206,8 +271,15 @@ impl Parse for Trigger {
         match ts.peek_type() {
             Some(TokenType::Ident)
             | Some(TokenType::StringLit)
+            | Some(TokenType::IntLit)
             | Some(TokenType::Caret)
             | Some(TokenType::Underscore) => Ok(Trigger::Key(Key::parse_spanned(ts)?)),
+            Some(TokenType::AppFocused) => {
+                expect_tokens(ts, [TokenType::AppFocused, TokenType::LParen])?;
+                let app_name = String::parse_spanned(ts)?;
+                expect_tokens(ts, [TokenType::RParen])?;
+                Ok(Trigger::AppFocused(app_name))
+            }
             Some(TokenType::Chord) => {
                 expect_tokens(ts, [TokenType::Chord, TokenType::LParen])?;
                 let keys = parse_square_bracket_list(ts)?;
@@ -224,7 +296,6 @@ impl Parse for Trigger {
             Some(TokenType::Tap) => {
                 expect_tokens(ts, [TokenType::Tap, TokenType::LParen])?;
                 let key = KeyIdent::parse_spanned(ts)?;
-                expect_tokens(ts, [TokenType::Comma])?;
                 let (behavior, timeout) = parse_optional_trigger_args(ts)?;
                 Ok(Trigger::Tap(key, behavior, timeout))
             }
@@ -232,12 +303,11 @@ impl Parse for Trigger {
             Some(TokenType::Hold) => {
                 expect_tokens(ts, [TokenType::Hold, TokenType::LParen])?;
                 let key = KeyIdent::parse_spanned(ts)?;
-                expect_tokens(ts, [TokenType::Comma])?;
                 let (behavior, timeout) = parse_optional_trigger_args(ts)?;
                 Ok(Trigger::Hold(key, behavior, timeout))
             }
             Some(TokenType::Combo) => {
-                expect_tokens(ts, [TokenType::Chord, TokenType::LParen])?;
+                expect_tokens(ts, [TokenType::Combo, TokenType::LParen])?;
                 let keys = parse_square_bracket_list(ts)?;
                 let (behavior, timeout) = parse_optional_trigger_args(ts)?;
                 Ok(Trigger::Combo(keys, behavior, timeout))
@@ -310,7 +380,7 @@ impl Parse for Bind {
                 })
             }
             Some(TokenType::OpenApp) => {
-                expect_tokens(ts, [TokenType::Layer, TokenType::LParen])?;
+                expect_tokens(ts, [TokenType::OpenApp, TokenType::LParen])?;
                 let app_name = String::parse_spanned(ts)?;
                 expect_tokens(ts, [TokenType::RParen])?;
                 Ok(Bind::OpenApp(app_name))
@@ -342,11 +412,19 @@ impl Parse for Bind {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Key {
     Unspecified(Spanned<KeyIdent>),
     Down(Spanned<KeyIdent>),
     Up(Spanned<KeyIdent>),
+}
+impl Key {
+    pub fn is_basic_key(self) -> Option<KeyIdent> {
+        match self {
+            Key::Unspecified(k) => Some(k.value),
+            _ => None,
+        }
+    }
 }
 
 impl Parse for Key {
@@ -372,6 +450,9 @@ impl Parse for KeyIdent {
                 str_token,
                 (&str_with_quotes[1..str_with_quotes.len() - 1]).parse(),
             )
+        } else if next_match!(ts, TokenType::IntLit) {
+            let [int_token] = expect_tokens(ts, [TokenType::IntLit])?;
+            (int_token, int_token.bytes().parse())
         } else {
             let [ident_token] = expect_tokens(ts, [TokenType::Ident])?;
             (ident_token, ident_token.bytes().parse())

@@ -74,7 +74,7 @@ export const RecommendationsSidebar = ({
 
             {recommendations.length > 0 ? (
               <div className="space-y-3">
-                {recommendations.map((remapping, index) => {
+                {recommendations.map((remapping) => {
                   const isSelected = remapping.id === selectedRecommendationId
                   const baseClasses = 'backdrop-blur-sm rounded-lg p-3 cursor-pointer transition-all'
                   
