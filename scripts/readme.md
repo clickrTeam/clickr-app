@@ -1,5 +1,4 @@
 
-
 # validate_represented_keys.py
 
 Searches bimap and keys on keybinder + clickr to find mismatched keys.
