@@ -565,7 +565,11 @@ function MyMappings({ isAuthenticated, username }: MyMappingsProps): JSX.Element
         </CardContent>
 
         <CardFooter className="border-t pt-4 flex justify-end gap-2 px-4">
-          <Button variant="secondary" size="sm" onClick={() => navigate(`/mapping/${mapping.id}`)}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => navigate(`/mapping/${mapping.id}`, { state: { from: 'mappings' } })}
+          >
             Edit
           </Button>
           <Button

@@ -216,7 +216,7 @@ const Community = (): JSX.Element => {
                   <Button
                     size="sm"
                     className="flex items-center gap-1"
-                    onClick={() => navigate(`/mapping/${mapping.id}`)}
+                    onClick={() => navigate(`/mapping/${mapping.id}`, { state: { from: 'community' } })}
                   >
                     Details
                     <ArrowUpRight size={14} />
