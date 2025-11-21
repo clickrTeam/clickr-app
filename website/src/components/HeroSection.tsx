@@ -51,7 +51,7 @@ const HeroSection = () => {
               <Link to="/login">Login</Link>
             </Button>
             <Button size="lg" asChild>
-              <Link to="/get-started">Join the Waitlist!</Link>
+              <Link to="/about">Get started today!</Link>
             </Button>
           </motion.div>
         </motion.div>
