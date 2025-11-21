@@ -49,12 +49,12 @@ export type LLAppFocus = {
 
 export type LLMinimumWait = {
   type: 'minimum_wait'
-  value: number
+  duration: number
 }
 
 export type LLMaximumWait = {
   type: 'maximum_wait'
-  value: number
+  duration: number
 }
 
 export type LLBind = LLPressKey | LLReleaseKey | LLSwapLayer | LLWait | LLRunScript
@@ -76,7 +76,7 @@ export type LLSwapLayer = {
 
 export type LLWait = {
   type: 'wait'
-  value: number
+  duration: number
 }
 export type LLRunScript = {
   type: 'run_script'

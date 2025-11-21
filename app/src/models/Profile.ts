@@ -349,9 +349,9 @@ export class Profile {
   private linuxToWindows(old_value: string): string {
     let new_value = old_value
 
-    if (old_value === K.LinuxKey.SuperLeft) {
+    if (old_value === K.LinuxKey.LeftSuper) {
       new_value = K.WinKey.WinLeft
-    } else if (old_value === K.LinuxKey.SuperRight) {
+    } else if (old_value === K.LinuxKey.RightSuper) {
       new_value = K.WinKey.WinRight
     } else {
       log.info(`No translation needed for Linux key ${old_value} to Windows.`)
@@ -370,18 +370,18 @@ export class Profile {
     let new_value = old_value
 
     // Translate Linux-specific keys to macOS equivalents
-    if (old_value === K.LinuxKey.SuperLeft) {
+    if (old_value === K.LinuxKey.LeftSuper) {
       new_value = K.MacKey.CommandLeft
-    } else if (old_value === K.LinuxKey.SuperRight) {
+    } else if (old_value === K.LinuxKey.RightSuper) {
       new_value = K.MacKey.CommandRight
     }
     /// @todo This is a problem, because there are two Ctrl keys on Linux, but only one Control key on macOS.
     /// possible solutions include not allowing both Ctrl keys to be mapped in the UI (having them both be Ctrl), or mapping both to Control on macOS.
-    else if (old_value === K.LinuxKey.CtrlLeft || old_value === K.LinuxKey.CtrlRight) {
+    else if (old_value === K.LinuxKey.LeftControl || old_value === K.LinuxKey.RightControl) {
       new_value = K.MacKey.Control
-    } else if (old_value === K.LinuxKey.AltLeft) {
+    } else if (old_value === K.LinuxKey.LeftAlt) {
       new_value = K.MacKey.OptionLeft
-    } else if (old_value === K.LinuxKey.AltRight) {
+    } else if (old_value === K.LinuxKey.RightAlt) {
       new_value = K.MacKey.OptionRight
     } else {
       log.info(`No translation needed for Linux key ${old_value} to macOS.`)
@@ -400,9 +400,9 @@ export class Profile {
     let new_value = old_value
 
     if (old_value === K.WinKey.WinLeft) {
-      new_value = K.LinuxKey.SuperLeft
+      new_value = K.LinuxKey.LeftSuper
     } else if (old_value === K.WinKey.WinRight) {
-      new_value = K.LinuxKey.SuperRight
+      new_value = K.LinuxKey.RightSuper
     } else {
       log.info(`No translation needed for Windows key ${old_value} to Linux.`)
     }
@@ -427,11 +427,11 @@ export class Profile {
     }
     /// @todo This is a problem, because there are two Ctrl keys on Windows, but only one Control key on macOS.
     /// possible solutions include not allowing both Ctrl keys to be mapped in the UI (having them both be Ctrl), or mapping both to Control on macOS.
-    else if (old_value === K.WinKey.CtrlLeft || old_value === K.WinKey.CtrlRight) {
+    else if (old_value === K.WinKey.LeftControl || old_value === K.WinKey.RightControl) {
       new_value = K.MacKey.Control
-    } else if (old_value === K.WinKey.AltLeft) {
+    } else if (old_value === K.WinKey.LeftAlt) {
       new_value = K.MacKey.OptionLeft
-    } else if (old_value === K.WinKey.AltRight) {
+    } else if (old_value === K.WinKey.RightAlt) {
       new_value = K.MacKey.OptionRight
     } else {
       log.info(`No translation needed for Windows key ${old_value} to macOS.`)
@@ -451,16 +451,16 @@ export class Profile {
 
     // Translate macOS-specific keys to Windows equivalents
     if (old_value === K.MacKey.CommandLeft) {
-      new_value = K.LinuxKey.SuperLeft
+      new_value = K.LinuxKey.LeftSuper
     } else if (old_value === K.MacKey.CommandRight) {
-      new_value = K.LinuxKey.SuperRight
+      new_value = K.LinuxKey.RightSuper
     } else if (old_value === K.MacKey.Control) {
       /// @todo Since macOS only has one Control key, default to left Control on Windows. This is not a great solution.
-      new_value = K.LinuxKey.CtrlLeft
+      new_value = K.LinuxKey.LeftControl
     } else if (old_value === K.MacKey.OptionLeft) {
-      new_value = K.LinuxKey.AltLeft
+      new_value = K.LinuxKey.LeftAlt
     } else if (old_value === K.MacKey.OptionRight) {
-      new_value = K.LinuxKey.AltRight
+      new_value = K.LinuxKey.RightAlt
     } else {
       log.info(`No translation needed for macOS key ${old_value} to Windows.`)
     }
@@ -484,11 +484,11 @@ export class Profile {
       new_value = K.WinKey.WinRight
     } else if (old_value === K.MacKey.Control) {
       /// @todo Since macOS only has one Control key, default to left Control on Windows. This is not a great solution.
-      new_value = K.WinKey.CtrlLeft
+      new_value = K.WinKey.LeftControl
     } else if (old_value === K.MacKey.OptionLeft) {
-      new_value = K.WinKey.AltLeft
+      new_value = K.WinKey.LeftAlt
     } else if (old_value === K.MacKey.OptionRight) {
-      new_value = K.WinKey.AltRight
+      new_value = K.WinKey.RightAlt
     } else {
       log.info(`No translation needed for macOS key ${old_value} to Windows.`)
     }
@@ -595,22 +595,22 @@ export class Profile {
 
     const ctrl =
       this.OS === 'Windows'
-        ? K.WinKey.CtrlLeft
+        ? K.WinKey.LeftControl
         : this.OS === 'Linux'
-          ? K.LinuxKey.CtrlLeft
+          ? K.LinuxKey.LeftControl
           : this.OS === 'macOS'
             ? K.MacKey.CommandLeft
-            : K.WinKey.CtrlLeft
+            : K.WinKey.LeftControl
 
     const shift = K.Modifier.LeftShift
     const alt =
       this.OS === 'Windows'
-        ? K.WinKey.AltLeft
+        ? K.WinKey.LeftAlt
         : this.OS === 'Linux'
-          ? K.LinuxKey.AltLeft
+          ? K.LinuxKey.LeftAlt
           : this.OS === 'macOS'
             ? K.MacKey.OptionLeft
-            : K.WinKey.AltLeft
+            : K.WinKey.LeftAlt
 
     const prntscrn =
       this.OS === 'Windows'
@@ -948,15 +948,35 @@ export class Profile {
     return ll_bind
   }
 
+  // toLL(): LLProfile {
+  //   const copy_profile = Profile.fromJSON(this.toJSON(), false)
+  //   copy_profile.OS = this.OS
+  //   copy_profile.__iterateThroughBinds()
+  //   log.info('Profile ', this.profile_name, ' has been tranlated to lower level: ', copy_profile)
+  //   return {
+  //     profile_name: copy_profile.profile_name,
+  //     default_layer: 0,
+  //     layers: copy_profile.layers.map((l) => l.toLL())
+  //   }
+  // }
   toLL(): LLProfile {
     const copy_profile = Profile.fromJSON(this.toJSON(), false)
     copy_profile.OS = this.OS
     copy_profile.__iterateThroughBinds()
-    return {
+
+    const llProfile: LLProfile = {
       profile_name: copy_profile.profile_name,
       default_layer: 0,
       layers: copy_profile.layers.map((l) => l.toLL())
     }
+
+    // Log the entire lower-level profile in detail
+    log.info(
+      `Profile "${this.profile_name}" has been translated to lower level:\n`,
+      JSON.stringify(llProfile, null, 2)
+    )
+
+    return llProfile
   }
 }
 

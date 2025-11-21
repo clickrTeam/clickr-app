@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Cross-platform input remapper",
   "main": "./out/main/index.js",
-  "author": "TODO",
-  "homepage": "TODO",
+  "author": "Clickr Team",
+  "homepage": "www.keyclickr.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/clickrTeam/clickr-app.git"
