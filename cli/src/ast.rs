@@ -356,6 +356,7 @@ impl Parse for Bind {
         match ts.peek_type() {
             Some(TokenType::Ident)
             | Some(TokenType::StringLit)
+            | Some(TokenType::IntLit)
             | Some(TokenType::Caret)
             | Some(TokenType::Underscore) => Ok(Bind::Key(Key::parse_spanned(ts)?)),
             Some(TokenType::NoneKw) => {
