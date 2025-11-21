@@ -214,7 +214,8 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
           <p>
             To configure a trigger, first navigate to the Profile you want to edit, select edit,
             then click on the layer you want to modify. Click on the key you want to be your
-            Trigger, and then TODO: FINISH THIS WHEN DIFFERENT TRIGGER LOGIC IS IMPLEMENTED
+            Trigger, and then hit the + button. A menu will appear with different kinds of Triggers.
+            Select whichever one makes the most sense for you.
           </p>
         )
       }
