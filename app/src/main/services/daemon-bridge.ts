@@ -2,8 +2,7 @@ import * as net from 'net'
 import { Profile } from '../../models/Profile'
 
 // Path to the socket which is based on the OS
-const SOCKET_PATH =
-  process.platform === 'win32' ? `\\\\.\\pipe\\clickr` : '/tmp/clickr.sock'
+const SOCKET_PATH = process.platform === 'win32' ? `\\\\.\\pipe\\clickr` : '/tmp/clickr.sock'
 
 type DaemonReponse = {
   status: string
@@ -29,7 +28,7 @@ export function sendActiveProfile(profile: Profile): Promise<DaemonReponse> {
 export function sendSettings(settings: object): Promise<DaemonReponse> {
   return sendMessage({
     type: 'set_settings',
-    settings,
+    settings
   })
 }
 
@@ -61,7 +60,7 @@ function sendMessage(message: object): Promise<DaemonReponse> {
     let buffer = ''
 
     client.on('data', (data) => {
-      console.log(data);
+      console.log(data)
       buffer += data.toString()
 
       if (buffer.includes('\n')) {
@@ -82,5 +81,17 @@ function sendMessage(message: object): Promise<DaemonReponse> {
       console.log(err)
       reject(new Error(`Failed to connect to daemon: ${err.message}`))
     })
+  })
+}
+
+export function sendPause(): Promise<DaemonReponse> {
+  return sendMessage({
+    type: 'pause'
+  })
+}
+
+export function sendResume(): Promise<DaemonReponse> {
+  return sendMessage({
+    type: 'resume'
   })
 }

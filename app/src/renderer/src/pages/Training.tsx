@@ -34,7 +34,14 @@ function Training(): JSX.Element {
     }
   }, [location.state])
 
-  const startGame = (): void => {
+  const startGame = async (): Promise<void> => {
+    try {
+      const resp = await window.daemon.pause()
+      console.log('Pause response:', resp)
+    } catch (err) {
+      console.error('Failed to send pause:', err)
+    }
+
     navigate('/training/game', {
       state: {
         profile,
