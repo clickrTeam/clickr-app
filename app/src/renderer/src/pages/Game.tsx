@@ -99,22 +99,37 @@ function Game(): JSX.Element {
     if (score > highScore) setHighScore(score)
   }, [score, highScore])
 
-  const handleStop = (): void => {
+  const handleStop = async (): Promise<void> => {
     background_music.pause()
     background_music.currentTime = 0
     const finalHigh = Math.max(highScore, score)
     setMode('gameOver')
     setHighScore(finalHigh)
+
+    try {
+      await window.daemon.resume()
+      console.log('Resume sent after Stop')
+    } catch (err) {
+      log.error('Failed to send resume', err)
+    }
+
     navigate('/training', { state: { profile, layer_index, highScore: finalHigh, muteSound } })
   }
 
   const handleLoseLife = useCallback(
-    (remaining: number): void => {
+    async (remaining: number): Promise<void> => {
       setLives(remaining)
       if (remaining <= 0) {
         const finalHigh = Math.max(highScore, score)
         setHighScore(finalHigh)
         setGameOver(true)
+
+        try {
+          await window.daemon.resume()
+          console.log('Resume sent after Game Over')
+        } catch (err) {
+          log.error('Failed to send resume', err)
+        }
 
         if (!muteSound) {
           game_over_sound.currentTime = 0

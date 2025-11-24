@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
-type TopicKey = 'general' | 'profile' | 'layer' | 'trigger' | 'bind' | 'tips'
+type TopicKey = 'general' | 'profile' | 'layer' | 'trigger' | 'bind' | 'training' | 'tips'
 
 type HelpSection = {
   id: string
@@ -265,10 +265,6 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
                 Timed Macro: These are Macros with a time delay between each Bind. For example, you
                 could have a one second delay between 'Copy' and 'Paste'.
               </li>
-              <li>
-                Repeat: This will repeat a single Bind however many times you want with (or without)
-                a time delay between them.
-              </li>
             </ol>
           </>
         )
@@ -288,7 +284,45 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
       }
     ]
   },
-
+  training: {
+    title: 'Training',
+    sections: [
+      {
+        id: 'minigame',
+        heading: 'Training Minigame',
+        body: (
+          <p>
+            Within Clickr, we have included a small minigame to help you learn your new binds. After
+            changing what some keys on your keyboard do (and realizing that the labels on your
+            keycaps are no longer accurate), it is difficult to memorize what the function of each
+            key in your different layers may be. To aid in memorization, try out our game!
+          </p>
+        )
+      },
+      {
+        id: 'navigate-to-game',
+        heading: 'Navigating to the Game',
+        body: (
+          <>
+            <ol className="list-decimal ml-6">
+              <li>Go to the mappings page using the navbar on the top of the Clickr app</li>
+              <li>Click edit on the profile you want to practice</li>
+              <li>
+                Select the layer that you want to practice. The training minigame works on a single
+                layer so that you are able to learn quicker.
+              </li>
+              <li>Click on the Start Training button in the top right of the screen </li>
+              <li>
+                Select the difficulty you want using the slider, 1 is the easiest and 10 is the
+                hardest. Optionally, click the How to Play button for a detailed description of the
+                game.
+              </li>
+            </ol>
+          </>
+        )
+      }
+    ]
+  },
   tips: {
     title: 'Tips',
     sections: [
@@ -317,7 +351,7 @@ const helpTopics: Record<TopicKey, HelpTopic> = {
               translate these predefined shortcuts between different operating systems. In order to
               do this:
             </p>
-            <ol>
+            <ol className="list-decimal ml-6">
               <li>Navigate to the layer editing page.</li>
               <li>Select the key you want to assign to a shortcut.</li>
               <li>
@@ -339,6 +373,7 @@ const sidebarButtons: { key: TopicKey; label: string }[] = [
   { key: 'layer', label: 'Layer' },
   { key: 'trigger', label: 'Trigger' },
   { key: 'bind', label: 'Bind' },
+  { key: 'training', label: 'Training' },
   { key: 'tips', label: 'Tips' }
 ]
 
@@ -354,7 +389,7 @@ const Help: React.FC = () => {
   const topic = useMemo((): TopicKey => {
     const parts = location.pathname.split('/').filter(Boolean)
     const last = (parts[parts.length - 1] || '').toLowerCase()
-    return ['general', 'profile', 'layer', 'trigger', 'bind', 'tips'].includes(last)
+    return ['general', 'profile', 'layer', 'trigger', 'bind', 'training', 'tips'].includes(last)
       ? (last as TopicKey)
       : 'general'
   }, [location.pathname])

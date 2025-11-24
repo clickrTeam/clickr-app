@@ -16,12 +16,12 @@ export class ProfileController {
   public activeLayer?: Layer
   public profile?: Profile
   private editedProfileIndex?: number
-  private onUpSave?: ((profileController: ProfileController) => void)
+  private onUpSave?: (profileController: ProfileController) => void
 
   private _radialSelectedTriggerType: TriggerType | undefined
   get radialSelectedTriggerType(): TriggerType {
     if (!this._radialSelectedTriggerType) {
-      log.error("Trying to grab radialSelectedTriggerType without setting")
+      log.error('Trying to grab radialSelectedTriggerType without setting')
       return TriggerType.KeyPress
     }
     return this._radialSelectedTriggerType
@@ -55,7 +55,7 @@ export class ProfileController {
     if (!(binds instanceof Macro)) {
       binds = new Macro([binds])
     }
-    log.silly('Setting currentBinds:', binds);
+    log.silly('Setting currentBinds:', binds)
     this._currentBinds = binds
     if (this.currentTrigger && binds.binds.length > 0) {
       this.addBind()
@@ -93,7 +93,7 @@ export class ProfileController {
   }
 
   private notifyStateChange(): void {
-    this.stateChangeCallbacks.forEach(callback => {
+    this.stateChangeCallbacks.forEach((callback) => {
       try {
         callback(this._currentBinds, this._currentTrigger)
       } catch (err) {
@@ -103,7 +103,12 @@ export class ProfileController {
   }
 
   onSave(): void {
-    if (!this.profile || this.editedProfileIndex === undefined || !this.onUpSave || !this.editedProfileIndex) {
+    if (
+      !this.profile ||
+      this.editedProfileIndex === undefined ||
+      !this.onUpSave ||
+      !this.editedProfileIndex
+    ) {
       log.warn('ProfileController not properly initialized for saving. Aborting onSave.')
       return
     }
@@ -117,12 +122,10 @@ export class ProfileController {
     if (!this.currentTrigger) {
       log.warn('No trigger provided to addBind. Aborting.')
       return
-    }
-    else if ((this.currentTrigger as { value?: string }).value === 'UNDEFINED') {
+    } else if ((this.currentTrigger as { value?: string }).value === 'UNDEFINED') {
       log.warn('Current trigger is UNDEFINED. Aborting addBind:', this.currentTrigger)
       return
-    }
-    else if (this.currentBinds.binds.length === 0) {
+    } else if (this.currentBinds.binds.length === 0) {
       log.warn('No binds provided to addBind. Aborting.')
       return
     }
@@ -187,7 +190,10 @@ export class ProfileController {
     this.activeLayer = this.profile!.layers[index]
   }
 
-  setSelectedKey(selectedKey: string | null, trigger_type: TriggerType = TriggerType.KeyPress): void {
+  setSelectedKey(
+    selectedKey: string | null,
+    trigger_type: TriggerType = TriggerType.KeyPress
+  ): void {
     if (trigger_type === TriggerType.AppFocused) return
     if (trigger_type === TriggerType.TapSequence) return
     log.debug('Setting selected key:', selectedKey)
@@ -219,7 +225,7 @@ export class ProfileController {
       log.debug('No trigger found for selected key, creating new KeyPress trigger.')
       const newTrigger = createTrigger(trigger_type, selectedKey)
       if (!newTrigger) {
-        log.warn("Profile controller failed to create trigger.")
+        log.warn('Profile controller failed to create trigger.')
         return
       }
       this._currentTrigger = newTrigger
@@ -263,6 +269,7 @@ export class ProfileController {
     log.debug('Layer name set to:', value)
     this.onSave()
   }
+
 }
 
 const profileController = new ProfileController()

@@ -1,6 +1,7 @@
 import { spawn, exec } from 'child_process'
 import { ipcMain } from 'electron'
 import { platform } from 'os'
+import { sendPause, sendResume } from './daemon-bridge'
 import path from 'path'
 import log from 'electron-log'
 
@@ -17,6 +18,14 @@ export function registerDeamonManagerHandlers(): void {
   ipcMain.handle('stop-keybinder', async () => {
     await stopKeybinder()
     return true
+  })
+
+  ipcMain.handle('daemon:pause', async () => {
+    return await sendPause()
+  })
+
+  ipcMain.handle('daemon:resume', async () => {
+    return await sendResume()
   })
 }
 

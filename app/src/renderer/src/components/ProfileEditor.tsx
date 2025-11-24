@@ -188,7 +188,10 @@ export const ProfileEditor = ({
             onClick={() => {
               const latest = profileController.getProfile()
               navigate('/training', {
-                state: { profile: latest, layer_index: selectedLayerIndex }
+                state: {
+                  profile: latest,
+                  layer_index: selectedLayerIndex
+                }
               })
             }}
           >
@@ -235,8 +238,8 @@ export const ProfileEditor = ({
                     autoFocus
                     defaultValue={profileController.activeLayer!.layer_name}
                     onChange={(e) => {
-                      profileController.setLayerName(e.target.value);
-                      setLocalProfile(Profile.fromJSON(profileController.getProfile().toJSON()));
+                      profileController.setLayerName(e.target.value)
+                      setLocalProfile(Profile.fromJSON(profileController.getProfile().toJSON()))
                     }}
                     className="w-48"
                   />
