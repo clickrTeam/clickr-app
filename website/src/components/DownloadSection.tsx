@@ -6,7 +6,7 @@ import { FaApple, FaWindows, FaLinux, FaGitlab } from "react-icons/fa6";
 // Download file names and base URL (matching Navbar component)
 const WIN_DOWNLOAD: string = "clickr-windows.exe";
 const MAC_DOWNLOAD: string = "clickr-macos.dmg";
-const LINUX_DOWNLOAD: string = "clickr.run";
+const LINUX_DOWNLOAD: string = "clickr.tar.gz";
 const BASE_URL: string = "https://pub-88623f5677af473299bdb0e0cb10017e.r2.dev";
 
 const DownloadSection = () => {
