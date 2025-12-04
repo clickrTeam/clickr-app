@@ -39,11 +39,11 @@ Can test server side output by running the .exe through a cmd line.
 
 
 ### Logging
-Logs are currently stored in the current locations:  
+Logs are currently stored in the current locations:
 On Linux: ~/.config/clickr/logs/main.log
 On Windows: %USERPROFILE%\AppData\Roaming clickr\logs\main.log
 On macOS: ~/Library/Application Support/clickr/logs/main.log
 
 ### Testing
-All test files should be in the /tests/ directory and MUST be named with the following convention "name.test.ts" 
+All test files should be in the /tests/ directory and MUST be named with the following convention "name.test.ts"
 Run the tests with the command "npx jest"
