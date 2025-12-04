@@ -68,7 +68,38 @@ export enum Misc {
   CapsLock = 'CapsLock',
   NumLock = 'NumLock',
   ScrollLock = 'ScrollLock',
-  Pause = 'Pause'
+  Pause = 'Pause',
+
+
+  // Media Keys
+  VolumeUp = 'VolumeUp',
+  VolumeDown = 'VolumeDown',
+  Mute = 'Mute',
+
+  MediaNext = 'MediaNext',
+  MediaPrev = 'MediaPrev',
+  MediaPlayPause = 'MediaPlayPause',
+  MediaStop = 'MediaStop',
+
+  BrowserBack = 'BrowserBack',
+  BrowserForward = 'BrowserForward',
+  BrowserRefresh = 'BrowserRefresh',
+  BrowserStop = 'BrowserStop',
+  BrowserHome = 'BrowserHome',
+  BrowserSearch = 'BrowserSearch',
+  BrowserFavorites = 'BrowserFavorites',
+
+  Mail = 'Mail',
+  Calculator = 'Calculator',
+  Computer = 'Computer',
+
+  Hiragana = 'Hiragana',
+  Katakana = 'Katakana',
+  Muhenkan = 'Muhenkan',
+  Henkan = 'Henkan',
+
+  Sleep = 'Sleep',
+  Power = 'Power'
 }
 
 export enum Function {
