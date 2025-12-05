@@ -134,3 +134,4 @@ export const stopKeybinder = (): void => {
     log.error('Unsupported platform for stopping keybinder.')
   }
 }
+
