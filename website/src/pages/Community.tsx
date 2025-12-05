@@ -242,7 +242,7 @@ const Community = () => {
 
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="default"
                     className="flex items-center gap-1"
                     onClick={() => navigate(`/community/mapping/${mapping.id}`)}
                   >
