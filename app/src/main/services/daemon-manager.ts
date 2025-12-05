@@ -48,7 +48,7 @@ export const isKeybinderRunning = (): Promise<unknown> => {
     })
   } else if (current_platform === 'darwin' || current_platform === 'linux') {
     log.info(`Checking if keybinder is running on ${current_platform}...`)
-    command = `pgrep -x keybinder`
+    command = `pgrep -f keybinder`
     return new Promise((resolve) => {
       exec(command, (error, stdout) => {
         if (error) {
