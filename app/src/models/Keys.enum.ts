@@ -245,8 +245,7 @@ export enum WinKey {
   Calculator = 'Calculator',
   Computer = 'Computer',
 
-  Sleep = 'Sleep',
-  Power = 'Power'
+  Sleep = 'Sleep'
 }
 
 export enum LinuxKey {
