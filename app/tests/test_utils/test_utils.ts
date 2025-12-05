@@ -94,10 +94,9 @@ export function generateWindowsProfile(): Profile {
   win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.OEM5), new B.TapKey(Letters.E))
   win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.OEM6), new B.TapKey(Letters.F))
   win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.OEM7), new B.TapKey(Letters.G))
-  win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.BrowserBack), new B.TapKey(Letters.H))
-  win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.BrowserForward), new B.TapKey(Letters.I))
+  win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.Back), new B.TapKey(Letters.H))
+  win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.Forward), new B.TapKey(Letters.I))
   win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.BrowserRefresh), new B.TapKey(Letters.J))
-  win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.BrowserStop), new B.TapKey(Letters.K))
   win_profile.layers[0].addRemapping(new T.KeyPress(WinKey.BrowserSearch), new B.TapKey(Letters.L))
   win_profile.layers[0].addRemapping(
     new T.KeyPress(WinKey.BrowserFavorites),

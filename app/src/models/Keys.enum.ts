@@ -75,31 +75,6 @@ export enum Misc {
   VolumeUp = 'VolumeUp',
   VolumeDown = 'VolumeDown',
   Mute = 'Mute',
-
-  MediaNext = 'MediaNext',
-  MediaPrev = 'MediaPrev',
-  MediaPlayPause = 'MediaPlayPause',
-  MediaStop = 'MediaStop',
-
-  BrowserBack = 'BrowserBack',
-  BrowserForward = 'BrowserForward',
-  BrowserRefresh = 'BrowserRefresh',
-  BrowserStop = 'BrowserStop',
-  BrowserHome = 'BrowserHome',
-  BrowserSearch = 'BrowserSearch',
-  BrowserFavorites = 'BrowserFavorites',
-
-  Mail = 'Mail',
-  Calculator = 'Calculator',
-  Computer = 'Computer',
-
-  Hiragana = 'Hiragana',
-  Katakana = 'Katakana',
-  Muhenkan = 'Muhenkan',
-  Henkan = 'Henkan',
-
-  Sleep = 'Sleep',
-  Power = 'Power'
 }
 
 export enum Function {
@@ -250,15 +225,28 @@ export enum WinKey {
   OEM5 = 'OEM5',
   OEM6 = 'OEM6',
   OEM7 = 'OEM7',
-  BrowserBack = 'BrowserBack',
-  BrowserForward = 'BrowserForward',
-  BrowserRefresh = 'BrowserRefresh',
-  BrowserStop = 'BrowserStop',
-  BrowserSearch = 'BrowserSearch',
-  BrowserFavorites = 'BrowserFavorites',
   LaunchMail = 'LaunchMail',
   LaunchApp1 = 'LaunchApp1',
-  LaunchApp2 = 'LaunchApp2'
+  LaunchApp2 = 'LaunchApp2',
+
+  MediaNext = 'MediaNext',
+  MediaPrev = 'MediaPrev',
+  MediaPlayPause = 'MediaPlayPause',
+  MediaStop = 'MediaStop',
+
+  Back = 'BrowserBack',
+  Forward = 'BrowserForward',
+  BrowserRefresh = 'BrowserRefresh',
+  BrowserHome = 'BrowserHome',
+  BrowserSearch = 'BrowserSearch',
+  BrowserFavorites = 'BrowserFavorites',
+
+  Mail = 'Mail',
+  Calculator = 'Calculator',
+  Computer = 'Computer',
+
+  Sleep = 'Sleep',
+  Power = 'Power'
 }
 
 export enum LinuxKey {
@@ -270,6 +258,30 @@ export enum LinuxKey {
   AltRight = 'AltRight',
   Compose = 'Compose',
   SysReq = 'SysReq',
+
+  MediaNext = 'MediaNext',
+  MediaPrev = 'MediaPrev',
+  MediaPlayPause = 'MediaPlayPause',
+  MediaStop = 'MediaStop',
+
+  Back = 'BrowserBack',
+  Forward = 'BrowserForward',
+  BrowserRefresh = 'BrowserRefresh',
+  BrowserHome = 'BrowserHome',
+  BrowserSearch = 'BrowserSearch',
+  BrowserFavorites = 'BrowserFavorites',
+
+  Mail = 'Mail',
+  Calculator = 'Calculator',
+
+  Hiragana = 'Hiragana',
+  Katakana = 'Katakana',
+  Muhenkan = 'Muhenkan',
+  Henkan = 'Henkan',
+
+  Sleep = 'Sleep',
+  Power = 'Power',
+
   // Common X11 extras
   XF86AudioPlay = 'XF86AudioPlay',
   XF86AudioNext = 'XF86AudioNext',
