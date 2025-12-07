@@ -31,7 +31,11 @@ export class ProfileController {
     this._radialSelectedTriggerType = trigger_type
   }
 
-  setup(_profile: Profile, _editedProfileIndex: number, _onUpSave: (profileController: ProfileController) => void) {
+  setup(
+    _profile: Profile,
+    _editedProfileIndex: number,
+    _onUpSave: (profileController: ProfileController) => void
+  ) {
     if (this.profile?.profile_name == _profile.profile_name) {
       log.debug('ProfileControler already has this profile loaded ignoring.')
       return
@@ -251,21 +255,22 @@ export class ProfileController {
 
   getMappings(selectedKey: string | null): [Trigger, Bind][] {
     if (!selectedKey) return []
-    return Array.from(this.activeLayer!.remappings.entries())
-      .filter(([trigger, _bind]) => {
+    return (
+      Array.from(this.activeLayer!.remappings.entries()).filter(([trigger, _bind]) => {
         const triggerKey = (trigger as { value?: string }).value
         return typeof triggerKey === 'string' && triggerKey === selectedKey
       }) ?? []
+    )
   }
 
-  changeTrigger(newTrigger: Trigger) {
+  changeTrigger(newTrigger: Trigger): void {
     log.debug('Changing trigger to:', newTrigger, 'with binds:', this._currentBinds)
 
     this.activeLayer!.deleteRemapping(this.currentTrigger)
     this.currentTrigger = newTrigger
   }
 
-  setLayerName(value: string) {
+  setLayerName(value: string): void {
     this.activeLayer!.layer_name = value
     log.debug('Layer name set to:', value)
     this.onSave()
@@ -301,35 +306,42 @@ export class ProfileController {
              */
             const desired_remapping = innerBind.value
             const shifted_hold_trig = new Hold(trigger.value, time_ms)
-            const autoshift_bind = new Macro([new PressKey(K.Modifier.LeftShift),
-                                              new PressKey(desired_remapping),
-                                              new ReleaseKey(K.Modifier.LeftShift),
-                                              new ReleaseKey(desired_remapping)])
+            const autoshift_bind = new Macro([
+              new PressKey(K.Modifier.LeftShift),
+              new PressKey(desired_remapping),
+              new ReleaseKey(K.Modifier.LeftShift),
+              new ReleaseKey(desired_remapping)
+            ])
             const index = autoshift_applicable_keys.indexOf(desired_remapping)
-            log.info(`Found remapping from ${trigger.value} to ${innerBind.value}. Applying autoshift to be ${K.Modifier.LeftShift} + ${innerBind.value}.`)
-        
+            log.info(
+              `Found remapping from ${trigger.value} to ${innerBind.value}. Applying autoshift to be ${K.Modifier.LeftShift} + ${innerBind.value}.`
+            )
+
             if (index !== -1) {
               keys_to_autoshift.splice(index, 1)
               this.activeLayer?.addRemapping(shifted_hold_trig, autoshift_bind)
-            }
-            else {
-              log.info(`Tried to remove ${desired_remapping} from keys_to_autoshift array, but the value was not found in the array.`)
+            } else {
+              log.info(
+                `Tried to remove ${desired_remapping} from keys_to_autoshift array, but the value was not found in the array.`
+              )
             }
           }
         }
       }
     })
 
-    for(const value of keys_to_autoshift) {
+    for (const value of keys_to_autoshift) {
       const hold_trig = new Hold(value, time_ms)
-      const bind = new Macro([new PressKey(K.Modifier.LeftShift),
-                                              new PressKey(value),
-                                              new ReleaseKey(K.Modifier.LeftShift),
-                                              new ReleaseKey(value)])
-        this.activeLayer?.addRemapping(hold_trig, bind)
-        log.info(`Autoshift added remapping for ${value} to ${K.Modifier.LeftShift} + ${value}`)
+      const bind = new Macro([
+        new PressKey(K.Modifier.LeftShift),
+        new PressKey(value),
+        new ReleaseKey(K.Modifier.LeftShift),
+        new ReleaseKey(value)
+      ])
+      this.activeLayer?.addRemapping(hold_trig, bind)
+      log.info(`Autoshift added remapping for ${value} to ${K.Modifier.LeftShift} + ${value}`)
     }
   }
-
+}
 const profileController = new ProfileController()
 export default profileController
