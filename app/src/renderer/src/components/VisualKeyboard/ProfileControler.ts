@@ -1,8 +1,9 @@
 import log from 'electron-log'
-import { Bind, Macro } from '../../../../models/Bind'
+import { Bind, Macro, PressKey, ReleaseKey } from '../../../../models/Bind'
 import { Layer } from '../../../../models/Layer'
 import { Profile } from '../../../../models/Profile'
-import { Trigger, KeyPress, createTrigger, TriggerType } from '../../../../models/Trigger'
+import { Trigger, KeyPress, createTrigger, TriggerType, Hold } from '../../../../models/Trigger'
+import * as K from '../../../../models/Keys.enum'
 
 export type ProfileStateChangeCallback = (binds: Macro, trigger: Trigger) => void
 
@@ -270,7 +271,65 @@ export class ProfileController {
     this.onSave()
   }
 
-}
+  /**
+   * Enables autoshift on a layer such that when you hold a letter or a number
+   * the shifted version of it is passed to keybinder
+   * @param time_ms The number of milliseconds before the hold trigger is activated
+   */
+  enableAutoshiftOnLayer(time_ms: number): void {
+    log.info(`Setting autoshift on layer ${this.activeLayer?.layer_name}`)
+    const autoshift_applicable_keys = [Object.values(K.Letters), Object.values(K.Digits)].flat()
+    const keys_to_autoshift = structuredClone(autoshift_applicable_keys)
+
+    this.activeLayer?.remappings.forEach((bind, trigger) => {
+      log.info('Autoshift: considering bind', bind, 'and trigger', trigger)
+      if ('binds' in bind && Array.isArray(bind.binds) && bind.binds.length > 0) {
+        if (bind.binds.length === 1) {
+          const innerBind = bind.binds[0]
+          log.info('Enable Autoshift: unwrapped bind to inner bind', innerBind)
+          if (
+            'value' in innerBind &&
+            typeof innerBind.value === 'string' &&
+            'value' in trigger &&
+            typeof trigger.value === 'string' &&
+            autoshift_applicable_keys.includes(innerBind.value)
+          ) {
+            /**
+             * There is already a remapping on this layer that remaps one
+             * key to another (for example a -> b).
+             * We want to have the autoshift apply shift + b not shift + a in this case
+             */
+            const desired_remapping = innerBind.value
+            const shifted_hold_trig = new Hold(trigger.value, time_ms)
+            const autoshift_bind = new Macro([new PressKey(K.Modifier.LeftShift),
+                                              new PressKey(desired_remapping),
+                                              new ReleaseKey(K.Modifier.LeftShift),
+                                              new ReleaseKey(desired_remapping)])
+            const index = autoshift_applicable_keys.indexOf(desired_remapping)
+            log.info(`Found remapping from ${trigger.value} to ${innerBind.value}. Applying autoshift to be ${K.Modifier.LeftShift} + ${innerBind.value}.`)
+        
+            if (index !== -1) {
+              keys_to_autoshift.splice(index, 1)
+              this.activeLayer?.addRemapping(shifted_hold_trig, autoshift_bind)
+            }
+            else {
+              log.info(`Tried to remove ${desired_remapping} from keys_to_autoshift array, but the value was not found in the array.`)
+            }
+          }
+        }
+      }
+    })
+
+    for(const value of keys_to_autoshift) {
+      const hold_trig = new Hold(value, time_ms)
+      const bind = new Macro([new PressKey(K.Modifier.LeftShift),
+                                              new PressKey(value),
+                                              new ReleaseKey(K.Modifier.LeftShift),
+                                              new ReleaseKey(value)])
+        this.activeLayer?.addRemapping(hold_trig, bind)
+        log.info(`Autoshift added remapping for ${value} to ${K.Modifier.LeftShift} + ${value}`)
+    }
+  }
 
 const profileController = new ProfileController()
 export default profileController
