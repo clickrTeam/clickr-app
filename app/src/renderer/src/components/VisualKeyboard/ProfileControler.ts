@@ -1,5 +1,5 @@
 import log from 'electron-log'
-import { Bind, Macro, PressKey, ReleaseKey } from '../../../../models/Bind'
+import { Bind, Macro, PressKey, ReleaseKey, BindType } from '../../../../models/Bind'
 import { Layer } from '../../../../models/Layer'
 import { Profile } from '../../../../models/Profile'
 import { Trigger, KeyPress, createTrigger, TriggerType, Hold } from '../../../../models/Trigger'
@@ -283,7 +283,10 @@ export class ProfileController {
    */
   enableAutoshiftOnLayer(time_ms: number): void {
     log.info(`Setting autoshift on layer ${this.activeLayer?.layer_name}`)
-    const autoshift_applicable_keys = [Object.values(K.Letters), Object.values(K.Digits)].flat()
+    const autoshift_applicable_keys: string[] = [
+      Object.values(K.Letters),
+      Object.values(K.Digits)
+    ].flat()
     const keys_to_autoshift = structuredClone(autoshift_applicable_keys)
 
     this.activeLayer?.remappings.forEach((bind, trigger) => {
@@ -341,6 +344,47 @@ export class ProfileController {
       this.activeLayer?.addRemapping(hold_trig, bind)
       log.info(`Autoshift added remapping for ${value} to ${K.Modifier.LeftShift} + ${value}`)
     }
+    this.onSave()
+  }
+
+  /**
+   * Disables autoshift on the current layer. This function makes some assumptions.
+   * It will remove all hold triggers on a layer that correspond with a bind of shift + value.
+   * There may be some unexpected changes for some user's configurations.
+   */
+  disableAutoShift(): void {
+    log.info(`Removing autoshift on layer ${this.activeLayer?.layer_name}`)
+    const autoshift_applicable_keys: string[] = [
+      Object.values(K.Letters),
+      Object.values(K.Digits)
+    ].flat()
+
+    this.activeLayer?.remappings.forEach((bind, trigger) => {
+      log.info('Autoshift removal: considering bind', bind, 'and trigger', trigger)
+      if ('binds' in bind && Array.isArray(bind.binds) && bind.binds.length > 0) {
+        // shift down + key down + shift up + key up
+        if (bind.binds.length === 4 && trigger.trigger_type === TriggerType.Hold) {
+          const hold_trig = trigger as Hold
+          const is_autoshift_trig = autoshift_applicable_keys.includes(hold_trig.value)
+          const is_autoshift_bind =
+            bind.binds[0].bind_type === BindType.PressKey &&
+            bind.binds[1].bind_type === BindType.PressKey &&
+            autoshift_applicable_keys.includes(bind.binds[1].value) &&
+            bind.binds[2].bind_type === BindType.ReleaseKey &&
+            bind.binds[3].bind_type === BindType.ReleaseKey &&
+            autoshift_applicable_keys.includes(bind.binds[3].value)
+          if (is_autoshift_trig && is_autoshift_bind) {
+            const autoshift_removed = this.activeLayer?.deleteRemapping(trigger)
+            log.info(
+              autoshift_removed
+                ? `Autoshift bind was sucessfully removed.`
+                : `Autoshift bind was not sucessfully removed.`
+            )
+          }
+        }
+      }
+    })
+    this.onSave()
   }
 }
 const profileController = new ProfileController()
