@@ -298,6 +298,7 @@ export function generateSmallShortcutProfileMac(): Profile {
   return profile
 }
 
+export const AUTOSHIFT_DELAY = 150
 export function generateColemakProfile(): Profile {
   const profile = new Profile('Colemak')
   profile.OS = 'Linux'
