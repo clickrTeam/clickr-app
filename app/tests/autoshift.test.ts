@@ -336,9 +336,9 @@ describe('Autoshift on Colemak', () => {
     expect(profile.layers[0].getRemapping(new T.Hold(K.Letters.Y, AUTOSHIFT_DELAY))).toEqual(
       new B.Macro([
         new B.PressKey(K.Modifier.LeftShift),
-        new B.PressKey(K.Letters.Y),
+        new B.PressKey(K.Letters.J),
         new B.ReleaseKey(K.Modifier.LeftShift),
-        new B.ReleaseKey(K.Letters.Y)
+        new B.ReleaseKey(K.Letters.J)
       ])
     )
 
@@ -351,5 +351,17 @@ describe('Autoshift on Colemak', () => {
         new B.ReleaseKey(K.Letters.Z)
       ])
     )
+  })
+
+  test('Disable Autoshift', () => {
+    const profile = generateColemakProfile()
+    profileController.profile = profile
+    profileController.activeLayer = profile.layers[0]
+    profileController.enableAutoshiftOnLayer(AUTOSHIFT_DELAY)
+    profileController.disableAutoShift()
+
+    profileController.activeLayer.remappings.forEach((bind, trigger) => {
+      expect(trigger.trigger_type).not.toBe(T.TriggerType.Hold)
+    })
   })
 })

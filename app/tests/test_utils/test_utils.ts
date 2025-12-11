@@ -304,26 +304,32 @@ export function generateColemakProfile(): Profile {
   profile.OS = 'Linux'
 
   // QWERTY → Colemak remappings
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.E), new B.TapKey(Letters.F))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.R), new B.TapKey(Letters.P))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.T), new B.TapKey(Letters.G))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.Y), new B.TapKey(Letters.J))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.U), new B.TapKey(Letters.L))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.I), new B.TapKey(Letters.U))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.O), new B.TapKey(Letters.Y))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.P), new B.TapKey(KeyedSymbols.Semicolon))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.E), new B.Macro([new B.TapKey(Letters.F)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.R), new B.Macro([new B.TapKey(Letters.P)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.T), new B.Macro([new B.TapKey(Letters.G)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.Y), new B.Macro([new B.TapKey(Letters.J)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.U), new B.Macro([new B.TapKey(Letters.L)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.I), new B.Macro([new B.TapKey(Letters.U)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.O), new B.Macro([new B.TapKey(Letters.Y)]))
+  profile.layers[0].addRemapping(
+    new T.KeyPress(Letters.P),
+    new B.Macro([new B.TapKey(KeyedSymbols.Semicolon)])
+  )
 
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.S), new B.TapKey(Letters.R))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.D), new B.TapKey(Letters.S))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.F), new B.TapKey(Letters.T))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.G), new B.TapKey(Letters.D))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.S), new B.Macro([new B.TapKey(Letters.R)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.D), new B.Macro([new B.TapKey(Letters.S)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.F), new B.Macro([new B.TapKey(Letters.T)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.G), new B.Macro([new B.TapKey(Letters.D)]))
 
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.J), new B.TapKey(Letters.N))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.K), new B.TapKey(Letters.E))
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.L), new B.TapKey(Letters.I))
-  profile.layers[0].addRemapping(new T.KeyPress(KeyedSymbols.Semicolon), new B.TapKey(Letters.O))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.J), new B.Macro([new B.TapKey(Letters.N)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.K), new B.Macro([new B.TapKey(Letters.E)]))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.L), new B.Macro([new B.TapKey(Letters.I)]))
+  profile.layers[0].addRemapping(
+    new T.KeyPress(KeyedSymbols.Semicolon),
+    new B.Macro([new B.TapKey(Letters.O)])
+  )
 
-  profile.layers[0].addRemapping(new T.KeyPress(Letters.N), new B.TapKey(Letters.K))
+  profile.layers[0].addRemapping(new T.KeyPress(Letters.N), new B.Macro([new B.TapKey(Letters.K)]))
 
   return profile
 }

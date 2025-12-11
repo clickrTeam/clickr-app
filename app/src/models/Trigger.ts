@@ -267,34 +267,34 @@ export class TapSequence extends Trigger {
   }
 
   toLL(): LLBasicTrigger | { triggers: LLAdvancedTrigger[]; behavior: LLBehavior } {
-    const triggers: LLAdvancedTrigger[] = [];
+    const triggers: LLAdvancedTrigger[] = []
 
-    const pairs = Array.from(this.key_time_pairs);
+    const pairs = Array.from(this.key_time_pairs)
     pairs.forEach(([key, time], index) => {
       triggers.push({
         type: 'key_press',
         value: key
-      });
+      })
       triggers.push({
         type: 'maximum_wait',
         duration: time
-      });
+      })
       triggers.push({
         type: 'key_release',
         value: key
-      });
+      })
       if (index !== pairs.length - 1) {
         triggers.push({
           type: 'maximum_wait',
           duration: time
-        });
+        })
       }
-    });
+    })
 
     return {
       behavior: this.behavior,
       triggers
-    };
+    }
   }
 }
 

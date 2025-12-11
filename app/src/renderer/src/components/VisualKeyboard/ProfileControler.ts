@@ -285,7 +285,8 @@ export class ProfileController {
     log.info(`Setting autoshift on layer ${this.activeLayer?.layer_name}`)
     const autoshift_applicable_keys: string[] = [
       Object.values(K.Letters),
-      Object.values(K.Digits)
+      Object.values(K.Digits),
+      Object.values(K.KeyedSymbols)
     ].flat()
     const keys_to_autoshift = structuredClone(autoshift_applicable_keys)
 
@@ -315,7 +316,7 @@ export class ProfileController {
               new ReleaseKey(K.Modifier.LeftShift),
               new ReleaseKey(desired_remapping)
             ])
-            const index = autoshift_applicable_keys.indexOf(desired_remapping)
+            const index = keys_to_autoshift.indexOf(desired_remapping)
             log.info(
               `Found remapping from ${trigger.value} to ${innerBind.value}. Applying autoshift to be ${K.Modifier.LeftShift} + ${innerBind.value}.`
             )
@@ -356,7 +357,8 @@ export class ProfileController {
     log.info(`Removing autoshift on layer ${this.activeLayer?.layer_name}`)
     const autoshift_applicable_keys: string[] = [
       Object.values(K.Letters),
-      Object.values(K.Digits)
+      Object.values(K.Digits),
+      Object.values(K.KeyedSymbols)
     ].flat()
 
     this.activeLayer?.remappings.forEach((bind, trigger) => {
