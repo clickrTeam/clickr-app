@@ -1,5 +1,5 @@
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select'
-import { keys } from '../../../models/Keys.enum'
+import { ALL_KEYS } from '../../../models/Keys.enum'
 
 /**
  * Props for KeySelecter:
@@ -18,7 +18,7 @@ export default function KeySelecter({ selectedKey, onSelect }: KeySelecterProps)
         <SelectValue placeholder="Select key" />
       </SelectTrigger>
       <SelectContent>
-        {keys.map((key) => (
+        {ALL_KEYS.map((key) => (
           <SelectItem key={key} value={key}>
             {key}
           </SelectItem>

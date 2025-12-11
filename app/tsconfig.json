@@ -34,7 +34,7 @@
   },
   "include": [
     "src/**/*" // Include all files in the src directory
-  ],
+, "tests/profile.test.ts"  ],
   "exclude": [
     "node_modules", // Exclude node_modules directory from the compilation
     "dist" // Exclude dist directory from the compilation

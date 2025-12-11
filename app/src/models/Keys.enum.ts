@@ -349,7 +349,7 @@ if (current_os === 'macOS') {
   log.warn('Unsupported OS for specific key mappings')
 }
 
-export const keys: string[] = [
+export const ALL_KEYS: string[] = [
   Object.values(Letters),
   Object.values(Digits),
   Object.values(Modifier),
@@ -358,9 +358,24 @@ export const keys: string[] = [
   Object.values(Misc),
   Object.values(Function),
   Object.values(Navigation),
-  Object.values(Modifier),
   os_keys
 ].flat()
+
+export const COMBINDED = {
+  ...Letters,
+  ...Digits,
+  ...Modifier,
+  ...KeyedSymbols,
+  ...Numpad,
+  ...Misc,
+  ...Function,
+  ...Navigation,
+  ...MacKey,
+  ...WinKey,
+  ...LinuxKey
+}
+
+export type Keycodes = (typeof COMBINDED)[keyof typeof COMBINDED];
 
 /**
  * Maps enum values to the actual KeyboardEvent.key string
