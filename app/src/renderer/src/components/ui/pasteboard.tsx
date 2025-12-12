@@ -1,4 +1,12 @@
 import React from 'react'
+import { Button } from './button'
+
+/// # Example usage:
+// <PasteToClipboard text={JSON.stringify(profileController.activeLayer!.toJSON())} />
+// <PasteFromClipboard onPaste={(text: string) => {
+//   log.debug("Pasting from clipboard: ", text)
+//   profileController.importFromString(text)
+// }} />
 
 interface PasteToClipboardProps {
   text: string
@@ -17,9 +25,9 @@ export const PasteToClipboard: React.FC<PasteToClipboardProps> = ({ text, childr
   }
 
   return (
-    <button onClick={handleClick}>
+    <Button onClick={handleClick}>
       {children}
-    </button>
+    </Button>
   )
 }
 
@@ -39,8 +47,8 @@ export const PasteFromClipboard: React.FC<PasteFromClipboardProps> = ({ onPaste,
   }
 
   return (
-    <button onClick={handleClick}>
+    <Button onClick={handleClick}>
       {children}
-    </button>
+    </Button>
   )
 }

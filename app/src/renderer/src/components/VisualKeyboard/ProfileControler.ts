@@ -46,6 +46,10 @@ export class ProfileController {
     }
   }
 
+  importFromString(text: string) {
+    throw new Error('Method not implemented.')
+  }
+
   get currentBinds(): Macro {
     return this._currentBinds
   }
