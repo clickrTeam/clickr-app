@@ -35,6 +35,9 @@ export const ProfileEditor = ({
   const [recommendations, setRecommendations] = useState<SuggestedRemapping[]>([])
   const [selectedRecommendationId, setSelectedRecommendationId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
+  const [autoshiftEnabledMap, setAutoshiftEnabledMap] = useState<Record<number, boolean>>({})
+  const [isAutoshiftModalOpen, setIsAutoshiftModalOpen] = useState(false)
+  const [autoshiftDelay, setAutoshiftDelay] = useState(150)
 
   // Load recommendations from main process storage on mount
   useEffect(() => {
@@ -96,7 +99,7 @@ export const ProfileEditor = ({
     }
 
     document.addEventListener('mousedown', handleClickOutside)
-    return () => {
+    return (): void => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [isDeleteConfirming])
@@ -252,6 +255,33 @@ export const ProfileEditor = ({
                   Edit Layer Name
                 </Button>
               )}
+
+              {/* Autoshift toggle button */}
+              <Button
+                size="sm"
+                className="ml-2"
+                title={
+                  autoshiftEnabledMap[selectedLayerIndex]
+                    ? 'Removes all Autoshift Hold Triggers'
+                    : 'Enabling Autoshift allows you to hold down your keys for Shift + Key'
+                }
+                onClick={() => {
+                  if (autoshiftEnabledMap[selectedLayerIndex]) {
+                    // Disable autoshift
+                    profileController.disableAutoShift()
+                    setAutoshiftEnabledMap((prev) => ({
+                      ...prev,
+                      [selectedLayerIndex]: false
+                    }))
+                  } else {
+                    // Open modal to configure delay
+                    setAutoshiftDelay(150)
+                    setIsAutoshiftModalOpen(true)
+                  }
+                }}
+              >
+                {autoshiftEnabledMap[selectedLayerIndex] ? 'Disable Autoshift' : 'Enable Autoshift'}
+              </Button>
             </div>
             <Button size="sm" onClick={handleAddLayer}>
               Add Layer
@@ -294,6 +324,39 @@ export const ProfileEditor = ({
           </div>
         )}
       </Tabs>
+      {isAutoshiftModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h3 className="text-lg font-bold mb-4">Set Autoshift Delay</h3>
+            <input
+              type="range"
+              min={50}
+              max={500}
+              value={autoshiftDelay}
+              onChange={(e) => setAutoshiftDelay(Number(e.target.value))}
+              className="w-full"
+            />
+            <p className="mt-2 text-center">{autoshiftDelay} ms</p>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" onClick={() => setIsAutoshiftModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  profileController.enableAutoshiftOnLayer(autoshiftDelay)
+                  setAutoshiftEnabledMap((prev) => ({
+                    ...prev,
+                    [selectedLayerIndex]: true
+                  }))
+                  setIsAutoshiftModalOpen(false)
+                }}
+              >
+                OK
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
