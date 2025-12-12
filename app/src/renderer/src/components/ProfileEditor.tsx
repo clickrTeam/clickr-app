@@ -260,6 +260,11 @@ export const ProfileEditor = ({
               <Button
                 size="sm"
                 className="ml-2"
+                title={
+                  autoshiftEnabledMap[selectedLayerIndex]
+                    ? 'Removes all Autoshift Hold Triggers'
+                    : 'Enabling Autoshift allows you to hold down your keys for Shift + Key'
+                }
                 onClick={() => {
                   if (autoshiftEnabledMap[selectedLayerIndex]) {
                     // Disable autoshift
