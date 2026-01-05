@@ -7,9 +7,8 @@ name: Build Electron App
 on:
   push:
     branches:
-      - '*'
-    tags-ignore:
-      - 'v*'
+      - '**'
+      - '!main'
 
 jobs:
   build:
