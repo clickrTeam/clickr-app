@@ -14,14 +14,11 @@ import Game from './pages/Game'
 import Help from './pages/help'
 import Settings from './pages/Settings'
 import Insights from './pages/Insights'
-import { startup_assertions } from './services/key-validation.service'
 
 function App(): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
   const navigate = useNavigate()
-
-  startup_assertions()
 
   // Check authentication status in background - don't block UI
   useEffect(() => {
