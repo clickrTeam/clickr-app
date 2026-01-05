@@ -13,14 +13,15 @@ import { ChevronDown } from 'lucide-react'
 import log from 'electron-log'
 import profileController from './ProfileControler'
 import { SuggestedRemapping } from '../../pages/Insights'
-
-interface VisualKeyboardProps {
-  hoveredRemapping?: SuggestedRemapping | null
-}
 import { KeyModal } from './KeyModal'
 import { getMacroButtonBgT } from './Colors'
 import { ENSURE_KEYS } from '../../../../models/Keys.enum'
 import { toast } from 'sonner'
+import { LeftoverKeyItem } from './components/LeftoverKeyItem'
+
+interface VisualKeyboardProps {
+  hoveredRemapping?: SuggestedRemapping | null
+}
 
 export const VisualKeyboard = ({ hoveredRemapping = null }: VisualKeyboardProps): JSX.Element => {
   const [inspectedKey, setInspectedKey] = useState<KeyTileModel | null>(null)
@@ -182,44 +183,19 @@ export const VisualKeyboard = ({ hoveredRemapping = null }: VisualKeyboardProps)
         </div>
         {showLeftover && (
           <div className="flex flex-wrap mt-2" style={{ gap: '0.25rem' }}>
-            {leftoverKeys.filter((keyModel) => keyModel[0].trigger_type === T.TriggerType.AppFocused).map((keyModel) => (
-              <button
-                aria-label={keyModel[0].trigger_type + ' leftover-item'}
-                className='vk-footer-macro-btn'
-                style={{ background: getMacroButtonBgT(keyModel[0]) }}
-                onClick={(): void => {
+            {leftoverKeys.map((keyModel) => (
+              <LeftoverKeyItem
+                key={keyModel[0].trigger_type}
+                trigger={keyModel[0]}
+                bind={keyModel[1]}
+                onSelect={() => {
                   profileController.clearMapping()
                   setSelectedKey(null)
                   setIsCreatingNewMapping(true)
                   profileController.currentTrigger = keyModel[0]
                   profileController.currentBinds = (keyModel[1] as Macro)
                 }}
-              >
-                {(keyModel[0] as T.AppFocus).app_name}
-              </button>
-            ))}
-            {leftoverKeys.filter((keyModel) => keyModel[0].trigger_type === T.TriggerType.TapSequence).map((keyModel) => (
-              <button
-                aria-label={keyModel[0].trigger_type + ' leftover-item'}
-                className='vk-footer-macro-btn'
-                style={{ background: getMacroButtonBgT(keyModel[0]) }}
-                onClick={(): void => {
-                  profileController.clearMapping()
-                  setSelectedKey(null)
-                  setIsCreatingNewMapping(true)
-                  profileController.currentTrigger = keyModel[0]
-                  profileController.currentBinds = (keyModel[1] as Macro)
-                }}
-              >
-                {(keyModel[0] as T.TapSequence).key_time_pairs.map((pair) => pair[0]).join('+')}
-              </button>
-            ))}
-            {leftoverKeys.filter((keyModel) => keyModel[0] instanceof T.KeyPress ||
-                   keyModel[0] instanceof T.KeyRelease ||
-                   keyModel[0] instanceof T.Hold).map((keyModel) => (
-              <div aria-label={keyModel[0].trigger_type + ' leftover-item'} className='vk-footer-macro-btn'>
-                {(keyModel[0] as any).value}
-              </div>
+              />
             ))}
             {visualKeyboardModel.unmappedKeyModels.map((keyModel) => (
               <KeyTile

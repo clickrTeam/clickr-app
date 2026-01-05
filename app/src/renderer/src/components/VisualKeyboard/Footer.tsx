@@ -1,15 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Bind, BindType, getBindDisplayName, getBindTypeDisplayName, Macro, PressKey, ReleaseKey, RunScript, TapKey } from '../../../../models/Bind'
+import { Bind, BindType, getBindDisplayName, getBindTypeDisplayName, Macro, RunScript, TapKey } from '../../../../models/Bind'
 import { KeyPressInfo } from './Model'
 import { getDropdownBgT, getMacroButtonBg, getMacroButtonBgT } from './Colors'
 import './Footer.css'
-import { AppFocus, createTrigger, getTriggerTypeDisplayName, Hold, TapSequence, Trigger, TriggerType } from '../../../../models/Trigger'
+import { createTrigger, getTriggerTypeDisplayName, Trigger, TriggerType, TapSequence } from '../../../../models/Trigger'
 import { SwapLayer } from '../../../../models/Bind'
 import { KeyModal } from './KeyModal'
 import log from 'electron-log'
 import Dropdown from './dropdown'
 import profileController from './ProfileControler'
-import { Input } from '../ui/input'
+import { TriggerEditor } from './components/TriggerEditor'
+import { MacroButton } from './components/MacroButton'
+import { createBindFromType, getBindValue } from './utils/bindHelpers'
+import { useProfileState } from './hooks/useProfileState'
 
 const typeOptionsBind: BindType[] = [
   BindType.TapKey,
@@ -40,8 +43,7 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   onClose
 }): JSX.Element | null => {
   const [showKeyModal, setShowKeyModal] = useState(keyModalType.Closed)
-  const [currentBinds, setCurrentBinds] = useState<Macro>(profileController.currentBinds)
-  const [currentTrigger, setCurrentTrigger] = useState<Trigger>(profileController.currentTrigger)
+  const { currentBinds, currentTrigger } = useProfileState()
   const [currentKeyMappings, setCurrentKeyMappings] = useState<[Trigger, Bind][]>(profileController.getMappings(selectedKey))
   const [isClosing, setIsClosing] = useState(false)
   const [justAddedIndex, setJustAddedIndex] = useState<number | null>(null)
@@ -50,18 +52,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
   useEffect(() => {
     setCurrentKeyMappings(profileController.getMappings(selectedKey))
   }, [profileController, selectedKey, currentBinds, currentTrigger])
-
-  useEffect(() => {
-    const cleanup = profileController.addStateChangeListener((binds, trigger) => {
-      log.silly('Footer received state update:', { bindsCount: binds.binds.length, triggerType: trigger?.trigger_type })
-      setCurrentBinds(binds)
-      setCurrentTrigger(trigger)
-    })
-    return () => {
-      log.silly('Footer unsubscribing from controller state changes')
-      cleanup()
-    }
-  }, [profileController])
 
   // detect when a new bind was added so we can animate it
   useEffect(() => {
@@ -87,7 +77,6 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
 
   function handleTypeChange(idx: number, type: BindType | undefined): void {
     if (type === undefined) {
-      // If type is undefined, we can remove the macro item
       const newMacro = currentBinds.binds.filter((_: any, i: number) => i !== idx)
       profileController.currentBinds = new Macro(newMacro)
       return
@@ -99,27 +88,8 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
       return
     }
 
-    const existing = currentBinds.binds[idx]
-    let value: string
-    if (
-      existing instanceof TapKey ||
-      existing instanceof PressKey ||
-      existing instanceof ReleaseKey
-    ) {
-      value = existing.value
-    } else {
-      throw new Error('Macro bind is not a TapKey, PressKey, or ReleaseKey. Cannot change type.')
-    }
-    let newBind: Bind
-    if (type === BindType.TapKey) {
-      newBind = new TapKey(value)
-    } else if (type === BindType.PressKey) {
-      newBind = new PressKey(value)
-    } else if (type === BindType.ReleaseKey) {
-      newBind = new ReleaseKey(value)
-    } else {
-      throw new Error('Unsupported bind type for macro UI')
-    }
+    const value = getBindValue(currentBinds.binds[idx])
+    const newBind = createBindFromType(type, value)
     const newMacro = currentBinds.binds.map((item: Bind, i: number) => (i === idx ? newBind : item))
     profileController.currentBinds = new Macro(newMacro)
   }
@@ -177,70 +147,25 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
               openBtnBackground={getMacroButtonBgT(currentTrigger)}
               id="trigger-dropdown"
             ></Dropdown>
-            {currentTrigger.trigger_type === TriggerType.Hold && (
-              <div aria-label='Hold'>
-                <Input
-                  type="number"
-                  placeholder="Time (ms)"
-                  min={0}
-                  onChange={(e) => {
-                    profileController.currentTrigger = new Hold((currentTrigger as Hold).value, parseInt(e.target.value))
-                    e.stopPropagation()
-                  }}
-                />
-              </div>
-            )}
           </div>
         ) : (
-          <div aria-label='keyless triggers'>
-            {currentTrigger.trigger_type === TriggerType.TapSequence && (
-              <div aria-label='TapSequence' className='flex gap-4'>
-                { (currentTrigger as TapSequence).key_time_pairs.map((key_time_pair) =>
-                  <div>
-                    <div
-                      className={`vk-footer-macro-btn relative z-10`}
-                    >
-                      {key_time_pair[0]}
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  className="vk-footer-macro-btn"
-                  style={{
-                    fontWeight: 'bold',
-                    fontSize: 18,
-                    padding: '0 0.7rem',
-                    marginLeft: currentBinds.binds.length > 0 ? 8 : 0
-                  }}
-                  onClick={() => setShowKeyModal(keyModalType.Trigger_TapSequence)}
-                >
-                  +
-                </button>
-              </div>
-            )}
-            {currentTrigger.trigger_type === TriggerType.AppFocused && (
-              <div aria-label='AppFocused' className='flex'>
-                <span className="vk-footer-selected-label" title='When this application is focused, or tab is selected.' style={{ minWidth: '112px' }}>On app focus:</span>
-                <Input placeholder={(currentTrigger as AppFocus).app_name} onChange={(e) => {
-                  profileController.currentTrigger = new AppFocus(e.target.value, (currentTrigger as AppFocus).id)
-                  e.stopPropagation()
-                }} />
-              </div>
-            )}
-          </div>
+          <TriggerEditor
+            trigger={currentTrigger}
+            selectedKey={selectedKey}
+            currentBinds={currentBinds}
+            onAddKeyClick={() => setShowKeyModal(keyModalType.Trigger_TapSequence)}
+          />
         )}
         {currentKeyMappings.length > 1 && (
           <div className="vk-footer-mappings">
             {currentKeyMappings.filter((mapping) => mapping[0].trigger_type !== currentTrigger.trigger_type).map((mapping) => (
-              <button
-                className="vk-footer-macro-btn relative z-10"
-                style={{ background: '20% transparent' }}
+              <MacroButton
                 key={mapping[0].trigger_type}
+                label={getTriggerTypeDisplayName(mapping[0].trigger_type)}
                 onClick={() => profileController.swapToMapping(mapping)}
-              >
-                {getTriggerTypeDisplayName(mapping[0].trigger_type)}
-              </button>
+                background='20% transparent'
+                className='relative z-10'
+              />
             ))}
           </div>
         )}
@@ -318,20 +243,11 @@ export const VisualKeyboardFooter: React.FC<VisualKeyboardFooterProps> = ({
 
 
 
-        <span style={{ position: 'relative', display: 'inline-block' }}>
-          <button
-            className="vk-footer-macro-btn"
-            style={{
-              fontWeight: 'bold',
-              fontSize: 18,
-              padding: '0 0.7rem',
-              marginLeft: currentBinds.binds.length > 0 ? 8 : 0
-            }}
-            onClick={() => setShowKeyModal(keyModalType.Binds)}
-          >
-            +
-          </button>
-        </span>
+        <MacroButton
+          variant='small'
+          onClick={() => setShowKeyModal(keyModalType.Binds)}
+          className={currentBinds.binds.length > 0 ? 'ml-2' : ''}
+        />
       </div>
     </div>
     {showKeyModal !== keyModalType.Closed && (
