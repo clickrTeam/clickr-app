@@ -117,22 +117,20 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
                   </Button>
                 ) : (
                   <div className="flex flex-col space-y-2">
-                    <span className="text-sm font-medium">Welcome {username}</span>
-                    <div className="flex items-center gap-2">
-                      {logout && (
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setIsMobileMenuOpen(false)
-                            logout()
-                          }}
-                          className="flex items-center gap-2"
-                        >
-                          <LogOut size={18} />
-                          <span>Logout</span>
-                        </Button>
-                      )}
-                    </div>
+                    <span className="text-sm font-medium px-2">Welcome {username}</span>
+                    {logout && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false)
+                          logout()
+                        }}
+                        className="flex items-center gap-2 w-full"
+                      >
+                        <LogOut size={18} />
+                        <span>Logout</span>
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
@@ -192,13 +190,26 @@ const Navbar = ({ isAuthenticated, username, logout }: NavbarProps): JSX.Element
               </Link>
             </Button>
           ) : (
-            <div className="flex items-center space-x-3">
-              <span className="text-sm font-medium">Welcome {username}</span>
+            <div className="group relative flex items-center">
+              <span className="text-sm font-medium px-4 py-2 rounded-md transition-colors group-hover:bg-black/10">
+                Welcome {username}
+              </span>
               {logout && (
-                <Button variant="outline" onClick={logout} className="flex items-center gap-2">
-                  <LogOut size={18} />
-                  <span>Logout</span>
-                </Button>
+                <motion.div
+                  initial={{ opacity: 0, width: 0 }}
+                  whileHover={{ opacity: 1, width: 'auto' }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <Button
+                    variant="outline"
+                    onClick={logout}
+                    className="flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                  </Button>
+                </motion.div>
               )}
             </div>
           )}

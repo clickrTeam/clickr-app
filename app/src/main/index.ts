@@ -62,6 +62,9 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    if (is.dev) {
+      mainWindow.webContents.openDevTools()
+    }
     log.info('Clickr main window sucessfully created and ready to show.')
   })
 

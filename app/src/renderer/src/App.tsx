@@ -14,14 +14,11 @@ import Game from './pages/Game'
 import Help from './pages/help'
 import Settings from './pages/Settings'
 import Insights from './pages/Insights'
-import { startup_assertions } from './services/key-validation.service'
 
 function App(): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [username, setUsername] = useState<string>('')
   const navigate = useNavigate()
-
-  startup_assertions()
 
   // Check authentication status in background - don't block UI
   useEffect(() => {
@@ -70,7 +67,7 @@ function App(): JSX.Element {
       <Navbar isAuthenticated={isAuthenticated} username={username} logout={logout} />
 
       {/* Add padding-top to account for fixed navbar */}
-      <div className="w-full px-4 flex-grow py-8 pt-20">
+      <div className="w-full px-4 flex-grow py-8 pt-20 overflow-y-auto max-h-screen">
         <Routes>
           <Route
             path="/"
